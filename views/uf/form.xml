@@ -1,0 +1,25 @@
+<odoo>
+    <data>
+        <record id="view_ims_uf_form" model="ir.ui.view">
+            <field name="name">UF form</field>
+            <field name="model">ims.uf</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="UF">
+                    <sheet>
+                        <group string="Dades basiques">
+                            <field name="name"/>
+                            <field name="code"/>
+                            <field name="teacher"/>
+                            <field name="mp" />
+                        </group>
+                        <group string="Dates">
+                            <field name="startDate"/>
+                            <field name="endDate"/>
+                        </group>
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>

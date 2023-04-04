@@ -1,0 +1,61 @@
+<odoo>
+    <data>
+        <record id="view_ims_mp_form" model="ir.ui.view">
+            <field name="name">MP form</field>
+            <field name="model">ims.mp</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">				
+                <form string="MP">
+                    <style>
+                        .preview {
+                            float: left;
+                        }
+                                        
+                        .preview img {
+                            width: 100px; 							
+                        } 
+                                        
+                        h1 {
+                            float: left;
+                            width: 84%;
+                        }
+                    </style>
+
+                    <sheet>
+                        <field name="image" widget="image" class="preview" />
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+
+                        <group col="2">
+                            <group string="Dades acadèmiques">							
+                                <field name="code"/>
+                                <field name="teacher"/>
+                            </group>
+                            <group string="Dates i alumnat">
+                                <field name="startDate"/>
+                                <field name="started"/>
+                                <field name="students"/>
+                            </group>
+                        </group>
+                        
+                        <notebook>
+                            <page string="Unitats Formatives">
+                                <field name="ufs" widget="one2many_list" context="{'show_attribute': False}">
+                                    <tree>
+                                        <field name="code"/>
+                                        <field name="name"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            
+                            <page string="Anotacions">
+                                <field name="notes" placeholder="Espai reservat per a anotacions..."/>
+                            </page>
+                        </notebook>
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>

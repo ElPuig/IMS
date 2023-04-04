@@ -1,0 +1,14 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="ims.uf_list">
+            <field name="name">ims uf list</field>
+            <field name="model">ims.uf</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="code"/>
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>   
+    </data>
+</odoo>

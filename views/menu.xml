@@ -1,0 +1,10 @@
+<odoo>
+    <data>
+        <act_window id="action_ims_uf_tree" name="Gestio Academica" res_model="ims.uf" view_mode="tree,form"  />    
+        <act_window id="action_ims_mp_tree" name="Gestio Academica" res_model="ims.mp" view_mode="tree,form"  />
+
+        <menuitem name="Gestio Academica" id="ims.menu_root"/>
+        <menuitem name="Gestio de MPs" id="ims.mps" parent="ims.menu_root" action="action_ims_mp_tree" />
+        <menuitem name="Gestio de UFs" id="ims.ufs" parent="ims.menu_root" action="action_ims_uf_tree" />   
+    </data>
+</odoo>
