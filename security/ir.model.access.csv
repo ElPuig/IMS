@@ -1,3 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-ims.access_ims_mp,access_ims_mp,ims.model_ims_mp,,1,0,0,0
-ims.access_ims_uf,access_ims_uf,ims.model_ims_uf,,1,0,0,0
+ims.access_ims_mp,access_ims_mp,model_ims_mp,,1,0,0,0
+ims.access_ims_uf,access_ims_uf,model_ims_uf,,1,0,0,0

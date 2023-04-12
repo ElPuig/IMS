@@ -1,13 +1,13 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="ims.mp_list">
+        <record model="ir.ui.view" id="mp_list">
             <field name="name">ims mp list</field>
             <field name="model">ims.mp</field>
             <field name="arch" type="xml">
             <tree>
                 <field name="code"/>
                 <field name="name"/>
-                <field name="teacher"/>
+                <!-- <field name="teacher"/> -->
                 <field name="startDate"/>
             </tree>
         </field>

@@ -10,8 +10,9 @@
                         <group string="Dades basiques">
                             <field name="name"/>
                             <field name="code"/>
-                            <field name="teacher"/>
-                            <field name="mp" />
+                            <!-- <field name="teacher"/> -->
+                            <field name="mp" widget="selection" 
+                                options="{'model': 'ims.mp', 'field': ['code','name']}"/>
                         </group>
                         <group string="Dates">
                             <field name="startDate"/>

@@ -8,11 +8,13 @@ class ims_mp(models.Model):
 
 	code = fields.Char('Codi')
 	name = fields.Char('Nom')
-	teacher = fields.Char('Professor')
+	#teacher = fields.Char('Professor')
 	startDate = fields.Date('Data inici')
 	started = fields.Boolean('Començat')
 	students = fields.Integer('Estudiants')
 	image = fields.Binary('Image')
 	notes = fields.Text('Anotacions')
+
+	teacher = fields.Many2one(comodel_name="ims.teacher", string="Professor")
 
 	ufs = fields.One2many(comodel_name="ims.uf", inverse_name="mp", string="Unitats Formatives")

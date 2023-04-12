@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
 
-from . import mp, uf
+from . import mp, uf, teacher

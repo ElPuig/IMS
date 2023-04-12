@@ -8,8 +8,10 @@ class ims_uf(models.Model):
 
     name = fields.Char('Nom')
     code = fields.Char('Codi')
-    teacher = fields.Char('Professor')
+    #teacher = fields.Char('Professor')
     startDate = fields.Date('Data inici')
     endDate = fields.Date('Data final')
+
+    teacher = fields.Many2one(comodel_name="ims.teacher", string="Professor")
 
     mp = fields.Many2one(comodel_name="ims.mp", string="Modul Professional")
