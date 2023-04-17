@@ -15,3 +15,4 @@ class ims_teacher(models.Model):
 
 	ufs = fields.One2many(comodel_name="ims.uf", inverse_name="teacher", string="Unitats Formatives")
 	mps = fields.One2many(comodel_name="ims.mp", inverse_name="teacher", string="Moduls professionals")
+	follows = fields.One2many(comodel_name="ims.follow", inverse_name="teacher", string="Seguiments")

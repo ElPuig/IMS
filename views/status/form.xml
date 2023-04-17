@@ -1,0 +1,20 @@
+<odoo>
+    <data>
+        <record id="view_ims_status_form" model="ir.ui.view">
+            <field name="name">status form</field>
+            <field name="model">ims.status</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Estat">
+                    <sheet>
+                        <group string="Dades basiques">
+                            <field name="code"/>
+                            <field name="value"/>
+                            <field name="notes"/>                        
+                        </group>                    
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>

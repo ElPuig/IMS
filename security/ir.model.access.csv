@@ -1,3 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-ims.access_ims_mp,access_ims_mp,model_ims_mp,,1,0,0,0
-ims.access_ims_uf,access_ims_uf,model_ims_uf,,1,0,0,0
+ims.access_ims_mp,access_ims_mp,model_ims_mp,,1,1,1,1
+ims.access_ims_uf,access_ims_uf,model_ims_uf,,1,1,1,1
+ims.access_ims_teacher,access_ims_teacher,model_ims_teacher,,1,1,1,1
+ims.access_ims_study,access_ims_study,model_ims_study,,1,1,1,1

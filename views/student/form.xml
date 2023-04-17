@@ -1,0 +1,54 @@
+<odoo>
+    <data>
+        <record id="view_ims_student_form" model="ir.ui.view">
+            <field name="name">Student form</field>
+            <field name="model">ims.student</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Alumne">
+                    <sheet>
+                        <div class="o_row">
+                            <div class="o_column col-md-6">
+                                <group class="o_group" string="Foto">
+                                    <field name="image" widget="image" class="preview"/>
+                                </group>
+                            </div>
+                            <div class="o_column col-md-6">
+                                <group class="o_group" string="Dades basiques">
+                                    <field name="code"/>
+                                    <field name="name"/>
+                                    <field name="surname"/>
+                                    <field name="email"/>
+                                    <field name="student_group"/>
+                                </group>
+                            </div>
+                        </div>
+                        <!-- <group string="Foto">
+                            <field name="image" widget="image" class="preview"/>
+                        </group>
+                        <group string="Dades basiques">
+                            <field name="code"/>
+                            <field name="name"/>
+                            <field name="surname"/>
+                            <field name="email"/>
+                            <field name="student_group"/>
+                        </group> -->
+                        <notebook>
+                            <page string="Seguiments">
+                                <field name="follows" widget="one2many_list" context="{'show_attribute': False}">
+                                    <tree>
+                                        <field name="teacher"/>
+                                        <field name="notes"/>
+                                    </tree>
+                                </field>
+                            </page>                                                        
+                            <page string="Anotacions">
+                                <field name="notes" placeholder="Espai reservat per a anotacions..."/>
+                            </page>
+                        </notebook>
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>

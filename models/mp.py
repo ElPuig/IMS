@@ -18,3 +18,4 @@ class ims_mp(models.Model):
 	teacher = fields.Many2one(comodel_name="ims.teacher", string="Professor")
 
 	ufs = fields.One2many(comodel_name="ims.uf", inverse_name="mp", string="Unitats Formatives")
+	follows = fields.One2many(comodel_name="ims.follow", inverse_name="mp", string="Seguiments")

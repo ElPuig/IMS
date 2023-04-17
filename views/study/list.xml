@@ -1,0 +1,14 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="study_list">
+            <field name="name">ims study list</field>
+            <field name="model">ims.study</field>
+            <field name="arch" type="xml">
+                <tree>                    
+                    <field name="code"/>
+                    <field name="name"/>            
+                </tree>
+            </field>
+        </record>   
+    </data>
+</odoo>

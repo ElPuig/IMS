@@ -13,5 +13,6 @@ class ims_uf(models.Model):
     endDate = fields.Date('Data final')
 
     teacher = fields.Many2one(comodel_name="ims.teacher", string="Professor")
-
     mp = fields.Many2one(comodel_name="ims.mp", string="Modul Professional")
+    
+    follows = fields.One2many(comodel_name="ims.follow", inverse_name="uf", string="Seguiments")
