@@ -38,6 +38,7 @@
         'views/study/form.xml',
         'views/student/list.xml',
         'views/student/form.xml',
+        'views/student/kanban.xml',
         'views/follow/list.xml',
         'views/follow/form.xml',
         'views/level/list.xml',

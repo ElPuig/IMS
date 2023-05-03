@@ -12,3 +12,4 @@ class ims_student_group(models.Model):
 	notes = fields.Text('Anotacions')
 
 	students = fields.One2many(comodel_name="ims.student", inverse_name="student_group", string="Alumnes")
+	template_groups = fields.One2many(comodel_name="ims.template_group", inverse_name="student_group", string="Plantilles grup")
