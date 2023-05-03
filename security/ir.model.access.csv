@@ -1,5 +1,13 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-ims.access_ims_mp,access_ims_mp,model_ims_mp,,1,1,1,1
-ims.access_ims_uf,access_ims_uf,model_ims_uf,,1,1,1,1
-ims.access_ims_teacher,access_ims_teacher,model_ims_teacher,,1,1,1,1
-ims.access_ims_study,access_ims_study,model_ims_study,,1,1,1,1
+ims.access_ims_classroom,access_ims_classroom,ims.model_ims_classroom,,1,1,1,1
+ims.access_ims_follow,access_ims_follow,ims.model_ims_follow,,1,1,1,1
+ims.access_ims_level,access_ims_level,ims.model_ims_level,,1,1,1,1
+ims.access_ims_mp,access_ims_mp,ims.model_ims_mp,,1,1,1,1
+ims.access_ims_status,access_ims_status,ims.model_ims_status,,1,1,1,1
+ims.access_ims_student_group,access_ims_student_group,ims.model_ims_student_group,,1,1,1,1
+ims.access_ims_student,access_ims_student,ims.model_ims_student,,1,1,1,1
+ims.access_ims_study,access_ims_study,ims.model_ims_study,,1,1,1,1
+ims.access_ims_teacher,access_ims_teacher,ims.model_ims_teacher,,1,1,1,1
+ims.access_ims_template_group,access_ims_template_group,ims.model_ims_template_group,,1,1,1,1
+ims.access_ims_template,access_ims_template,ims.model_ims_template,,1,1,1,1
+ims.access_ims_uf,access_ims_uf,ims.model_ims_uf,,1,1,1,1
