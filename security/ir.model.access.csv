@@ -10,4 +10,4 @@ ims.access_ims_study,access_ims_study,ims.model_ims_study,,1,1,1,1
 ims.access_ims_teacher,access_ims_teacher,ims.model_ims_teacher,,1,1,1,1
 ims.access_ims_template_group,access_ims_template_group,ims.model_ims_template_group,,1,1,1,1
 ims.access_ims_template,access_ims_template,ims.model_ims_template,,1,1,1,1
-ims.access_ims_uf,access_ims_uf,ims.model_ims_uf,,1,1,1,1
+ims.access_ims_uf,access_ims_uf,ims.model_ims_uf,,1,1,1,1 
