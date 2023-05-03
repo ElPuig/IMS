@@ -30,7 +30,8 @@
                         <group col="2">
                             <group string="Dades acadèmiques">							
                                 <field name="code"/>
-                                <field name="teacher"/>
+                                <field name="name"/>
+                                <!-- <field name="teacher"/> -->
                             </group>
                             <group string="Dates i alumnat">
                                 <field name="startDate"/>

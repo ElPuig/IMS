@@ -1,10 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        <act_window id="action_ims_uf_tree" name="Gestio Academica" res_model="ims.uf" view_mode="tree,form"  />    
-        <act_window id="action_ims_mp_tree" name="Gestio Academica" res_model="ims.mp" view_mode="tree,form"  />
+        <act_window id="action_ims_uf_tree" name="Gestio d'UFs" res_model="ims.uf" view_mode="tree,form"/>    
+        <act_window id="action_ims_mp_tree" name="Gestio d'MPs" res_model="ims.mp" view_mode="tree,form"/>
+        <act_window id="action_ims_teacher_tree" name="Gestio de professors" res_model="ims.teacher" view_mode="tree,form"/>
+        <act_window id="action_ims_study_tree" name="Gestio d'estudis" res_model="ims.study" view_mode="tree,form"/>
+        <act_window id="action_ims_student_tree" name="Gestio d'alumnes" res_model="ims.student" view_mode="kanban,tree,form"/>
+        <act_window id="action_ims_follow_tree" name="Gestio de seguiments" res_model="ims.follow" view_mode="tree,form"/>
+        <act_window id="action_ims_level_tree" name="Gestio de nivells" res_model="ims.level" view_mode="tree,form"/>
+        <act_window id="action_ims_classroom_tree" name="Gestio d'aules" res_model="ims.classroom" view_mode="tree,form"/>
+        <act_window id="action_ims_status_tree" name="Gestio d'estats" res_model="ims.status" view_mode="tree,form"/>
+        <act_window id="action_ims_student_group_tree" name="Gestio de grups" res_model="ims.student_group" view_mode="tree,form"/>
 
-        <menuitem name="Gestio Academica" id="ims.menu_root"/>
-        <menuitem name="Gestio de MPs" id="ims.mps" parent="ims.menu_root" action="action_ims_mp_tree" />
-        <menuitem name="Gestio de UFs" id="ims.ufs" parent="ims.menu_root" action="action_ims_uf_tree" />   
+        <menuitem id="menu_root" name="Gestio Academica"/>
+        <menuitem name="MPs" id="menu_mps" parent="menu_root" action="action_ims_mp_tree"/>
+        <menuitem name="UFs" id="menu_ufs" parent="menu_root" action="action_ims_uf_tree"/>
+        <menuitem name="Professors" id="menu_teachers" parent="menu_root" action="action_ims_teacher_tree"/>
+        <menuitem name="Estudis" id="menu_studies" parent="menu_root" action="action_ims_study_tree"/>
+        <menuitem name="Alumnes" id="menu_students" parent="menu_root" action="action_ims_student_tree"/>
+        <menuitem name="Seguiments" id="menu_follows" parent="menu_root" action="action_ims_follow_tree"/>
+        <menuitem name="Nivells" id="menu_levels" parent="menu_root" action="action_ims_level_tree"/>
+        <menuitem name="Aules" id="menu_classrooms" parent="menu_root" action="action_ims_classroom_tree"/>
+        <menuitem name="Estats" id="menu_status" parent="menu_root" action="action_ims_status_tree"/>
+        <menuitem name="Grups" id="menu_student_groups" parent="menu_root" action="action_ims_student_group_tree"/>           
     </data>
 </odoo>

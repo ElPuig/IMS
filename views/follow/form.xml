@@ -1,0 +1,27 @@
+<odoo>
+    <data>
+        <record id="view_ims_follow_form" model="ir.ui.view">
+            <field name="name">follow form</field>
+            <field name="model">ims.follow</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Seguiment">
+                    <sheet>
+                        <group string="Dades basiques">
+                            <field name="study"/>
+                            <field name="mp"/>
+                            <field name="uf"/>
+                            <field name="student"/>
+                            <field name="teacher"/>
+                        </group>
+                        <notebook>                                                        
+                            <page string="Anotacions">
+                                <field name="notes" placeholder="Espai reservat per a anotacions..."/>
+                            </page>
+                        </notebook>
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>

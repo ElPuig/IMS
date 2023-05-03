@@ -1,0 +1,72 @@
+<odoo>
+    <data>
+        <record id="view_ims_student_group_form" model="ir.ui.view">
+            <field name="name">Student_group form</field>
+            <field name="model">ims.student_group</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Grup d'alumnes">
+                    <sheet>                        
+                        <group class="o_group" string="Dades basiques">
+                            <field name="code"/>
+                            <field name="name"/>
+                            <field name="email"/>
+                        </group>                        
+                        <notebook>
+                            <page string="Alumnes">
+                                <field name="students" widget="one2many_list" context="{'show_attribute': False}">
+                                    <tree>
+                                        <field name="name"/>
+                                        <field name="surname"/>
+                                        <field name="email"/>                                        
+                                    </tree>
+                                </field>
+                            </page>                                                                             
+                            <page string="Anotacions">
+                                <field name="notes" placeholder="Espai reservat per a anotacions..."/>
+                            </page>
+                            <page string="Auditoría">
+                                <group string="Auditoría">
+                                    <field name="create_date"/>
+                                    <field name="create_uid"/>
+                                    <field name="write_date"/>
+                                    <field name="write_uid"/>
+                                </group>
+                            </page>
+                        </notebook>                
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+        <record id="view_ims_student_group_form_2" model="ir.ui.view">
+            <field name="name">Student_group form</field>
+            <field name="model">ims.student_group</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Grup d'alumnes">
+                    <sheet>                        
+                        <group class="o_group" string="Dades basiques">
+                            <field name="code"/>
+                            <field name="name"/>
+                            <field name="email"/>
+                        </group>                        
+                        <notebook>
+                            <page string="Alumnes">
+                                <field name="students" widget="one2many_list" context="{'show_attribute': False}">
+                                    <tree>
+                                        <field name="name"/>
+                                        <field name="surname"/>
+                                        <field name="email"/>
+                                    </tree>
+                                </field>
+                            </page>                                                                             
+                            <page string="Anotacions">
+                                <field name="notes" placeholder="Espai reservat per a anotacions..."/>
+                            </page>
+                        </notebook>
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>

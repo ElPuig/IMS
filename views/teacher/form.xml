@@ -1,0 +1,27 @@
+<odoo>
+    <data>
+        <record id="view_ims_teacher_form" model="ir.ui.view">
+            <field name="name">Teacher form</field>
+            <field name="model">ims.teacher</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Professor">
+                    <sheet>
+                        <field name="image" widget="image" class="preview" />
+                        <group string="Dades basiques">
+                            <field name="code"/>
+                            <field name="name"/>
+                            <field name="surname"/>
+                            <field name="email"/>
+                        </group>
+                        <notebook>                                                        
+                            <page string="Anotacions">
+                                <field name="notes" placeholder="Espai reservat per a anotacions..."/>
+                            </page>
+                        </notebook>
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>
