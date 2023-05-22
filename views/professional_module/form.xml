@@ -1,11 +1,11 @@
 <odoo>
     <data>
-        <record id="view_ims_mp_form" model="ir.ui.view">
+        <record id="view_ims_professional_module_form" model="ir.ui.view">
             <field name="name">MP form</field>
-            <field name="model">ims.mp</field>
+            <field name="model">ims.professional_module</field>
             <field name="type">form</field>
             <field name="arch" type="xml">				
-                <form string="MP">
+                <form string="professional_module">
                     <style>
                         .preview {
                             float: left;
@@ -34,15 +34,15 @@
                                 <!-- <field name="teacher"/> -->
                             </group>
                             <group string="Dates i alumnat">
-                                <field name="startDate"/>
+                                <field name="start_date"/>
                                 <field name="started"/>
-                                <field name="students"/>
+                                <!--<field name="students"/>-->
                             </group>
                         </group>
                         
                         <notebook>
                             <page string="Unitats Formatives">
-                                <field name="ufs" widget="one2many_list" context="{'show_attribute': False}">
+                                <field name="formative_units" widget="one2many_list" context="{'show_attribute': False}">
                                     <tree>
                                         <field name="code"/>
                                         <field name="name"/>

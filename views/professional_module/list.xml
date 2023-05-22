@@ -2,13 +2,13 @@
     <data>
         <record model="ir.ui.view" id="mp_list">
             <field name="name">ims mp list</field>
-            <field name="model">ims.mp</field>
+            <field name="model">ims.professional_module</field>
             <field name="arch" type="xml">
             <tree>
                 <field name="code"/>
                 <field name="name"/>
                 <!-- <field name="teacher"/> -->
-                <field name="startDate"/>
+                <field name="start_date"/>
             </tree>
         </field>
         </record>   

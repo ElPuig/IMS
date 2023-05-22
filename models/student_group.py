@@ -4,12 +4,12 @@ from odoo import models, fields, api
 
 class ims_student_group(models.Model):
 	_name = 'ims.student_group'
-	_description = 'Grup alumnes'
+	_description = 'Student groups'
 
-	code = fields.Char('Codi')
-	name = fields.Char('Nom')
-	email = fields.Char('Correu electrónic')	
-	notes = fields.Text('Anotacions')
+	code = fields.Char('Code')
+	name = fields.Char('Name')
+	email = fields.Char('Email')	
+	notes = fields.Text('Notes')
 
-	students = fields.One2many(comodel_name="ims.student", inverse_name="student_group", string="Alumnes")
-	template_groups = fields.One2many(comodel_name="ims.template_group", inverse_name="student_group", string="Plantilles grup")
+	students = fields.One2many(comodel_name="ims.student", inverse_name="student_group", string="Students")
+	template_groups = fields.One2many(comodel_name="ims.template_group", inverse_name="student_group", string="Student groups")

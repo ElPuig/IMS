@@ -4,15 +4,15 @@ from odoo import models, fields, api
 
 class ims_teacher(models.Model):
 	_name = 'ims.teacher'
-	_description = 'Professor que imparteix MP/UF'
+	_description = 'Teacher'
 
-	code = fields.Char('Codi')
-	name = fields.Char('Nom')
-	surname = fields.Char('Cognoms')
-	email = fields.Char('Correu electrónic')	
-	image = fields.Binary('Foto')
-	notes = fields.Text('Anotacions')
+	code = fields.Char('Code')
+	name = fields.Char('Name')
+	surname = fields.Char('Surnames')
+	email = fields.Char('Email')	
+	image = fields.Binary('image')
+	notes = fields.Text('Notes')
 
-	ufs = fields.One2many(comodel_name="ims.uf", inverse_name="teacher", string="Unitats Formatives")
-	mps = fields.One2many(comodel_name="ims.mp", inverse_name="teacher", string="Moduls professionals")
-	follows = fields.One2many(comodel_name="ims.follow", inverse_name="teacher", string="Seguiments")
+	formative_units = fields.One2many(comodel_name="ims.formative_unit", inverse_name="teacher", string="Formative Units")
+	professional_modules = fields.One2many(comodel_name="ims.professional_module", inverse_name="teacher", string="Professional Modules")
+	followups = fields.One2many(comodel_name="ims.followup", inverse_name="teacher", string="Follow-ups")

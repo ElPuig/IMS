@@ -1,0 +1,54 @@
+<odoo>
+    <data>
+        <!-- 
+            DEPRECATED 
+            <report
+                id="report_mp"
+                model="ims.professional_module"
+                string="Report de MP"
+                name="ims.report_mp_view"
+                file="ims.report_mp"
+                menu="True"
+                report_type="qweb-pdf" 
+            />
+        -->
+        <record id="report_mp" model="ir.actions.report">
+            <field name="name">Professional Module Report</field>
+            <field name="model">ims.professional_module"</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ims.report_mp_view</field>
+            <field name="report_file">ims.report_mp</field>
+            <!--<field name="binding_model_id" ref="ims.professional_module"/>-->
+            <field name="binding_type">report</field>
+        </record>
+
+        <template id="report_mp_view">
+            <t t-call="report.html_container">
+                <t t-foreach="docs" t-as="doc">				
+                    <t t-call="report.external_layout">
+                        <div class="page">
+                            <span t-field="doc.image" style="float:right" t-field-options="{&quot;widget&quot;: &quot;image&quot;, &quot;class&quot;: &quot;img-rounded&quot;}"/>
+                            <h1 t-field="doc.code"/>
+                            <h2 t-field="doc.name"/>
+
+                            <p>Professor: <span t-field="doc.teacher"/></p>
+                            <p>Data d'inici: <span t-field="doc.start_date"/></p>
+                            <p>Començat: <span t-field="doc.started"/></p>
+                            <!--<p>Alumnes matriculats: <span t-field="doc.students"/></p>-->
+                            <br/>
+                    
+                            <h2>Unitats Formatives</h2>
+                            <t t-foreach="doc.ufs" t-as="formative_unit">		
+                                <h3 t-field="uf.code"/>
+                                <h4 t-field="uf.name"/>			
+                                <p>Professor: <span t-field="uf.teacher"/></p>
+                                <p>Data d'inici: <span t-field="uf.start_date"/></p>
+                                <p>Data de final: <span t-field="uf.end_date"/></p>
+                            </t>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>
