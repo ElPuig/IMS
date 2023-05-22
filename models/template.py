@@ -4,21 +4,21 @@ from odoo import models, fields, api
 
 class ims_template(models.Model):
 	_name = 'ims.template'
-	_description = 'Plantilla'
+	_description = 'Template'
 
-	start_time = fields.Datetime("Hora inici")
-	end_time = fields.Datetime("Hora fi")
+	start_time = fields.Datetime("Start time")
+	end_time = fields.Datetime("End time")
 
-	teacher = fields.Many2one(comodel_name="ims.teacher", string="Professor")
-	student = fields.Many2one(comodel_name="ims.student", string="Alumne")
-	study = fields.Many2one(comodel_name="ims.study", string="Estudi")
-	mp = fields.Many2one(comodel_name="ims.mp", string="MP")
-	uf = fields.Many2one(comodel_name="ims.uf", string="UF")
-	level = fields.Many2one(comodel_name="ims.level", string="Nivell")
-	classroom = fields.Many2one(comodel_name="ims.classroom", string="Aula")
+	teacher = fields.Many2one(comodel_name="ims.teacher", string="Teacher")
+	student = fields.Many2one(comodel_name="ims.student", string="Student")
+	studies = fields.Many2one(comodel_name="ims.study", string="Studies")
+	professional_module = fields.Many2one(comodel_name="ims.professional_module", string="Professional Module")
+	formative_unit = fields.Many2one(comodel_name="ims.formative_unit", string="Formative Unit")
+	level = fields.Many2one(comodel_name="ims.level", string="Level")
+	classroom = fields.Many2one(comodel_name="ims.classroom", string="Classroom")
 	
 
-	template_group = fields.Many2one(comodel_name="ims.template_group", string="Grup de plantilles")
+	template_group = fields.Many2one(comodel_name="ims.template_group", string="Template group")
     
 
 	#dades per provar la vista calendari

@@ -4,8 +4,8 @@ from odoo import models, fields, api
 
 class ims_classroom(models.Model):
 	_name = 'ims.classroom'
-	_description = 'Aula'
+	_description = 'Classroom'
 	
-	code = fields.Text('Codi')
-	name = fields.Text('Nom')
+	code = fields.Text('Code')
+	name = fields.Text('Name')
 

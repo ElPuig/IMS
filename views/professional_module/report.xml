@@ -2,7 +2,7 @@
     <data>
         <report
             id="report_mp"
-            model="ims.mp"
+            model="ims.professional_module"
             string="Report de MP"
             name="ims.report_mp_view"
             file="ims.report_mp"
@@ -20,18 +20,18 @@
                             <h2 t-field="doc.name"/>
 
                             <p>Professor: <span t-field="doc.teacher"/></p>
-                            <p>Data d'inici: <span t-field="doc.startDate"/></p>
+                            <p>Data d'inici: <span t-field="doc.start_date"/></p>
                             <p>Començat: <span t-field="doc.started"/></p>
-                            <p>Alumnes matriculats: <span t-field="doc.students"/></p>
+                            <!--<p>Alumnes matriculats: <span t-field="doc.students"/></p>-->
                             <br/>
                     
                             <h2>Unitats Formatives</h2>
-                            <t t-foreach="doc.ufs" t-as="uf">		
+                            <t t-foreach="doc.ufs" t-as="formative_unit">		
                                 <h3 t-field="uf.code"/>
                                 <h4 t-field="uf.name"/>			
                                 <p>Professor: <span t-field="uf.teacher"/></p>
-                                <p>Data d'inici: <span t-field="uf.startDate"/></p>
-                                <p>Data de final: <span t-field="uf.endDate"/></p>
+                                <p>Data d'inici: <span t-field="uf.start_date"/></p>
+                                <p>Data de final: <span t-field="uf.end_date"/></p>
                             </t>
                         </div>
                     </t>

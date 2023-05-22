@@ -4,18 +4,18 @@ from odoo import models, fields, api
 
 class ims_student(models.Model):
 	_name = 'ims.student'
-	_description = 'Alumne'
+	_description = 'Student'
 
-	code = fields.Char('Codi')
-	name = fields.Char('Nom')
-	surname = fields.Char('Cognoms')
-	email = fields.Char('Correu electrónic')	
-	image = fields.Binary(string='Foto', attachment=True, store=True)
-	notes = fields.Text('Anotacions')
+	code = fields.Char('Code')
+	name = fields.Char('Name')
+	surname = fields.Char('Surnames')
+	email = fields.Char('Email')	
+	image = fields.Binary(string='image', attachment=True, store=True)
+	notes = fields.Text('Notes')
 
-	student_group = fields.Many2one(comodel_name="ims.student_group", string="Grup")
+	student_group = fields.Many2one(comodel_name="ims.student_group", string="Group")
 
-	follows = fields.One2many(comodel_name="ims.follow", inverse_name="student", string="Seguiments")
+	follows = fields.One2many(comodel_name="ims.followup", inverse_name="student", string="Follow-up")
 
 	# @api.model
 	# def create(self, vals):

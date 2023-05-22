@@ -4,8 +4,8 @@ from odoo import models, fields, api
 
 class ims_level(models.Model):
 	_name = 'ims.level'
-	_description = 'Nivell'
+	_description = 'Level'
 	
-	code = fields.Text('Codi')
-	name = fields.Text('Nom')
+	code = fields.Text('Code')
+	name = fields.Text('Name')
 

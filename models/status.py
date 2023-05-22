@@ -4,9 +4,9 @@ from odoo import models, fields, api
 
 class ims_status(models.Model):
     _name = 'ims.status'
-    _description = 'Estat'
+    _description = 'Status'
     
-    code = fields.Char('Codi')
-    value = fields.Char('Valor')
-    notes = fields.Text('Anotacions')
+    code = fields.Char('Code')
+    value = fields.Char('Value')
+    notes = fields.Text('Notes')
 

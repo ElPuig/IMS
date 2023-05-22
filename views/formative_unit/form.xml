@@ -1,22 +1,22 @@
 <odoo>
     <data>
-        <record id="view_ims_uf_form" model="ir.ui.view">
+        <record id="view_ims_formative_unit_form" model="ir.ui.view">
             <field name="name">UF form</field>
-            <field name="model">ims.uf</field>
+            <field name="model">ims.formative_unit</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <form string="UF">
+                <form string="formative_unit">
                     <sheet>
                         <group string="Dades basiques">
                             <field name="name"/>
                             <field name="code"/>
                             <!-- <field name="teacher"/> -->
-                            <field name="mp" widget="selection" 
-                                options="{'model': 'ims.mp', 'field': ['code','name']}"/>
+                            <field name="professional_module" widget="selection" 
+                                options="{'model': 'ims.professional_module', 'field': ['code','name']}"/>
                         </group>
                         <group string="Dates">
-                            <field name="startDate"/>
-                            <field name="endDate"/>
+                            <field name="start_date"/>
+                            <field name="end_date"/>
                         </group>
                     </sheet>	
                 </form>
