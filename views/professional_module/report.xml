@@ -1,15 +1,27 @@
 <odoo>
     <data>
-        <report
-            id="report_mp"
-            model="ims.professional_module"
-            string="Report de MP"
-            name="ims.report_mp_view"
-            file="ims.report_mp"
-            menu="True"
-            report_type="qweb-pdf" 
-        />
-        
+        <!-- 
+            DEPRECATED 
+            <report
+                id="report_mp"
+                model="ims.professional_module"
+                string="Report de MP"
+                name="ims.report_mp_view"
+                file="ims.report_mp"
+                menu="True"
+                report_type="qweb-pdf" 
+            />
+        -->
+        <record id="report_mp" model="ir.actions.report">
+            <field name="name">Professional Module Report</field>
+            <field name="model">ims.professional_module"</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ims.report_mp_view</field>
+            <field name="report_file">ims.report_mp</field>
+            <!--<field name="binding_model_id" ref="ims.professional_module"/>-->
+            <field name="binding_type">report</field>
+        </record>
+
         <template id="report_mp_view">
             <t t-call="report.html_container">
                 <t t-foreach="docs" t-as="doc">				
