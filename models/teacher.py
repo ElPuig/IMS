@@ -6,7 +6,6 @@ class ims_teacher(models.Model):
 	_name = 'ims.teacher'
 	_description = 'Teacher'
 
-	code = fields.Char('Code')
 	name = fields.Char('Name')
 	surname = fields.Char('Surnames')
 	email = fields.Char('Email')	

@@ -8,7 +8,7 @@
                 <form string="Nivell">
                     <sheet>
                         <group string="Dades basiques">
-                            <field name="code"/>
+                            <field name="acronym"/>
                             <field name="name"/>                        
                         </group>                    
                     </sheet>	

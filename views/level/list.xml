@@ -5,7 +5,7 @@
             <field name="model">ims.level</field>
             <field name="arch" type="xml">
                 <tree>                    
-                    <field name="code"/>
+                    <field name="acronym"/>
                     <field name="name"/>                    
                 </tree>
             </field>

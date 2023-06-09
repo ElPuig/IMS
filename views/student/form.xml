@@ -19,7 +19,7 @@
                                     <field name="name"/>
                                     <field name="surname"/>
                                     <field name="email"/>
-                                    <field name="student_group"/>
+                                    <field name="group"/>
                                 </group>
                             </div>
                         </div>
@@ -31,7 +31,7 @@
                             <field name="name"/>
                             <field name="surname"/>
                             <field name="email"/>
-                            <field name="student_group"/>
+                            <field name="group"/>
                         </group> -->
                         <notebook>
                             <page string="Seguiments">
