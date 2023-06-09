@@ -10,7 +10,7 @@
                         <group string="Dades basiques">
                             <field name="code"/>
                             <field name="name"/>
-                            <field name="active"/>                                                
+                            <field name="deprecated"/>                                                
                         </group>
                         <notebook>                                                        
                             <page string="Anotacions">

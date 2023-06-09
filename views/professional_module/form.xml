@@ -34,8 +34,8 @@
                                 <!-- <field name="teacher"/> -->
                             </group>
                             <group string="Dates i alumnat">
-                                <field name="start_date"/>
-                                <field name="started"/>
+                                <!-- <field name="start_date"/>
+                                <field name="started"/> -->
                                 <!--<field name="students"/>-->
                             </group>
                         </group>

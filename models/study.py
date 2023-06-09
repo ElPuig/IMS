@@ -13,6 +13,6 @@ class ims_study(models.Model):
     deprecated = fields.Boolean('Deprecated')
     notes = fields.Text('Notes')
 
-    professional_modules = fields.One2many(comodel_name="ims.professional_module", inverse_name="ims_study", string="Professional Modules")
+    professional_modules = fields.One2many(comodel_name="ims.professional_module", inverse_name="study", string="Professional Modules")
     follows = fields.One2many(comodel_name="ims.followup", inverse_name="study", string="Follow-up")
 

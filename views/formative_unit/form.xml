@@ -14,10 +14,10 @@
                             <field name="professional_module" widget="selection" 
                                 options="{'model': 'ims.professional_module', 'field': ['code','name']}"/>
                         </group>
-                        <group string="Dates">
+                        <!-- <group string="Dates">
                             <field name="start_date"/>
                             <field name="end_date"/>
-                        </group>
+                        </group> -->
                     </sheet>	
                 </form>
             </field>			

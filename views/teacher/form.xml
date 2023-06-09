@@ -9,7 +9,6 @@
                     <sheet>
                         <field name="image" widget="image" class="preview" />
                         <group string="Dades basiques">
-                            <field name="code"/>
                             <field name="name"/>
                             <field name="surname"/>
                             <field name="email"/>

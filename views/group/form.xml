@@ -8,7 +8,7 @@
                 <form string="Grup d'alumnes">
                     <sheet>                        
                         <group class="o_group" string="Dades basiques">
-                            <field name="code"/>
+                            <field name="acronym"/>
                             <field name="name"/>
                             <field name="email"/>
                         </group>                        
@@ -46,7 +46,7 @@
                 <form string="Grup d'alumnes">
                     <sheet>                        
                         <group class="o_group" string="Dades basiques">
-                            <field name="code"/>
+                            <field name="acronym"/>
                             <field name="name"/>
                             <field name="email"/>
                         </group>                        
