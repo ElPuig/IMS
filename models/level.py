@@ -6,6 +6,6 @@ class ims_level(models.Model):
 	_name = 'ims.level'
 	_description = 'Level'
 	
-	code = fields.Text('Code')
+	acronym = fields.Char('Acronym')
 	name = fields.Text('Name')
 

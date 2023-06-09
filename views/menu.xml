@@ -11,8 +11,7 @@
             <act_window id="action_ims_followup_tree" name="Gestio de seguiments" res_model="ims.followup" view_mode="tree,form"/>
             <act_window id="action_ims_level_tree" name="Gestio de nivells" res_model="ims.level" view_mode="tree,form"/>
             <act_window id="action_ims_classroom_tree" name="Gestio d'aules" res_model="ims.classroom" view_mode="tree,form"/>
-            <act_window id="action_ims_status_tree" name="Gestio d'estats" res_model="ims.status" view_mode="tree,form"/>
-            <act_window id="action_ims_student_group_tree" name="Gestio de grups" res_model="ims.student_group" view_mode="tree,form"/>
+            <act_window id="action_ims_group_tree" name="Gestio de grups" res_model="ims.group" view_mode="tree,form"/>
         -->
         <record model="ir.actions.act_window" id="action_ims_formative_unit_tree">
             <field name="name">Gestio d'UFs</field>
@@ -62,15 +61,9 @@
             <field name="view_mode">tree,form</field>
         </record>
 
-        <record model="ir.actions.act_window" id="action_ims_status_tree">
-            <field name="name">Gestio d'estats</field>
-            <field name="res_model">ims.status</field>
-            <field name="view_mode">tree,form</field>
-        </record>
-
-         <record model="ir.actions.act_window" id="action_ims_student_group_tree">
+         <record model="ir.actions.act_window" id="action_ims_group_tree">
             <field name="name">Gestio de grups</field>
-            <field name="res_model">ims.student_group</field>
+            <field name="res_model">ims.group</field>
             <field name="view_mode">tree,form</field>
         </record>
             
@@ -83,7 +76,6 @@
         <menuitem name="Seguiments" id="menu_follows" parent="menu_root" action="action_ims_followup_tree"/>
         <menuitem name="Nivells" id="menu_levels" parent="menu_root" action="action_ims_level_tree"/>
         <menuitem name="Aules" id="menu_classrooms" parent="menu_root" action="action_ims_classroom_tree"/>
-        <menuitem name="Estats" id="menu_status" parent="menu_root" action="action_ims_status_tree"/>
-        <menuitem name="Grups" id="menu_student_groups" parent="menu_root" action="action_ims_student_group_tree"/>           
+        <menuitem name="Grups" id="menu_groups" parent="menu_root" action="action_ims_group_tree"/>           
     </data>
 </odoo>

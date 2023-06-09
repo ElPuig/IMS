@@ -7,7 +7,7 @@ class ims_template_group(models.Model):
 	_description = 'Template groups'
 	_inherit = 'ims.template'
 
-	student_group = fields.Many2one(comodel_name="ims.student_group", string="Group")
+	group = fields.Many2one(comodel_name="ims.group", string="Group")
 	
 	templates = fields.One2many(comodel_name="ims.template", inverse_name="template_group", string="Group templates")
 

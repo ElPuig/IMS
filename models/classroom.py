@@ -6,6 +6,6 @@ class ims_classroom(models.Model):
 	_name = 'ims.classroom'
 	_description = 'Classroom'
 	
-	code = fields.Text('Code')
+	code = fields.Text('Numeric Code')
 	name = fields.Text('Name')
 

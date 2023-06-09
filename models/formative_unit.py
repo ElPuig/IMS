@@ -6,8 +6,8 @@ class ims_formative_unit(models.Model):
     _name = 'ims.formative_unit'
     _description = 'Formative Unit'
 
-    name = fields.Char('Name')
-    code = fields.Char('Code')
+    number = fields.Integer('Number')
+    name = fields.Char('Name')    
     #teacher = fields.Char('Professor')
     start_date = fields.Date('Start date')
     end_date = fields.Date('End date')
