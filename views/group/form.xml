@@ -5,15 +5,15 @@
             <field name="model">ims.group</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <form string="Grup d'alumnes">
+                <form string="Groups">
                     <sheet>                        
-                        <group class="o_group" string="Dades basiques">
+                        <group class="o_group" string="Basic data">
                             <field name="acronym"/>
                             <field name="name"/>
                             <field name="email"/>
                         </group>                        
                         <notebook>
-                            <page string="Alumnes">
+                            <page string="Students">
                                 <field name="students" widget="one2many_list" context="{'show_attribute': False}">
                                     <tree>
                                         <field name="name"/>
@@ -22,11 +22,11 @@
                                     </tree>
                                 </field>
                             </page>                                                                             
-                            <page string="Anotacions">
-                                <field name="notes" placeholder="Espai reservat per a anotacions..."/>
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
                             </page>
-                            <page string="Auditoría">
-                                <group string="Auditoría">
+                            <page string="Audit">
+                                <group string="Audit">
                                     <field name="create_date"/>
                                     <field name="create_uid"/>
                                     <field name="write_date"/>
@@ -43,15 +43,15 @@
             <field name="model">ims.group</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <form string="Grup d'alumnes">
+                <form string="Group">
                     <sheet>                        
-                        <group class="o_group" string="Dades basiques">
+                        <group class="o_group" string="Basic data">
                             <field name="acronym"/>
                             <field name="name"/>
                             <field name="email"/>
                         </group>                        
                         <notebook>
-                            <page string="Alumnes">
+                            <page string="Students">
                                 <field name="students" widget="one2many_list" context="{'show_attribute': False}">
                                     <tree>
                                         <field name="name"/>
@@ -60,8 +60,8 @@
                                     </tree>
                                 </field>
                             </page>                                                                             
-                            <page string="Anotacions">
-                                <field name="notes" placeholder="Espai reservat per a anotacions..."/>
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
                             </page>
                         </notebook>
                     </sheet>	

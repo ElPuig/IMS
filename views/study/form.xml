@@ -5,16 +5,16 @@
             <field name="model">ims.study</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <form string="Estudi">
+                <form string="Studies">
                     <sheet>                        
-                        <group string="Dades basiques">
+                        <group string="Basic data">
                             <field name="code"/>
                             <field name="name"/>
                             <field name="deprecated"/>                                                
                         </group>
                         <notebook>                                                        
-                            <page string="Anotacions">
-                                <field name="notes" placeholder="Espai reservat per a anotacions..."/>
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
                             </page>
                         </notebook>
                     </sheet>	

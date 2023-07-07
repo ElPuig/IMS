@@ -5,17 +5,17 @@
             <field name="model">ims.teacher</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <form string="Professor">
+                <form string="Teacher">
                     <sheet>
                         <field name="image" widget="image" class="preview" />
-                        <group string="Dades basiques">
+                        <group string="Basic data">
                             <field name="name"/>
                             <field name="surname"/>
                             <field name="email"/>
                         </group>
                         <notebook>                                                        
-                            <page string="Anotacions">
-                                <field name="notes" placeholder="Espai reservat per a anotacions..."/>
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
                             </page>
                         </notebook>
                     </sheet>	

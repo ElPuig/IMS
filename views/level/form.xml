@@ -5,9 +5,9 @@
             <field name="model">ims.level</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <form string="Nivell">
+                <form string="Level">
                     <sheet>
-                        <group string="Dades basiques">
+                        <group string="Basic data">
                             <field name="acronym"/>
                             <field name="name"/>                        
                         </group>                    

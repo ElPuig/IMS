@@ -5,9 +5,9 @@
             <field name="model">ims.followup</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <form string="Seguiment">
+                <form string="Followup">
                     <sheet>
-                        <group string="Dades basiques">
+                        <group string="Basic data">
                             <field name="study"/>
                             <field name="professional_module"/>
                             <field name="formative_unit"/>
@@ -15,8 +15,8 @@
                             <field name="teacher"/>
                         </group>
                         <notebook>                                                        
-                            <page string="Anotacions">
-                                <field name="notes" placeholder="Espai reservat per a anotacions..."/>
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
                             </page>
                         </notebook>
                     </sheet>	
