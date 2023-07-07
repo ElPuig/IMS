@@ -5,7 +5,7 @@
             <field name="model">ims.student</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <form string="Alumne">
+                <form string="Student">
                     <sheet>
                         <div class="o_row">
                             <div class="o_column col-md-6">
@@ -14,7 +14,7 @@
                                 </group>
                             </div>
                             <div class="o_column col-md-6">
-                                <group class="o_group" string="Dades basiques">
+                                <group class="o_group" string="Basic data">
                                     <field name="code"/>
                                     <field name="name"/>
                                     <field name="surname"/>
@@ -26,7 +26,7 @@
                         <!-- <group string="Foto">
                             <field name="image" widget="image" class="preview"/>
                         </group>
-                        <group string="Dades basiques">
+                        <group string="Basic data">
                             <field name="code"/>
                             <field name="name"/>
                             <field name="surname"/>
@@ -34,7 +34,7 @@
                             <field name="group"/>
                         </group> -->
                         <notebook>
-                            <page string="Seguiments">
+                            <page string="tracking">
                                 <field name="follows" widget="one2many_list" context="{'show_attribute': False}">
                                     <tree>
                                         <field name="teacher"/>
@@ -42,8 +42,8 @@
                                     </tree>
                                 </field>
                             </page>                                                        
-                            <page string="Anotacions">
-                                <field name="notes" placeholder="Espai reservat per a anotacions..."/>
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
                             </page>
                         </notebook>
                     </sheet>	

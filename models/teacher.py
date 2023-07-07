@@ -4,7 +4,7 @@ from odoo import models, fields, api
 
 class ims_teacher(models.Model):
 	_name = 'ims.teacher'
-	_description = 'Teacher'
+	_description = 'Teacher: Collects the teacher\'s data.'
 
 	name = fields.Char('Name')
 	surname = fields.Char('Surnames')
@@ -14,4 +14,4 @@ class ims_teacher(models.Model):
 
 	formative_units = fields.One2many(comodel_name="ims.formative_unit", inverse_name="teacher", string="Formative Units")
 	professional_modules = fields.One2many(comodel_name="ims.professional_module", inverse_name="teacher", string="Professional Modules")
-	followups = fields.One2many(comodel_name="ims.followup", inverse_name="teacher", string="Follow-ups")
+	trackings = fields.One2many(comodel_name="ims.tracking", inverse_name="teacher", string="Follow-ups")

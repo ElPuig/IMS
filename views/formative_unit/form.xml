@@ -7,7 +7,7 @@
             <field name="arch" type="xml">
                 <form string="formative_unit">
                     <sheet>
-                        <group string="Dades basiques">
+                        <group string="Basic data">
                             <field name="name"/>
                             <field name="code"/>
                             <!-- <field name="teacher"/> -->

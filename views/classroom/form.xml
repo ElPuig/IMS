@@ -5,9 +5,9 @@
             <field name="model">ims.classroom</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <form string="Aula">
+                <form string="Classroom">
                     <sheet>
-                        <group string="Dades basiques">
+                        <group string="Basic data">
                             <field name="code"/>
                             <field name="name"/>                        
                         </group>                    

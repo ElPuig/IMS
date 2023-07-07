@@ -1,80 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <data>
-        <!--
-            DEPRECATED
-            <act_window id="action_ims_formative_unit_tree" name="Gestio d'UFs" res_model="ims.formative_unit" view_mode="tree,form"/>    
-            <act_window id="action_ims_professional_module_tree" name="Gestio d'MPs" res_model="ims.professional_module" view_mode="tree,form"/>
-            <act_window id="action_ims_teacher_tree" name="Gestio de professors" res_model="ims.teacher" view_mode="tree,form"/>
-            <act_window id="action_ims_study_tree" name="Gestio d'estudis" res_model="ims.study" view_mode="tree,form"/>
-            <act_window id="action_ims_student_tree" name="Gestio d'alumnes" res_model="ims.student" view_mode="kanban,tree,form"/>
-            <act_window id="action_ims_followup_tree" name="Gestio de seguiments" res_model="ims.followup" view_mode="tree,form"/>
-            <act_window id="action_ims_level_tree" name="Gestio de nivells" res_model="ims.level" view_mode="tree,form"/>
-            <act_window id="action_ims_classroom_tree" name="Gestio d'aules" res_model="ims.classroom" view_mode="tree,form"/>
-            <act_window id="action_ims_group_tree" name="Gestio de grups" res_model="ims.group" view_mode="tree,form"/>
-        -->
+    <data>       
         <record model="ir.actions.act_window" id="action_ims_formative_unit_tree">
-            <field name="name">Gestio d'UFs</field>
+            <field name="name">Formative Units Management</field>
             <field name="res_model">ims.formative_unit</field>
             <field name="view_mode">tree,form</field>
         </record>
 
         <record model="ir.actions.act_window" id="action_ims_professional_module_tree">
-            <field name="name">Gestio d'MPs</field>
+            <field name="name">Professional Modules Management</field>
             <field name="res_model">ims.professional_module</field>
             <field name="view_mode">tree,form</field>
         </record>
 
         <record model="ir.actions.act_window" id="action_ims_teacher_tree">
-            <field name="name">Gestio de professors</field>
+            <field name="name">Teachers Management</field>
             <field name="res_model">ims.teacher</field>
             <field name="view_mode">tree,form</field>
         </record>
 
         <record model="ir.actions.act_window" id="action_ims_study_tree">
-            <field name="name">Gestio d'estudis</field>
+            <field name="name">Studies Management</field>
             <field name="res_model">ims.study</field>
             <field name="view_mode">tree,form</field>
         </record>
 
         <record model="ir.actions.act_window" id="action_ims_student_tree">
-            <field name="name">Gestio d'alumnes</field>
+            <field name="name">Students Management</field>
             <field name="res_model">ims.student</field>
             <field name="view_mode">kanban,tree,form</field>
         </record>
 
-        <record model="ir.actions.act_window" id="action_ims_followup_tree">
-            <field name="name">Gestio de seguiments</field>
-            <field name="res_model">ims.followup</field>
+        <record model="ir.actions.act_window" id="action_ims_tracking_tree">
+            <field name="name">Tracking Management</field>
+            <field name="res_model">ims.tracking</field>
             <field name="view_mode">tree,form</field>
         </record>
 
         <record model="ir.actions.act_window" id="action_ims_level_tree">
-            <field name="name">Gestio de nivells</field>
+            <field name="name">Levels Management</field>
             <field name="res_model">ims.level</field>
             <field name="view_mode">tree,form</field>
         </record>
 
         <record model="ir.actions.act_window" id="action_ims_classroom_tree">
-            <field name="name">Gestio d'aules</field>
+            <field name="name">Classroom Management</field>
             <field name="res_model">ims.classroom</field>
             <field name="view_mode">tree,form</field>
         </record>
 
          <record model="ir.actions.act_window" id="action_ims_group_tree">
-            <field name="name">Gestio de grups</field>
+            <field name="name">Grups Management</field>
             <field name="res_model">ims.group</field>
             <field name="view_mode">tree,form</field>
         </record>
             
         <menuitem id="menu_root" name="Gestio Academica"/>
-        <menuitem name="MPs" id="menu_mps" parent="menu_root" action="action_ims_professional_module_tree"/>
-        <menuitem name="UFs" id="menu_ufs" parent="menu_root" action="action_ims_formative_unit_tree"/>
-        <menuitem name="Professors" id="menu_teachers" parent="menu_root" action="action_ims_teacher_tree"/>
-        <menuitem name="Estudis" id="menu_studies" parent="menu_root" action="action_ims_study_tree"/>
-        <menuitem name="Alumnes" id="menu_students" parent="menu_root" action="action_ims_student_tree"/>
-        <menuitem name="Seguiments" id="menu_follows" parent="menu_root" action="action_ims_followup_tree"/>
-        <menuitem name="Nivells" id="menu_levels" parent="menu_root" action="action_ims_level_tree"/>
+        <menuitem name="PMs" id="menu_mps" parent="menu_root" action="action_ims_professional_module_tree"/>
+        <menuitem name="FUs" id="menu_ufs" parent="menu_root" action="action_ims_formative_unit_tree"/>
+        <menuitem name="Teachers" id="menu_teachers" parent="menu_root" action="action_ims_teacher_tree"/>
+        <menuitem name="Studies" id="menu_studies" parent="menu_root" action="action_ims_study_tree"/>
+        <menuitem name="Students" id="menu_students" parent="menu_root" action="action_ims_student_tree"/>
+        <menuitem name="Tracking" id="menu_tracking" parent="menu_root" action="action_ims_tracking_tree"/>
+        <menuitem name="Levels" id="menu_levels" parent="menu_root" action="action_ims_level_tree"/>
         <menuitem name="Aules" id="menu_classrooms" parent="menu_root" action="action_ims_classroom_tree"/>
         <menuitem name="Grups" id="menu_groups" parent="menu_root" action="action_ims_group_tree"/>           
     </data>

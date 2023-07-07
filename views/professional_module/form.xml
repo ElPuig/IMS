@@ -28,12 +28,12 @@
                         </h1>
 
                         <group col="2">
-                            <group string="Dades acadèmiques">							
+                            <group string="Academic data">							
                                 <field name="code"/>
                                 <field name="name"/>
                                 <!-- <field name="teacher"/> -->
                             </group>
-                            <group string="Dates i alumnat">
+                            <group string="Student dates">
                                 <!-- <field name="start_date"/>
                                 <field name="started"/> -->
                                 <!--<field name="students"/>-->
@@ -41,7 +41,7 @@
                         </group>
                         
                         <notebook>
-                            <page string="Unitats Formatives">
+                            <page string="Formative Units">
                                 <field name="formative_units" widget="one2many_list" context="{'show_attribute': False}">
                                     <tree>
                                         <field name="code"/>
@@ -50,8 +50,8 @@
                                 </field>
                             </page>
                             
-                            <page string="Anotacions">
-                                <field name="notes" placeholder="Espai reservat per a anotacions..."/>
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
                             </page>
                         </notebook>
                     </sheet>	

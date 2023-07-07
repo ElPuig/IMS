@@ -4,7 +4,7 @@ from odoo import models, fields, api
 
 class ims_student(models.Model):
 	_name = 'ims.student'
-	_description = 'Student'
+	_description = 'Student: Collects the student\'s data.'
 
 	code = fields.Integer('Code')
 	name = fields.Char('Name')
@@ -15,7 +15,7 @@ class ims_student(models.Model):
 
 	group = fields.Many2one(comodel_name="ims.group", string="Group")
 
-	follows = fields.One2many(comodel_name="ims.followup", inverse_name="student", string="Follow-up")
+	follows = fields.One2many(comodel_name="ims.tracking", inverse_name="student", string="Follow-up")
 
 	# @api.model
 	# def create(self, vals):

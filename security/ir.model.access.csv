@@ -1,12 +1,10 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 ims.access_ims_classroom,access_ims_classroom,ims.model_ims_classroom,,1,1,1,1
-ims.access_ims_followup,access_ims_followup,ims.model_ims_followup,,1,1,1,1
+ims.access_ims_tracking,access_ims_tracking,ims.model_ims_tracking,,1,1,1,1
 ims.access_ims_level,access_ims_level,ims.model_ims_level,,1,1,1,1
 ims.access_ims_professional_module,access_ims_professional_module,ims.model_ims_professional_module,,1,1,1,1
 ims.access_ims_group,access_ims_group,ims.model_ims_group,,1,1,1,1
 ims.access_ims_student,access_ims_student,ims.model_ims_student,,1,1,1,1
 ims.access_ims_study,access_ims_study,ims.model_ims_study,,1,1,1,1
 ims.access_ims_teacher,access_ims_teacher,ims.model_ims_teacher,,1,1,1,1
-ims.access_ims_template_group,access_ims_template_group,ims.model_ims_template_group,,1,1,1,1
-ims.access_ims_template,access_ims_template,ims.model_ims_template,,1,1,1,1
 ims.access_ims_formative_unit,access_ims_formative_unit,ims.model_ims_formative_unit,,1,1,1,1
