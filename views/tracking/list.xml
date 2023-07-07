@@ -2,7 +2,7 @@
     <data>
         <record model="ir.ui.view" id="follow_list">
             <field name="name">ims follow list</field>
-            <field name="model">ims.followup</field>
+            <field name="model">ims.tracking</field>
             <field name="arch" type="xml">
                 <tree>                    
                     <field name="student"/>

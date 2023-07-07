@@ -14,4 +14,4 @@ class ims_formative_unit(models.Model):
     teacher = fields.Many2one(comodel_name="ims.teacher", string="Teacher")
     professional_module = fields.Many2one(comodel_name="ims.professional_module", string="Professional Module")
     
-    followups = fields.One2many(comodel_name="ims.followup", inverse_name="formative_unit", string="Follow-up")
+    trackings = fields.One2many(comodel_name="ims.tracking", inverse_name="formative_unit", string="Follow-up")

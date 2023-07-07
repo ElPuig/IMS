@@ -3,9 +3,9 @@
 #TODO: rename to 'tracking'
 from odoo import models, fields, api
 
-class ims_followupup(models.Model):
-	_name = 'ims.followup'
-	_description = 'Follow-up'
+class ims_tracking(models.Model):
+	_name = 'ims.tracking'
+	_description = 'Tracking: Tutors and teachers can add information about the student evolution, follow-up, etc.'
 	
 	notes = fields.Text('Notes')
 

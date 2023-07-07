@@ -34,7 +34,7 @@
                             <field name="group"/>
                         </group> -->
                         <notebook>
-                            <page string="Followup">
+                            <page string="tracking">
                                 <field name="follows" widget="one2many_list" context="{'show_attribute': False}">
                                     <tree>
                                         <field name="teacher"/>

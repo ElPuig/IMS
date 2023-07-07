@@ -1,11 +1,11 @@
 <odoo>
     <data>
-        <record id="view_ims_followup_form" model="ir.ui.view">
+        <record id="view_ims_tracking_form" model="ir.ui.view">
             <field name="name">follow form</field>
-            <field name="model">ims.followup</field>
+            <field name="model">ims.tracking</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <form string="Followup">
+                <form string="tracking">
                     <sheet>
                         <group string="Basic data">
                             <field name="study"/>
