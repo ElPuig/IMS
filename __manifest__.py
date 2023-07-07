@@ -3,12 +3,11 @@
     'name': "IMS: Institute Management System",
 
     'summary': """
-        Proporciona un entorn lliure, gratuït i intuïtiu amb el qual sigui possible la gestió integral d'un centre educatiu.        
+        Provides a free, open-source, comprehensive and intuitive environment in order to manage an educational center.
     """,
 
     'description': """
-        L'objectiu de l'IMS és proporcionar un entorn lliure, gratuït i intuïtiu amb el qual sigui possible la gestió integral d'un centre educatiu.
-        La solució consisteix en un conjunt de mòduls per a Odoo, un ERP lliure i totalment configurable, que estan sent desenvolupats per un grup de professors de l'Institut Puig Castellar de Santa Coloma de Gramenet.
+        The IMS's main objective is to provide a free, open-source, comprehensive and intuitive environment in order to manage an educational center. To achieve that, a group of bold teachers from 'Institut Puig Castellar' (Santa Coloma de Gramenet, Barcelona, Spain) is developing this Odoo module as part of the Quality and Continuous Improvement Project (Q&CIP or PQiMC in our local language: Catalan).
     """,
 
     'author': "El Puig",
@@ -17,7 +16,7 @@
     # Categories can be used to filter modules in modules listing
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
-    'category': 'Uncategorized',
+    'category': 'Educational',
     'version': '0.1',
 
     # any module necessary for this one to work correctly
