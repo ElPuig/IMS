@@ -4,7 +4,7 @@ from odoo import models, fields, api
 
 class ims_study(models.Model):
     _name = 'ims.study'
-    _description = 'Study'
+    _description = 'Study: The concrete type of stidy (kind of bachelor, concrete univeristy grade, etc.)'
     
     code = fields.Char('Code')
     acronym = fields.Char('Acronym')

@@ -4,7 +4,7 @@ from odoo import models, fields, api
 
 class ims_professional_module(models.Model):
 	_name = 'ims.professional_module'
-	_description = 'Profesional Module'
+	_description = 'Professional Module: Is how a subject is called in VET studies and it\'s composed by Formative Units so every FU must be passed in order to pass also the PM.'
 
 	code = fields.Char('Official Code')
 	number = fields.Integer('Number')

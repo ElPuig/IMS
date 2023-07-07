@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+#TODO: remove or rename to 'attendance_template'
 from odoo import models, fields, api
 
 class ims_template_group(models.Model):

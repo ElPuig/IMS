@@ -4,7 +4,7 @@ from odoo import models, fields, api
 
 class ims_group(models.Model):
 	_name = 'ims.group'
-	_description = 'Groups'
+	_description = 'Groups: Where the students are assigned to.'
 
 	acronym = fields.Char('Acronym')
 	name = fields.Char('Name')

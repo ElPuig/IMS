@@ -4,7 +4,7 @@ from odoo import models, fields, api
 
 class ims_teacher(models.Model):
 	_name = 'ims.teacher'
-	_description = 'Teacher'
+	_description = 'Teacher: Collects the teacher\'s data.'
 
 	name = fields.Char('Name')
 	surname = fields.Char('Surnames')

@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
+#TODO: remove or rename to 'attendance_group'
 from odoo import models, fields, api
 
 class ims_template(models.Model):
 	_name = 'ims.template'
-	_description = 'Template'
+	_description = 'Template: '
 
 	start_time = fields.Datetime("Start time")
 	end_time = fields.Datetime("End time")

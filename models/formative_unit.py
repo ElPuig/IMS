@@ -4,7 +4,7 @@ from odoo import models, fields, api
 
 class ims_formative_unit(models.Model):
     _name = 'ims.formative_unit'
-    _description = 'Formative Unit'
+    _description = 'Formative Unit: Is how a set of topics is called in VET studies, a set of FUs composes a Professional Module but each FU must be evaluated separately.'
 
     code = fields.Integer('Code')
     name = fields.Char('Name')    
