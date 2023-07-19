@@ -46,6 +46,8 @@
         'views/classroom/form.xml',       
         'views/group/list.xml',
         'views/group/form.xml',
+        'views/test/list.xml',
+        'views/test/form.xml',
     ],
     'license': 'AGPL-3',
     'application': True,
