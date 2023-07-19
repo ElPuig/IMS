@@ -54,6 +54,12 @@
             <field name="res_model">ims.group</field>
             <field name="view_mode">tree,form</field>
         </record>
+
+        <record model="ir.actions.act_window" id="action_ims_test_tree">
+            <field name="name">Test Management</field>
+            <field name="res_model">ims.test</field>
+            <field name="view_mode">tree,form</field>
+        </record>
             
         <menuitem id="menu_root" name="Gestio Academica"/>
         <menuitem name="PMs" id="menu_mps" parent="menu_root" action="action_ims_professional_module_tree"/>
@@ -64,6 +70,7 @@
         <menuitem name="Tracking" id="menu_tracking" parent="menu_root" action="action_ims_tracking_tree"/>
         <menuitem name="Levels" id="menu_levels" parent="menu_root" action="action_ims_level_tree"/>
         <menuitem name="Aules" id="menu_classrooms" parent="menu_root" action="action_ims_classroom_tree"/>
-        <menuitem name="Grups" id="menu_groups" parent="menu_root" action="action_ims_group_tree"/>           
+        <menuitem name="Grups" id="menu_groups" parent="menu_root" action="action_ims_group_tree"/>
+        <menuitem name="Test" id="menu_test" parent="menu_root" action="action_ims_test_tree"/>           
     </data>
 </odoo>
