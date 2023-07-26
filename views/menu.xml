@@ -60,6 +60,18 @@
             <field name="res_model">ims.test</field>
             <field name="view_mode">tree,form</field>
         </record>
+
+        <record model="ir.actions.act_window" id="action_ims_attendance_template_tree">
+            <field name="name">Attendance Templates Management</field>
+            <field name="res_model">ims.attendance_template</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_ims_attendance_group_tree">
+            <field name="name">Attendance Groups Management</field>
+            <field name="res_model">ims.attendance_group</field>
+            <field name="view_mode">tree,form</field>
+        </record>
             
         <menuitem id="menu_root" name="Gestio Academica"/>
         <menuitem name="PMs" id="menu_mps" parent="menu_root" action="action_ims_professional_module_tree"/>
@@ -72,5 +84,8 @@
         <menuitem name="Aules" id="menu_classrooms" parent="menu_root" action="action_ims_classroom_tree"/>
         <menuitem name="Grups" id="menu_groups" parent="menu_root" action="action_ims_group_tree"/>
         <menuitem name="Test" id="menu_test" parent="menu_root" action="action_ims_test_tree"/>           
+        <menuitem id="menu_attendance" name="Attendance" parent="menu_root"/>
+        <menuitem name="Templates" id="menu_attendance_template" parent="menu_attendance" action="action_ims_attendance_template_tree"/>
+        <menuitem name="Groups" id="menu_attendance_group" parent="menu_attendance" action="action_ims_attendance_group_tree"/>
     </data>
 </odoo>

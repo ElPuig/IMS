@@ -6,14 +6,14 @@ class ims_attendance_template(models.Model):
 	_name = 'ims.attendance_template'
 	_description = 'Attendance template'
 
-	start_time = fields.Datetime("Start Time")
-	end_time = fields.Datetime("End Time")
+	start_time = fields.Float("Start Time")
+	end_time = fields.Float("End Time")
 
 	teacher = fields.Many2one(comodel_name="ims.teacher", string="Professor")
 	student = fields.Many2one(comodel_name="ims.student", string="Student")
 	study = fields.Many2one(comodel_name="ims.study", string="Study")
 	mp = fields.Many2one(comodel_name="ims.professional_module", string="Professional Module")
-	uf = fields.Many2one(comodel_name="ims.formative_unity", string="Formative Unitiy")
+	uf = fields.Many2one(comodel_name="ims.formative_unit", string="Formative Unit")
 	level = fields.Many2one(comodel_name="ims.level", string="Level")
 	classroom = fields.Many2one(comodel_name="ims.classroom", string="Classroom")
 	weekday = fields.Selection([
@@ -23,17 +23,9 @@ class ims_attendance_template(models.Model):
         ('4', 'Thursday'),
         ('5', 'Friday'),
     ])
-    #TODO millorar el selector de color amb un que realment seleccionis el color
-	#Color will be used in the calendar view
-	color = fields.Selection([
-        ('1', 'Blau'),
-        ('2', 'Verd'),
-        ('3', 'Vermell'),
-        ('4', 'Groc'),
-        ('5', 'Taronja'),
-    ], string='Color')
-    
 
+	color = fields.Integer(string='Color', help='Field to store the color that will be used for calendar view')
+    
 	attendance_group = fields.Many2one(comodel_name="ims.attendance_group", string="Attendance Template Group")
 
 	

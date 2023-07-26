@@ -1,0 +1,34 @@
+<odoo>
+    <data>
+        <record id="view_ims_attendance_group_form" model="ir.ui.view">
+            <field name="name">test attendance_group</field>
+            <field name="model">ims.attendance_group</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="test">
+                    <sheet>
+                        <group string="Basic data">
+                            <field name="start_time" widget="float_time"/>
+                            <field name="end_time" widget="float_time"/>
+                            <field name="teacher"/>
+                            <!-- <field name="student"/> -->
+                            <field name="study"/>
+                            <field name="mp"/>
+                            <field name="uf"/>
+                            <field name="classroom"/>
+                            <field name="weekday"/>
+                            <field name="color" widget="color_picker"/>
+                            <field name="student_group"/>                                                                              
+                        </group>                    
+                    </sheet>
+                    <sheet>
+                        <button name="GenerateTemplatesByStudent" 
+                            string="Generate Templates" 
+                            type="object" 
+                            context="{'active_id': active_id, 'active_model': active_model}"/>
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>

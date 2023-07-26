@@ -8,5 +8,6 @@ class ims_level(models.Model):
 	
 	acronym = fields.Char('Acronym')
 	name = fields.Text('Name')
-	color = fields.Char(string='Color', help='Field to store the color that will be used for calendar view', default='#FFFFFF')
+	color = fields.Integer(string='Color', help='Field to store the color that will be used for calendar view')
+	time = fields.Float(string='Time', help = 'Just time, no date')
 
