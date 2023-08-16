@@ -11,3 +11,5 @@ ims.access_ims_formative_unit,access_ims_formative_unit,ims.model_ims_formative_
 ims.access_ims_test,access_ims_test,ims.model_ims_test,,1,1,1,1
 ims.access_ims_attendance_template,access_ims_attendance_template,ims.model_ims_attendance_template,,1,1,1,1
 ims.access_ims_attendance_group,access_ims_attendance_group,ims.model_ims_attendance_group,,1,1,1,1
+ims.access_ims_attendance_session,access_ims_attendance_session,ims.model_ims_attendance_session,,1,1,1,1
+ims.access_ims_attendance_status,access_ims_attendance_status,ims.model_ims_attendance_status,,1,1,1,1

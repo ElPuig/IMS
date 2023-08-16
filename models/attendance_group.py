@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
-from . import attendance_template
+# from . import attendance_template
 
 class ims_attendance_group(models.Model):
 	_name = 'ims.attendance_group'
@@ -11,7 +11,15 @@ class ims_attendance_group(models.Model):
 	name = fields.Char("Name")
 
 	student_group = fields.Many2one(comodel_name="ims.group", string="Grup")	
-	attendance_templates = fields.One2many(comodel_name="ims.attendance_template", inverse_name="attendance_group", string="Template group")
+	attendance_templates = fields.One2many(comodel_name="ims.attendance_template", inverse_name="attendance_group", string="Templates")
+	attendance_sessions = fields.One2many(comodel_name="ims.attendance_session", inverse_name="attendance_group", string="Sessions")
+
+	hasTemplates = fields.Boolean(compute='compute_hasTemplates', store=False)
+
+	@api.depends('attendance_templates')
+	def compute_hasTemplates(self):
+		for record in self:
+			record.hasTemplates = len(record.attendance_templates) > 0
 
 	def GenerateTemplatesByStudent (self):
 		for student in self.student_group.students:			
@@ -27,4 +35,5 @@ class ims_attendance_group(models.Model):
 				'classroom': self.classroom.id,
 				'weekday': self.weekday,
 				'color': self.color,
+				'attendance_group': self.id
 			})
