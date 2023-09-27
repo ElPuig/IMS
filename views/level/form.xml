@@ -7,10 +7,30 @@
             <field name="arch" type="xml">
                 <form string="Level">
                     <sheet>
-                        <group string="Basic data">
-                            <field name="acronym"/>
-                            <field name="name"/>                        
-                        </group>                    
+                        <group string="Main data" col="4">
+                            <group>
+                                <field name="acronym"/>
+                            </group>
+                            <group colspan="3">
+                                <field name="name"/>    
+                            </group>                            
+                        </group>  
+
+                        <notebook>
+                            <page string="Studies">
+                                <field name="studies" widget="many2many">
+                                    <tree>
+                                        <field name="code"/>
+                                        <field name="acronym"/>
+                                        <field name="name"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
+                            </page>
+                        </notebook>                  
                     </sheet>	
                 </form>
             </field>			
