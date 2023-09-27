@@ -74,11 +74,13 @@
         </record>
             
         <menuitem id="menu_root" name="Gestio Academica"/>
-        <menuitem name="Levels" sequence="1" id="menu_levels" parent="menu_root" action="action_ims_level_tree"/>
-        <menuitem name="Studies" sequence="2" id="menu_studies" parent="menu_root" action="action_ims_study_tree"/>
+        
+        <menuitem name="Curriculum" sequence="1" id="menu_curriculum" parent="menu_root"/>
+            <menuitem name="Levels" sequence="1" id="menu_levels" parent="menu_curriculum" action="action_ims_level_tree"/>
+            <menuitem name="Studies" sequence="2" id="menu_studies" parent="menu_curriculum" action="action_ims_study_tree"/>
+            <menuitem name="PMs" sequence="3" id="menu_mps" parent="menu_curriculum" action="action_ims_professional_module_tree"/>
+            <menuitem name="FUs" sequence="4" id="menu_ufs" parent="menu_curriculum" action="action_ims_formative_unit_tree"/>
 
-        <menuitem name="PMs" id="menu_mps" parent="menu_root" action="action_ims_professional_module_tree"/>
-        <menuitem name="FUs" id="menu_ufs" parent="menu_root" action="action_ims_formative_unit_tree"/>
         <menuitem name="Teachers" id="menu_teachers" parent="menu_root" action="action_ims_teacher_tree"/>        
         <menuitem name="Students" id="menu_students" parent="menu_root" action="action_ims_student_tree"/>
         <menuitem name="Tracking" id="menu_tracking" parent="menu_root" action="action_ims_tracking_tree"/>        
