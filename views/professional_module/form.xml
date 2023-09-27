@@ -5,38 +5,17 @@
             <field name="model">ims.professional_module</field>
             <field name="type">form</field>
             <field name="arch" type="xml">				
-                <form string="professional_module">
-                    <style>
-                        .preview {
-                            float: left;
-                        }
-                                        
-                        .preview img {
-                            width: 100px; 							
-                        } 
-                                        
-                        h1 {
-                            float: left;
-                            width: 84%;
-                        }
-                    </style>
-
-                    <sheet>
-                        <field name="image" widget="image" class="preview" />
-                        <h1>
-                            <field name="name"/>
-                        </h1>
-
-                        <group col="2">
-                            <group string="Academic data">							
+                <form string="professional_module">                   
+                    <sheet>                        
+                        <group string="Main data" col="3">
+                            <group>
                                 <field name="code"/>
-                                <field name="name"/>
-                                <!-- <field name="teacher"/> -->
                             </group>
-                            <group string="Student dates">
-                                <!-- <field name="start_date"/>
-                                <field name="started"/> -->
-                                <!--<field name="students"/>-->
+                            <group>							
+                                <field name="acronym"/>
+                            </group>
+                            <group>							
+                                <field name="name"/>
                             </group>
                         </group>
                         
