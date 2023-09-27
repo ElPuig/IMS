@@ -74,13 +74,14 @@
         </record>
             
         <menuitem id="menu_root" name="Gestio Academica"/>
+        <menuitem name="Levels" id="menu_levels" parent="menu_root" action="action_ims_level_tree"/>
+        <menuitem name="Studies" id="menu_studies" parent="menu_root" action="action_ims_study_tree"/>
+
         <menuitem name="PMs" id="menu_mps" parent="menu_root" action="action_ims_professional_module_tree"/>
         <menuitem name="FUs" id="menu_ufs" parent="menu_root" action="action_ims_formative_unit_tree"/>
-        <menuitem name="Teachers" id="menu_teachers" parent="menu_root" action="action_ims_teacher_tree"/>
-        <menuitem name="Studies" id="menu_studies" parent="menu_root" action="action_ims_study_tree"/>
+        <menuitem name="Teachers" id="menu_teachers" parent="menu_root" action="action_ims_teacher_tree"/>        
         <menuitem name="Students" id="menu_students" parent="menu_root" action="action_ims_student_tree"/>
-        <menuitem name="Tracking" id="menu_tracking" parent="menu_root" action="action_ims_tracking_tree"/>
-        <menuitem name="Levels" id="menu_levels" parent="menu_root" action="action_ims_level_tree"/>
+        <menuitem name="Tracking" id="menu_tracking" parent="menu_root" action="action_ims_tracking_tree"/>        
         <menuitem name="Aules" id="menu_classrooms" parent="menu_root" action="action_ims_classroom_tree"/>
         <menuitem name="Grups" id="menu_groups" parent="menu_root" action="action_ims_group_tree"/>
         <menuitem name="Test" id="menu_test" parent="menu_root" action="action_ims_test_tree"/>           

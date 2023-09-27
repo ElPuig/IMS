@@ -7,10 +7,34 @@
             <field name="arch" type="xml">
                 <form string="Studies">
                     <sheet>                        
-                        <group string="Basic data">
-                            <field name="code"/>
-                            <field name="name"/>
-                            <field name="deprecated"/>                                                
+                        <group string="Main data" col="3">                            
+                            <group>
+                                <field name="acronym" />
+                            </group>
+                            <group colspan="2">
+                                <field name="name" />
+                            </group>
+                        </group>
+                         <group string="Administrative data" col="4">
+                            <group>
+                                <field name="level" />
+                            </group>
+                             <group>
+                                <field name="code" />
+                            </group>
+                            <group>
+                                <field name="date"/>                                
+                            </group>                           
+                            <group>
+                                <field name="deprecated"/>                                
+                            </group>
+                            <group colspan="2">
+                                <field name="main_decree"/>                                
+                            </group>
+                            <group colspan="2">
+                                <field name="regional_decree"/>                                
+                            </group>
+                                                       
                         </group>
                         <notebook>                                                        
                             <page string="Notes">
