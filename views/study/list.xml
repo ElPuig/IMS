@@ -5,6 +5,7 @@
             <field name="model">ims.study</field>
             <field name="arch" type="xml">
                 <tree>                    
+                    <field name="level"/>
                     <field name="code"/>
                     <field name="acronym"/>
                     <field name="name"/>            

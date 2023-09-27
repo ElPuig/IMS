@@ -8,6 +8,9 @@
                 <form string="professional_module">                   
                     <sheet>                        
                         <group string="Main data" col="3">
+                            <group colspan="3">
+                                <field name="study"/>
+                            </group>
                             <group>
                                 <field name="code"/>
                             </group>
@@ -19,11 +22,12 @@
                             </group>
                         </group>
                         
-                        <notebook>
+                        <notebook>                           
                             <page string="Formative Units">
-                                <field name="formative_units" widget="one2many_list" context="{'show_attribute': False}">
+                                <field name="formative_units" widget="many2many">
                                     <tree>
                                         <field name="code"/>
+                                        <field name="acronym"/>
                                         <field name="name"/>
                                     </tree>
                                 </field>

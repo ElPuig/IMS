@@ -19,3 +19,11 @@ class ims_study(models.Model):
     follows = fields.One2many(comodel_name="ims.tracking", inverse_name="study", string="Follow-up")
     level = fields.Many2one(comodel_name="ims.level", string="Level")
 
+    def name_get(self):
+        #Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
+        result = []	
+
+        for rec in self:
+            result.append((rec.id, '%s: %s' % (rec.acronym, rec.name)))			
+            
+        return result

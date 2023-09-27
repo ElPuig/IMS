@@ -5,6 +5,7 @@
             <field name="model">ims.professional_module</field>
             <field name="arch" type="xml">
             <tree>
+                <field name="study"/>
                 <field name="code"/>
                 <field name="acronym"/>
                 <field name="name"/>                
