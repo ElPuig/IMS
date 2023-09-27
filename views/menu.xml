@@ -74,8 +74,8 @@
         </record>
             
         <menuitem id="menu_root" name="Gestio Academica"/>
-        <menuitem name="Levels" id="menu_levels" parent="menu_root" action="action_ims_level_tree"/>
-        <menuitem name="Studies" id="menu_studies" parent="menu_root" action="action_ims_study_tree"/>
+        <menuitem name="Levels" sequence="1" id="menu_levels" parent="menu_root" action="action_ims_level_tree"/>
+        <menuitem name="Studies" sequence="2" id="menu_studies" parent="menu_root" action="action_ims_study_tree"/>
 
         <menuitem name="PMs" id="menu_mps" parent="menu_root" action="action_ims_professional_module_tree"/>
         <menuitem name="FUs" id="menu_ufs" parent="menu_root" action="action_ims_formative_unit_tree"/>
