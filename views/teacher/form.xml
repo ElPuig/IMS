@@ -7,12 +7,42 @@
             <field name="arch" type="xml">
                 <form string="Teacher">
                     <sheet>
-                        <field name="image" widget="image" class="preview" />
-                        <group string="Basic data">
-                            <field name="name"/>
-                            <field name="surname"/>
-                            <field name="email"/>
+                        <group col="4">
+                            <group string="Photo">
+                                <!-- <field name="image" widget="image" nolabel="1" /> reduces also the image size, and I prefer to do not mess with the styles -->
+                                <field name="image" widget="image" />
+                            </group>
+
+                            <group col="1" colspan="3">
+                                <group string="Main data">
+                                    <group>
+                                        <field name="name"/>    
+                                    </group>
+                                    <group>
+                                        <field name="surname"/>    
+                                    </group>                                                   
+                                </group>  
+
+                                <group string="Conact data (personal)">
+                                    <group>
+                                        <field name="personal_phone"/>    
+                                    </group>
+                                    <group>
+                                        <field name="personal_email"/>    
+                                    </group>                                                   
+                                </group> 
+
+                                <group string="Conact data (professional)">
+                                    <group>
+                                        <field name="professional_phone"/>    
+                                    </group>
+                                    <group>
+                                        <field name="professional_email"/>    
+                                    </group>                                                   
+                                </group> 
+                            </group>                         
                         </group>
+               
                         <notebook>                                                        
                             <page string="Notes">
                                 <field name="notes" placeholder="Write down here your notes..."/>
