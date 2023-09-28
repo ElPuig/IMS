@@ -15,9 +15,9 @@ class ims_study(models.Model):
     regional_decree = fields.Binary(string="Regional decree")
     notes = fields.Text(string="Notes")
 
-    professional_modules = fields.One2many(comodel_name="ims.professional_module", inverse_name="study", string="Professional Modules")
-    follows = fields.One2many(comodel_name="ims.tracking", inverse_name="study", string="Follow-up")
-    level = fields.Many2one(comodel_name="ims.level", string="Level")
+    professional_modules = fields.One2many(string="Professional Modules", comodel_name="ims.professional_module", inverse_name="study")
+    follows = fields.One2many(string="Follow-up", comodel_name="ims.tracking", inverse_name="study")
+    level = fields.Many2one(string="Level", comodel_name="ims.level")
 
     def name_get(self):
         #Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get

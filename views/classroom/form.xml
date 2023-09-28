@@ -7,9 +7,13 @@
             <field name="arch" type="xml">
                 <form string="Classroom">
                     <sheet>
-                        <group string="Basic data">
-                            <field name="code"/>
-                            <field name="name"/>                        
+                        <group string="Main data" col="4">
+                            <group>
+                                <field name="code"/>
+                            </group>   
+                            <group colspan="3">
+                                <field name="name"/>
+                            </group>                                                    
                         </group>                    
                     </sheet>	
                 </form>

@@ -7,8 +7,8 @@
             <field name="arch" type="xml">				
                 <form string="professional_module">                   
                     <sheet>                        
-                        <group string="Main data" col="3">
-                            <group colspan="3">
+                        <group string="Main data" col="4">
+                            <group colspan="4">
                                 <field name="study"/>
                             </group>
                             <group>
@@ -17,7 +17,7 @@
                             <group>							
                                 <field name="acronym"/>
                             </group>
-                            <group>							
+                            <group colspan="2">							
                                 <field name="name"/>
                             </group>
                         </group>
