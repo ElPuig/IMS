@@ -73,7 +73,7 @@
             <field name="view_mode">tree,form</field>
         </record>
             
-        <menuitem id="menu_root" name="Gestio Academica"/>
+        <menuitem id="menu_root" name="Institute Management System"/>
         
         <menuitem name="Curriculum" sequence="1" id="menu_curriculum" parent="menu_root"/>
             <menuitem name="Levels" sequence="1" id="menu_levels" parent="menu_curriculum" action="action_ims_level_tree"/>
