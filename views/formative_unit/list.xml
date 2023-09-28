@@ -2,9 +2,9 @@
     <data>
         <record model="ir.ui.view" id="uf_list">
             <field name="name">ims uf list</field>
-            <field name="model">ims.formative_unit</field>
-            <field name="arch" type="xml">
-                <tree>
+            <field name="model">ims.formative_unit</field>            
+            <field name="arch" type="xml">               
+                <tree expand="1" default_order='professional_module desc, code asc'>                    
                     <field name="professional_module"/>
                     <field name="code"/>
                     <field name="acronym"/>
@@ -12,5 +12,17 @@
                 </tree>
             </field>
         </record>   
+
+        <record model="ir.ui.view" id="uf_search">
+            <field name="name">ims uf search</field>
+            <field name="model">ims.formative_unit</field>            
+            <field name="arch" type="xml">
+                <search string="Professional Module">
+                    <group expand="1" string="Order By">
+                        <filter string="Professional Module" name="group_by_professional_module" context="{'group_by':'professional_module'}" />
+                    </group>
+                </search>
+            </field>
+        </record>  
     </data>
 </odoo>
