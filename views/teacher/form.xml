@@ -34,10 +34,10 @@
 
                                 <group string="Conact data (professional)">
                                     <group>
-                                        <field name="professional_phone"/>    
+                                        <field name="corporate_phone"/>    
                                     </group>
                                     <group>
-                                        <field name="professional_email"/>    
+                                        <field name="corporate_email"/>    
                                     </group>                                                   
                                 </group> 
                             </group>                         

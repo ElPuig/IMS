@@ -9,7 +9,7 @@
                     <field name="image" color="grey"/>
                     <field name="name"/>
                     <field name="surname"/>
-                    <field name="email"/>
+                    <field name="corporate_email"/>
                     <templates>
                         <t t-name="kanban-box">
                             <div t-attf-class="oe_kanban_global_click">                        

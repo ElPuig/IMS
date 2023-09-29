@@ -17,9 +17,25 @@
                             <group>
                                 <field name="acronym" />
                             </group>
+                            <group colspan="2">
+                                <field name="tutor" />
+                            </group>
+                            <group colspan="2">
+                                <field name="classroom" />
+                            </group>
                         </group>                       
                         
-                        <notebook>                               
+                        <notebook> 
+                            <page string="Students">
+                                <field name="students" widget="many2many">
+                                    <tree>
+                                        <field name="name"/>
+                                        <field name="surname"/>
+                                        <!-- <field name="email"/> -->
+                                    </tree>
+                                </field>
+                            </page>        
+
                             <page string="Notes">
                                 <field name="notes" placeholder="Write down here your notes..."/>
                             </page>

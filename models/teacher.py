@@ -8,9 +8,9 @@ class ims_teacher(models.Model):
 
 	name = fields.Char(string="Name", required="true")
 	surname = fields.Char(string="Surname", required="true")
-	professional_email = fields.Char(string="Email (professional)", required="true")
+	corporate_email = fields.Char(string="Email (professional)", required="true")
 	personal_email = fields.Char(string="Email (personal)")
-	professional_phone = fields.Char(string="Phone (professional)")
+	corporate_phone = fields.Char(string="Phone (professional)")
 	personal_phone = fields.Char(string="Phone (personal)")
 	image = fields.Binary(string=" ") #empty label for image filed (widget image will be used, and nocaption="1" produces side effects with the image size...)
 	notes = fields.Text(string="Notes")
