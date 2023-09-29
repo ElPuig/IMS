@@ -1,6 +1,35 @@
 <odoo>
     <data>
-        <record id="view_ims_group_form" model="ir.ui.view">
+         <record id="view_ims_group_form" model="ir.ui.view">
+            <field name="name">Group form</field>
+            <field name="model">ims.group</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Group">
+                    <sheet>                        
+                        <group string="Main data" col="4">                            
+                            <group colspan="2">
+                                <field name="study" />
+                            </group>
+                            <group>
+                                <field name="course" />
+                            </group>
+                            <group>
+                                <field name="acronym" />
+                            </group>
+                        </group>                       
+                        
+                        <notebook>                               
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
+                            </page>
+                        </notebook>
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+
+        <!-- <record id="view_ims_group_form" model="ir.ui.view">
             <field name="name">group form</field>
             <field name="model">ims.group</field>
             <field name="type">form</field>
@@ -37,8 +66,8 @@
                     </sheet>	
                 </form>
             </field>			
-        </record>
-        <record id="view_ims_group_form_2" model="ir.ui.view">
+        </record> -->
+        <!-- <record id="view_ims_group_form_2" model="ir.ui.view">
             <field name="name">group form</field>
             <field name="model">ims.group</field>
             <field name="type">form</field>
@@ -67,6 +96,6 @@
                     </sheet>	
                 </form>
             </field>			
-        </record>
+        </record> -->
     </data>
 </odoo>

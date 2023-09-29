@@ -5,9 +5,7 @@
             <field name="model">ims.group</field>
             <field name="arch" type="xml">
                 <tree>                    
-                    <field name="acronym"/>
                     <field name="name"/>
-                    <field name="email"/>
                 </tree>
             </field>
         </record>   

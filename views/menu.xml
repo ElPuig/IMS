@@ -12,6 +12,7 @@
             <field name="name">Professional Modules Management</field>
             <field name="res_model">ims.professional_module</field>
             <field name="view_mode">tree,form</field>
+            <field name="context">{'search_default_group_by_study': 1}</field>
         </record>
 
         <record model="ir.actions.act_window" id="action_ims_teacher_tree">

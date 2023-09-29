@@ -4,11 +4,11 @@
             <field name="name">ims study list</field>
             <field name="model">ims.study</field>
             <field name="arch" type="xml">
-                <tree>                    
-                    <field name="level"/>
-                    <field name="code"/>
+                <tree>                                        
+                    <field name="code"/>  
                     <field name="acronym"/>
-                    <field name="name"/>            
+                    <field name="name"/>                                          
+                    <field name="level"/>        
                 </tree>
             </field>
         </record>   
