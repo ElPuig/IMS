@@ -69,5 +69,6 @@
         'demo/formative_unit.xml',
         'demo/group.xml',
         'demo/teacher.xml',        
+        'demo/teaching.xml',
     ],
 }

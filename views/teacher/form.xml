@@ -44,15 +44,6 @@
                         </group>
                
                         <notebook>   
-                            <page string="Tutor">
-                                <field name="tutor" widget="many2many">
-                                    <tree>
-                                        <field name="name" string="Group"/>
-                                        <field name="classroom"/>
-                                    </tree>
-                                </field>
-                            </page>  
-
                             <page string="Teaching">
                                 <field name="teaching">
                                     <tree editable="bottom">
@@ -60,8 +51,16 @@
                                         <field name="group"/>
                                     </tree>
                                 </field>
-                            </page>        
-      
+                            </page>    
+
+                            <page string="Tutor">
+                                <field name="tutor" widget="many2many">
+                                    <tree>
+                                        <field name="name" string="Group"/>
+                                        <field name="classroom"/>
+                                    </tree>
+                                </field>
+                            </page>     
 
                             <page string="Notes">
                                 <field name="notes" placeholder="Write down here your notes..."/>
