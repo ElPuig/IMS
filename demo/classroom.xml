@@ -1,0 +1,9 @@
+<odoo>
+    <data>
+       <record id="classroom_1" model="ims.classroom">
+          <field name="id">1</field>
+          <field name="code">0.13</field>
+          <field name="name">Chomsky</field>
+        </record>
+    </data>
+</odoo>

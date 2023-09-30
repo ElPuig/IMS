@@ -1,0 +1,13 @@
+<odoo>
+    <data>
+       <record id="study_1" model="ims.study">
+          <field name="id">1</field>
+          <field name="code">ICB0</field>
+          <field name="acronym">DAM</field>
+          <field name="name">Desenvolupament d'aplicacions multiplataforma</field>
+          <field name="date">2013-12-09</field>
+          <field name="deprecated">false</field>
+          <field name="level" ref="level_2"/>
+        </record>
+    </data>
+</odoo>

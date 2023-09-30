@@ -63,5 +63,7 @@
     # only loaded in demonstration mode (only loaded when installed, ignored when updated)
     'demo': [
         'demo/level.xml',
+        'demo/classroom.xml',
+        'demo/study.xml',
     ],
 }
