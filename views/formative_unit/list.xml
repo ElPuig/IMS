@@ -4,7 +4,7 @@
             <field name="name">ims uf list</field>
             <field name="model">ims.formative_unit</field>            
             <field name="arch" type="xml">               
-                <tree expand="1" default_order='professional_module desc, code asc'>                    
+                <tree expand="1" default_order='professional_module asc, code asc'>                    
                     <field name="professional_module"/>
                     <field name="code"/>
                     <field name="acronym"/>

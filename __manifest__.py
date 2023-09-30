@@ -65,5 +65,7 @@
         'demo/level.xml',
         'demo/classroom.xml',
         'demo/study.xml',
+        'demo/professional_module.xml',
+        'demo/formative_unit.xml',
     ],
 }
