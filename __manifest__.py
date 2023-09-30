@@ -60,8 +60,8 @@
     'license': 'AGPL-3',
     'application': True,
     
-    # only loaded in demonstration mode
+    # only loaded in demonstration mode (only loaded when installed, ignored when updated)
     'demo': [
-        'demo/demo.xml',
+        'demo/level.xml',
     ],
 }

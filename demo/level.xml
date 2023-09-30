@@ -1,0 +1,53 @@
+<odoo>
+    <data>
+       <record id="level_1" model="ims.level">
+          <field name="id">1</field>
+          <field name="acronym">CFGM</field>
+          <field name="name">Cicles Formatius (Grau Mitjà)</field>
+        </record>
+
+        <record id="level_2" model="ims.level">
+          <field name="id">2</field>
+          <field name="acronym">CFGS</field>
+          <field name="name">Cicles Formatius (Grau Superior)</field>
+        </record>
+
+        <record id="level_3" model="ims.level">
+          <field name="id">3</field>
+          <field name="acronym">ESO</field>
+          <field name="name">Educació Secundària Obligatoria</field>
+        </record>
+
+         <record id="level_4" model="ims.level">
+          <field name="id">4</field>
+          <field name="acronym">BTX</field>
+          <field name="name">Batxillerat</field>
+        </record>
+<!--
+          <record id="object0" model="ims.ims">
+            <field name="name">Object 0</field>
+            <field name="value">0</field>
+          </record>
+
+          <record id="object1" model="ims.ims">
+            <field name="name">Object 1</field>
+            <field name="value">10</field>
+          </record>
+
+          <record id="object2" model="ims.ims">
+            <field name="name">Object 2</field>
+            <field name="value">20</field>
+          </record>
+
+          <record id="object3" model="ims.ims">
+            <field name="name">Object 3</field>
+            <field name="value">30</field>
+          </record>
+
+          <record id="object4" model="ims.ims">
+            <field name="name">Object 4</field>
+            <field name="value">40</field>
+          </record>
+-->
+    </data>
+</odoo>
