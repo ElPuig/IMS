@@ -40,6 +40,15 @@
                                         <field name="corporate_email"/>    
                                     </group>                                                   
                                 </group> 
+
+                                <group string="Administrative data">
+                                    <group>
+                                        <field name="group"/>    
+                                    </group>
+                                    <group>
+                                        <field name="tutor"/>    
+                                    </group>                                                   
+                                </group> 
                             </group>                         
                         </group>
                
