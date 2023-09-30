@@ -25,6 +25,7 @@
             <field name="name">Studies Management</field>
             <field name="res_model">ims.study</field>
             <field name="view_mode">tree,form</field>
+            <field name="context">{'search_default_group_by_level': 1}</field>
         </record>
 
         <record model="ir.actions.act_window" id="action_ims_student_tree">
