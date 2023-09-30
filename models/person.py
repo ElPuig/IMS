@@ -12,7 +12,7 @@ class ims_person(models.Model):
 	personal_email = fields.Char(string="Email (personal)")
 	corporate_phone = fields.Char(string="Phone (professional)")
 	personal_phone = fields.Char(string="Phone (personal)")
-	image = fields.Binary(string=" ") #TODO: Improve this --> empty label for image filed becasue the image widget will be used, and nocaption="1" produces side effects with the image size... Also, image export will be no avaliable with no caption...
+	image = fields.Binary(string="Image")
 	notes = fields.Text(string="Notes")
 
 	def name_get(self):

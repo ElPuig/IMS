@@ -10,7 +10,7 @@
                         <group col="4">
                             <group string="Photo">
                                 <!-- <field name="image" widget="image" nolabel="1" /> reduces also the image size, and I prefer to do not mess with the styles -->
-                                <field name="image" widget="image" />
+                                <field name="image" string="" widget="image" />
                             </group>
 
                             <group col="1" colspan="3">
@@ -43,7 +43,15 @@
                             </group>                         
                         </group>
                
-                        <notebook>                                                        
+                        <notebook>   
+                            <page string="Tutor">
+                                <field name="tutor" widget="many2many">
+                                    <tree>
+                                        <field name="name" string="Group"/>                                      
+                                    </tree>
+                                </field>
+                            </page>        
+
                             <page string="Notes">
                                 <field name="notes" placeholder="Write down here your notes..."/>
                             </page>
