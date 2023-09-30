@@ -4,7 +4,7 @@
             <field name="name">ims level list</field>
             <field name="model">ims.level</field>
             <field name="arch" type="xml">
-                <tree>                    
+                <tree expand="1" default_order="acronym asc">      
                     <field name="acronym" width="200"/>
                     <field name="name"/>                    
                 </tree>

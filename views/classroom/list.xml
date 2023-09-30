@@ -4,7 +4,7 @@
             <field name="name">ims classroom list</field>
             <field name="model">ims.classroom</field>
             <field name="arch" type="xml">
-                <tree>                    
+                <tree expand="1" default_order="code asc">                           
                     <field name="code"/>
                     <field name="name"/>                    
                 </tree>

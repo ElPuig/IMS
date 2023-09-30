@@ -14,3 +14,12 @@ class ims_person(models.Model):
 	personal_phone = fields.Char(string="Phone (personal)")
 	image = fields.Binary(string=" ") #TODO: Improve this --> empty label for image filed becasue the image widget will be used, and nocaption="1" produces side effects with the image size... Also, image export will be no avaliable with no caption...
 	notes = fields.Text(string="Notes")
+
+	def name_get(self):
+		#Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
+
+		result = []	
+		for rec in self:
+			result.append((rec.id, '%s %s' % (rec.name, rec.surname)))
+			
+		return result

@@ -4,8 +4,10 @@
             <field name="name">ims group list</field>
             <field name="model">ims.group</field>
             <field name="arch" type="xml">
-                <tree>                    
+                <tree expand="1" default_order="name asc">      
                     <field name="name"/>
+                    <field name="classroom"/>
+                    <field name="tutor"/>
                 </tree>
             </field>
         </record>   

@@ -4,7 +4,7 @@
             <field name="name">ims study list</field>
             <field name="model">ims.study</field>
             <field name="arch" type="xml">
-                <tree expand="1" default_order='level asc, code asc'>
+                <tree expand="1" default_order="level asc, code asc">
                     <field name="level"/>
                     <field name="code"/>  
                     <field name="acronym"/>

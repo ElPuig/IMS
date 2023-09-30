@@ -4,7 +4,7 @@
             <field name="name">ims mp list</field>
             <field name="model">ims.professional_module</field>
             <field name="arch" type="xml">
-                 <tree expand="1" default_order='study desc, code asc, acronym asc'>       
+                 <tree expand="1" default_order="study desc, code asc, acronym asc">
                     <field name="study"/>
                     <field name="code"/>
                     <field name="acronym"/>
