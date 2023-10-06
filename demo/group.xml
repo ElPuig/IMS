@@ -11,7 +11,7 @@
         </record>
 
         <record id="group_2" model="ims.group">
-            <field name="id">1</field>
+            <field name="id">2</field>
             <field name="course">2</field>
             <field name="acronym">B</field>
             <field name="study" ref="study_1"/>
