@@ -12,6 +12,7 @@
 
     'author': "El Puig",
     'website': "https://github.com/ElPuig/IMS",
+    #icon authory: thanks to Memed_Nurrohmad (https://pixabay.com/es/vectors/sombrero-graduaci%C3%B3n-gorra-educaci%C3%B3n-1674894/)
 
     # Categories can be used to filter modules in modules listing
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
@@ -61,7 +62,7 @@
 
         'views/test/list.xml',
         'views/test/form.xml',
-        
+
         'views/attendance_template/list.xml',
         'views/attendance_template/form.xml',
         'views/attendance_group/list.xml',
