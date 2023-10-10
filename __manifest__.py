@@ -67,8 +67,8 @@
         'demo/study.xml',
         'demo/professional_module.xml',
         'demo/formative_unit.xml',
-        'demo/group.xml',
-        'demo/teacher.xml',        
+        'demo/teacher.xml',
+        'demo/group.xml',        
         'demo/teaching.xml',
     ],
 }
