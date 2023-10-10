@@ -12,7 +12,7 @@
                 report_type="qweb-pdf" 
             />
         -->
-        <record id="report_mp" model="ir.actions.report">
+        <record id="view_ims_professional_module_report" model="ir.actions.report">
             <field name="name">Professional Module Report</field>
             <field name="model">ims.professional_module"</field>
             <field name="report_type">qweb-pdf</field>

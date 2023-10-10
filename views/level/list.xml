@@ -1,6 +1,6 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="level_list">
+        <record model="ir.ui.view" id="view_ims_level_list">
             <field name="name">ims level list</field>
             <field name="model">ims.level</field>
             <field name="arch" type="xml">
