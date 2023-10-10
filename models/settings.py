@@ -2,7 +2,7 @@
 
 from odoo import models, fields, api
 
-class ResConfigSettings(models.TransientModel):
+class ims_settings(models.TransientModel):
    _inherit = 'res.config.settings'
 
    contract_type = fields.Selection(
