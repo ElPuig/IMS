@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>     
-        <record model="ir.actions.act_window" id="res_config_settings_action">
+        <record model="ir.actions.act_window" id="action_ims_settings">
             <field name="name">Configuration</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">res.config.settings</field>
             <field name="view_mode">form</field>
             <field name="target">inline</field>
             <field name="context">{'module' : 'ims'}</field>
-        </record>
+            </record>
 
         <record model="ir.actions.act_window" id="action_ims_formative_unit_tree">
             <field name="name">Formative Units Management</field>
@@ -109,7 +109,7 @@
         <menuitem name="Templates" id="menu_ims_attendance_template" parent="menu_ims_attendance" action="action_ims_attendance_template_tree"/>
         <menuitem name="Groups" id="menu_ims_attendance_group" parent="menu_ims_attendance" action="action_ims_attendance_group_tree"/>
 
-        <menuitem name="Configuration" id="menu_ims_configuration" parent="menu_ims_root" />
-            <menuitem name="Settings" id="menu_ims_settings" parent="menu_ims_configuration" action="res_config_settings_action" sequence="1"/>
+        <menuitem name="Configuration" sequence="7" id="menu_ims_configuration" parent="menu_ims_root" />
+            <menuitem name="Settings" id="menu_ims_settings" parent="menu_ims_configuration" action="action_ims_settings" sequence="1"/>
     </data>
 </odoo>

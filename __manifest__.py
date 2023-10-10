@@ -25,6 +25,7 @@
     # always loaded
    'data': [
         'security/ir.model.access.csv',
+        'views/settings/form.xml',
         'views/menu.xml',
         'views/formative_unit/list.xml',
         'views/formative_unit/form.xml',
@@ -55,7 +56,7 @@
         'views/attendance_session/list.xml',
         'views/attendance_session/form.xml',
         'views/attendance_status/list.xml',
-        'views/attendance_status/form.xml',
+        'views/attendance_status/form.xml',       
     ],
     'license': 'AGPL-3',
     'application': True,
