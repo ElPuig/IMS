@@ -38,9 +38,12 @@
         'views/professional_module/form.xml',
         'views/professional_module/report.xml',
 
+        'views/person/list.xml',
         'views/person/form.xml',
+
         'views/teacher/list.xml',
         'views/teacher/form.xml',
+        
         'views/student/list.xml',
         'views/student/form.xml',
         'views/student/kanban.xml',

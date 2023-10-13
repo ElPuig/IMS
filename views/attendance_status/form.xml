@@ -3,7 +3,6 @@
         <record id="view_ims_attendance_status_form" model="ir.ui.view">
             <field name="name">Attendance status form</field>
             <field name="model">ims.attendance_status</field>
-            <field name="type">form</field>
             <field name="arch" type="xml">
                 <form string="Status">
                     <sheet>
