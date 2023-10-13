@@ -3,27 +3,15 @@ import base64
 from odoo import models, fields, api
 
 class ims_student(models.Model):
-	_name = 'ims.student'
-	_description = 'Student: Collects the student\'s data.'
-
-	code = fields.Integer('Code')
-	name = fields.Char('Name')
-	surname = fields.Char('Surnames')
-	email = fields.Char('Email')	
-	image = fields.Binary(string='image', attachment=True, store=True)
-	notes = fields.Text('Notes')
+	_name = "ims.student"
+	_description = "Student: Collects the student\"s data."
+	_inherit = "ims.person"
 
 	group = fields.Many2one(comodel_name="ims.group", string="Group")
-
+	tutor=fields.Char(string='Tutor',compute='_compute_tutor')
 	follows = fields.One2many(comodel_name="ims.tracking", inverse_name="student", string="Follow-up")
 
-	# @api.model
-	# def create(self, vals):
-	# 	if vals.get('image'):
-	# 		vals['image'] = base64.b64encode(vals['image']).decode('utf-8')
-	# 	return super(ims_student, self).create(vals)
-	
-	# def write(self, vals):
-	# 	if vals.get('image'):
-	# 		vals['image'] = base64.b64encode(vals['image']).decode('utf-8')
-	# 	return super(ims_student, self).write(vals)
+	@api.depends("group")
+	def _compute_tutor(self):	
+		for rec in self:
+			rec.tutor = '%s %s' % (rec.group.tutor.name, rec.group.tutor.surname)

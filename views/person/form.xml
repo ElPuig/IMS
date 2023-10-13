@@ -1,0 +1,54 @@
+<odoo>
+    <data>
+        <record id="view_ims_person_form" model="ir.ui.view">
+            <field name="name">Person form</field>
+            <field name="model">ims.person</field>
+            <field name="arch" type="xml">
+                <form string="Person">
+                    <sheet>
+                        <group col="4">
+                            <group string="Photo">
+                                <field name="image" string="" widget="image" />
+                            </group>
+
+                            <group id="data" col="1" colspan="3">
+                                <group string="Main data">
+                                    <group>
+                                        <field name="name"/>    
+                                    </group>
+                                    <group>
+                                        <field name="surname"/>    
+                                    </group>                                                   
+                                </group>  
+
+                                <group string="Conact data (personal)">
+                                    <group>
+                                        <field name="personal_phone"/>    
+                                    </group>
+                                    <group>
+                                        <field name="personal_email"/>    
+                                    </group>                                                   
+                                </group> 
+
+                                <group string="Conact data (professional)">
+                                    <group>
+                                        <field name="corporate_phone"/>    
+                                    </group>
+                                    <group>
+                                        <field name="corporate_email"/>    
+                                    </group>                                                   
+                                </group> 
+                            </group>                         
+                        </group>
+               
+                        <notebook>                               
+                            <page id="notes" string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
+                            </page>
+                        </notebook>
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>

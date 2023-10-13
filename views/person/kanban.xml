@@ -1,0 +1,48 @@
+<odoo>
+    <data>
+        <record id="view_ims_person_kanban" model="ir.ui.view">
+            <field name="name">ims.person kanban view</field>
+            <field name="model">ims.person</field>
+            <field name="arch" type="xml">
+                <kanban>
+                    <field name="id"/>
+                    <field name="image" color="grey"/>
+                    <field name="name"/>
+                    <field name="surname"/>
+                    <field name="corporate_email"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="oe_kanban_global_click">                        
+                                <div class="oe_kanban_content">
+                                    <div class="o_kanban_image">
+                                        <img id="photo" alt="Photo" t-att-src="kanban_image('ims.person', 'image', record.id.raw_value)"/>
+                                    </div>
+                                    <div class="oe_kanban_details">
+                                        <strong class="oe_partner_heading">                                        
+                                            <t t-esc="record.name.value"/>
+                                            <t> </t> 
+                                            <t t-esc="record.surname.value"/>
+                                        </strong>
+                                        <div class="oe_kanban_partner_info">                                        
+                                            <span>
+                                                <t t-esc="record.corporate_email.value"/>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+			        </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <record id="action_ims_person_kanban" model="ir.actions.act_window">
+            <field name="name">ims.person Kanban Action</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">ims.person</field>
+            <field name="view_mode">kanban</field>
+            <field name="view_id" ref="view_ims_person_kanban"/>
+        </record>
+    </data>
+</odoo>

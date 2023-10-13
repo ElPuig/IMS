@@ -3,52 +3,20 @@
         <record id="view_ims_student_form" model="ir.ui.view">
             <field name="name">Student form</field>
             <field name="model">ims.student</field>
-            <field name="type">form</field>
-            <field name="arch" type="xml">
-                <form string="Student">
-                    <sheet>
-                        <div class="o_row">
-                            <div class="o_column col-md-6">
-                                <group class="o_group" string="Foto">
-                                    <field name="image" widget="image" class="preview"/>
-                                </group>
-                            </div>
-                            <div class="o_column col-md-6">
-                                <group class="o_group" string="Basic data">
-                                    <field name="code"/>
-                                    <field name="name"/>
-                                    <field name="surname"/>
-                                    <field name="email"/>
-                                    <field name="group"/>
-                                </group>
-                            </div>
-                        </div>
-                        <!-- <group string="Foto">
-                            <field name="image" widget="image" class="preview"/>
+            <field name="mode">primary</field>      
+            <field name="inherit_id" ref="ims.view_ims_person_form"/>      
+            <field name="arch" type="xml">                
+                <xpath expr="//group[@id='data']" position="inside">         
+                    <group string="Administrative data">
+                        <group>
+                            <field name="group"/>    
                         </group>
-                        <group string="Basic data">
-                            <field name="code"/>
-                            <field name="name"/>
-                            <field name="surname"/>
-                            <field name="email"/>
-                            <field name="group"/>
-                        </group> -->
-                        <notebook>
-                            <page string="tracking">
-                                <field name="follows" widget="one2many_list" context="{'show_attribute': False}">
-                                    <tree>
-                                        <field name="teacher"/>
-                                        <field name="notes"/>
-                                    </tree>
-                                </field>
-                            </page>                                                        
-                            <page string="Notes">
-                                <field name="notes" placeholder="Write down here your notes..."/>
-                            </page>
-                        </notebook>
-                    </sheet>	
-                </form>
-            </field>			
+                        <group>
+                            <field name="tutor"/>    
+                        </group>                                                   
+                    </group>           
+                </xpath>
+            </field>		            
         </record>
     </data>
 </odoo>

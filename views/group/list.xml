@@ -1,13 +1,13 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="group_list">
+        <record model="ir.ui.view" id="view_ims_group_list">
             <field name="name">ims group list</field>
             <field name="model">ims.group</field>
             <field name="arch" type="xml">
-                <tree>                    
-                    <field name="acronym"/>
+                <tree expand="1" default_order="name asc">      
                     <field name="name"/>
-                    <field name="email"/>
+                    <field name="classroom"/>
+                    <field name="tutor"/>
                 </tree>
             </field>
         </record>   

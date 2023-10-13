@@ -3,13 +3,16 @@
         <record id="view_ims_classroom_form" model="ir.ui.view">
             <field name="name">classroom form</field>
             <field name="model">ims.classroom</field>
-            <field name="type">form</field>
             <field name="arch" type="xml">
                 <form string="Classroom">
                     <sheet>
-                        <group string="Basic data">
-                            <field name="code"/>
-                            <field name="name"/>                        
+                        <group string="Main data" col="4">
+                            <group>
+                                <field name="code"/>
+                            </group>   
+                            <group colspan="3">
+                                <field name="name"/>
+                            </group>                                                    
                         </group>                    
                     </sheet>	
                 </form>

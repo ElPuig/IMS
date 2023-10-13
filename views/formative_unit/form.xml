@@ -3,21 +3,29 @@
         <record id="view_ims_formative_unit_form" model="ir.ui.view">
             <field name="name">UF form</field>
             <field name="model">ims.formative_unit</field>
-            <field name="type">form</field>
             <field name="arch" type="xml">
                 <form string="formative_unit">
-                    <sheet>
-                        <group string="Basic data">
-                            <field name="name"/>
-                            <field name="code"/>
-                            <!-- <field name="teacher"/> -->
-                            <field name="professional_module" widget="selection" 
-                                options="{'model': 'ims.professional_module', 'field': ['code','name']}"/>
+                    <sheet>                      
+                        <group string="Main data" col="3">
+                            <group colspan="3">
+                                <field name="professional_module" options="{'model': 'ims.professional_module', 'field': ['code','name']}"/>
+                            </group>
+                            <group>
+                                <field name="code"/>
+                            </group>
+                            <group>							
+                                <field name="acronym"/>
+                            </group>
+                            <group>							
+                                <field name="name"/>
+                            </group>
                         </group>
-                        <!-- <group string="Dates">
-                            <field name="start_date"/>
-                            <field name="end_date"/>
-                        </group> -->
+
+                        <notebook>                                                      
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
+                            </page>
+                        </notebook>
                     </sheet>	
                 </form>
             </field>			

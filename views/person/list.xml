@@ -1,0 +1,15 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_ims_person_list">
+            <field name="name">ims person list</field>
+            <field name="model">ims.person</field>
+            <field name="arch" type="xml">
+                <tree expand="1" default_order="surname asc">                          
+                    <field name="surname"/>
+                    <field name="name"/>
+                    <field name="corporate_email"/>                    
+                </tree>
+            </field>
+        </record>   
+    </data>
+</odoo>

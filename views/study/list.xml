@@ -1,14 +1,28 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="study_list">
+        <record model="ir.ui.view" id="view_ims_study_list">
             <field name="name">ims study list</field>
             <field name="model">ims.study</field>
             <field name="arch" type="xml">
-                <tree>                    
-                    <field name="code"/>
-                    <field name="name"/>            
+                <tree expand="1" default_order="level asc, code asc">
+                    <field name="level"/>
+                    <field name="code"/>  
+                    <field name="acronym"/>
+                    <field name="name"/>                                                              
                 </tree>
             </field>
         </record>   
+
+        <record model="ir.ui.view" id="study_search">
+            <field name="name">ims study search</field>
+            <field name="model">ims.study</field>            
+            <field name="arch" type="xml">
+                <search string="Level">
+                    <group expand="1" string="Order By">
+                        <filter string="Level" name="group_by_level" context="{'group_by':'level'}" />
+                    </group>
+                </search>
+            </field>
+        </record>  
     </data>
 </odoo>

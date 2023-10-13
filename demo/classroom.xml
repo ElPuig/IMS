@@ -1,0 +1,51 @@
+<odoo>
+    <data>
+       <record id="classroom_1" model="ims.classroom">
+            <field name="id">1</field>
+            <field name="code">0.13</field>
+            <field name="name">Chomsky</field>
+        </record>
+
+        <record id="classroom_2" model="ims.classroom">
+            <field name="id">2</field>
+            <field name="code">0.19</field>
+            <field name="name">Tesla</field>
+        </record>
+
+        <record id="classroom_3" model="ims.classroom">
+            <field name="id">3</field>
+            <field name="code">0.18</field>
+            <field name="name">Torvalds</field>
+        </record>
+
+        <record id="classroom_4" model="ims.classroom">
+            <field name="id">4</field>
+            <field name="code">0.01</field>
+            <field name="name">Stallman</field>
+        </record>
+
+        <record id="classroom_5" model="ims.classroom">
+            <field name="id">5</field>
+            <field name="code">2.08</field>
+            <field name="name">Berners-Lee</field>
+        </record>
+
+        <record id="classroom_6" model="ims.classroom">
+            <field name="id">6</field>
+            <field name="code">2.10</field>
+            <field name="name">Ada</field>
+        </record>
+
+        <record id="classroom_7" model="ims.classroom">
+            <field name="id">7</field>
+            <field name="code">2.09</field>
+            <field name="name">Snowden</field>
+        </record>
+
+         <record id="classroom_8" model="ims.classroom">
+            <field name="id">8</field>
+            <field name="code">3.03</field>
+            <field name="name">Turing</field>
+        </record>
+    </data>
+</odoo>

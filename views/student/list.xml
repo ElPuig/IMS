@@ -1,15 +1,14 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="student_list">
+        <record model="ir.ui.view" id="view_ims_student_list">
             <field name="name">ims student list</field>
             <field name="model">ims.student</field>
-            <field name="arch" type="xml">
-                <tree>                    
-                    <field name="name"/>
-                    <field name="surname"/>
-                    <field name="email"/>
-                </tree>
-            </field>
+            <field name="mode">primary</field>      
+            <field name="inherit_id" ref="ims.view_ims_person_list"/> 
+            <field name="arch" type="xml">  
+                <xpath expr="//tree" position="inside">
+                </xpath>              
+            </field>		      
         </record>   
     </data>
 </odoo>
