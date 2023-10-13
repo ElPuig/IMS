@@ -3,72 +3,30 @@
         <record id="view_ims_teacher_form" model="ir.ui.view">
             <field name="name">Teacher form</field>
             <field name="model">ims.teacher</field>
-            <field name="type">form</field>
-            <field name="arch" type="xml">
-                <form string="Teacher">
-                    <sheet>
-                        <group col="4">
-                            <group string="Photo">
-                                <!-- <field name="image" widget="image" nolabel="1" /> reduces also the image size, and I prefer to do not mess with the styles -->
-                                <field name="image" string="" widget="image" />
-                            </group>
+            <field name="type">form</field>      
+            <field name="mode">primary</field>      
+            <field name="inherit_id" ref="ims.view_ims_person_form"/>      
+            <field name="arch" type="xml">                
+                <xpath expr="//page[@id='notes']" position="before">
+                    <page string="Teaching">
+                        <field name="teaching">
+                            <tree editable="bottom">
+                                <field name="formative_unit"/>
+                                <field name="group"/>
+                            </tree>
+                        </field>
+                    </page>    
 
-                            <group col="1" colspan="3">
-                                <group string="Main data">
-                                    <group>
-                                        <field name="name"/>    
-                                    </group>
-                                    <group>
-                                        <field name="surname"/>    
-                                    </group>                                                   
-                                </group>  
-
-                                <group string="Conact data (personal)">
-                                    <group>
-                                        <field name="personal_phone"/>    
-                                    </group>
-                                    <group>
-                                        <field name="personal_email"/>    
-                                    </group>                                                   
-                                </group> 
-
-                                <group string="Conact data (professional)">
-                                    <group>
-                                        <field name="corporate_phone"/>    
-                                    </group>
-                                    <group>
-                                        <field name="corporate_email"/>    
-                                    </group>                                                   
-                                </group> 
-                            </group>                         
-                        </group>
-               
-                        <notebook>   
-                            <page string="Teaching">
-                                <field name="teaching">
-                                    <tree editable="bottom">
-                                        <field name="formative_unit"/>
-                                        <field name="group"/>
-                                    </tree>
-                                </field>
-                            </page>    
-
-                            <page string="Tutor">
-                                <field name="tutor" widget="many2many">
-                                    <tree>
-                                        <field name="name" string="Group"/>
-                                        <field name="classroom"/>
-                                    </tree>
-                                </field>
-                            </page>     
-
-                            <page string="Notes">
-                                <field name="notes" placeholder="Write down here your notes..."/>
-                            </page>
-                        </notebook>
-                    </sheet>	
-                </form>
-            </field>			
+                    <page string="Tutor">
+                        <field name="tutor" widget="many2many">
+                            <tree>
+                                <field name="name" string="Group"/>
+                                <field name="classroom"/>
+                            </tree>
+                        </field>
+                    </page>  
+                </xpath>
+            </field>		            
         </record>
     </data>
 </odoo>

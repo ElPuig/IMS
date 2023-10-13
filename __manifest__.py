@@ -38,15 +38,15 @@
         'views/professional_module/form.xml',
         'views/professional_module/report.xml',
 
+        'views/person/form.xml',
         'views/teacher/list.xml',
         'views/teacher/form.xml',
-
-        'views/study/list.xml',
-        'views/study/form.xml',
-        
         'views/student/list.xml',
         'views/student/form.xml',
         'views/student/kanban.xml',
+
+        'views/study/list.xml',
+        'views/study/form.xml',            
 
         'views/tracking/list.xml',
         'views/tracking/form.xml',
