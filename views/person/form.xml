@@ -3,7 +3,6 @@
         <record id="view_ims_person_form" model="ir.ui.view">
             <field name="name">Person form</field>
             <field name="model">ims.person</field>
-            <field name="type">form</field>
             <field name="arch" type="xml">
                 <form string="Person">
                     <sheet>
