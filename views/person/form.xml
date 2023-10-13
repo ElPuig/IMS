@@ -12,7 +12,7 @@
                                 <field name="image" string="" widget="image" />
                             </group>
 
-                            <group col="1" colspan="3">
+                            <group id="data" col="1" colspan="3">
                                 <group string="Main data">
                                     <group>
                                         <field name="name"/>    
