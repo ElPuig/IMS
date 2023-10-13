@@ -1,0 +1,15 @@
+<odoo>
+    <data>
+        <record id="view_ims_teacher_kanban" model="ir.ui.view">
+            <field name="name">ims.teacher kanban view</field>
+            <field name="model">ims.teacher</field>
+            <field name="mode">primary</field>      
+            <field name="inherit_id" ref="ims.view_ims_person_kanban"/> 
+            <field name="arch" type="xml">  
+                <xpath expr="//img[@id='photo']" position="attributes">
+                    <attribute name="t-att-src">kanban_image('ims.teacher', 'image', record.id.raw_value)</attribute>
+                </xpath>              
+            </field>		      
+        </record>
+    </data>
+</odoo>

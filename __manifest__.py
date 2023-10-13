@@ -40,9 +40,11 @@
 
         'views/person/list.xml',
         'views/person/form.xml',
+        'views/person/kanban.xml',
 
         'views/teacher/list.xml',
         'views/teacher/form.xml',
+        'views/teacher/kanban.xml',
         
         'views/student/list.xml',
         'views/student/form.xml',

@@ -24,12 +24,6 @@
             <field name="context">{'search_default_group_by_study': 1}</field>
         </record>
 
-        <record model="ir.actions.act_window" id="action_ims_teacher_tree">
-            <field name="name">Teachers Management</field>
-            <field name="res_model">ims.teacher</field>
-            <field name="view_mode">tree,form</field>
-        </record>
-
         <record model="ir.actions.act_window" id="action_ims_study_tree">
             <field name="name">Studies Management</field>
             <field name="res_model">ims.study</field>
@@ -40,6 +34,12 @@
         <record model="ir.actions.act_window" id="action_ims_student_tree">
             <field name="name">Students Management</field>
             <field name="res_model">ims.student</field>
+            <field name="view_mode">kanban,tree,form</field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_ims_teacher_tree">
+            <field name="name">Teachers Management</field>
+            <field name="res_model">ims.teacher</field>
             <field name="view_mode">kanban,tree,form</field>
         </record>
 
