@@ -5,4 +5,4 @@ L'objectiu de l'IMS (Institute Management System) és proporcionar un entorn lli
 
 La solució consisteix en un conjunt de mòduls per a Odoo, un ERP lliure i totalment configurable, que estan sent desenvolupats per un grup de professors de l'Institut Puig Castellar de Santa Coloma de Gramenet.
 
-Podeu constular la *wiki* per a més informació: https://github.com/ElPuig/IMS
+Podeu constular la *wiki* per a més informació: https://github.com/ElPuig/IMS/wiki
