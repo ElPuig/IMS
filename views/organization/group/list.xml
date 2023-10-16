@@ -8,6 +8,7 @@
                     <field name="name"/>
                     <field name="classroom"/>
                     <field name="tutor"/>
+                    <field name="delegate"/>
                 </tree>
             </field>
         </record>   

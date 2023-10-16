@@ -1,10 +1,10 @@
 <odoo>
     <data>
-        <record id="view_ims_administrative_position_form" model="ir.ui.view">
-            <field name="name">administrative_position form</field>
-            <field name="model">ims.administrative_position</field>
+        <record id="view_ims_administrative_role_form" model="ir.ui.view">
+            <field name="name">administrative_role form</field>
+            <field name="model">ims.administrative_role</field>
             <field name="arch" type="xml">
-                <form string="administrative_position">
+                <form string="administrative_role">
                     <sheet>
                         <group string="Main data">
                             <group>

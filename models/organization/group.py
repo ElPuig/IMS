@@ -12,7 +12,8 @@ class ims_group(models.Model):
 	notes = fields.Text(string="Notes")
 
 	study = fields.Many2one(string="Study", comodel_name="ims.study", required="true")
-	tutor = fields.Many2one(string="Tutor", comodel_name="ims.teacher")	
+	tutor = fields.Many2one(string="Tutor", comodel_name="ims.teacher")
+	delegate = fields.Many2one(string="Delegate", comodel_name="ims.student")	
 	classroom = fields.Many2one(string="Classroom", comodel_name="ims.classroom")
 
 	students = fields.One2many(string="Students", comodel_name="ims.student", inverse_name="group")

@@ -19,7 +19,10 @@
                             <group colspan="2">
                                 <field name="tutor" />
                             </group>
-                            <group colspan="2">
+                            <group>
+                                <field name="delegate" />
+                            </group>
+                            <group>
                                 <field name="classroom" />
                             </group>
                         </group>                       
@@ -30,7 +33,7 @@
                                     <tree>
                                         <field name="name"/>
                                         <field name="surname"/>
-                                        <!-- <field name="email"/> -->
+                                        <field name="corporate_email"/>
                                     </tree>
                                 </field>
                             </page>        

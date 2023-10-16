@@ -9,7 +9,7 @@
                  <xpath expr="//group[@id='data']" position="inside">         
                     <group string="Administrative data">
                         <group>
-                            <field name="position"/>    
+                            <field name="role"/>    
                         </group>                                                                 
                     </group>           
                 </xpath>

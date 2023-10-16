@@ -62,12 +62,12 @@
         'views/facilities/classroom/list.xml',
         'views/facilities/classroom/form.xml',       
 
-        'views/organisation/group/list.xml',
-        'views/organisation/group/form.xml',
-        'views/organisation/administrative_position/list.xml',
-        'views/organisation/administrative_position/form.xml',
-        'views/organisation/teacher_position/list.xml',
-        'views/organisation/teacher_position/form.xml',
+        'views/organization/group/list.xml',
+        'views/organization/group/form.xml',
+        'views/organization/administrative_role/list.xml',
+        'views/organization/administrative_role/form.xml',
+        'views/organization/teacher_role/list.xml',
+        'views/organization/teacher_role/form.xml',
 
         'views/attendance/attendance_template/list.xml',
         'views/attendance/attendance_template/form.xml',

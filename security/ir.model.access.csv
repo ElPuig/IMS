@@ -4,8 +4,8 @@ ims.access_ims_tracking,access_ims_tracking,ims.model_ims_tracking,,1,1,1,1
 ims.access_ims_level,access_ims_level,ims.model_ims_level,,1,1,1,1
 ims.access_ims_professional_module,access_ims_professional_module,ims.model_ims_professional_module,,1,1,1,1
 ims.access_ims_group,access_ims_group,ims.model_ims_group,,1,1,1,1
-ims.access_ims_teacher_position,access_ims_teacher_position,ims.model_ims_teacher_position,,1,1,1,1
-ims.access_ims_administrative_position,access_ims_administrative_position,ims.model_ims_administrative_position,,1,1,1,1
+ims.access_ims_teacher_role,access_ims_teacher_role,ims.model_ims_teacher_role,,1,1,1,1
+ims.access_ims_administrative_role,access_ims_administrative_role,ims.model_ims_administrative_role,,1,1,1,1
 ims.access_ims_person,access_ims_person,ims.model_ims_person,,1,1,1,1
 ims.access_ims_corporate_person,access_ims_corporate_person,ims.model_ims_corporate_person,,1,1,1,1
 ims.access_ims_administrative,access_ims_administrative,ims.model_ims_administrative,,1,1,1,1
