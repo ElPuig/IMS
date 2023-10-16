@@ -73,6 +73,9 @@
         'views/group/list.xml',
         'views/group/form.xml',
 
+        'views/administrative_position/list.xml',
+        'views/administrative_position/form.xml',
+
         'views/teacher_position/list.xml',
         'views/teacher_position/form.xml',
 

@@ -5,8 +5,7 @@
             <field name="model">ims.teacher_position</field>
             <field name="arch" type="xml">
                 <tree expand="1" default_order="name asc">      
-                    <field name="name"/>
-                    <field name="teacher"/>                    
+                    <field name="name"/>               
                 </tree>
             </field>
         </record>   

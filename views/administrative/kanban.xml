@@ -12,12 +12,12 @@
 
                 <xpath expr="//kanban" position="inside">
                     <!-- WARNING: All the Kanban fields must be included also as "fields" within the view. -->
-                    <field name="type"/>
+                    <field name="position"/>
                 </xpath>
 
                 <xpath expr="//div[@id='title']/strong" position="inside">
                     <t> &#40;</t>
-                    <t t-esc="record.type.value"/>
+                    <t t-esc="record.position.value"/>
                     <t>&#41;</t>    
                 </xpath> 
             </field>		      

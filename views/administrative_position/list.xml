@@ -1,0 +1,13 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_ims_administrative_position_list">
+            <field name="name">ims administrative_position list</field>
+            <field name="model">ims.administrative_position</field>
+            <field name="arch" type="xml">
+                <tree expand="1" default_order="name asc">      
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>   
+    </data>
+</odoo>

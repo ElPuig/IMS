@@ -7,4 +7,4 @@ class ims_administrative(models.Model):
 	_description = "Administrative person: Collects personal and corporative data."
 	_inherit = "ims.corporate_person"
     
-	type = fields.Selection(string='Type', selection=[('canteen', 'Canteen'), ('concierje', 'Concierje'), ('cleaning', 'Cleaning'), ('it', 'IT'), ('maintainment', 'Maintainment'), ('secretary', 'Secretary')], required="true")
+	position = fields.Many2one(string="Position", comodel_name="ims.administrative_position")

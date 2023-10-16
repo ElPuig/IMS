@@ -1,0 +1,38 @@
+<odoo>
+    <data>
+        <record id="view_ims_administrative_position_form" model="ir.ui.view">
+            <field name="name">administrative_position form</field>
+            <field name="model">ims.administrative_position</field>
+            <field name="arch" type="xml">
+                <form string="administrative_position">
+                    <sheet>
+                        <group string="Main data">
+                            <group>
+                                <field name="name"/>
+                            </group>
+                            <!-- <group colspan="3">
+                                <field name="administrative"/>    
+                            </group>                             -->
+                        </group>  
+
+                        <notebook>               
+                            <page string="Administrative">
+                                <field name="administrative" widget="many2many">
+                                    <tree>
+                                        <field name="name"/>
+                                        <field name="surname"/>
+                                        <field name="corporate_email"/>
+                                    </tree>
+                                </field>
+                            </page>     
+
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
+                            </page>
+                        </notebook>                  
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>

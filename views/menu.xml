@@ -77,6 +77,12 @@
             <field name="name">Teacher Positions Management</field>
             <field name="res_model">ims.teacher_position</field>
             <field name="view_mode">tree,form</field>
+        </record>  
+
+        <record model="ir.actions.act_window" id="action_ims_administrative_position_tree">
+            <field name="name">Administrative Positions Management</field>
+            <field name="res_model">ims.administrative_position</field>
+            <field name="view_mode">tree,form</field>
         </record>     
 
         <record model="ir.actions.act_window" id="action_ims_attendance_template_tree">
@@ -108,8 +114,9 @@
             <menuitem name="Students"           sequence="3" id="menu_ims_students"             parent="menu_ims_people"            action="action_ims_student_tree"/>            
         
         <menuitem name="Organisation"           sequence="4" id="menu_ims_organisation"         parent="menu_ims_root"/>
-            <menuitem name="Groups"             sequence="1" id="menu_ims_groups"               parent="menu_ims_organisation"      action="action_ims_group_tree"/>
-            <menuitem name="Teacher positions"          sequence="2" id="menu_ims_teacher_positions"            parent="menu_ims_organisation"      action="action_ims_teacher_position_tree"/>
+            <menuitem name="Student groups"                     sequence="1" id="menu_ims_groups"                   parent="menu_ims_organisation"      action="action_ims_group_tree"/>
+            <menuitem name="Administrative positions"   sequence="2" id="menu_ims_administrative_positions" parent="menu_ims_organisation"      action="action_ims_administrative_position_tree"/>
+            <menuitem name="Teacher positions"          sequence="3" id="menu_ims_teacher_positions"        parent="menu_ims_organisation"      action="action_ims_teacher_position_tree"/>
 
         <!-- <menuitem name="Tracking" id="menu_ims_groups" parent="menu_ims_root" action="action_ims_tracking_tree"/>         -->                       
 
