@@ -1,8 +1,8 @@
 <odoo>
     <data>
          <record id="view_ims_group_form" model="ir.ui.view">
-            <field name="name">Group form</field>
-            <field name="model">ims.group</field>
+            <field name="name">Student group form</field>
+            <field name="model">ims.student_group</field>
             <field name="arch" type="xml">
                 <form string="Group">
                     <sheet>                        
@@ -49,7 +49,7 @@
 
         <!-- <record id="view_ims_group_form" model="ir.ui.view">
             <field name="name">group form</field>
-            <field name="model">ims.group</field>
+            <field name="model">ims.student_group</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <form string="Groups">
@@ -87,7 +87,7 @@
         </record> -->
         <!-- <record id="view_ims_group_form_2" model="ir.ui.view">
             <field name="name">group form</field>
-            <field name="model">ims.group</field>
+            <field name="model">ims.student_group</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <form string="Group">

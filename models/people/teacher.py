@@ -7,7 +7,7 @@ class ims_teacher(models.Model):
 	_description = "Teacher: Collects the teacher\"s data."
 	_inherit = "ims.corporate_person"
 
-	tutor = fields.One2many(string="Tutor", comodel_name="ims.group", inverse_name="tutor")
+	tutor = fields.One2many(string="Tutor", comodel_name="ims.student_group", inverse_name="tutor")
 	teaching = fields.One2many(string="Teaching", comodel_name="ims.teaching", inverse_name="teacher")
 
 	# formative_units = fields.One2many(string="Formative Units", comodel_name="ims.formative_unit", inverse_name="teacher")

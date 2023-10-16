@@ -9,7 +9,7 @@ class ims_attendance_group(models.Model):
 	
 	name = fields.Char("Name")
 
-	student_group = fields.Many2one(comodel_name="ims.group", string="Grup")	
+	student_group = fields.Many2one(comodel_name="ims.student_group", string="Grup")	
 	attendance_templates = fields.One2many(comodel_name="ims.attendance_template", inverse_name="attendance_group", string="Templates")
 	attendance_sessions = fields.One2many(comodel_name="ims.attendance_session", inverse_name="attendance_group", string="Sessions")
 

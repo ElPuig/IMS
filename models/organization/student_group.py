@@ -2,9 +2,9 @@
 
 from odoo import models, fields, api
 
-class ims_group(models.Model):
-	_name = "ims.group"
-	_description = "Groups: Where the students are assigned to."	
+class ims_student_group(models.Model):
+	_name = "ims.student_group"
+	_description = "Student Groups: Where the students are assigned to."	
 	
 	course = fields.Integer(string="Course", required="true")
 	acronym = fields.Char(string="Acronym", required="true")

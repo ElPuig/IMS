@@ -62,8 +62,8 @@
         'views/facilities/classroom/list.xml',
         'views/facilities/classroom/form.xml',       
 
-        'views/organization/group/list.xml',
-        'views/organization/group/form.xml',
+        'views/organization/student_group/list.xml',
+        'views/organization/student_group/form.xml',
         'views/organization/administrative_role/list.xml',
         'views/organization/administrative_role/form.xml',
         'views/organization/teacher_role/list.xml',
