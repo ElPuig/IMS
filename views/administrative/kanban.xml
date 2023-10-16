@@ -1,0 +1,25 @@
+<odoo>
+    <data>
+        <record id="view_ims_administrative_kanban" model="ir.ui.view">
+            <field name="name">ims.administrative kanban view</field>
+            <field name="model">ims.administrative</field>
+            <field name="mode">primary</field>      
+            <field name="inherit_id" ref="ims.view_ims_corporate_person_kanban"/> 
+            <field name="arch" type="xml">  
+                <xpath expr="//img[@id='photo']" position="attributes">
+                    <attribute name="t-att-src">kanban_image('ims.administrative', 'image', record.id.raw_value)</attribute>
+                </xpath> 
+
+                <xpath expr="//strong[@id='title']" position="replace">
+                    <t t-esc="record.name.value"/>
+                    <t> </t> 
+                    <t t-esc="record.surname.value"/>
+                    <t> &#40;</t>
+                    <!-- TODO: fix this, not displayed -->
+                    <t t-field="record.type.value" /> 
+                    <t>&#41;</t>                                        
+                </xpath> 
+            </field>		      
+        </record>
+    </data>
+</odoo>

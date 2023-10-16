@@ -18,12 +18,12 @@
                                         <img id="photo" alt="Photo" t-att-src="kanban_image('ims.person', 'image', record.id.raw_value)"/>
                                     </div>
                                     <div class="oe_kanban_details">
-                                        <strong class="oe_partner_heading">                                        
+                                        <strong id="title" class="oe_partner_heading">                                        
                                             <t t-esc="record.name.value"/>
-                                            <t></t> 
+                                            <t> </t> 
                                             <t t-esc="record.surname.value"/>
                                         </strong>
-                                        <div class="oe_kanban_partner_info">                                        
+                                        <div id="info" class="oe_kanban_partner_info">                                        
                                             <span>
                                                 <t id="email_value" t-esc="record.personal_email.value" />
                                             </span>

@@ -1,0 +1,19 @@
+<odoo>
+    <data>
+        <record id="view_ims_administrative_form" model="ir.ui.view">
+            <field name="name">administrative form</field>
+            <field name="model">ims.administrative</field>
+            <field name="mode">primary</field>      
+            <field name="inherit_id" ref="ims.view_ims_corporate_person_form"/>      
+            <field name="arch" type="xml">                
+                 <xpath expr="//group[@id='data']" position="inside">         
+                    <group string="Administrative data">
+                        <group>
+                            <field name="type"/>    
+                        </group>                                              
+                    </group>           
+                </xpath>
+            </field>		            
+        </record>
+    </data>
+</odoo>

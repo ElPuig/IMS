@@ -31,6 +31,12 @@
             <field name="context">{'search_default_group_by_level': 1}</field>
         </record>
 
+        <record model="ir.actions.act_window" id="action_ims_administrative_tree">
+            <field name="name">Administratives Management</field>
+            <field name="res_model">ims.administrative</field>
+            <field name="view_mode">kanban,tree,form</field>
+        </record>
+
         <record model="ir.actions.act_window" id="action_ims_student_tree">
             <field name="name">Students Management</field>
             <field name="res_model">ims.student</field>
@@ -96,10 +102,11 @@
         <menuitem name="Facilities"     sequence="2" id="menu_ims_facilities"       parent="menu_ims_root"/>
             <menuitem name="Classrooms" sequence="1" id="menu_ims_classrooms"       parent="menu_ims_facilities"        action="action_ims_classroom_tree"/>
 
-        <menuitem name="Organisation"   sequence="3" id="menu_ims_organisation"     parent="menu_ims_root"/>
-            <menuitem name="Teachers"   sequence="1" id="menu_ims_teachers"         parent="menu_ims_organisation"      action="action_ims_teacher_tree"/>        
-            <menuitem name="Students"   sequence="2" id="menu_ims_students"         parent="menu_ims_organisation"      action="action_ims_student_tree"/>
-            <menuitem name="Groups"     sequence="3" id="menu_ims_groups"           parent="menu_ims_organisation"      action="action_ims_group_tree"/>        
+        <menuitem name="Organisation"           sequence="3" id="menu_ims_organisation"         parent="menu_ims_root"/>
+            <menuitem name="Administrarives"    sequence="1" id="menu_ims_administratives"      parent="menu_ims_organisation"      action="action_ims_administrative_tree"/>        
+            <menuitem name="Teachers"           sequence="2" id="menu_ims_teachers"             parent="menu_ims_organisation"      action="action_ims_teacher_tree"/>        
+            <menuitem name="Students"           sequence="3" id="menu_ims_students"             parent="menu_ims_organisation"      action="action_ims_student_tree"/>
+            <menuitem name="Groups"             sequence="4" id="menu_ims_groups"               parent="menu_ims_organisation"      action="action_ims_group_tree"/>        
         
         <!-- <menuitem name="Tracking" id="menu_ims_groups" parent="menu_ims_root" action="action_ims_tracking_tree"/>         -->
                 
