@@ -10,7 +10,7 @@
                     <group string="Administrative data">
                         <group>
                             <field name="type"/>    
-                        </group>                                              
+                        </group>                                                                 
                     </group>           
                 </xpath>
             </field>		            

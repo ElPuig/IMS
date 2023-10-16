@@ -10,12 +10,15 @@
                     <attribute name="t-att-src">kanban_image('ims.corporate_person', 'image', record.id.raw_value)</attribute>
                 </xpath> 
 
-                <xpath expr="//field[@id='email_field']" position="replace">
+                <xpath expr="//kanban" position="inside">
+                    <!-- WARNING: All the Kanban fields must be included also as "fields" within the view. -->
                     <field id="email_field" name="corporate_email"/>
                 </xpath>     
 
-                <xpath expr="//t[@id='email_value']" position="replace">
-                    <t id="email_value" t-esc="record.corporate_email.value" />
+                <xpath expr="//div[@id='info']/span" position="replace">
+                    <span>
+                        <t t-esc="record.corporate_email.value" />
+                    </span>
                 </xpath>     
             </field>		      
         </record>
