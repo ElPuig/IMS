@@ -44,6 +44,7 @@
 
         'views/corporate_person/list.xml',
         'views/corporate_person/form.xml',
+        'views/corporate_person/kanban.xml',
 
         'views/teacher/list.xml',
         'views/teacher/form.xml',

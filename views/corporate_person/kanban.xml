@@ -1,0 +1,23 @@
+<odoo>
+    <data>
+        <record id="view_ims_corporate_person_kanban" model="ir.ui.view">
+            <field name="name">ims.corporate_person kanban view</field>
+            <field name="model">ims.corporate_person</field>
+            <field name="mode">primary</field>      
+            <field name="inherit_id" ref="ims.view_ims_person_kanban"/> 
+            <field name="arch" type="xml">  
+                <xpath expr="//img[@id='photo']" position="attributes">
+                    <attribute name="t-att-src">kanban_image('ims.corporate_person', 'image', record.id.raw_value)</attribute>
+                </xpath> 
+
+                <xpath expr="//field[@id='email_field']" position="replace">
+                    <field id="email_field" name="corporate_email"/>
+                </xpath>     
+
+                <xpath expr="//t[@id='email_value']" position="replace">
+                    <t id="email_value" t-esc="record.corporate_email.value" />
+                </xpath>     
+            </field>		      
+        </record>
+    </data>
+</odoo>
