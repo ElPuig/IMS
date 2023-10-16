@@ -12,6 +12,7 @@ class ims_teacher(models.Model):
 	role = fields.One2many(string="Role", comodel_name="ims.teacher_role", inverse_name="teacher")
 
 	#TODO: computed field with the role (or roles) in order to displayit within the list and Kanban
+	#TODO: add demo data for the remaining items
 
 	# formative_units = fields.One2many(string="Formative Units", comodel_name="ims.formative_unit", inverse_name="teacher")
 	# professional_modules = fields.One2many(string="Professional Modules", comodel_name="ims.professional_module", inverse_name="teacher")

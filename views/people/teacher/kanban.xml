@@ -8,6 +8,7 @@
             <field name="arch" type="xml">  
                 <xpath expr="//img[@id='photo']" position="attributes">
                     <attribute name="t-att-src">kanban_image('ims.teacher', 'image', record.id.raw_value)</attribute>
+                    <!-- TODO: display roles -->
                 </xpath>              
             </field>		      
         </record>
