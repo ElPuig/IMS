@@ -7,4 +7,4 @@ class ims_administrative(models.Model):
 	_description = "Administrative person: Collects personal and corporative data."
 	_inherit = "ims.corporate_person"
     
-	role = fields.Many2one(string="Position", comodel_name="ims.administrative_role")
+	role = fields.Many2one(string="Role", comodel_name="ims.administrative_role")

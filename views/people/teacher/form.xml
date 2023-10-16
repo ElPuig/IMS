@@ -5,7 +5,7 @@
             <field name="model">ims.teacher</field>
             <field name="mode">primary</field>      
             <field name="inherit_id" ref="ims.view_ims_corporate_person_form"/>      
-            <field name="arch" type="xml">                
+            <field name="arch" type="xml">                   
                 <xpath expr="//page[@id='notes']" position="before">
                     <page string="Teaching">
                         <field name="teaching">
@@ -21,6 +21,14 @@
                             <tree>
                                 <field name="name" string="Group"/>
                                 <field name="classroom"/>
+                            </tree>
+                        </field>
+                    </page>
+
+                    <page string="Role">
+                        <field name="role" widget="many2many">
+                            <tree>
+                                <field name="name"/>
                             </tree>
                         </field>
                     </page>  
