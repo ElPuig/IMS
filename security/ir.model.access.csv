@@ -5,6 +5,7 @@ ims.access_ims_level,access_ims_level,ims.model_ims_level,,1,1,1,1
 ims.access_ims_professional_module,access_ims_professional_module,ims.model_ims_professional_module,,1,1,1,1
 ims.access_ims_group,access_ims_group,ims.model_ims_group,,1,1,1,1
 ims.access_ims_person,access_ims_person,ims.model_ims_person,,1,1,1,1
+ims.access_ims_corporate_person,access_ims_corporate_person,ims.model_ims_corporate_person,,1,1,1,1
 ims.access_ims_teacher,access_ims_teacher,ims.model_ims_teacher,,1,1,1,1
 ims.access_ims_student,access_ims_student,ims.model_ims_student,,1,1,1,1
 ims.access_ims_study,access_ims_study,ims.model_ims_study,,1,1,1,1

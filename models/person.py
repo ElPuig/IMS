@@ -4,13 +4,11 @@ from odoo import models, fields, api
 
 class ims_person(models.Model):
 	_name = "ims.person"
-	_description = "Person: Collects person\"s data."
+	_description = "Person: Collects just personal data."
 
 	name = fields.Char(string="Name", required="true")
-	surname = fields.Char(string="Surname", required="true")
-	corporate_email = fields.Char(string="Email (professional)", required="true")
-	personal_email = fields.Char(string="Email (personal)")
-	corporate_phone = fields.Char(string="Phone (professional)")
+	surname = fields.Char(string="Surname", required="true")	
+	personal_email = fields.Char(string="Email (personal)")	
 	personal_phone = fields.Char(string="Phone (personal)")
 	image = fields.Binary(string="Image")
 	notes = fields.Text(string="Notes")

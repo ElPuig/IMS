@@ -4,7 +4,7 @@
             <field name="name">Teacher form</field>
             <field name="model">ims.teacher</field>
             <field name="mode">primary</field>      
-            <field name="inherit_id" ref="ims.view_ims_person_form"/>      
+            <field name="inherit_id" ref="ims.view_ims_corporate_person_form"/>      
             <field name="arch" type="xml">                
                 <xpath expr="//page[@id='notes']" position="before">
                     <page string="Teaching">

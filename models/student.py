@@ -5,7 +5,7 @@ from odoo import models, fields, api
 class ims_student(models.Model):
 	_name = "ims.student"
 	_description = "Student: Collects the student\"s data."
-	_inherit = "ims.person"
+	_inherit = "ims.corporate_person"
 
 	group = fields.Many2one(comodel_name="ims.group", string="Group")
 	tutor=fields.Char(string='Tutor',compute='_compute_tutor')

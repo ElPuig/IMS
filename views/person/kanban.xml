@@ -9,7 +9,8 @@
                     <field name="image" color="grey"/>
                     <field name="name"/>
                     <field name="surname"/>
-                    <field name="corporate_email"/>
+                    <field name="personal_email"/>
+                    <!-- <field name="corporate_email"/> -->
                     <templates>
                         <t t-name="kanban-box">
                             <div t-attf-class="oe_kanban_global_click">                        
@@ -25,7 +26,8 @@
                                         </strong>
                                         <div class="oe_kanban_partner_info">                                        
                                             <span>
-                                                <t t-esc="record.corporate_email.value"/>
+                                                <t t-esc="record.personal_email.value"/>
+                                                <!-- <t t-esc="record.corporate_email.value"/> -->
                                             </span>
                                         </div>
                                     </div>

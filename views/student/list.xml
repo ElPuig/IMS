@@ -4,7 +4,7 @@
             <field name="name">ims student list</field>
             <field name="model">ims.student</field>
             <field name="mode">primary</field>      
-            <field name="inherit_id" ref="ims.view_ims_person_list"/> 
+            <field name="inherit_id" ref="ims.view_ims_corporate_person_list"/> 
             <field name="arch" type="xml">  
                 <xpath expr="//tree" position="inside">
                 </xpath>              

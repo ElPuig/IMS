@@ -1,0 +1,22 @@
+<odoo>
+    <data>
+        <record id="view_ims_corporate_person_form" model="ir.ui.view">
+            <field name="name">corporate_person form</field>
+            <field name="model">ims.corporate_person</field>
+            <field name="mode">primary</field>      
+            <field name="inherit_id" ref="ims.view_ims_person_form"/>      
+            <field name="arch" type="xml">                
+                <xpath expr="//group[@id='data']" position="inside">         
+                   <group string="Conact data (professional)">
+                        <group>
+                            <field name="corporate_phone"/>    
+                        </group>
+                        <group>
+                            <field name="corporate_email"/>    
+                        </group>                                                   
+                    </group>        
+                </xpath>
+            </field>		            
+        </record>
+    </data>
+</odoo>

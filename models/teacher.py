@@ -5,7 +5,7 @@ from odoo import models, fields, api
 class ims_teacher(models.Model):
 	_name = "ims.teacher"
 	_description = "Teacher: Collects the teacher\"s data."
-	_inherit = "ims.person"
+	_inherit = "ims.corporate_person"
 
 	tutor = fields.One2many(string="Tutor", comodel_name="ims.group", inverse_name="tutor")
 	teaching = fields.One2many(string="Teaching", comodel_name="ims.teaching", inverse_name="teacher")

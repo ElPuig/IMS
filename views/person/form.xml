@@ -29,15 +29,6 @@
                                         <field name="personal_email"/>    
                                     </group>                                                   
                                 </group> 
-
-                                <group string="Conact data (professional)">
-                                    <group>
-                                        <field name="corporate_phone"/>    
-                                    </group>
-                                    <group>
-                                        <field name="corporate_email"/>    
-                                    </group>                                                   
-                                </group> 
                             </group>                         
                         </group>
                
