@@ -7,4 +7,4 @@ class ims_administrative(models.Model):
 	_description = "Administrative person: Collects personal and corporative data."
 	_inherit = "ims.corporate_person"
     
-	type = fields.Selection(string='Type', object=[('secretary', 'Secretary'), ('concierje', 'Concierje')])
+	type = fields.Selection(string='Type', object=[('secretary', 'Secretary'), ('concierje', 'Concierje'), ('cleaning', 'Cleaning'), ('maintainment', 'Maintainment'), ('canteen', 'Canteen'), ('it', 'IT')])
