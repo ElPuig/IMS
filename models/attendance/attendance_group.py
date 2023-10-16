@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
-# from . import attendance_template
 
 class ims_attendance_group(models.Model):
 	_name = 'ims.attendance_group'

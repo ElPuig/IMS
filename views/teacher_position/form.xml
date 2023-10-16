@@ -1,0 +1,28 @@
+<odoo>
+    <data>
+        <record id="view_ims_teacher_position_form" model="ir.ui.view">
+            <field name="name">teacher_position form</field>
+            <field name="model">ims.teacher_position</field>
+            <field name="arch" type="xml">
+                <form string="teacher_position">
+                    <sheet>
+                        <group string="Main data" col="4">
+                            <group>
+                                <field name="name"/>
+                            </group>
+                            <group colspan="3">
+                                <field name="teacher"/>    
+                            </group>                            
+                        </group>  
+
+                        <notebook>                          
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
+                            </page>
+                        </notebook>                  
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>

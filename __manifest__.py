@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '0.3.0',
+    'version': '0.4.0',
 
     # any module necessary for this one to work correctly
     'depends': ['base_setup'],
@@ -73,8 +73,8 @@
         'views/group/list.xml',
         'views/group/form.xml',
 
-        'views/test/list.xml',
-        'views/test/form.xml',
+        'views/teacher_position/list.xml',
+        'views/teacher_position/form.xml',
 
         'views/attendance_template/list.xml',
         'views/attendance_template/form.xml',
