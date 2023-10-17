@@ -16,9 +16,11 @@
                 </xpath>
 
                 <xpath expr="//div[@id='title']/strong" position="inside">
-                    <t> &#40;</t>
-                    <t t-esc="record.role.value"/>
-                    <t>&#41;</t>    
+                    <span t-if="record.role.value != ''">
+                        <t> &#40;</t>
+                        <t t-esc="record.role.value"/>
+                        <t>&#41;</t>    
+                    </span>
                 </xpath> 
             </field>		      
         </record>
