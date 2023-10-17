@@ -13,5 +13,8 @@ class ims_student(models.Model):
 
 	@api.depends("group")
 	def _compute_tutor(self):	
-		for rec in self:
-			rec.tutor = '%s %s' % (rec.group.tutor.name, rec.group.tutor.surname)
+		for rec in self:			
+			rec.tutor = '%s %s' % (rec.group.tutor.name, rec.group.tutor.surname) 
+			
+			if rec.tutor == "False False":
+				rec.tutor = "None"
