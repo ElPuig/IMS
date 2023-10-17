@@ -9,6 +9,20 @@
                 <xpath expr="//img[@id='photo']" position="attributes">
                     <attribute name="t-att-src">kanban_image('ims.student', 'image', record.id.raw_value)</attribute>
                 </xpath> 
+
+                <xpath expr="//kanban" position="inside">
+                    <!-- WARNING: All the Kanban fields must be included also as "fields" within the view. -->
+                    <field name="group"/>
+                </xpath>
+
+                <xpath expr="//div[@id='info']/span" position="after">
+                    <br />
+                    <span>
+                        <i>
+                            <t t-esc="record.group.value"/>
+                        </i>                     
+                    </span>
+                </xpath> 
             </field>		      
         </record>
     </data>

@@ -7,6 +7,7 @@
             <field name="inherit_id" ref="ims.view_ims_corporate_person_list"/> 
             <field name="arch" type="xml">  
                 <xpath expr="//tree" position="inside">
+                    <field name="group"/>    
                 </xpath>              
             </field>		      
         </record>   
