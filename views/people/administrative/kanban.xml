@@ -15,11 +15,12 @@
                     <field name="role"/>
                 </xpath>
 
-                <xpath expr="//div[@id='title']/strong" position="inside">
-                    <span t-if="record.role.value != ''">
-                        <t> &#40;</t>
-                        <t t-esc="record.role.value"/>
-                        <t>&#41;</t>    
+                <xpath expr="//div[@id='info']/span" position="after">
+                    <br />
+                    <span>
+                        <i>
+                            <t t-esc="record.role.value"/>
+                        </i>                     
                     </span>
                 </xpath> 
             </field>		      
