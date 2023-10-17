@@ -84,19 +84,21 @@
     
     # only loaded in demonstration mode (only loaded when installed, ignored when updated)
     'demo': [
-        'demo/curriculum/level.xml',        
+        # this order is needed due dependencies
+        'demo/curriculum/level.xml',
         'demo/curriculum/study.xml',
         'demo/curriculum/professional_module.xml',
         'demo/curriculum/formative_unit.xml',
 
-        'demo/facilities/classroom.xml',        
+        'demo/facilities/classroom.xml',
+        
+        'demo/organization/administrative_role.xml',
 
         'demo/people/administrative.xml',
         'demo/people/student.xml',
         'demo/people/teacher.xml',
 
-        'demo/organization/group.xml',        
-        'demo/organization/teaching.xml',
-        'demo/organization/administrative_role.xml',
+        'demo/organization/group.xml',
+        'demo/organization/teaching.xml',        
     ],
 }
