@@ -84,13 +84,16 @@
     
     # only loaded in demonstration mode (only loaded when installed, ignored when updated)
     'demo': [
-        'demo/level.xml',
-        'demo/classroom.xml',
-        'demo/study.xml',
-        'demo/professional_module.xml',
-        'demo/formative_unit.xml',
-        'demo/teacher.xml',
-        'demo/group.xml',        
-        'demo/teaching.xml',
+        'demo/curriculum/level.xml',        
+        'demo/curriculum/study.xml',
+        'demo/curriculum/professional_module.xml',
+        'demo/curriculum/formative_unit.xml',
+
+        'demo/facilities/classroom.xml',
+
+        'demo/people/teacher.xml',
+
+        'demo/organization/group.xml',        
+        'demo/organization/teaching.xml',
     ],
 }
