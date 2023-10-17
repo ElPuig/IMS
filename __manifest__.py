@@ -90,10 +90,13 @@
         'demo/curriculum/formative_unit.xml',
 
         'demo/facilities/classroom.xml',
-
-        'demo/people/teacher.xml',
-
+        
         'demo/organization/group.xml',        
         'demo/organization/teaching.xml',
+        'demo/organization/administrative_role.xml',
+
+        'demo/people/administrative.xml',
+        'demo/people/student.xml',
+        'demo/people/teacher.xml',
     ],
 }
