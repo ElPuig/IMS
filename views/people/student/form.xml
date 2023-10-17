@@ -5,12 +5,13 @@
             <field name="model">ims.student</field>
             <field name="mode">primary</field>      
             <field name="inherit_id" ref="ims.view_ims_corporate_person_form"/>      
-            <field name="arch" type="xml">                
+            <field name="arch" type="xml"> 
+                <xpath expr="//field[@name='image']" position="after">         
+                    <field name="group" placeholder="Group" string="" /> <!-- Ther's no tag widget for a Many2one field :( -->                        
+                </xpath>
+
                 <xpath expr="//group[@id='data']" position="inside">         
-                    <group string="Administrative data">
-                        <group>
-                            <field name="group"/>    
-                        </group>
+                    <group string="Administrative data">                       
                         <group>
                             <field name="tutor"/>    
                         </group>                                                   

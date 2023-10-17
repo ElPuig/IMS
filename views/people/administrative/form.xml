@@ -5,13 +5,9 @@
             <field name="model">ims.administrative</field>
             <field name="mode">primary</field>      
             <field name="inherit_id" ref="ims.view_ims_corporate_person_form"/>      
-            <field name="arch" type="xml">                
-                 <xpath expr="//group[@id='data']" position="inside">         
-                    <group string="Administrative data">
-                        <group>
-                            <field name="role"/>    
-                        </group>                                                                 
-                    </group>           
+            <field name="arch" type="xml">                               
+                <xpath expr="//field[@name='image']" position="after">         
+                    <field name="role" placeholder="Role" string="" /> <!-- Ther's no tag widget for a Many2one field :( -->                        
                 </xpath>
             </field>		            
         </record>
