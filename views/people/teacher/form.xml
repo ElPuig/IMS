@@ -20,8 +20,8 @@
                         </field>
                     </page>    
 
-                    <page string="Tutor">
-                        <field name="tutor" widget="many2many">
+                    <page string="Tutorships">
+                        <field name="tutorships" widget="many2many">
                             <tree>
                                 <field name="name" string="Group"/>
                                 <field name="classroom"/>

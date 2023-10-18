@@ -13,13 +13,14 @@
                 <xpath expr="//kanban" position="inside">
                     <!-- WARNING: All the Kanban fields must be included also as "fields" within the view. -->
                     <field name="group"/>
+                    <field name="tutor"/>
                 </xpath>
 
-                <xpath expr="//div[@id='info']/span" position="after">
-                    <br />
-                    <span>
+                <xpath expr="//div[@id='info']/span" position="after">                    
+                    <span t-if="record.group.value != ''">
+                        <br />
                         <i>
-                            <t t-esc="record.group.value"/>
+                            <t t-esc="record.group.value"/> (<t t-esc="record.tutor.value"/>)
                         </i>                     
                     </span>
                 </xpath> 
