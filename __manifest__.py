@@ -99,8 +99,7 @@
         
         'demo/organization/administrative_role.xml',
 
-        'demo/people/administrative.xml',
-        'demo/people/student.xml',
+        'demo/people/administrative.xml',        
         'demo/people/teacher.xml',
 
         'demo/organization/group.xml',
@@ -109,5 +108,6 @@
         'demo/organization/company.xml',   
 
         'demo/people/provider.xml',
+        'demo/people/student.xml',
     ],
 }
