@@ -8,11 +8,11 @@ class ims_student(models.Model):
 	_inherit = "ims.corporate_person"
 
 	group = fields.Many2one(comodel_name="ims.student_group", string="Group")
-	tutor=fields.Char(string='Tutor', compute='_compute_tutor')
+	tutor=fields.Char(string='Tutor', compute='_tutor')
 	follows = fields.One2many(comodel_name="ims.tracking", inverse_name="student", string="Follow-up")
 
 	@api.depends("group")
-	def _compute_tutor(self):	
+	def _tutor(self):	
 		for rec in self:			
 			rec.tutor = '%s %s' % (rec.group.tutor.name, rec.group.tutor.surname) 
 			

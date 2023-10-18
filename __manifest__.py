@@ -99,6 +99,7 @@
         'demo/people/teacher.xml',
 
         'demo/organization/group.xml',
-        'demo/organization/teaching.xml',        
+        'demo/organization/teaching.xml',   
+        'demo/organization/teacher_role.xml',   
     ],
 }
