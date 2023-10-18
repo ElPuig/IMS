@@ -1,7 +1,7 @@
 <odoo>
     <data>
         <record model="ir.ui.view" id="view_ims_classroom_form">
-            <field name="name">classroom form</field>
+            <field name="name">ims.classroom.form</field>
             <field name="model">ims.classroom</field>
             <field name="arch" type="xml">
                 <form string="Classroom">

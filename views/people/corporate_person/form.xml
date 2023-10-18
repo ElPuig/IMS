@@ -1,7 +1,7 @@
 <odoo>
     <data>
         <record model="ir.ui.view" id="view_ims_corporate_person_form">
-            <field name="name">corporate_person form</field>
+            <field name="name">ims.corporate_person.form</field>
             <field name="model">ims.corporate_person</field>
             <field name="mode">primary</field>      
             <field name="inherit_id" ref="ims.view_ims_person_form"/>      

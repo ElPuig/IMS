@@ -1,7 +1,7 @@
 <odoo>
     <data>
         <record model="ir.ui.view" id="view_ims_study_list">
-            <field name="name">ims study list</field>
+            <field name="name">ims.study.list</field>
             <field name="model">ims.study</field>
             <field name="arch" type="xml">
                 <tree expand="1" default_order="level asc, code asc">

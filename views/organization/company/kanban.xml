@@ -1,7 +1,7 @@
 <odoo>
     <data>
         <record model="ir.ui.view" id="view_ims_company_kanban">
-            <field name="name">ims.company kanban view</field>
+            <field name="name">ims.company.kanban</field>
             <field name="model">ims.company</field>
             <field name="mode">primary</field>      
             <field name="inherit_id" ref="ims.view_ims_person_kanban"/> 

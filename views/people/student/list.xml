@@ -1,7 +1,7 @@
 <odoo>
     <data>
         <record model="ir.ui.view" id="view_ims_student_list">
-            <field name="name">ims student list</field>
+            <field name="name">ims.student.list</field>
             <field name="model">ims.student</field>
             <field name="mode">primary</field>      
             <field name="inherit_id" ref="ims.view_ims_corporate_person_list"/> 
