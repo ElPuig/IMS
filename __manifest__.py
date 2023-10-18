@@ -58,6 +58,9 @@
         'views/people/student/kanban.xml',
         'views/people/tracking/list.xml',
         'views/people/tracking/form.xml',
+        'views/people/provider/list.xml',
+        'views/people/provider/form.xml',
+        'views/people/provider/kanban.xml',
 
         'views/facilities/classroom/list.xml',
         'views/facilities/classroom/form.xml',       
@@ -104,5 +107,7 @@
         'demo/organization/teaching.xml',   
         'demo/organization/teacher_role.xml',   
         'demo/organization/company.xml',   
+
+        'demo/people/provider.xml',
     ],
 }

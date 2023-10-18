@@ -1,0 +1,23 @@
+<odoo>
+    <data>
+        <record id="view_ims_provider_form" model="ir.ui.view">
+            <field name="name">provider form</field>
+            <field name="model">ims.provider</field>
+            <field name="mode">primary</field>      
+            <field name="inherit_id" ref="ims.view_ims_person_form"/>      
+            <field name="arch" type="xml"> 
+                <xpath expr="//field[@name='image']" position="after">         
+                    <field name="role" placeholder="Role" string="" /> <!-- Ther's no tag widget for a Many2one field :( -->                        
+                </xpath>
+
+                <xpath expr="//group[@id='data']" position="inside">         
+                    <group string="Administrative data">                       
+                        <group>
+                            <field name="company"/>    
+                        </group>                                                   
+                    </group>           
+                </xpath>
+            </field>		            
+        </record>
+    </data>
+</odoo>

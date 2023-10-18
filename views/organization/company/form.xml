@@ -32,12 +32,13 @@
                                         <field name="name"/>
                                         <field name="surname"/>
                                         <field name="email"/>
+                                        <field name="role"/>
                                         <templates>
                                             <t t-name="kanban-box">
                                                 <div t-attf-class="oe_kanban_global_click">                        
                                                     <div class="oe_kanban_content">
                                                         <div class="o_kanban_image">
-                                                            <img id="photo" alt="Photo" t-att-src="kanban_image('ims.person', 'image', record.id.raw_value)"/>
+                                                            <img id="photo" alt="Photo" t-att-src="kanban_image('ims.provider', 'image', record.id.raw_value)"/>
                                                         </div>
                                                         <div id="title" class="oe_kanban_details">
                                                             <strong class="oe_partner_heading">                                        
@@ -45,11 +46,15 @@
                                                                 <t> </t> 
                                                                 <t t-esc="record.surname.value"/>
                                                             </strong>
-                                                            <div id="info" class="oe_kanban_partner_info">                                                                                    
+                                                            <div class="oe_kanban_partner_info">                                                                                    
                                                                 <span>
                                                                     <t t-esc="record.email.value" />
                                                                 </span>
-                                                            </div>
+                                                                <br />
+                                                                <span>
+                                                                    <t t-esc="record.role.value" />
+                                                                </span>
+                                                            </div>                                                            
                                                         </div>
                                                     </div>
                                                 </div>
