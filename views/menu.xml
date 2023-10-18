@@ -83,6 +83,12 @@
             <field name="name">Roles (for administratives)</field>
             <field name="res_model">ims.administrative_role</field>
             <field name="view_mode">tree,form</field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_ims_company_tree">
+            <field name="name">Companies</field>
+            <field name="res_model">ims.company</field>
+            <field name="view_mode">kanban,tree,form</field>
         </record>     
 
         <record model="ir.actions.act_window" id="action_ims_attendance_template_tree">
@@ -114,9 +120,11 @@
             <menuitem name="Students"           sequence="3" id="menu_ims_students"         parent="menu_ims_people"    action="action_ims_student_tree"/>            
         
         <menuitem name="Organization"                       sequence="4" id="menu_ims_organisation"             parent="menu_ims_root"/>
-            <menuitem name="Groups (for students)"          sequence="1" id="menu_ims_student_groups"           parent="menu_ims_organisation"  action="action_ims_student_group_tree"/>
-            <menuitem name="Roles (for administratives)"    sequence="2" id="menu_ims_administrative_roles"     parent="menu_ims_organisation"  action="action_ims_administrative_role_tree"/>
-            <menuitem name="Roles (for teachers)"           sequence="3" id="menu_ims_teacher_roles"            parent="menu_ims_organisation"  action="action_ims_teacher_role_tree"/>
+            <menuitem name="Companies"                      sequence="1" id="menu_ims_company"                  parent="menu_ims_organisation"  action="action_ims_company_tree"/>
+            <menuitem name="Groups (for students)"          sequence="2" id="menu_ims_student_groups"           parent="menu_ims_organisation"  action="action_ims_student_group_tree"/>
+            <menuitem name="Roles (for administratives)"    sequence="3" id="menu_ims_administrative_roles"     parent="menu_ims_organisation"  action="action_ims_administrative_role_tree"/>
+            <menuitem name="Roles (for teachers)"           sequence="4" id="menu_ims_teacher_roles"            parent="menu_ims_organisation"  action="action_ims_teacher_role_tree"/>
+            
 
         <!-- <menuitem name="Tracking" id="menu_ims_groups" parent="menu_ims_root" action="action_ims_tracking_tree"/>         -->                       
 

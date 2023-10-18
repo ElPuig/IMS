@@ -1,0 +1,13 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_ims_company_list">
+            <field name="name">ims company list</field>
+            <field name="model">ims.company</field>
+            <field name="arch" type="xml">
+                <tree expand="1" default_order="name asc">      
+                    <field name="name"/>               
+                </tree>
+            </field>
+        </record>   
+    </data>
+</odoo>

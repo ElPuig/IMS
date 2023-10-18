@@ -18,3 +18,5 @@ ims.access_ims_attendance_group,access_ims_attendance_group,ims.model_ims_attend
 ims.access_ims_attendance_session,access_ims_attendance_session,ims.model_ims_attendance_session,,1,1,1,1
 ims.access_ims_attendance_status,access_ims_attendance_status,ims.model_ims_attendance_status,,1,1,1,1
 ims.access_ims_teaching,access_ims_ims_teaching,ims.model_ims_teaching,,1,1,1,1
+ims.access_ims_company,access_ims_ims_company,ims.model_ims_company,,1,1,1,1
+ims.access_ims_provider,access_ims_ims_provider,ims.model_ims_provider,,1,1,1,1

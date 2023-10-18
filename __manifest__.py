@@ -68,6 +68,8 @@
         'views/organization/administrative_role/form.xml',
         'views/organization/teacher_role/list.xml',
         'views/organization/teacher_role/form.xml',
+        'views/organization/company/list.xml',
+        'views/organization/company/form.xml',
 
         'views/attendance/attendance_template/list.xml',
         'views/attendance/attendance_template/form.xml',
@@ -101,5 +103,6 @@
         'demo/organization/group.xml',
         'demo/organization/teaching.xml',   
         'demo/organization/teacher_role.xml',   
+        'demo/organization/company.xml',   
     ],
 }

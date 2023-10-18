@@ -1,0 +1,10 @@
+<odoo>
+    <data>
+       <record id="company_1" model="ims.company">
+            <field name="id">1</field>
+            <field name="name">Lumber Inc</field>
+            <field name="vat">ESX9999999R</field>
+            <field name="image">iVBORw0KGgoAAAANSUhEUgAAAFoAAABaCAYAAAA4qEECAAAACXBIWXMAAAsSAAALEgHS3X78AAAEr0lEQVR4nO2aPW/bVhSGX1We2MFkp25N1B+QkPbQ0QHcrUC1OEBxh3hyxnqTx3SLpnaNUSDucJd4qLoLqMcOsuj+gBjOlimkF04x1IGH9hVN2ootvRSa8wCC+Xnv4cPDcy8JtyaTCZTF80XTAXwuqGgSKpqEiiahokmoaBIqmoSKJqGiSahoEiqahIomoaJJqGgSKpqEiiahokmoaBIqmoSKJqGiSahoEiqahIomoaJJqGgSKpqEiiax0nQAs2JCbxfAr7J6DmDDxtmJCb0HAAYAjgAc2TgbNBPhzbSW7b9JTej5ALYB7Mqm3UKeCb0TAI9k+zmABzbO0tL2JzbOjngRz8Yylo4u8sz9Rn5/mtAbOJlbsArgSG5M6mzfLhac8xpn6TIaAEzobQD4+x5NPLRxdmZCb4I883dtnB3MI7a70niNNqG3DeA1gHeQOovpDL0LL0zoHcnyKvIsP7hnm/ei0Yw2oXcA4Bmhq3MbZz6hn1qazujfkGfvzwvuZxW4HGgHALo2zu771HwSS1GjTegNAPy44G4C5APtawB/2TjrLri/KeiiTeg9Rn7BjwH48nt040nz4d9SP9RpYBOl4wAcsWXKfZ4xO6fOo03ovUAzksu8s3F2xuyQ/cIyAPAEwC/kfqvigAm9rgk9Sq2mlg4bZyfA5ejfKDJWHCCfty/8+whtMBS5XeTfMJahfLg8XHQpWYjoZ98FG+765OLi64uPH38H8OXcO5sD7ZWVn1rt9ntnU/rHP8nJPPuglI5Wu/1+pd3+gdHXsrIULyyfA8v4mfR/iYomMXONNpG/BmAkq0/tOD109r0E0JPVr+w4TUzkjwCsATiU3xvZv2fHaV/OCwC8Rf4dog/g2DnOZd+O0+elfly+B/BS+nM5BtAvxRoA+CCrffnbA3AKYF1id49x4+1JP1NxVcRzjXlndGLHaVK13VnecZZ7yCUXnNa0uyMXWdU2AHRqzl0D8MrdIPG57RTLHchNrjgGJvJfYVpyEVd5WyV3FV2+qDoBVfs7JvK3ZHmn6mBh3Y7TVk3biR2nLee37+w7lPP2ZD2Qp/G2uABgU4ROHWMif9OJtS/tryP30McMMKZ3VZnWM5HfwXQ2lxmZaOoFch9XFxuYyHenS+s3tJPYcXo8Q5yJxLNjIv+4tL24UYkdp3sAIG1+O0O7AJr5elcEXpdlddxUOtybueXchAR5/Z6V4mbOVA4+hbnPOkzkBzKY1GXr0Fm+KdOK0lEcs+nsK5cO9wYc4irDA+S1dyZkYBvKeW78RQxBUZNN5K+ZyB/Jtd7KXUWPTORP5PcGV5lWjNYfcHWBCaYvdugc79bW4vypPnCV+UNnf+D0P5GLL/Z15LEu5GyhnipJT1Eqd3acDp1YexJXMauqmgVdYx4ZnchgVJYG5NOf8mCRIM+6U1zP6NqnoKiNdTFUnFtM6bbcwbDiaXNvXiBPx7Upm2T7HqbL1/4tcV2ir+Ak9M2QhIomoaJJqGgSKpqEiiahokmoaBIqmoSKJqGiSahoEiqahIomoaJJqGgSKpqEiiahokmoaBIqmoSKJqGiSahoEiqahIomoaJJqGgSKpqEiiahokmoaBIqmsR/56R3eugRmyUAAAAASUVORK5CYII=</field>
+        </record>        
+    </data>
+</odoo>

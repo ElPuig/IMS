@@ -1,0 +1,10 @@
+# -*- coding: utf-8 -*-
+
+from odoo import models, fields, api
+
+class ims_provider(models.Model):
+	_name = "ims.provider"
+	_description = "Provider: Collects corporative data."
+	_inherit = "ims.person"
+    
+	company = fields.Many2one(string="Contacts", comodel_name="ims.company")
