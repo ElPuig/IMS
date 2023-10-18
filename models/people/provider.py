@@ -8,4 +8,4 @@ class ims_provider(models.Model):
 	_inherit = "ims.person"
 	
 	role = fields.Char(string="Role")
-	company = fields.Many2one(string="Contacts", comodel_name="ims.company")
+	company = fields.Many2one(string="Company", comodel_name="ims.company")
