@@ -73,6 +73,7 @@
         'views/organization/teacher_role/form.xml',
         'views/organization/company/list.xml',
         'views/organization/company/form.xml',
+        'views/organization/company/kanban.xml',
 
         'views/attendance/attendance_template/list.xml',
         'views/attendance/attendance_template/form.xml',
