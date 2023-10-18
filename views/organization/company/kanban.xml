@@ -27,13 +27,5 @@
                 </kanban>
             </field>
         </record>
-
-        <record id="action_ims_company_kanban" model="ir.actions.act_window">
-            <field name="name">ims.company.kanban.action</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">ims.company</field>
-            <field name="view_mode">kanban</field>
-            <field name="view_id" ref="view_ims_company_kanban"/>
-        </record>
     </data>
 </odoo>

@@ -36,13 +36,5 @@
                 </kanban>
             </field>
         </record>
-
-        <record id="action_ims_person_kanban" model="ir.actions.act_window">
-            <field name="name">ims.person.kanban.action</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">ims.person</field>
-            <field name="view_mode">kanban</field>
-            <field name="view_id" ref="view_ims_person_kanban"/>
-        </record>
     </data>
 </odoo>
