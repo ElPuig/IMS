@@ -1,0 +1,28 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_ims_professional_module_list">
+            <field name="name">ims.professional_module.list</field>
+            <field name="model">ims.professional_module</field>
+            <field name="arch" type="xml">
+                 <tree expand="1" default_order="study desc, code asc, acronym asc">
+                    <field name="study"/>
+                    <field name="code"/>
+                    <field name="acronym"/>
+                    <field name="name"/>                
+                </tree>
+            </field>
+        </record>   
+
+         <record model="ir.ui.view" id="mp_search">
+            <field name="name">ims mp search</field>
+            <field name="model">ims.professional_module</field>            
+            <field name="arch" type="xml">
+                <search string="Study">
+                    <group expand="1" string="Order By">
+                        <filter string="Study" name="group_by_study" context="{'group_by':'study'}" />
+                    </group>
+                </search>
+            </field>
+        </record>  
+    </data>
+</odoo>

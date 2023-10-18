@@ -1,0 +1,31 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_ims_company_kanban">
+            <field name="name">ims.company.kanban</field>
+            <field name="model">ims.company</field>
+            <field name="arch" type="xml">
+                <kanban>
+                    <field name="id"/>
+                    <field name="image" color="grey"/>
+                    <field name="name"/>                    
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="oe_kanban_global_click">                        
+                                <div class="oe_kanban_content">
+                                    <div class="o_kanban_image">
+                                        <img id="photo" alt="Photo" t-att-src="kanban_image('ims.company', 'image', record.id.raw_value)"/>
+                                    </div>
+                                    <div id="title" class="oe_kanban_details">
+                                        <strong class="oe_partner_heading">                                        
+                                            <t t-esc="record.name.value"/>                                            
+                                        </strong>                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+			        </templates>
+                </kanban>
+            </field>
+        </record>
+    </data>
+</odoo>

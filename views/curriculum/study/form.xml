@@ -1,0 +1,58 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_ims_study_form">
+            <field name="name">ims.study.form</field>
+            <field name="model">ims.study</field>
+            <field name="arch" type="xml">
+                <form string="Studies">
+                    <sheet>                        
+                        <group string="Main data" col="4">                            
+                            <group>
+                                <field name="acronym" />
+                            </group>
+                            <group colspan="3">
+                                <field name="name" />
+                            </group>
+                        </group>
+                         <group string="Administrative data" col="4">
+                            <group>
+                                <field name="level" />
+                            </group>
+                             <group>
+                                <field name="code" />
+                            </group>
+                            <group>
+                                <field name="date"/>                                
+                            </group>                           
+                            <group>
+                                <field name="deprecated"/>                                
+                            </group>
+                            <group colspan="2">
+                                <field name="main_decree"/>                                
+                            </group>
+                            <group colspan="2">
+                                <field name="regional_decree"/>                                
+                            </group>                                                      
+                        </group>
+                        
+                        <notebook>      
+                            <page string="Professional Modules">
+                                <field name="professional_modules" widget="many2many">
+                                    <tree>
+                                        <field name="code"/>
+                                        <field name="acronym"/>
+                                        <field name="name"/>
+                                    </tree>
+                                </field>
+                            </page>
+
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
+                            </page>
+                        </notebook>
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>

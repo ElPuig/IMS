@@ -1,0 +1,35 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_ims_teacher_form">
+            <field name="name">ims.teacher.form</field>
+            <field name="model">ims.teacher</field>
+            <field name="mode">primary</field>      
+            <field name="inherit_id" ref="ims.view_ims_corporate_person_form"/>      
+            <field name="arch" type="xml">    
+                <xpath expr="//field[@name='image']" position="after">         
+                    <field name="roles" placeholder="Role" string="" widget="many2many_tags"/>    
+                </xpath>
+
+                <xpath expr="//page[@id='notes']" position="before">
+                    <page string="Teaching">
+                        <field name="teaching">
+                            <tree editable="bottom">
+                                <field name="formative_unit"/>
+                                <field name="group"/>
+                            </tree>
+                        </field>
+                    </page>    
+
+                    <page string="Tutorships">
+                        <field name="tutorships" widget="many2many">
+                            <tree>
+                                <field name="name" string="Group"/>
+                                <field name="classroom"/>
+                            </tree>
+                        </field>
+                    </page>                    
+                </xpath>
+            </field>		            
+        </record>
+    </data>
+</odoo>

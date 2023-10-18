@@ -1,0 +1,16 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_ims_group_list">
+            <field name="name">ims.student_group.list</field>
+            <field name="model">ims.student_group</field>
+            <field name="arch" type="xml">
+                <tree expand="1" default_order="name asc">      
+                    <field name="name"/>
+                    <field name="classroom"/>
+                    <field name="tutor"/>
+                    <field name="delegate"/>
+                </tree>
+            </field>
+        </record>   
+    </data>
+</odoo>

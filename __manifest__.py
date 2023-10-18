@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '0.3.0',
+    'version': '0.5.0',
 
     # any module necessary for this one to work correctly
     'depends': ['base_setup'],
@@ -31,51 +31,58 @@
 
         'views/menu.xml',
 
-        'views/formative_unit/list.xml',
-        'views/formative_unit/form.xml',
+        'views/curriculum/formative_unit/list.xml',
+        'views/curriculum/formative_unit/form.xml',
+        'views/curriculum/professional_module/list.xml',
+        'views/curriculum/professional_module/form.xml',
+        'views/curriculum/professional_module/report.xml',
+        'views/curriculum/study/list.xml',
+        'views/curriculum/study/form.xml',        
+        'views/curriculum/level/list.xml',
+        'views/curriculum/level/form.xml',
 
-        'views/professional_module/list.xml',
-        'views/professional_module/form.xml',
-        'views/professional_module/report.xml',
+        'views/people/person/list.xml',
+        'views/people/person/form.xml',
+        'views/people/person/kanban.xml',
+        'views/people/corporate_person/list.xml',
+        'views/people/corporate_person/form.xml',
+        'views/people/corporate_person/kanban.xml',
+        'views/people/administrative/list.xml',
+        'views/people/administrative/form.xml',
+        'views/people/administrative/kanban.xml',
+        'views/people/teacher/list.xml',
+        'views/people/teacher/form.xml',
+        'views/people/teacher/kanban.xml',
+        'views/people/student/list.xml',
+        'views/people/student/form.xml',
+        'views/people/student/kanban.xml',
+        'views/people/tracking/list.xml',
+        'views/people/tracking/form.xml',
+        'views/people/provider/list.xml',
+        'views/people/provider/form.xml',
+        'views/people/provider/kanban.xml',
 
-        'views/person/list.xml',
-        'views/person/form.xml',
-        'views/person/kanban.xml',
+        'views/facilities/classroom/list.xml',
+        'views/facilities/classroom/form.xml',       
 
-        'views/teacher/list.xml',
-        'views/teacher/form.xml',
-        'views/teacher/kanban.xml',
-        
-        'views/student/list.xml',
-        'views/student/form.xml',
-        'views/student/kanban.xml',
+        'views/organization/student_group/list.xml',
+        'views/organization/student_group/form.xml',
+        'views/organization/administrative_role/list.xml',
+        'views/organization/administrative_role/form.xml',
+        'views/organization/teacher_role/list.xml',
+        'views/organization/teacher_role/form.xml',
+        'views/organization/company/list.xml',
+        'views/organization/company/form.xml',
+        'views/organization/company/kanban.xml',
 
-        'views/study/list.xml',
-        'views/study/form.xml',            
-
-        'views/tracking/list.xml',
-        'views/tracking/form.xml',
-
-        'views/level/list.xml',
-        'views/level/form.xml',
-
-        'views/classroom/list.xml',
-        'views/classroom/form.xml',       
-
-        'views/group/list.xml',
-        'views/group/form.xml',
-
-        'views/test/list.xml',
-        'views/test/form.xml',
-
-        'views/attendance_template/list.xml',
-        'views/attendance_template/form.xml',
-        'views/attendance_group/list.xml',
-        'views/attendance_group/form.xml',
-        'views/attendance_session/list.xml',
-        'views/attendance_session/form.xml',
-        'views/attendance_status/list.xml',
-        'views/attendance_status/form.xml',       
+        'views/attendance/attendance_template/list.xml',
+        'views/attendance/attendance_template/form.xml',
+        'views/attendance/attendance_group/list.xml',
+        'views/attendance/attendance_group/form.xml',
+        'views/attendance/attendance_session/list.xml',
+        'views/attendance/attendance_session/form.xml',
+        'views/attendance/attendance_status/list.xml',
+        'views/attendance/attendance_status/form.xml',       
     ],
     'license': 'AGPL-3',
     'installable': True,
@@ -83,13 +90,25 @@
     
     # only loaded in demonstration mode (only loaded when installed, ignored when updated)
     'demo': [
-        'demo/level.xml',
-        'demo/classroom.xml',
-        'demo/study.xml',
-        'demo/professional_module.xml',
-        'demo/formative_unit.xml',
-        'demo/teacher.xml',
-        'demo/group.xml',        
-        'demo/teaching.xml',
+        # this order is needed due dependencies
+        'demo/curriculum/level.xml',
+        'demo/curriculum/study.xml',
+        'demo/curriculum/professional_module.xml',
+        'demo/curriculum/formative_unit.xml',
+
+        'demo/facilities/classroom.xml',
+        
+        'demo/organization/administrative_role.xml',
+
+        'demo/people/administrative.xml',        
+        'demo/people/teacher.xml',
+
+        'demo/organization/group.xml',
+        'demo/organization/teaching.xml',   
+        'demo/organization/teacher_role.xml',   
+        'demo/organization/company.xml',   
+
+        'demo/people/provider.xml',
+        'demo/people/student.xml',
     ],
 }

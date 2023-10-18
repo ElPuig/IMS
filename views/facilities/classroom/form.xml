@@ -1,0 +1,22 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_ims_classroom_form">
+            <field name="name">ims.classroom.form</field>
+            <field name="model">ims.classroom</field>
+            <field name="arch" type="xml">
+                <form string="Classroom">
+                    <sheet>
+                        <group string="Main data" col="4">
+                            <group>
+                                <field name="code"/>
+                            </group>   
+                            <group colspan="3">
+                                <field name="name"/>
+                            </group>                                                    
+                        </group>                    
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,44 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_ims_professional_module_form">
+            <field name="name">ims.professional_module.form</field>
+            <field name="model">ims.professional_module</field>
+            <field name="arch" type="xml">				
+                <form string="professional_module">                   
+                    <sheet>                        
+                        <group string="Main data" col="4">
+                            <group colspan="4">
+                                <field name="study"/>
+                            </group>
+                            <group>
+                                <field name="code"/>
+                            </group>
+                            <group>							
+                                <field name="acronym"/>
+                            </group>
+                            <group colspan="2">							
+                                <field name="name"/>
+                            </group>
+                        </group>
+                        
+                        <notebook>                           
+                            <page string="Formative Units">
+                                <field name="formative_units" widget="many2many">
+                                    <tree>
+                                        <field name="code"/>
+                                        <field name="acronym"/>
+                                        <field name="name"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
+                            </page>
+                        </notebook>
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>
