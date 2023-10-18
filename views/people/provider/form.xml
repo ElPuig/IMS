@@ -1,6 +1,6 @@
 <odoo>
     <data>
-        <record id="view_ims_provider_form" model="ir.ui.view">
+        <record model="ir.ui.view" id="view_ims_provider_form">
             <field name="name">provider form</field>
             <field name="model">ims.provider</field>
             <field name="mode">primary</field>      
