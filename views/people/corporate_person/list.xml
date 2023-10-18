@@ -6,7 +6,7 @@
             <field name="mode">primary</field>      
             <field name="inherit_id" ref="ims.view_ims_person_list"/> 
             <field name="arch" type="xml">  
-                <xpath expr="//field[@name='personal_email']" position="replace">
+                <xpath expr="//field[@name='email']" position="replace">
                     <field name="corporate_email"/>
                 </xpath>              
             </field>		      

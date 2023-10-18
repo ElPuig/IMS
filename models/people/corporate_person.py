@@ -7,5 +7,5 @@ class ims_corporate_person(models.Model):
 	_description = "Corporate person: Collects personal and corporative data."
 	_inherit = "ims.person"
 	
-	corporate_email = fields.Char(string="Email (professional)", required="true")
-	corporate_phone = fields.Char(string="Phone (professional)")	
+	corporate_email = fields.Char(string="Email (corporate)", required="true")
+	corporate_phone = fields.Char(string="Phone (corporate)")	

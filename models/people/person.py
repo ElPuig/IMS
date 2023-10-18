@@ -8,8 +8,8 @@ class ims_person(models.Model):
 
 	name = fields.Char(string="Name", required="true")
 	surname = fields.Char(string="Surname", required="true")	
-	personal_email = fields.Char(string="Email (personal)")	
-	personal_phone = fields.Char(string="Phone (personal)")
+	email = fields.Char(string="Email")	
+	phone = fields.Char(string="Phone")
 	image = fields.Binary(string="Image")
 	notes = fields.Text(string="Notes")
 

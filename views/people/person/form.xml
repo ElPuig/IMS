@@ -23,10 +23,10 @@
 
                                 <group string="Conact data (personal)">
                                     <group>
-                                        <field name="personal_phone"/>    
+                                        <field name="phone" string="Phone"/>    
                                     </group>
                                     <group>
-                                        <field name="personal_email"/>    
+                                        <field name="email" string="Email"/>    
                                     </group>                                                   
                                 </group> 
                             </group>                         

@@ -7,12 +7,12 @@
             <field name="inherit_id" ref="ims.view_ims_person_form"/>      
             <field name="arch" type="xml">                
                 <xpath expr="//group[@id='data']" position="inside">         
-                   <group string="Conact data (professional)">
+                   <group string="Conact data (corporate)">
                         <group>
-                            <field name="corporate_phone"/>    
+                            <field name="corporate_phone" string="Phone"/>    
                         </group>
                         <group>
-                            <field name="corporate_email"/>    
+                            <field name="corporate_email" string="Email"/>    
                         </group>                                                   
                     </group>        
                 </xpath>
