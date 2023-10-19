@@ -1,0 +1,27 @@
+<odoo>
+    <template id="base_kanban_box">
+        <t t-name="kanban_box">
+            <div t-attf-class="oe_kanban_global_click">
+                <div class="oe_kanban_content">
+                    <div id="image" class="o_kanban_image">
+                        <img alt="Photo" t-att-src="kanban_image('ims.provider', 'image', record.id.raw_value)"/>
+                    </div>
+                    <div id="details" class="oe_kanban_details">
+                        <div id="heading" class="oe_partner_heading">
+                            <strong>
+                                <t t-esc="record.name.value"/>
+                                <t> </t>
+                                <t t-esc="record.surname.value"/>
+                            </strong>
+                        </div>
+                        <div id="info" class="oe_kanban_partner_info">
+                            <span>
+                                <t t-esc="record.email.value" />
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

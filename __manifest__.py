@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '0.5.0',
+    'version': '0.6.0',
 
     # any module necessary for this one to work correctly
     'depends': ['base_setup'],
@@ -26,6 +26,8 @@
     # always loaded
    'data': [
         'security/ir.model.access.csv',
+
+        'templates/base_kanban_box.xml',
 
         'views/settings/form.xml',
 
