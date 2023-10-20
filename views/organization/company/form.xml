@@ -35,10 +35,16 @@
                                         <field name="role"/>
                                         
                                         <templates>    
-
-                                        <!-- <template name="provider_kanban_box" inherit_id="ims.base_kanban_box">
-                                           <xpath expr="//div[@id='image']/img" position="inside">
-                                            </xpath> -->
+                                            <!-- <template name="kanban-box" inherit_id="ims.base_kanban_box">
+                                                <xpath expr="//div[@id='image']/img" position="inside">
+                                                </xpath>
+                                            </template> -->
+                                            
+                                            <t t-name="kanban-box">
+                                                <t t-call="ims.base_kanban_box">
+                                                    <t t-set="model" t-value="ims.provider"/>
+                                                </t>
+                                            </t>
                                                 
                                             <!-- <t t-name="kanban-box" t-inherit="base_kanban_box" t-inherit-mode="primary">                                                                                              
                                                 <xpath expr="//div[@id='image']/img" position="inside">
@@ -46,7 +52,7 @@
                                             </t>   -->
 
 
-                                            <t t-name="kanban-box">
+                                            <!-- <t t-name="kanban-box">
                                                 <div t-attf-class="oe_kanban_global_click">                        
                                                     <div class="oe_kanban_content">
                                                         <div class="o_kanban_image">
@@ -70,8 +76,8 @@
                                                         </div>
                                                     </div>
                                                 </div>                                                
-                                            </t>    
-                                              
+                                            </t>     -->
+
                                             <!-- <t t-call="base_kanban_box">
                                                     <t t-set="model" t-value="ims.provider"/>
                                                 </t> -->                                      
