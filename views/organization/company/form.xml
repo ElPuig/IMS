@@ -33,7 +33,13 @@
                                         <field name="surname"/>
                                         <field name="email"/>
                                         <field name="role"/>
+                                        
                                         <templates>    
+
+                                        <!-- <template name="provider_kanban_box" inherit_id="ims.base_kanban_box">
+                                           <xpath expr="//div[@id='image']/img" position="inside">
+                                            </xpath> -->
+                                                
                                             <!-- <t t-name="kanban-box" t-inherit="base_kanban_box" t-inherit-mode="primary">                                                                                              
                                                 <xpath expr="//div[@id='image']/img" position="inside">
                                                 </xpath>
@@ -64,7 +70,8 @@
                                                         </div>
                                                     </div>
                                                 </div>                                                
-                                            </t>      
+                                            </t>    
+                                              
                                             <!-- <t t-call="base_kanban_box">
                                                     <t t-set="model" t-value="ims.provider"/>
                                                 </t> -->                                      

@@ -1,6 +1,6 @@
 <odoo>
     <template id="base_kanban_box">
-        <t t-name="kanban_box">
+        <t t-name="kanban-box">
             <div t-attf-class="oe_kanban_global_click">
                 <div class="oe_kanban_content">
                     <div id="image" class="o_kanban_image">
