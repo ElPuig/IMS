@@ -105,7 +105,7 @@
         'demo/people/administrative.xml',        
         'demo/people/teacher.xml',
 
-        'demo/organization/group.xml',
+        'demo/organization/student_group.xml',
         'demo/organization/teaching.xml',   
         'demo/organization/teacher_role.xml',   
         'demo/organization/company.xml',   
