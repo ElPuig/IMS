@@ -17,13 +17,7 @@
 
                         <notebook>               
                             <page string="Administrative">
-                                <field name="administrative" widget="many2many">
-                                    <tree>
-                                        <field name="name"/>
-                                        <field name="surname"/>
-                                        <field name="corporate_email"/>
-                                    </tree>
-                                </field>
+                                <field name="administrative" mode="kanban" inherit_id="view_administrative_kanban" />
                             </page>     
 
                             <page string="Notes">

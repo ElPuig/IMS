@@ -29,13 +29,7 @@
                         
                         <notebook> 
                             <page string="Students">
-                                <field name="students" widget="many2many">
-                                    <tree>
-                                        <field name="name"/>
-                                        <field name="surname"/>
-                                        <field name="corporate_email"/>
-                                    </tree>
-                                </field>
+                                <field name="students" mode="kanban" inherit_id="view_student_kanban" />
                             </page>        
 
                             <page string="Notes">

@@ -14,8 +14,7 @@
 
                 <xpath expr="//page[@id='notes']" position="before">         
                     <page string="Contacts">
-                        <field name="contacts" mode="kanban" inherit_id="view_provider_kanban">                            
-                        </field>
+                        <field name="contacts" mode="kanban" inherit_id="view_provider_kanban" />
                     </page>    
                 </xpath>
             </field>			

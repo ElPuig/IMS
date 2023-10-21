@@ -6,8 +6,8 @@
             <field name="mode">primary</field>      
             <field name="inherit_id" ref="ims.view_corporate_person_form"/>      
             <field name="arch" type="xml">    
-                <xpath expr="//field[@name='photo']" position="inside">         
-                    <field name="roles" placeholder="Role" string="" widget="many2many_tags"/>    
+                <xpath expr="//group[@id='photo']" position="inside">
+                    <field name="roles" placeholder="Role" string="" widget="many2many_tags" />
                 </xpath>
 
                 <xpath expr="//page[@id='notes']" position="before">
