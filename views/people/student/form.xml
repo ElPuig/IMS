@@ -6,7 +6,7 @@
             <field name="mode">primary</field>      
             <field name="inherit_id" ref="ims.view_corporate_person_form"/>      
             <field name="arch" type="xml"> 
-                <xpath expr="//field[@name='image']" position="after">         
+                <xpath expr="//field[@name='photo']" position="inside">            
                     <field name="group" placeholder="Group" string="" /> <!-- Ther's no tag widget for a Many2one field :( -->                        
                 </xpath>
 

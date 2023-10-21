@@ -3,42 +3,25 @@
         <record model="ir.ui.view" id="view_person_form">
             <field name="name">ims.person.form</field>
             <field name="model">ims.person</field>
+             <field name="mode">primary</field>      
+            <field name="inherit_id" ref="template_form_with_photo"/>      
             <field name="arch" type="xml">
-                <form string="Person">
-                    <sheet>
-                        <group col="4">
-                            <group string="">
-                                <field name="image" string="" widget="image" />
-                            </group>
+                <xpath expr="//group[@id='main']" position="inside">
+                    <group>
+                        <field name="surname"/>    
+                    </group>                                          
+                </xpath>
 
-                            <group id="data" col="1" colspan="3">
-                                <group string="Main data">
-                                    <group>
-                                        <field name="name"/>    
-                                    </group>
-                                    <group>
-                                        <field name="surname"/>    
-                                    </group>                                                   
-                                </group>  
-
-                                <group string="Conact data (personal)">
-                                    <group>
-                                        <field name="phone" string="Phone"/>    
-                                    </group>
-                                    <group>
-                                        <field name="email" string="Email"/>    
-                                    </group>                                                   
-                                </group> 
-                            </group>                         
+                <xpath expr="//group[@id='data']" position="inside">                                              
+                    <group id="contact" string="Contact data (personal)">
+                        <group>
+                            <field name="phone" string="Phone"/>    
                         </group>
-               
-                        <notebook>                               
-                            <page id="notes" string="Notes">
-                                <field name="notes" placeholder="Write down here your notes..."/>
-                            </page>
-                        </notebook>
-                    </sheet>	
-                </form>
+                        <group>
+                            <field name="email" string="Email"/>    
+                        </group>                                                   
+                    </group> 
+                </xpath>
             </field>			
         </record>
     </data>

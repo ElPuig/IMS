@@ -7,12 +7,12 @@
                 <form>
                     <sheet>
                         <group col="4">
-                            <group id="photo" string="">
+                            <group col="1" id="photo" string="">
                                 <field name="image" string="" widget="image" />
                             </group>
 
-                            <group col="1" colspan="3">
-                                <group id="data" string="Main data">
+                            <group id="data" col="1" colspan="3">
+                                <group id="main" string="Main data">
                                     <group>
                                         <field name="name"/>    
                                     </group>                                                                                   

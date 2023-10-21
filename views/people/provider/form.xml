@@ -6,15 +6,15 @@
             <field name="mode">primary</field>      
             <field name="inherit_id" ref="ims.view_person_form"/>      
             <field name="arch" type="xml"> 
-                <xpath expr="//field[@name='image']" position="after">         
+                <xpath expr="//field[@name='photo']" position="inside">         
                     <field name="role" placeholder="Role" string="" /> <!-- Ther's no tag widget for a Many2one field :( -->                        
                 </xpath>
 
-                <xpath expr="//group[@id='data']" position="inside">         
+                <xpath expr="//group[@id='contact']" position="after">         
                     <group string="Administrative data">                       
                         <group>
                             <field name="company"/>    
-                        </group>                                                   
+                        </group>                                                                          
                     </group>           
                 </xpath>
             </field>		            
