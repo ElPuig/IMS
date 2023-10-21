@@ -1,6 +1,6 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_ims_administrative_role_list">
+        <record model="ir.ui.view" id="view_administrative_role_list">
             <field name="name">ims.administrative_role.list</field>
             <field name="model">ims.administrative_role</field>
             <field name="arch" type="xml">

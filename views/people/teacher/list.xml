@@ -1,10 +1,10 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_ims_teacher_list">
+        <record model="ir.ui.view" id="view_teacher_list">
             <field name="name">ims.teacher.list</field>
             <field name="model">ims.teacher</field>
             <field name="mode">primary</field>      
-            <field name="inherit_id" ref="ims.view_ims_corporate_person_list"/> 
+            <field name="inherit_id" ref="ims.view_corporate_person_list"/> 
             <field name="arch" type="xml">  
                 <xpath expr="//tree" position="inside">
                      <field name="roles_str" string="Roles"/>

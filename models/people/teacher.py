@@ -7,14 +7,15 @@ class ims_teacher(models.Model):
 	_description = "Teacher: Collects the teacher\"s data."
 	_inherit = "ims.corporate_person"
 	
-	teaching = fields.One2many(string="Teaching", comodel_name="ims.teaching", inverse_name="teacher")
-	roles = fields.One2many(string="Roles", comodel_name="ims.teacher_role", inverse_name="teacher")	
-	roles_str = fields.Char(compute='_roles_str')
+	teaching = fields.One2many(string="Teaching", comodel_name="ims.teaching", inverse_name="teacher")	
+	
+	#The roles fields was a One2Many relation, but role's kanban view does not work within the form.		
+	roles = fields.Many2many(string="Roles", comodel_name="ims.teacher_role")	
 	tutorships = fields.One2many(string="Tutorships", comodel_name="ims.student_group", inverse_name="tutor")
-	tutorships_str = fields.Char(compute='_tutorships_str')
-
-	#TODO: computed field with the role (or roles) in order to displayit within the list and Kanban
-	#TODO: add demo data for the remaining items
+	
+	#This fields are computed in order to display string data within some views.
+	roles_str = fields.Char(compute='_roles_str')
+	tutorships_str = fields.Char(compute='_tutorships_str')	
 
 	# formative_units = fields.One2many(string="Formative Units", comodel_name="ims.formative_unit", inverse_name="teacher")
 	# professional_modules = fields.One2many(string="Professional Modules", comodel_name="ims.professional_module", inverse_name="teacher")

@@ -1,6 +1,6 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_ims_teacher_role_form">
+        <record model="ir.ui.view" id="view_teacher_role_form">
             <field name="name">ims.teacher_role.form</field>
             <field name="model">ims.teacher_role</field>
             <field name="arch" type="xml">
@@ -9,13 +9,15 @@
                         <group string="Main data" col="4">
                             <group>
                                 <field name="name"/>
-                            </group>
-                            <group colspan="3">
-                                <field name="teacher"/>    
-                            </group>                            
+                            </group>                           
                         </group>  
 
-                        <notebook>                          
+                        <notebook>         
+                            <page string="Teacher">
+                                <!-- TODO: in order to display the card, a Many2many (instead of Many2one) relation is needed. Should be limited to 1 teacher for role. -->
+                                <field name="teachers" mode="kanban" inherit_id="view_teacher_kanban" />
+                            </page>     
+
                             <page string="Notes">
                                 <field name="notes" placeholder="Write down here your notes..."/>
                             </page>

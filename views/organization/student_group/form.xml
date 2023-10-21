@@ -1,6 +1,6 @@
 <odoo>
     <data>
-         <record model="ir.ui.view" id="view_ims_group_form">
+         <record model="ir.ui.view" id="view_group_form">
             <field name="name">ims.student_group.form</field>
             <field name="model">ims.student_group</field>
             <field name="arch" type="xml">
@@ -29,13 +29,7 @@
                         
                         <notebook> 
                             <page string="Students">
-                                <field name="students" widget="many2many">
-                                    <tree>
-                                        <field name="name"/>
-                                        <field name="surname"/>
-                                        <field name="corporate_email"/>
-                                    </tree>
-                                </field>
+                                <field name="students" mode="kanban" inherit_id="view_student_kanban" />
                             </page>        
 
                             <page string="Notes">
@@ -47,7 +41,7 @@
             </field>			
         </record>
 
-        <!-- <record id="view_ims_group_form" model="ir.ui.view">
+        <!-- <record id="view_group_form" model="ir.ui.view">
             <field name="name">group form</field>
             <field name="model">ims.student_group</field>
             <field name="type">form</field>
@@ -85,7 +79,7 @@
                 </form>
             </field>			
         </record> -->
-        <!-- <record id="view_ims_group_form_2" model="ir.ui.view">
+        <!-- <record id="view_group_form_2" model="ir.ui.view">
             <field name="name">group form</field>
             <field name="model">ims.student_group</field>
             <field name="type">form</field>
