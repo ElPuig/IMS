@@ -1,10 +1,10 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_ims_administrative_form">
+        <record model="ir.ui.view" id="view_administrative_form">
             <field name="name">ims.administrative.form</field>
             <field name="model">ims.administrative</field>
             <field name="mode">primary</field>      
-            <field name="inherit_id" ref="ims.view_ims_corporate_person_form"/>      
+            <field name="inherit_id" ref="ims.view_corporate_person_form"/>      
             <field name="arch" type="xml">                               
                 <xpath expr="//field[@name='image']" position="after">         
                     <field name="role" placeholder="Role" string="" /> <!-- Ther's no tag widget for a Many2one field :( -->                        

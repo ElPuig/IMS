@@ -1,10 +1,10 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_ims_company_form">
+        <record model="ir.ui.view" id="view_company_form">
             <field name="name">ims.company.form</field>
             <field name="model">ims.company</field>
             <field name="mode">primary</field>      
-            <field name="inherit_id" ref="ims_templates_form_with_photo"/>      
+            <field name="inherit_id" ref="template_form_with_photo"/>      
             <field name="arch" type="xml">
                 <xpath expr="//group[@id='data']" position="inside">         
                    <group string="Conact data (corporate)">
