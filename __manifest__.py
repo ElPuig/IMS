@@ -25,9 +25,9 @@
 
     # always loaded
    'data': [
-        'security/ir.model.access.csv',
+        'security/ir.model.access.csv',        
 
-        'templates/base_kanban_box.xml',
+        'templates/form_with_photo.xml',
 
         'views/settings/form.xml',
 
@@ -112,5 +112,5 @@
 
         'demo/people/provider.xml',
         'demo/people/student.xml',
-    ],
+    ],   
 }

@@ -3,95 +3,59 @@
         <record model="ir.ui.view" id="view_ims_company_form">
             <field name="name">ims.company.form</field>
             <field name="model">ims.company</field>
+            <field name="mode">primary</field>      
+            <field name="inherit_id" ref="ims_templates_form_with_photo"/>      
             <field name="arch" type="xml">
-                <form string="company">
-                    <sheet>
-                        <group col="4">
-                            <group string="">
-                                <field name="image" string="" widget="image" />
-                            </group>
+                <xpath expr="//group[@id='data']" position="inside">         
+                   <group string="Conact data (corporate)">
+                        <group>
+                            <field name="vat"/>    
+                        </group>                        
+                    </group>        
+                </xpath>
 
-                            <group col="1" colspan="3">
-                                <group string="Main data">
-                                    <group>
-                                        <field name="name"/>    
-                                    </group>
-                                    <group>
-                                        <field name="vat"/>    
-                                    </group>                                                   
-                                </group>  
-                            </group>                         
-                        </group>
-               
-                        <notebook>      
-                            <page string="Contacts">
-                                <field name="contacts" mode="kanban">
-                                     <kanban>
-                                        <field name="id"/>
-                                        <field name="image" color="grey"/>
-                                        <field name="name"/>
-                                        <field name="surname"/>
-                                        <field name="email"/>
-                                        <field name="role"/>
-                                        
-                                        <templates>    
-                                            <!-- <template name="kanban-box" inherit_id="ims.base_kanban_box">
-                                                <xpath expr="//div[@id='image']/img" position="inside">
-                                                </xpath>
-                                            </template> -->
-                                            
-                                            <t t-name="kanban-box">
-                                                <t t-call="ims.base_kanban_box">
-                                                    <t t-set="model" t-value="ims.provider"/>
-                                                </t>
-                                            </t>
-                                                
-                                            <!-- <t t-name="kanban-box" t-inherit="base_kanban_box" t-inherit-mode="primary">                                                                                              
-                                                <xpath expr="//div[@id='image']/img" position="inside">
-                                                </xpath>
-                                            </t>   -->
-
-
-                                            <!-- <t t-name="kanban-box">
-                                                <div t-attf-class="oe_kanban_global_click">                        
-                                                    <div class="oe_kanban_content">
-                                                        <div class="o_kanban_image">
-                                                            <img id="photo" alt="Photo" t-att-src="kanban_image('ims.provider', 'image', record.id.raw_value)"/>
-                                                        </div>
-                                                        <div id="title" class="oe_kanban_details">
-                                                            <strong class="oe_partner_heading">                                        
-                                                                <t t-esc="record.name.value"/>
-                                                                <t> </t> 
-                                                                <t t-esc="record.surname.value"/>
-                                                            </strong>
-                                                            <div class="oe_kanban_partner_info">                                                                                    
-                                                                <span>
-                                                                    <t t-esc="record.email.value" />
-                                                                </span>
-                                                                <br />
-                                                                <span>
-                                                                    <t t-esc="record.role.value" />
-                                                                </span>
-                                                            </div>                                                            
-                                                        </div>
-                                                    </div>
-                                                </div>                                                
-                                            </t>     -->
-
-                                            <!-- <t t-call="base_kanban_box">
-                                                    <t t-set="model" t-value="ims.provider"/>
-                                                </t> -->                                      
-                                        </templates>
-                                    </kanban>
-                                </field>
-                            </page>
-
-                            <page string="Notes">
-                                <field name="notes" placeholder="Write down here your notes..."/>
-                            </page>
-                        </notebook>
-                    </sheet>	
-                </form>
+                <xpath expr="//page[@id='notes']" position="before">         
+                    <page string="Contacts">
+                        <field name="contacts" mode="kanban">
+                                <kanban>
+                                <field name="id"/>
+                                <field name="image" color="grey"/>
+                                <field name="name"/>
+                                <field name="surname"/>
+                                <field name="email"/>
+                                <field name="role"/>
+                                
+                                <templates>                                                                                          
+                                    <t t-name="kanban-box">
+                                        <div t-attf-class="oe_kanban_global_click">                        
+                                            <div class="oe_kanban_content">
+                                                <div class="o_kanban_image">
+                                                    <img id="photo" alt="Photo" t-att-src="kanban_image('ims.provider', 'image', record.id.raw_value)"/>
+                                                </div>
+                                                <div id="title" class="oe_kanban_details">
+                                                    <strong class="oe_partner_heading">                                        
+                                                        <t t-esc="record.name.value"/>
+                                                        <t> </t> 
+                                                        <t t-esc="record.surname.value"/>
+                                                    </strong>
+                                                    <div class="oe_kanban_partner_info">                                                                                    
+                                                        <span>
+                                                            <t t-esc="record.email.value" />
+                                                        </span>
+                                                        <br />
+                                                        <span>
+                                                            <t t-esc="record.role.value" />
+                                                        </span>
+                                                    </div>                                                            
+                                                </div>
+                                            </div>
+                                        </div>                                                
+                                    </t>                                                                             
+                                </templates>
+                            </kanban>
+                        </field>
+                    </page>    
+                </xpath>
             </field>			
         </record>
     </data>
