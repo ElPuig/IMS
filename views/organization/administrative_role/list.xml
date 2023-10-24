@@ -5,7 +5,8 @@
             <field name="model">ims.administrative_role</field>
             <field name="arch" type="xml">
                 <tree expand="1" default_order="name asc">      
-                    <field name="name"/>
+                    <field name="name" string="Role" />
+                    <field name="administratives" string="Assigned to" widget="many2many_tags"/>
                 </tree>
             </field>
         </record>   

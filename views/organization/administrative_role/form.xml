@@ -9,15 +9,12 @@
                         <group string="Main data">
                             <group>
                                 <field name="name"/>
-                            </group>
-                            <!-- <group colspan="3">
-                                <field name="administrative"/>    
-                            </group>                             -->
+                            </group>                           
                         </group>  
 
                         <notebook>               
                             <page string="Administrative">
-                                <field name="administrative" mode="kanban" inherit_id="view_administrative_kanban" />
+                                <field name="administratives" mode="kanban" inherit_id="view_administrative_kanban" />
                             </page>     
 
                             <page string="Notes">

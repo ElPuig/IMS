@@ -8,7 +8,7 @@
             <field name="arch" type="xml">  
                 <xpath expr="//img[@id='photo']" position="attributes">
                     <attribute name="t-att-src">kanban_image('ims.student', 'image', record.id.raw_value)</attribute>
-                </xpath> 
+                </xpath>               
 
                 <xpath expr="//kanban" position="inside">
                     <!-- WARNING: All the Kanban fields must be included also as "fields" within the view. -->
