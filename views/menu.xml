@@ -41,6 +41,7 @@
             <field name="name">Students</field>
             <field name="res_model">ims.student</field>
             <field name="view_mode">kanban,tree,form</field>
+            <field name="context">{'search_default_group_by_group': 1}</field>
         </record>
 
         <record model="ir.actions.act_window" id="action_ims_teacher_tree">

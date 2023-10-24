@@ -5,7 +5,7 @@
             <field name="model">ims.student_group</field>
             <field name="arch" type="xml">
                 <tree expand="1" default_order="name asc">      
-                    <field name="name"/>
+                    <field name="name" string="Group"/>
                     <field name="classroom"/>
                     <field name="tutor"/>
                     <field name="delegate"/>

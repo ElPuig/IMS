@@ -6,11 +6,31 @@
             <field name="mode">primary</field>      
             <field name="inherit_id" ref="ims.view_corporate_person_list"/> 
             <field name="arch" type="xml">  
+                <xpath expr="//tree" position="attributes">
+                    <attribute name="expand">1</attribute>
+                    <attribute name="default_order">group asc, surname asc</attribute>
+                </xpath>     
+
+                <xpath expr="//field[@name='surname']" position="before">
+                    <field name="group"/>     
+                </xpath>  
+
                 <xpath expr="//tree" position="inside">
-                    <field name="group"/>    
                     <field name="tutor"/>    
                 </xpath>              
             </field>		      
         </record>   
+
+         <record model="ir.ui.view" id="view_student_search">
+            <field name="name">ims.student.search</field>
+            <field name="model">ims.student</field>            
+            <field name="arch" type="xml">
+                <search string="Group">
+                    <group expand="1" string="Order By">
+                        <filter string="Group" name="group_by_group" context="{'group_by':'group'}" />
+                    </group>
+                </search>
+            </field>
+        </record>  
     </data>
 </odoo>
