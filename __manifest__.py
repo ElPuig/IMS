@@ -21,7 +21,7 @@
     'version': '0.8.0',
 
     # any module necessary for this one to work correctly
-    'depends': ['base_setup'],
+    'depends': ['base_setup', 'auth_oauth'],
 
     # always loaded
    'data': [
