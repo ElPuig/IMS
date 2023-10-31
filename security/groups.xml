@@ -20,18 +20,6 @@
             <field name="category_id" ref="ims.ims_category_main"/>
             <field name="implied_ids" eval="[(4, ref('ims_group_user'))]"/>    
             <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
-
-            <!-- <field name="users" eval="[(6, ref('base.user_root'))]"/> -->
-            <!-- <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/> -->
-
-            <!-- <field name="implied_ids" eval="[(4, ref('group_project_manager'))]"/> -->
-            <!-- <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/> -->
-
-        </record>
-        
-        <!-- <record id="base.user_admin" model="res.users">
-            <field name="groups_id" eval="[(4, ref('account.group_account_user'))]"/>
-        </record> -->
-         
+        </record>        
     </data>
 </odoo>
