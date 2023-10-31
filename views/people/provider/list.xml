@@ -4,7 +4,7 @@
             <field name="name">ims.provider.list</field>
             <field name="model">ims.provider</field>
             <field name="mode">primary</field>      
-            <field name="inherit_id" ref="ims.view_person_list"/> 
+            <field name="inherit_id" ref="ims.ims_view_person_list"/> 
             <field name="arch" type="xml">  
                 <xpath expr="//tree" position="inside">
                     <field name="name"/>
