@@ -4,7 +4,7 @@
             <field name="name">ims.corporate_person.list</field>
             <field name="model">ims.corporate_person</field>
             <field name="mode">primary</field>      
-            <field name="inherit_id" ref="ims.ims_view_person_list"/> 
+            <field name="inherit_id" ref="ims_view_person_list"/> 
             <field name="arch" type="xml">  
                 <xpath expr="//field[@name='email']" position="replace">
                     <field name="corporate_email"/>
