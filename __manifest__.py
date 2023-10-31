@@ -25,6 +25,7 @@
 
     # always loaded
    'data': [
+        'security/groups.xml',        
         'security/ir.model.access.csv',        
 
         'templates/form_with_photo.xml',
