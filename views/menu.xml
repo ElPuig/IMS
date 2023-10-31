@@ -1,145 +1,149 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <data>     
-        <record model="ir.actions.act_window" id="action_ims_settings">
+    <data>   
+        <!-- Actions  -->
+        <record model="ir.actions.act_window" id="ims_action_settings">
             <field name="name">Configuration</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">res.config.settings</field>
             <field name="view_mode">form</field>
             <field name="target">inline</field>
             <field name="context">{'module' : 'ims'}</field>
-            </record>
+        </record>
 
-        <record model="ir.actions.act_window" id="action_ims_formative_unit_tree">
+        <record model="ir.actions.act_window" id="ims_action_formative_unit_tree">
             <field name="name">Formative Units</field>
             <field name="res_model">ims.formative_unit</field>
             <field name="view_mode">tree,form</field>
             <field name="context">{'search_default_group_by_professional_module': 1}</field>
         </record>
 
-        <record model="ir.actions.act_window" id="action_ims_professional_module_tree">
+        <record model="ir.actions.act_window" id="ims_action_professional_module_tree">
             <field name="name">Professional Modules</field>
             <field name="res_model">ims.professional_module</field>
             <field name="view_mode">tree,form</field>
             <field name="context">{'search_default_group_by_study': 1}</field>
         </record>
 
-        <record model="ir.actions.act_window" id="action_ims_study_tree">
+        <record model="ir.actions.act_window" id="ims_action_study_tree">
             <field name="name">Studies</field>
             <field name="res_model">ims.study</field>
             <field name="view_mode">tree,form</field>
             <field name="context">{'search_default_group_by_level': 1}</field>
         </record>
 
-        <record model="ir.actions.act_window" id="action_ims_administrative_tree">
+        <record model="ir.actions.act_window" id="ims_action_administrative_tree">
             <field name="name">Administratives</field>
             <field name="res_model">ims.administrative</field>
             <field name="view_mode">kanban,tree,form</field>
         </record>
 
-        <record model="ir.actions.act_window" id="action_ims_student_tree">
+        <record model="ir.actions.act_window" id="ims_action_student_tree">
             <field name="name">Students</field>
             <field name="res_model">ims.student</field>
             <field name="view_mode">kanban,tree,form</field>
             <field name="context">{'search_default_group_by_group': 1}</field>
         </record>
 
-        <record model="ir.actions.act_window" id="action_ims_teacher_tree">
+        <record model="ir.actions.act_window" id="ims_action_teacher_tree">
             <field name="name">Teachers</field>
             <field name="res_model">ims.teacher</field>
             <field name="view_mode">kanban,tree,form</field>
         </record>
 
-        <record model="ir.actions.act_window" id="action_ims_provider_tree">
+        <record model="ir.actions.act_window" id="ims_action_provider_tree">
             <field name="name">Providers</field>
             <field name="res_model">ims.provider</field>
             <field name="view_mode">kanban,tree,form</field>
         </record>
 
-        <record model="ir.actions.act_window" id="action_ims_tracking_tree">
+        <record model="ir.actions.act_window" id="ims_action_tracking_tree">
             <field name="name">Tracking</field>
             <field name="res_model">ims.tracking</field>
             <field name="view_mode">tree,form</field>
         </record>
 
-        <record model="ir.actions.act_window" id="action_ims_level_tree">
+        <record model="ir.actions.act_window" id="ims_action_level_tree">
             <field name="name">Levels</field>
             <field name="res_model">ims.level</field>
             <field name="view_mode">tree,form</field>
         </record>
 
-        <record model="ir.actions.act_window" id="action_ims_classroom_tree">
+        <record model="ir.actions.act_window" id="ims_action_classroom_tree">
             <field name="name">Classrooms</field>
             <field name="res_model">ims.classroom</field>
             <field name="view_mode">tree,form</field>
         </record>
 
-        <record model="ir.actions.act_window" id="action_ims_student_group_tree">
+        <record model="ir.actions.act_window" id="ims_action_student_group_tree">
             <field name="name">Groups (for students)</field>
             <field name="res_model">ims.student_group</field>
             <field name="view_mode">tree,form</field>
         </record>
 
-        <record model="ir.actions.act_window" id="action_ims_teacher_role_tree">
+        <record model="ir.actions.act_window" id="ims_action_teacher_role_tree">
             <field name="name">Roles (for teachers)</field>
             <field name="res_model">ims.teacher_role</field>
             <field name="view_mode">tree,form</field>
         </record>  
 
-        <record model="ir.actions.act_window" id="action_ims_administrative_role_tree">
+        <record model="ir.actions.act_window" id="ims_action_administrative_role_tree">
             <field name="name">Roles (for administratives)</field>
             <field name="res_model">ims.administrative_role</field>
             <field name="view_mode">tree,form</field>
         </record>
 
-        <record model="ir.actions.act_window" id="action_ims_company_tree">
+        <record model="ir.actions.act_window" id="ims_action_company_tree">
             <field name="name">Companies</field>
             <field name="res_model">ims.company</field>
             <field name="view_mode">kanban,tree,form</field>
         </record>
 
-        <record model="ir.actions.act_window" id="action_ims_attendance_template_tree">
+        <record model="ir.actions.act_window" id="ims_action_attendance_template_tree">
             <field name="name">Attendance Templates</field>
             <field name="res_model">ims.attendance_template</field>
             <field name="view_mode">tree,form</field>
         </record>
 
-        <record model="ir.actions.act_window" id="action_ims_attendance_group_tree">
+        <record model="ir.actions.act_window" id="ims_action_attendance_group_tree">
             <field name="name">Attendance Groups</field>
             <field name="res_model">ims.attendance_group</field>
             <field name="view_mode">tree,form</field>
-        </record>
-            
-        <menuitem id="menu_ims_root" name="Institute Management System"/>
+        </record>                
         
-        <menuitem name="Curriculum"     sequence="1" id="menu_ims_curriculum"   parent="menu_ims_root"/>
-            <menuitem name="Levels"     sequence="1" id="menu_ims_levels"       parent="menu_ims_curriculum"    action="action_ims_level_tree"/>
-            <menuitem name="Studies"    sequence="2" id="menu_ims_studies"      parent="menu_ims_curriculum"    action="action_ims_study_tree"/>
-            <menuitem name="PMs"        sequence="3" id="menu_ims_mps"          parent="menu_ims_curriculum"    action="action_ims_professional_module_tree"/>
-            <menuitem name="FUs"        sequence="4" id="menu_ims_ufs"          parent="menu_ims_curriculum"    action="action_ims_formative_unit_tree"/>
+        <!-- Menú -->
+        <menuitem id="ims_menu_curriculum" name="Curriculum" />
+            <menuitem name="Levels"     sequence="1" id="ims_menu_levels"               parent="ims_menu_curriculum"    action="ims_action_level_tree"/>
+            <menuitem name="Studies"    sequence="2" id="ims_menu_studies"              parent="ims_menu_curriculum"    action="ims_action_study_tree"/>
+            <menuitem name="PMs"        sequence="3" id="ims_menu_mps"                  parent="ims_menu_curriculum"    action="ims_action_professional_module_tree"/>
+            <menuitem name="FUs"        sequence="4" id="ims_menu_ufs"                  parent="ims_menu_curriculum"    action="ims_action_formative_unit_tree"/>
 
-        <menuitem name="Facilities"     sequence="2" id="menu_ims_facilities"   parent="menu_ims_root"/>
-            <menuitem name="Classrooms" sequence="1" id="menu_ims_classrooms"   parent="menu_ims_facilities"    action="action_ims_classroom_tree"/>
+        <menuitem id="ims_menu_facilities" name="Facilities" />
+            <menuitem name="Classrooms" sequence="1" id="ims_menu_classrooms"           parent="ims_menu_facilities"    action="ims_action_classroom_tree"/>
 
-        <menuitem name="People"                 sequence="3" id="menu_ims_people"           parent="menu_ims_root"/>
-            <menuitem name="Providers"          sequence="1" id="menu_ims_providers"        parent="menu_ims_people"    action="action_ims_provider_tree"/>            
-            <menuitem name="Administratives"    sequence="2" id="menu_ims_administratives"  parent="menu_ims_people"    action="action_ims_administrative_tree"/>        
-            <menuitem name="Teachers"           sequence="3" id="menu_ims_teachers"         parent="menu_ims_people"    action="action_ims_teacher_tree"/>        
-            <menuitem name="Students"           sequence="4" id="menu_ims_students"         parent="menu_ims_people"    action="action_ims_student_tree"/>            
+        <menuitem id="ims_menu_people" name="People" />
+            <menuitem name="Providers"              sequence="1" id="ims_menu_providers"        parent="ims_menu_people"    action="ims_action_provider_tree"/>            
+            <menuitem name="Administratives"        sequence="2" id="ims_menu_administratives"  parent="ims_menu_people"    action="ims_action_administrative_tree"/>        
+            <menuitem name="Teachers"               sequence="3" id="ims_menu_teachers"         parent="ims_menu_people"    action="ims_action_teacher_tree"/>        
+            <menuitem name="Students"               sequence="4" id="ims_menu_students"         parent="ims_menu_people"    action="ims_action_student_tree"/>            
+            
+            <menuitem name="Configuration"          sequence="5" id="ims_menu_people_config"    parent="ims_menu_people"    action="ims_action_settings"/>
+                <menuitem name="Providers"          sequence="1" id="ims_menu_people_config_provs"                          parent="ims_menu_people_config"/>
+                    <menuitem name="Companies"      sequence="1" id="ims_menu_company"          parent="ims_menu_people_config_provs"       action="ims_action_company_tree"/>
+                
+                <menuitem name="Students"           sequence="1" id="ims_menu_people_config_students"                       parent="ims_menu_people_config"/>
+                    <menuitem name="Groups"         sequence="1" id="ims_menu_student_groups"   parent="ims_menu_people_config_students"    action="ims_action_student_group_tree"/>
+                
+                <menuitem name="Administratives"    sequence="1" id="ims_menu_people_config_admins"                         parent="ims_menu_people_config"/>
+                    <menuitem name="Roles"          sequence="1" id="ims_menu_admin_roles"      parent="ims_menu_people_config_admins"      action="ims_action_administrative_role_tree"/>
+
+                <menuitem name="Teachers"           sequence="1" id="ims_menu_people_config_teachers"                        parent="ims_menu_people_config"/>
+                    <menuitem name="Roles"          sequence="1" id="ims_menu_teacher_roles"    parent="ims_menu_people_config_teachers"    action="ims_action_teacher_role_tree"/>                
         
-        <menuitem name="Organization"                       sequence="4" id="menu_ims_organisation"             parent="menu_ims_root"/>
-            <menuitem name="Companies (for providers)"      sequence="1" id="menu_ims_company"                  parent="menu_ims_organisation"  action="action_ims_company_tree"/>
-            <menuitem name="Groups (for students)"          sequence="2" id="menu_ims_student_groups"           parent="menu_ims_organisation"  action="action_ims_student_group_tree"/>
-            <menuitem name="Roles (for administratives)"    sequence="3" id="menu_ims_administrative_roles"     parent="menu_ims_organisation"  action="action_ims_administrative_role_tree"/>
-            <menuitem name="Roles (for teachers)"           sequence="4" id="menu_ims_teacher_roles"            parent="menu_ims_organisation"  action="action_ims_teacher_role_tree"/>
+            
             
 
-        <!-- <menuitem name="Tracking" id="menu_ims_groups" parent="menu_ims_root" action="action_ims_tracking_tree"/>         -->                       
-
-        <!-- <menuitem id="menu_ims_attendance" name="Attendance" parent="menu_ims_root"/> -->
-            <!-- <menuitem name="Templates" id="menu_ims_attendance_template" parent="menu_ims_attendance" action="action_ims_attendance_template_tree"/> -->
-
-        <menuitem name="Configuration"  sequence="4" id="menu_ims_configuration"    parent="menu_ims_root" />
-            <menuitem name="Settings"   sequence="1" id="menu_ims_settings"         parent="menu_ims_configuration" action="action_ims_settings"/>
+        <!-- <menuitem id="ims_menu_attendance" name="Attendance" parent="ims_menu_root"/> -->
+            <!-- <menuitem name="Templates" id="ims_menu_attendance_template" parent="ims_menu_attendance" action="ims_action_attendance_template_tree"/> -->               
     </data>
 </odoo>

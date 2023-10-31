@@ -13,24 +13,25 @@
         <record id="teacher_role_3" model="ims.teacher_role">
             <field name="id">3</field>            
             <field name="name">Deputy head of studies</field>
-        </record>
+        </record>    
 
         <record id="teacher_role_4" model="ims.teacher_role">
             <field name="id">4</field>            
             <field name="name">Quality coordinator</field>
-            <field name="teacher" ref="teacher_1"/>       
+            <field name="teachers" ref="teacher_1"/>      
+            <field name="teachers" eval="[(6, 0, [ ref('ims.teacher_1')])]"/> 
         </record>
 
         <record id="teacher_role_5" model="ims.teacher_role">
             <field name="id">5</field>            
             <field name="name">Coexistence coordinator</field>
-            <field name="teacher" ref="teacher_2"/>       
+            <field name="teachers" eval="[(6, 0, [ ref('ims.teacher_2')])]"/> 
         </record>
 
         <record id="teacher_role_6" model="ims.teacher_role">
             <field name="id">6</field>            
             <field name="name">Occupational risk coordinator</field>
-            <field name="teacher" ref="teacher_2"/>       
+            <field name="teachers" eval="[(6, 0, [ ref('ims.teacher_2')])]"/> 
         </record>
     </data>
 </odoo>

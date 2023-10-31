@@ -18,13 +18,14 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '0.8.0',
+    'version': '0.9.0',
 
     # any module necessary for this one to work correctly
-    'depends': ['base_setup'],
+    'depends': ['base_setup', 'auth_oauth'],
 
     # always loaded
    'data': [
+        'security/groups.xml',        
         'security/ir.model.access.csv',        
 
         'templates/form_with_photo.xml',
