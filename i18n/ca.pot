@@ -149,7 +149,7 @@ msgid "Color"
 msgstr ""
 
 #. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.report_mp_view
+#: model_terms:ir.ui.view,arch_db:ims.ims_report_mp_view
 msgid "Començat:"
 msgstr ""
 
@@ -343,7 +343,7 @@ msgid "End Time"
 msgstr ""
 
 #. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.report_mp_view
+#: model_terms:ir.ui.view,arch_db:ims.ims_report_mp_view
 msgid "End date:"
 msgstr ""
 
@@ -399,7 +399,7 @@ msgstr ""
 #. module: ims
 #: model:ir.actions.act_window,name:ims.ims_action_formative_unit_tree
 #: model:ir.model.fields,field_description:ims.field_ims_professional_module__formative_units
-#: model_terms:ir.ui.view,arch_db:ims.report_mp_view
+#: model_terms:ir.ui.view,arch_db:ims.ims_report_mp_view
 #: model_terms:ir.ui.view,arch_db:ims.view_ims_professional_module_form
 msgid "Formative Units"
 msgstr ""
@@ -576,7 +576,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_group__level
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_template__level
 #: model:ir.model.fields,field_description:ims.field_ims_study__level
-#: model_terms:ir.ui.view,arch_db:ims.study_search
+#: model_terms:ir.ui.view,arch_db:ims.ims_study_search
 #: model_terms:ir.ui.view,arch_db:ims.view_ims_level_form
 msgid "Level"
 msgstr ""
@@ -685,7 +685,7 @@ msgstr ""
 
 #. module: ims
 #: model_terms:ir.ui.view,arch_db:ims.mp_search
-#: model_terms:ir.ui.view,arch_db:ims.study_search
+#: model_terms:ir.ui.view,arch_db:ims.ims_study_search
 #: model_terms:ir.ui.view,arch_db:ims.uf_search
 msgid "Order By"
 msgstr ""
@@ -856,7 +856,7 @@ msgid "Start Time"
 msgstr ""
 
 #. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.report_mp_view
+#: model_terms:ir.ui.view,arch_db:ims.ims_report_mp_view
 msgid "Start date:"
 msgstr ""
 
@@ -954,7 +954,7 @@ msgid ""
 msgstr ""
 
 #. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.report_mp_view
+#: model_terms:ir.ui.view,arch_db:ims.ims_report_mp_view
 msgid "Teacher:"
 msgstr ""
 

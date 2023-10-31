@@ -1,6 +1,6 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_administrative_kanban">
+        <record model="ir.ui.view" id="ims_view_administrative_kanban">
             <field name="name">ims.administrative.kanban</field>
             <field name="model">ims.administrative</field>
             <field name="mode">primary</field>      

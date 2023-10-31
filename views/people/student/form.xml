@@ -1,6 +1,6 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_student_form">
+        <record model="ir.ui.view" id="ims_view_student_form">
             <field name="name">ims.student.form</field>
             <field name="model">ims.student</field>
             <field name="mode">primary</field>      
