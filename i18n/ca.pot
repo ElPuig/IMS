@@ -59,8 +59,8 @@ msgid ""
 msgstr ""
 
 #. module: ims
-#: model:ir.actions.act_window,name:ims.action_ims_administrative_tree
-#: model:ir.ui.menu,name:ims.menu_ims_administratives
+#: model:ir.actions.act_window,name:ims.ims_action_administrative_tree
+#: model:ir.ui.menu,name:ims.ims_menu_administratives
 msgid "Administratives"
 msgstr ""
 
@@ -70,7 +70,7 @@ msgid "Attendance Group"
 msgstr ""
 
 #. module: ims
-#: model:ir.actions.act_window,name:ims.action_ims_attendance_group_tree
+#: model:ir.actions.act_window,name:ims.ims_action_attendance_group_tree
 msgid "Attendance Groups"
 msgstr ""
 
@@ -81,7 +81,7 @@ msgid "Attendance Template Group"
 msgstr ""
 
 #. module: ims
-#: model:ir.actions.act_window,name:ims.action_ims_attendance_template_tree
+#: model:ir.actions.act_window,name:ims.ims_action_attendance_template_tree
 msgid "Attendance Templates"
 msgstr ""
 
@@ -130,8 +130,8 @@ msgid "Classroom: where each student group are assigned to."
 msgstr ""
 
 #. module: ims
-#: model:ir.actions.act_window,name:ims.action_ims_classroom_tree
-#: model:ir.ui.menu,name:ims.menu_ims_classrooms
+#: model:ir.actions.act_window,name:ims.ims_action_classroom_tree
+#: model:ir.ui.menu,name:ims.ims_menu_classrooms
 msgid "Classrooms"
 msgstr ""
 
@@ -154,12 +154,12 @@ msgid "Començat:"
 msgstr ""
 
 #. module: ims
-#: model:ir.actions.act_window,name:ims.action_ims_company_tree
+#: model:ir.actions.act_window,name:ims.ims_action_company_tree
 msgid "Companies"
 msgstr ""
 
 #. module: ims
-#: model:ir.ui.menu,name:ims.menu_ims_company
+#: model:ir.ui.menu,name:ims.ims_menu_company
 msgid "Companies (for providers)"
 msgstr ""
 
@@ -189,8 +189,8 @@ msgid "Config Settings"
 msgstr ""
 
 #. module: ims
-#: model:ir.actions.act_window,name:ims.action_ims_settings
-#: model:ir.ui.menu,name:ims.menu_ims_configuration
+#: model:ir.actions.act_window,name:ims.ims_action_settings
+#: model:ir.ui.menu,name:ims.ims_menu_configuration
 msgid "Configuration"
 msgstr ""
 
@@ -266,7 +266,7 @@ msgid "Created on"
 msgstr ""
 
 #. module: ims
-#: model:ir.ui.menu,name:ims.menu_ims_curriculum
+#: model:ir.ui.menu,name:ims.ims_menu_curriculum
 msgid "Curriculum"
 msgstr ""
 
@@ -353,12 +353,12 @@ msgid "Every concrete class session"
 msgstr ""
 
 #. module: ims
-#: model:ir.ui.menu,name:ims.menu_ims_ufs
+#: model:ir.ui.menu,name:ims.ims_menu_ufs
 msgid "FUs"
 msgstr ""
 
 #. module: ims
-#: model:ir.ui.menu,name:ims.menu_ims_facilities
+#: model:ir.ui.menu,name:ims.ims_menu_facilities
 msgid "Facilities"
 msgstr ""
 
@@ -397,7 +397,7 @@ msgid ""
 msgstr ""
 
 #. module: ims
-#: model:ir.actions.act_window,name:ims.action_ims_formative_unit_tree
+#: model:ir.actions.act_window,name:ims.ims_action_formative_unit_tree
 #: model:ir.model.fields,field_description:ims.field_ims_professional_module__formative_units
 #: model_terms:ir.ui.view,arch_db:ims.report_mp_view
 #: model_terms:ir.ui.view,arch_db:ims.view_ims_professional_module_form
@@ -430,8 +430,8 @@ msgid "Group"
 msgstr ""
 
 #. module: ims
-#: model:ir.actions.act_window,name:ims.action_ims_student_group_tree
-#: model:ir.ui.menu,name:ims.menu_ims_student_groups
+#: model:ir.actions.act_window,name:ims.ims_action_student_group_tree
+#: model:ir.ui.menu,name:ims.ims_menu_student_groups
 msgid "Groups (for students)"
 msgstr ""
 
@@ -493,7 +493,7 @@ msgid "Image"
 msgstr ""
 
 #. module: ims
-#: model:ir.ui.menu,name:ims.menu_ims_root
+#: model:ir.ui.menu,name:ims.ims_menu_root
 msgid "Institute Management System"
 msgstr ""
 
@@ -587,8 +587,8 @@ msgid "Level: Defines the studies level (University, VET, etc.)."
 msgstr ""
 
 #. module: ims
-#: model:ir.actions.act_window,name:ims.action_ims_level_tree
-#: model:ir.ui.menu,name:ims.menu_ims_levels
+#: model:ir.actions.act_window,name:ims.ims_action_level_tree
+#: model:ir.ui.menu,name:ims.ims_menu_levels
 msgid "Levels"
 msgstr ""
 
@@ -691,17 +691,17 @@ msgid "Order By"
 msgstr ""
 
 #. module: ims
-#: model:ir.ui.menu,name:ims.menu_ims_organisation
+#: model:ir.ui.menu,name:ims.ims_menu_organisation
 msgid "Organization"
 msgstr ""
 
 #. module: ims
-#: model:ir.ui.menu,name:ims.menu_ims_mps
+#: model:ir.ui.menu,name:ims.ims_menu_mps
 msgid "PMs"
 msgstr ""
 
 #. module: ims
-#: model:ir.ui.menu,name:ims.menu_ims_people
+#: model:ir.ui.menu,name:ims.ims_menu_people
 msgid "People"
 msgstr ""
 
@@ -761,7 +761,7 @@ msgid ""
 msgstr ""
 
 #. module: ims
-#: model:ir.actions.act_window,name:ims.action_ims_professional_module_tree
+#: model:ir.actions.act_window,name:ims.ims_action_professional_module_tree
 #: model:ir.model.fields,field_description:ims.field_ims_study__professional_modules
 #: model_terms:ir.ui.view,arch_db:ims.view_ims_study_form
 msgid "Professional Modules"
@@ -779,8 +779,8 @@ msgid "Provider: Collects corporative data."
 msgstr ""
 
 #. module: ims
-#: model:ir.actions.act_window,name:ims.action_ims_provider_tree
-#: model:ir.ui.menu,name:ims.menu_ims_providers
+#: model:ir.actions.act_window,name:ims.ims_action_provider_tree
+#: model:ir.ui.menu,name:ims.ims_menu_providers
 msgid "Providers"
 msgstr ""
 
@@ -810,14 +810,14 @@ msgid "Roles"
 msgstr ""
 
 #. module: ims
-#: model:ir.actions.act_window,name:ims.action_ims_administrative_role_tree
-#: model:ir.ui.menu,name:ims.menu_ims_administrative_roles
+#: model:ir.actions.act_window,name:ims.ims_action_administrative_role_tree
+#: model:ir.ui.menu,name:ims.ims_menu_administrative_roles
 msgid "Roles (for administratives)"
 msgstr ""
 
 #. module: ims
-#: model:ir.actions.act_window,name:ims.action_ims_teacher_role_tree
-#: model:ir.ui.menu,name:ims.menu_ims_teacher_roles
+#: model:ir.actions.act_window,name:ims.ims_action_teacher_role_tree
+#: model:ir.ui.menu,name:ims.ims_menu_teacher_roles
 msgid "Roles (for teachers)"
 msgstr ""
 
@@ -844,7 +844,7 @@ msgid "Sessions"
 msgstr ""
 
 #. module: ims
-#: model:ir.ui.menu,name:ims.menu_ims_settings
+#: model:ir.ui.menu,name:ims.ims_menu_settings
 msgid "Settings"
 msgstr ""
 
@@ -895,17 +895,17 @@ msgid "Student: Collects the student\"s data."
 msgstr ""
 
 #. module: ims
-#: model:ir.actions.act_window,name:ims.action_ims_student_tree
+#: model:ir.actions.act_window,name:ims.ims_action_student_tree
 #: model:ir.model.fields,field_description:ims.field_ims_student_group__students
-#: model:ir.ui.menu,name:ims.menu_ims_students
+#: model:ir.ui.menu,name:ims.ims_menu_students
 #: model_terms:ir.ui.view,arch_db:ims.view_ims_group_form
 msgid "Students"
 msgstr ""
 
 #. module: ims
-#: model:ir.actions.act_window,name:ims.action_ims_study_tree
+#: model:ir.actions.act_window,name:ims.ims_action_study_tree
 #: model:ir.model.fields,field_description:ims.field_ims_level__studies
-#: model:ir.ui.menu,name:ims.menu_ims_studies
+#: model:ir.ui.menu,name:ims.ims_menu_studies
 #: model_terms:ir.ui.view,arch_db:ims.view_ims_level_form
 #: model_terms:ir.ui.view,arch_db:ims.view_ims_study_form
 msgid "Studies"
@@ -964,8 +964,8 @@ msgid "Teacher: Collects the teacher\"s data."
 msgstr ""
 
 #. module: ims
-#: model:ir.actions.act_window,name:ims.action_ims_teacher_tree
-#: model:ir.ui.menu,name:ims.menu_ims_teachers
+#: model:ir.actions.act_window,name:ims.ims_action_teacher_tree
+#: model:ir.ui.menu,name:ims.ims_menu_teachers
 msgid "Teachers"
 msgstr ""
 
@@ -1003,7 +1003,7 @@ msgid "Thursday"
 msgstr ""
 
 #. module: ims
-#: model:ir.actions.act_window,name:ims.action_ims_tracking_tree
+#: model:ir.actions.act_window,name:ims.ims_action_tracking_tree
 msgid "Tracking"
 msgstr ""
 
