@@ -1,6 +1,6 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="ims_view_newteacher_list">
+        <record model="ir.ui.view" id="view_newteacher_list">
             <field name="name">ims.newteacher.list</field>
             <field name="model">hr.employee</field>            
             <field name="inherit_id" ref="hr.view_employee_tree"/> 

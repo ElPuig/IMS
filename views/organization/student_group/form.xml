@@ -1,6 +1,6 @@
 <odoo>
     <data>
-         <record model="ir.ui.view" id="ims_view_group_form">
+         <record model="ir.ui.view" id="view_group_form">
             <field name="name">ims.student_group.form</field>
             <field name="model">ims.student_group</field>
             <field name="arch" type="xml">
@@ -42,7 +42,7 @@
             </field>			
         </record>
 
-        <!-- <record id="ims_view_group_form" model="ir.ui.view">
+        <!-- <record id="view_group_form" model="ir.ui.view">
             <field name="name">group form</field>
             <field name="model">ims.student_group</field>
             <field name="type">form</field>
@@ -80,7 +80,7 @@
                 </form>
             </field>			
         </record> -->
-        <!-- <record id="ims_view_group_form_2" model="ir.ui.view">
+        <!-- <record id="view_group_form_2" model="ir.ui.view">
             <field name="name">group form</field>
             <field name="model">ims.student_group</field>
             <field name="type">form</field>

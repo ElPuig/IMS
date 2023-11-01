@@ -1,6 +1,6 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="ims_view_professional_module_list">
+        <record model="ir.ui.view" id="view_professional_module_list">
             <field name="name">ims.professional_module.list</field>
             <field name="model">ims.professional_module</field>
             <field name="arch" type="xml">
