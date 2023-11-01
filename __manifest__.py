@@ -21,7 +21,7 @@
     'version': '0.9.0',
 
     # any module necessary for this one to work correctly
-    'depends': ['base_setup', 'auth_oauth'],
+    'depends': ['base_setup', 'auth_oauth', 'hr'],
 
     # always loaded
    'data': [
@@ -56,6 +56,10 @@
         'views/people/teacher/list.xml',
         'views/people/teacher/form.xml',
         'views/people/teacher/kanban.xml',
+
+        'views/people/newteacher/list.xml',
+        'views/people/newteacher/form.xml',
+
         'views/people/student/list.xml',
         'views/people/student/form.xml',
         'views/people/student/kanban.xml',

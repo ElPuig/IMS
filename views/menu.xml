@@ -109,7 +109,21 @@
             <field name="name">Attendance Groups</field>
             <field name="res_model">ims.attendance_group</field>
             <field name="view_mode">tree,form</field>
-        </record>                
+        </record> 
+
+        <record model="ir.actions.act_window" id="ims_action_newteacher_tree">
+            <field name="name">NEW TEACHER</field>
+            <!-- <field name="res_model">ims.newteacher</field> -->
+            <field name="res_model">hr.employee</field>
+            <field name="view_mode">tree,kanban,form</field>
+        </record>   
+
+         <record model="ir.actions.act_window" id="ims_action_publicteacher_tree">
+            <field name="name">PUBLIC TEACHER</field>
+            <!-- <field name="res_model">ims.newteacher</field> -->
+            <field name="res_model">hr.employee.public</field>
+            <field name="view_mode">tree,kanban,form</field>
+        </record>                    
         
         <!-- Menú -->
         <menuitem id="ims_menu_curriculum" name="Curriculum" />
@@ -125,7 +139,9 @@
             <menuitem name="Providers"              sequence="1" id="ims_menu_providers"        parent="ims_menu_people"    action="ims_action_provider_tree"/>            
             <menuitem name="Administratives"        sequence="2" id="ims_menu_administratives"  parent="ims_menu_people"    action="ims_action_administrative_tree"/>        
             <menuitem name="Teachers"               sequence="3" id="ims_menu_teachers"         parent="ims_menu_people"    action="ims_action_teacher_tree"/>        
-            <menuitem name="Students"               sequence="4" id="ims_menu_students"         parent="ims_menu_people"    action="ims_action_student_tree"/>            
+            <menuitem name="Students"               sequence="4" id="ims_menu_students"         parent="ims_menu_people"    action="ims_action_student_tree"/>
+            <menuitem name="NEW TEACHER"            sequence="5" id="ims_menu_newteacher"       parent="ims_menu_people"    action="ims_action_newteacher_tree"/>
+            <menuitem name="Public TEACHER"         sequence="6" id="ims_menu_publicteacher"    parent="ims_menu_people"    action="ims_action_publicteacher_tree"/>
             
             <menuitem name="Configuration"          sequence="5" id="ims_menu_people_config"    parent="ims_menu_people"    action="ims_action_settings"/>
                 <menuitem name="Providers"          sequence="1" id="ims_menu_people_config_provs"                          parent="ims_menu_people_config"/>
