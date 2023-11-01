@@ -18,7 +18,7 @@
                             </group>
                             <group colspan="2">
                                 <field name="tutor" />
-                                <field name="newtutor" />
+                                <!-- <field name="newtutor" /> -->
                             </group>
                             <group>
                                 <field name="delegate" />

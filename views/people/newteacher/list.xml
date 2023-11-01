@@ -4,16 +4,13 @@
             <field name="name">ims.newteacher.list</field>
             <field name="model">hr.employee</field>            
             <field name="inherit_id" ref="hr.view_employee_tree"/> 
-            <field name="arch" type="xml">  
-                <!-- 
+            <field name="arch" type="xml">        
                 <xpath expr="//tree" position="inside">                     
-                    <field name="type" />
+                    <!-- <field name="type" /> -->
                 </xpath>               
-                -->
-
-                <field name="name" position="after">
+                <!-- <field name="name" position="after">
                     <field name="type" />
-                </field>
+                </field> -->
             </field>		      
         </record>   
     </data>

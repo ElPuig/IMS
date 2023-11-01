@@ -14,7 +14,7 @@ class ims_student_group(models.Model):
 	study = fields.Many2one(string="Study", comodel_name="ims.study", required="true")
 	tutor = fields.Many2one(string="Tutor", comodel_name="ims.teacher")	
 	
-	newtutor = fields.Many2one(string="New Tutor", comodel_name="hr.employee", domain="[('type', '=', 'teacher')]")
+	# newtutor = fields.Many2one(string="New Tutor", comodel_name="hr.employee", domain="[('job_position_id', '=', 'teacher')]")
 	
 	delegate = fields.Many2one(string="Delegate", comodel_name="ims.student")	
 	classroom = fields.Many2one(string="Classroom", comodel_name="ims.classroom")

@@ -4,16 +4,24 @@
             <field name="name">ims.newteacher.form</field>
             <field name="model">hr.employee</field>            
             <field name="inherit_id" ref="hr.view_employee_form"/> 
-            <field name="arch" type="xml">  
-                <!-- 
-                <xpath expr="//tree" position="inside">                     
-                    <field name="type" />
-                </xpath>               
+            <field name="arch" type="xml">           
+                <!--TODO: 
+                    1. Add the "teacher" value to the "job_position" list.
+                    2. "job_position" field should be a dropdown defaulted "teacher".
+                    3. "tags" should be replaced with "teacher_roles".
+                    4. "coach" will be used for students, but no need to display this field for teachers.
+                    5. "payroll" group can be hided.
+
                 -->
 
-                <field name="mobile_phone" position="before">
+                <xpath expr="//form" position="inside">                     
+                    <!-- <field name="type" /> -->
+                </xpath>               
+               
+
+                <!-- <field name="mobile_phone" position="before">
                     <field name="type" />
-                </field>
+                </field> -->
             </field>		      
         </record>   
     </data>

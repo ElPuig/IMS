@@ -4,8 +4,6 @@ from odoo import models, fields, api
 
 class ims_newteacher(models.Model):
     _inherit = "hr.employee"
-
-    type = fields.Selection([('teacher', 'Teacher'), ('asp', 'ASP')])
     
     # _name = "ims.newteacher"
     # _description = "Teacher: Collects the teacher\"s data."

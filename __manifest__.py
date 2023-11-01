@@ -21,7 +21,7 @@
     'version': '0.9.0',
 
     # any module necessary for this one to work correctly
-    'depends': ['base_setup', 'auth_oauth', 'hr'],
+    'depends': ['base_setup', 'hr', 'auth_oauth'],
 
     # always loaded
    'data': [
