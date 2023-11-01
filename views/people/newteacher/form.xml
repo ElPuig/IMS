@@ -6,36 +6,41 @@
             <field name="inherit_id" ref="hr.view_employee_form"/> 
             <field name="arch" type="xml">           
                 <!--TODO: 
-                    [X]. Add the "teacher" value to the "job_position" list.
-                    [ ]. "job_position" field should be a dropdown defaulted "teacher".
-                    [X]. "tags" should be replaced with "teacher_roles".
-                    [X]. "coach" will be used for students, but no need to display this field for teachers.
-                    [X]. "payroll" group can be hided.
-
+                    [X] - Job position should not be used. Hide it.
+                    [X] - Employemnt type should be added to the employee.
+                    [X] - Tags should not be used. Hide it.
+                    [X] - Roles replaces tags, so should be displayed within the menu.
                 -->
 
                 <xpath expr="//group[@name='payroll_group']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>    
 
+                <field name="job_title" position="before">
+                    <field name="roles" widget="many2many_tags" placeholder="Roles" />
+                </field>
+
                 <xpath expr="//field[@name='job_title']" position="attributes">
-                    <attribute name="name">job_id</attribute>
-                    <attribute name="placeholder">Position</attribute>
+                    <attribute name="invisible">1</attribute>
                 </xpath>
 
                 <xpath expr="//field[@name='category_ids']" position="attributes">
-                    <attribute name="name">roles</attribute>
-                    <attribute name="placeholder">Roles</attribute>
-                    <attribute name="options"></attribute>
+                   <attribute name="invisible">1</attribute>
                 </xpath>
 
                 <xpath expr="//field[@name='coach_id']" position="attributes">
-                    <attribute name="attrs">{'invisible': [('job_id', '!=', 10)]}</attribute>
+                   <attribute name="groups">hr.group_hr_user</attribute>
+                   <attribute name="attrs">{'invisible': [('employee_type', '!=', 'student')]}</attribute>
+                </xpath>
+              
+                <xpath expr="//field[@name='parent_id']" position="attributes">
+                    <attribute name="groups">hr.group_hr_user</attribute>
+                    <attribute name="attrs">{'invisible': [('employee_type', '=', 'student')]}</attribute>
                 </xpath>
 
-                <xpath expr="//field[@name='parent_id']" position="attributes">
-                    <attribute name="attrs">{'invisible': [('job_id', '=', 10)]}</attribute>
-                </xpath>
+                <field name="employee_type" position="after">
+                    <field name="contract_type" />
+                </field>
 
                 <!-- <field name="mobile_phone" position="before">
                     <field name="type" />

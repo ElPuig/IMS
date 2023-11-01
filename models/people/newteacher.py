@@ -5,10 +5,10 @@ from odoo import models, fields, api
 class ims_newteacher(models.Model):
     _inherit = "hr.employee"
     
-    # _name = "ims.newteacher"
-    # _description = "Teacher: Collects the teacher\"s data."
-    # _inherits = {"hr.employee": "employee"}
-    
+    # employee_type = fields.Selection([('teacher', 'Teacher'), ('asp', 'ASP'), ('student', 'Student'), ('contractor', 'Contractor'), ('freelance', 'Freelance')])
+    employee_type = fields.Selection(selection_add=[('teacher', 'Teacher'), ('asp', 'ASP')], ondelete={'teacher': 'set default', 'asp':'set default'})
+    contract_type = fields.Many2one(comodel_name="hr.contract.type", string="Contract Type")
+
     # employee = fields.Many2one("hr.employee", "Employee", required=True, ondelete="cascade")
     #The roles fields was a One2Many relation, but role's kanban view does not work within the form.		
     roles = fields.Many2many(string="Roles", comodel_name="ims.teacher_role")

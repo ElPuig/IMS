@@ -115,7 +115,10 @@
         'demo/organization/teacher_role.xml',   
         'demo/organization/company.xml',   
         
-        'demo/organization/job_position.xml',
+        'demo/employees/job.xml',
+        'demo/employees/tag.xml',
+        'demo/employees/department.xml',
+        'demo/employees/work_location.xml',
 
         'demo/people/provider.xml',
         'demo/people/student.xml',        
