@@ -1,5 +1,10 @@
 <odoo>
     <data>
+        <record id="base.main_company" model="res.company">
+            <field name="name">INS Puig Castellar</field>
+            <field name="currency_id" ref="base.EUR"/>
+        </record>
+
        <record id="company_1" model="ims.company">
             <field name="id">1</field>
             <field name="name">Lumber Inc</field>

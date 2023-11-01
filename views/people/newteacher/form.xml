@@ -6,18 +6,36 @@
             <field name="inherit_id" ref="hr.view_employee_form"/> 
             <field name="arch" type="xml">           
                 <!--TODO: 
-                    1. Add the "teacher" value to the "job_position" list.
-                    2. "job_position" field should be a dropdown defaulted "teacher".
-                    3. "tags" should be replaced with "teacher_roles".
-                    4. "coach" will be used for students, but no need to display this field for teachers.
-                    5. "payroll" group can be hided.
+                    [X]. Add the "teacher" value to the "job_position" list.
+                    [ ]. "job_position" field should be a dropdown defaulted "teacher".
+                    [X]. "tags" should be replaced with "teacher_roles".
+                    [X]. "coach" will be used for students, but no need to display this field for teachers.
+                    [X]. "payroll" group can be hided.
 
                 -->
 
-                <xpath expr="//form" position="inside">                     
-                    <!-- <field name="type" /> -->
-                </xpath>               
-               
+                <xpath expr="//group[@name='payroll_group']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>    
+
+                <xpath expr="//field[@name='job_title']" position="attributes">
+                    <attribute name="name">job_id</attribute>
+                    <attribute name="placeholder">Position</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='category_ids']" position="attributes">
+                    <attribute name="name">roles</attribute>
+                    <attribute name="placeholder">Roles</attribute>
+                    <attribute name="options"></attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='coach_id']" position="attributes">
+                    <attribute name="attrs">{'invisible': [('job_id', '!=', 10)]}</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='parent_id']" position="attributes">
+                    <attribute name="attrs">{'invisible': [('job_id', '=', 10)]}</attribute>
+                </xpath>
 
                 <!-- <field name="mobile_phone" position="before">
                     <field name="type" />

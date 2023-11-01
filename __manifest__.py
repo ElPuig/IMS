@@ -114,8 +114,10 @@
         'demo/organization/teaching.xml',   
         'demo/organization/teacher_role.xml',   
         'demo/organization/company.xml',   
+        
+        'demo/organization/job_position.xml',
 
         'demo/people/provider.xml',
-        'demo/people/student.xml',
+        'demo/people/student.xml',        
     ],   
 }
