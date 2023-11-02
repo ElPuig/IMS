@@ -8,8 +8,11 @@
                     <sheet>
                         <group string="Main data" col="4">
                             <group>
-                                <field name="name"/>
-                            </group>                           
+                                <field name="name"/>                                
+                            </group>
+                            <group>
+                                <field name="color" widget="color_picker"/>                                
+                            </group>
                         </group>  
 
                         <notebook>         

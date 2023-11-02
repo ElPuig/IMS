@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
+from odoo.exceptions import ValidationError
 
 class ims_newteacher(models.Model):
     _inherit = "hr.employee"
@@ -16,6 +17,14 @@ class ims_newteacher(models.Model):
     #This fields are computed in order to display string data within some views.
     roles_str = fields.Char(compute='_roles_str')	
 
+    @api.constrains('roles')
+    @api.onchange('roles')
+    def check_limit(self):
+        for rec in self:
+            for role in rec.roles:
+                if len(role.teachers) > 1:
+                    raise ValidationError("This role is already assigned to another teacher.")
+				
     @api.depends("roles")
     def _roles_str(self):			
         for rec in self:

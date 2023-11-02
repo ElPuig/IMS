@@ -4,20 +4,14 @@
             <field name="name">ims.newteacher.form</field>
             <field name="model">hr.employee</field>            
             <field name="inherit_id" ref="hr.view_employee_form"/> 
-            <field name="arch" type="xml">           
-                <!--TODO: 
-                    [X] - Job position should not be used. Hide it.
-                    [X] - Employemnt type should be added to the employee.
-                    [X] - Tags should not be used. Hide it.
-                    [X] - Roles replaces tags, so should be displayed within the menu.
-                -->
+            <field name="arch" type="xml">                          
 
                 <xpath expr="//group[@name='payroll_group']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>    
 
                 <field name="job_title" position="before">
-                    <field name="roles" widget="many2many_tags" placeholder="Roles" />
+                    <field name="roles" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}" placeholder="Roles" />
                 </field>
 
                 <xpath expr="//field[@name='job_title']" position="attributes">

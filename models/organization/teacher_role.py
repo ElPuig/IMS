@@ -8,6 +8,7 @@ class ims_teacher_role(models.Model):
 	_description = "Teacher's position: The coordination position held by the teachers staff."
 
 	name = fields.Char(string="Name", required="true")	
+	color = fields.Integer(string="Color")
 	notes = fields.Text(string="Notes")
 	
 	#The teachers (old teacher) field was a Many2one relation, but kanban view does not work within the form. It will be validated on the fly.
@@ -16,6 +17,7 @@ class ims_teacher_role(models.Model):
 
 	@api.constrains('teachers')
 	@api.onchange('teachers')
-	def _check_limit(self):
-		if len(self.teachers)>1:
-			raise ValidationError("Only one teacher per role is allowed.")
+	def check_limit(self):
+		for rec in self:
+			if len(rec.teachers) > 1:
+				raise ValidationError("This role is already assigned to another teacher.")

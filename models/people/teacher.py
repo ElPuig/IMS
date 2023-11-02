@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
+from odoo.exceptions import ValidationError
 
 class ims_teacher(models.Model):
 	_name = "ims.teacher"
@@ -21,6 +22,14 @@ class ims_teacher(models.Model):
 	# professional_modules = fields.One2many(string="Professional Modules", comodel_name="ims.professional_module", inverse_name="teacher")
 	trackings = fields.One2many(string="Follow-ups", comodel_name="ims.tracking", inverse_name="teacher")
 
+	@api.constrains('roles')
+	@api.onchange('roles')
+	def check_limit(self):
+		for rec in self:
+			for role in rec.roles:
+				if len(role.teachers) > 1:
+					raise ValidationError("This role is already assigned to another teacher.")
+		
 	@api.depends("roles")
 	def _roles_str(self):			
 		for rec in self:
