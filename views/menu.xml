@@ -47,8 +47,12 @@
 
         <record model="ir.actions.act_window" id="action_teacher_tree">
             <field name="name">Teachers</field>
-            <field name="res_model">ims.teacher</field>
+            <!-- <field name="res_model">ims.teacher</field> -->
+            <field name="res_model">hr.employee</field>
             <field name="view_mode">kanban,tree,form</field>
+
+            <!-- <field name="domain">{[('employee_type', 'in', ['teacher'])]}</field> -->
+            <!-- <field name="context">{'employee_type': 'teacher'}</field> -->
         </record>
 
         <record model="ir.actions.act_window" id="action_provider_tree">
@@ -111,18 +115,22 @@
             <field name="view_mode">tree,form</field>
         </record> 
 
-        <record model="ir.actions.act_window" id="action_newteacher_tree">
-            <field name="name">NEW TEACHER</field>
-            <!-- <field name="res_model">ims.newteacher</field> -->
+        <record model="ir.actions.act_window" id="action_newteacher_kanban">
+            <field name="name">Teachers</field>
             <field name="res_model">hr.employee</field>
-            <field name="view_mode">tree,kanban,form</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <!-- 
+                <field name = "view_id" ref = "view_invoice_tree" />
+                <field name = "search_view_id" ref = "view_account_invoice_filter" />
+            -->
+            <field name="domain"> [('employee_type', '=', 'teacher')] </field>
+            <field name="context"> {'default_employee_type': 'teacher'} </field>
         </record>   
 
          <record model="ir.actions.act_window" id="action_publicteacher_tree">
-            <field name="name">PUBLIC TEACHER</field>
-            <!-- <field name="res_model">ims.newteacher</field> -->
+            <field name="name">Public employee</field>
             <field name="res_model">hr.employee.public</field>
-            <field name="view_mode">tree,kanban,form</field>
+            <field name="view_mode">tree,kanban,form</field>            
         </record>                    
         
         <!-- Menú -->
@@ -140,7 +148,6 @@
             <menuitem name="Administratives"        sequence="2" id="menu_administratives"  parent="menu_people"    action="action_administrative_tree"/>        
             <menuitem name="Teachers"               sequence="3" id="menu_teachers"         parent="menu_people"    action="action_teacher_tree"/>        
             <menuitem name="Students"               sequence="4" id="menu_students"         parent="menu_people"    action="action_student_tree"/>
-            <menuitem name="NEW TEACHER"            sequence="5" id="menu_newteacher"       parent="menu_people"    action="action_newteacher_tree"/>
             <menuitem name="Public TEACHER"         sequence="6" id="menu_publicteacher"    parent="menu_people"    action="action_publicteacher_tree"/>
             
             <menuitem name="Configuration"          sequence="5" id="menu_people_config"    parent="menu_people"    action="action_settings"/>
@@ -153,7 +160,8 @@
             <!-- Employees config menu -->                
                 <menuitem name="Administrative Roles"   sequence="1" id="menu_admin_roles"      parent="hr.menu_config_employee"    action="action_administrative_role_tree"/>
                 <menuitem name="Teacher Roles"          sequence="1" id="menu_teacher_roles"    parent="hr.menu_config_employee"    action="action_teacher_role_tree"/>                
-        
+                
+        <menuitem name="Teachers"   sequence="5" id="menu_newteacher"       parent="hr.menu_hr_employee_payroll"    action="action_newteacher_kanban"/>
             
             
 

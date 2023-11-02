@@ -5,6 +5,10 @@
             <field name="model">hr.employee</field>            
             <field name="inherit_id" ref="hr.view_employee_form"/> 
             <field name="arch" type="xml">                          
+                <!-- 
+                    TODO:   The employee_type should be used as placeholder within 'Employee Name'. ¿Maybe an onchange within the employee_type selection?
+                            Other option is to have different views and call them manually, but I don't like this approach...
+                 -->
 
                 <xpath expr="//group[@name='payroll_group']" position="attributes">
                     <attribute name="invisible">1</attribute>
