@@ -18,31 +18,27 @@
                     <field name="roles" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}" placeholder="Roles" />
                 </field>
 
-                <xpath expr="//field[@name='job_title']" position="attributes">
+                <field name="job_title" position="attributes">
                     <attribute name="invisible">1</attribute>
-                </xpath>
-
-                <xpath expr="//field[@name='category_ids']" position="attributes">
+                </field>
+                
+                <field name="category_ids" position="attributes">
                    <attribute name="invisible">1</attribute>
-                </xpath>
+                </field>
 
-                <xpath expr="//field[@name='coach_id']" position="attributes">
+                <field name="coach_id" position="attributes">
                    <attribute name="groups">hr.group_hr_user</attribute>
                    <attribute name="attrs">{'invisible': [('employee_type', '!=', 'student')]}</attribute>
-                </xpath>
+                </field>
               
-                <xpath expr="//field[@name='parent_id']" position="attributes">
+                <field name="parent_id" position="attributes">
                     <attribute name="groups">hr.group_hr_user</attribute>
                     <attribute name="attrs">{'invisible': [('employee_type', '=', 'student')]}</attribute>
-                </xpath>
+                </field>
 
                 <field name="employee_type" position="after">
                     <field name="contract_type" />
                 </field>
-
-                <!-- <field name="mobile_phone" position="before">
-                    <field name="type" />
-                </field> -->
             </field>		      
         </record>   
     </data>
