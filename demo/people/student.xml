@@ -1,7 +1,6 @@
 <odoo>
     <data>
        <record id="student_1" model="ims.student">
-            <field name="id">1</field>
             <field name="name">Doris</field>
             <field name="surname">Cole</field>
             <field name="corporate_email">doris.cole@elpuig.xeill.net</field>
@@ -16,7 +15,6 @@
         </record>
 
         <record id="student_2" model="ims.student">
-            <field name="id">2</field>
             <field name="name">Ernest</field>
             <field name="surname">Reed</field>
             <field name="corporate_email">ernest.reed@elpuig.xeill.net</field>

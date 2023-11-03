@@ -1,7 +1,6 @@
 <odoo>
     <data>
        <record id="professional_module_1" model="ims.professional_module">
-            <field name="id">1</field>
             <field name="code">101</field>
             <field name="acronym">MP01</field>
             <field name="name">Sistemes informàtics</field>
@@ -10,7 +9,6 @@
         </record>
         
         <record id="professional_module_2" model="ims.professional_module">
-            <field name="id">2</field>
             <field name="code">AOC</field>
             <field name="acronym">MP03</field>
             <field name="name">Programació</field>

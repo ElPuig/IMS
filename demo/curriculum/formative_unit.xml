@@ -3,7 +3,6 @@
         <!-- CFGS: DAM -->
         <!-- MP01: Sistemes informàtics -->
         <record id="formative_unit_1" model="ims.formative_unit">            
-            <field name="id">1</field>
             <field name="code">10101</field>
             <field name="acronym">UF1</field>
             <field name="name">Instal·lació, configuració i explotació del  sistema informàtic</field>
@@ -12,7 +11,6 @@
         </record>
 
         <record id="formative_unit_2" model="ims.formative_unit">
-            <field name="id">2</field>
             <field name="code">10102</field>
             <field name="acronym">UF2</field>
             <field name="name">Gestió de la informació i de recursos en una  xarxa</field>
@@ -21,7 +19,6 @@
         </record>
 
         <record id="formative_unit_3" model="ims.formative_unit">
-            <field name="id">3</field>
             <field name="code">10103</field>
             <field name="acronym">UF3</field>
             <field name="name">Implantació de programari específic</field>
@@ -31,7 +28,6 @@
         
         <!-- MP03: Programació -->
         <record id="formative_unit_4" model="ims.formative_unit">
-            <field name="id">4</field>
             <field name="code">AOCOA</field>
             <field name="acronym">UF1</field>
             <field name="name">Programació estructurada</field>
@@ -40,7 +36,6 @@
         </record>
 
         <record id="formative_unit_5" model="ims.formative_unit">
-            <field name="id">5</field>
             <field name="code">AOCOB</field>
             <field name="acronym">UF2</field>
             <field name="name">Disseny modular</field>
@@ -49,7 +44,6 @@
         </record>
 
         <record id="formative_unit_6" model="ims.formative_unit">
-            <field name="id">6</field>
             <field name="code">AOCOC</field>
             <field name="acronym">UF3</field>
             <field name="name">Fonaments de gestió de fitxers</field>
@@ -58,7 +52,6 @@
         </record>
 
         <record id="formative_unit_7" model="ims.formative_unit">
-            <field name="id">7</field>
             <field name="code">AOCOD</field>
             <field name="acronym">UF4</field>
             <field name="name">Programació orientada a objectes (POO)</field>
@@ -67,7 +60,6 @@
         </record>
 
         <record id="formative_unit_8" model="ims.formative_unit">
-            <field name="id">8</field>
             <field name="code">AOCOE</field>
             <field name="acronym">UF5</field>
             <field name="name">POO. Llibreries de classes fonamentals</field>
@@ -76,7 +68,6 @@
         </record>
 
         <record id="formative_unit_9" model="ims.formative_unit">
-            <field name="id">9</field>
             <field name="code">AOCOF</field>
             <field name="acronym">UF6</field>
             <field name="name">POO. Introducció a la persistència en BD</field>

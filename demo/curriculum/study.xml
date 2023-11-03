@@ -1,7 +1,6 @@
 <odoo>
     <data>
        <record id="study_1" model="ims.study">
-            <field name="id">1</field>
             <field name="code">ICB0</field>
             <field name="acronym">DAM</field>
             <field name="name">Desenvolupament d'aplicacions multiplataforma</field>

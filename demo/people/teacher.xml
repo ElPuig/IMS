@@ -1,7 +1,6 @@
 <odoo>
     <data>
        <record id="teacher_1" model="ims.teacher">
-            <field name="id">1</field>
             <field name="name">Fernando</field>
             <field name="surname">Porrino Serrano</field>
             <field name="corporate_email">porrino.fernando@elpuig.xeill.net</field>
@@ -15,7 +14,6 @@
         </record>
 
         <record id="teacher_2" model="ims.teacher">
-            <field name="id">2</field>
             <field name="name">Audrey</field>
             <field name="surname">Peterson</field>
             <field name="corporate_email">audrey.peterson@elpuig.xeill.net</field>
@@ -29,7 +27,6 @@
         </record>
 
         <record id="teacher_3" model="ims.teacher">
-            <field name="id">3</field>
             <field name="name">Beth</field>
             <field name="surname">Evans</field>
             <field name="corporate_email">beth.evans@elpuig.xeill.net</field>
@@ -43,7 +40,6 @@
         </record>
 
          <record id="teacher_4" model="ims.teacher">
-            <field name="id">4</field>
             <field name="name">Eli</field>
             <field name="surname">Lambert</field>
             <field name="corporate_email">eli.lambert@elpuig.xeill.net</field>

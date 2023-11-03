@@ -1,7 +1,6 @@
 <odoo>
     <data>
        <record id="provider_1" model="ims.provider">
-            <field name="id">1</field>
             <field name="name">Jeffrey</field>
             <field name="surname">Kelly</field>
             <field name="role">Sales Manager</field>
@@ -15,7 +14,6 @@
         </record>
 
         <record id="provider_2" model="ims.provider">
-            <field name="id">2</field>
             <field name="name">Jennie</field>
             <field name="surname">Fletcher</field>
             <field name="role">IT Support</field>

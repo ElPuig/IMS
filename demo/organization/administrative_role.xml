@@ -1,12 +1,10 @@
 <odoo>
     <data>
        <record id="administrative_role_1" model="ims.administrative_role">
-            <field name="id">1</field>
             <field name="name">Secretary</field>
         </record>
         
         <record id="administrative_role_2" model="ims.administrative_role">
-            <field name="id">2</field>            
             <field name="name">Concierje</field>
         </record>
     </data>
