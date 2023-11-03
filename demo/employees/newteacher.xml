@@ -1,0 +1,28 @@
+<odoo>
+    <data>
+        <record id="hr.employee_hne" model="hr.employee">
+            <field name="department_id" ref="department_2"/>
+            <field name="employee_type">teacher</field>
+        </record>
+
+        <record id="hr.employee_mit" model="hr.employee">
+            <field name="department_id" ref="department_1"/>
+            <field name="employee_type">teacher</field>
+        </record>
+
+        <record id="hr.employee_fpi" model="hr.employee">
+            <field name="department_id" ref="department_1"/>
+            <field name="employee_type">teacher</field>
+        </record>
+
+        <record id="hr.employee_qdp" model="hr.employee">
+            <field name="department_id" ref="department_1"/>
+            <field name="employee_type">teacher</field>
+        </record>
+
+        <record id="hr.employee_admin" model="hr.employee">
+            <field name="department_id" ref="department_2"/>
+            <field name="employee_type">teacher</field>
+        </record>
+    </data>
+</odoo>

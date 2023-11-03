@@ -110,17 +110,18 @@
         'demo/organization/administrative_role.xml',
 
         'demo/people/administrative.xml',        
-        'demo/people/teacher.xml',
+        'demo/people/teacher.xml',        
 
         'demo/organization/student_group.xml',
         'demo/organization/teaching.xml',   
         'demo/organization/teacher_role.xml',   
-        'demo/organization/company.xml',   
+        'demo/organization/company.xml',           
         
         'demo/employees/job.xml',
         'demo/employees/tag.xml',
         'demo/employees/department.xml',
         'demo/employees/work_location.xml',
+        'demo/employees/newteacher.xml',
 
         'demo/people/provider.xml',
         'demo/people/student.xml',        
