@@ -40,7 +40,7 @@
                 </field>
 
                 <field name="category_ids" position="replace">
-                    <field name="roles" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}" placeholder="Roles" />          
+                    <field name="role_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}" placeholder="Roles" />          
                 </field>        
 
                 <field name="coach_id" position="attributes">
@@ -54,7 +54,7 @@
                 </field>
 
                 <field name="employee_type" position="after">
-                    <field name="contract_type" />
+                    <field name="contract_type_id" />
                 </field>   
 
                 <xpath expr="//page[@name='hr_settings']" position="attributes">
@@ -63,7 +63,7 @@
 
                 <xpath expr="//notebook" position="inside">
                     <page string="Teaching">
-                        <field name="teaching">
+                        <field name="teaching_ids">
                             <tree editable="bottom">
                                 <field name="formative_unit"/>
                                 <field name="group"/>
@@ -72,7 +72,7 @@
                     </page>    
 
                     <page string="Tutorships">
-                        <field name="tutorships" widget="many2many">
+                        <field name="tutorship_ids" widget="many2many">
                             <tree>
                                 <field name="name" string="Group"/>
                                 <field name="classroom"/>
