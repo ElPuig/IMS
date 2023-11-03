@@ -9,6 +9,14 @@
                     TODO:   The employee_type should be used as placeholder within 'Employee Name'. ¿Maybe an onchange within the employee_type selection?
                             Other option is to have different views and call them manually, but I don't like this approach...
                  -->
+                <!-- <field name="name" position="attributes">
+                    <attribute name="attrs">{'placeholder':'TEST'}</attribute>
+                </field> -->
+
+                <field name="name" position="replace">
+                    <field name="name" placeholder="Teacher's Name" groups="hr.group_hr_user" attrs="{'invisible': [('employee_type', '!=', 'teacher')]}"/>
+                    <field name="name" placeholder="Employee's Name" groups="hr.group_hr_user" attrs="{'invisible': [('employee_type', '!=', 'employee')]}"/>
+                </field>
 
                 <xpath expr="//group[@name='payroll_group']" position="attributes">
                     <attribute name="invisible">1</attribute>
@@ -38,7 +46,7 @@
 
                 <field name="employee_type" position="after">
                     <field name="contract_type" />
-                </field>
+                </field>                
             </field>		      
         </record>   
     </data>
