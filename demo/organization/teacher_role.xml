@@ -3,6 +3,7 @@
        <record id="teacher_role_1" model="ims.teacher_role">
             <field name="name">Director</field>
             <field name="color">9</field>
+            <field name="teachers" eval="[(6, 0, [ ref('hr.employee_hne')])]"/> 
         </record>
         
         <record id="teacher_role_2" model="ims.teacher_role">         

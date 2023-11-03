@@ -5,17 +5,9 @@
             <field name="model">hr.employee</field>           
             <field name="inherit_id" ref="hr.hr_kanban_view_employees"/> 
             <field name="arch" type="xml">  
-                <!-- <field name="category_ids" position="attributes">
+                <field name="category_ids" position="attributes">
                     <attribute name="name">roles</attribute>
-                </field>   -->
-
-                <field name="job_title" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </field>              
-
-                <field name="job_title" position="after">
-                   <field name="employee_type" />
-                </field>
+                </field>                                 
             </field>		      
         </record>
     </data>

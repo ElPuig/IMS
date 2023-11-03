@@ -15,7 +15,7 @@ class ims_employee(models.Model):
         
     employee_type = fields.Selection(string='Employee Type', selection='_get_new_employee_type', compute='_compute_question_type', readonly=False, store=True)
     contract_type = fields.Many2one(comodel_name="hr.contract.type", string="Contract Type")
-    #job_id = fields.Many2one(comodel_name="hr.job", string="Job Position", domain="[('employee_type', '=', employee_type)]")
+    job_id = fields.Many2one(comodel_name="hr.job", string="Job Position", domain="[('employee_type', '=', employee_type)]")
     teaching = fields.One2many(string="Teaching", comodel_name="ims.teaching", inverse_name="teacher")	
 
     #The roles fields was a One2Many relation, but role's kanban view does not work within the form.		
