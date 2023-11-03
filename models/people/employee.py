@@ -7,9 +7,8 @@ class ims_employee(models.Model):
     _inherit = "hr.employee"
     
     notes = fields.Text(string="Notes")
-    
-    # employee_type = fields.Selection([('teacher', 'Teacher'), ('asp', 'ASP'), ('student', 'Student'), ('contractor', 'Contractor'), ('freelance', 'Freelance')])
-    employee_type = fields.Selection(selection_add=[('teacher', 'Teacher'), ('asp', 'ASP')], ondelete={'teacher': 'set default', 'asp':'set default'})
+        
+    employee_type = fields.Selection(string='Employee Type', selection='_get_new_employee_type', compute='_compute_question_type', readonly=False, store=True)
     contract_type = fields.Many2one(comodel_name="hr.contract.type", string="Contract Type")
     teaching = fields.One2many(string="Teaching", comodel_name="ims.teaching", inverse_name="teacher")	
 
@@ -20,6 +19,16 @@ class ims_employee(models.Model):
     #This fields are computed in order to display string data within some views.
     roles_str = fields.Char(compute='_roles_str')	
     tutorships_str = fields.Char(compute='_tutorships_str')	
+
+    @api.model
+    def _get_new_employee_type(self):    
+        selection = [
+            ('asp', 'Administrative and Services Personeel'), 
+            ('teacher', 'Teacher'), 
+            ('student', 'Student')
+        
+        ]
+        return selection
 
 
     @api.constrains('roles')
