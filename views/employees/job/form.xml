@@ -1,0 +1,66 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_job_form">
+            <field name="name">ims.job.form</field>
+            <field name="model">hr.job</field>            
+            <field name="inherit_id" ref="hr.view_hr_job_form"/> 
+            <field name="arch" type="xml">                                                      
+                <xpath expr="//group[@name='recruitment2']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>    
+
+                <xpath expr="//group[@name='recruitment']" position="after">
+                    <group>
+                        <field name="employee_type" />
+                    </group>
+                </xpath>    
+
+                <field name="contract_type_id" position="attributes">
+                    <attribute name="invisible">1</attribute>                  
+                </field>
+
+                <!-- <field name="category_ids" position="before">
+                    <field name="roles" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}" placeholder="Roles" />          
+                </field>
+                
+                <field name="category_ids" position="attributes">
+                   <attribute name="invisible">1</attribute>
+                </field>
+
+                <field name="coach_id" position="attributes">
+                   <attribute name="groups">hr.group_hr_user</attribute>
+                   <attribute name="attrs">{'invisible': [('employee_type', '!=', 'student')]}</attribute>
+                </field>
+              
+                <field name="parent_id" position="attributes">
+                    <attribute name="groups">hr.group_hr_user</attribute>
+                    <attribute name="attrs">{'invisible': [('employee_type', '=', 'student')]}</attribute>
+                </field>
+
+                <field name="employee_type" position="after">
+                    <field name="contract_type" />
+                </field>   
+
+                <xpath expr="//notebook" position="inside">
+                    <page string="Teaching">
+                        <field name="teaching">
+                            <tree editable="bottom">
+                                <field name="formative_unit"/>
+                                <field name="group"/>
+                            </tree>
+                        </field>
+                    </page>    
+
+                    <page string="Tutorships">
+                        <field name="tutorships" widget="many2many">
+                            <tree>
+                                <field name="name" string="Group"/>
+                                <field name="classroom"/>
+                            </tree>
+                        </field>
+                    </page>                    
+                </xpath>              -->
+            </field>		      
+        </record>   
+    </data>
+</odoo>

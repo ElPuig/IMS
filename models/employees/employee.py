@@ -5,9 +5,7 @@ from odoo.exceptions import ValidationError
 
 employee_types = [
     ('asp', 'Administrative and Services Personeel'), 
-    ('teacher', 'Teacher'), 
-    ('student', 'Student')
-
+    ('teacher', 'Teacher')
 ]
 
 class ims_employee(models.Model):

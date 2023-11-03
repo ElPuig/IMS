@@ -55,9 +55,11 @@
         'views/people/administrative/form.xml',
         'views/people/administrative/kanban.xml',        
 
-        'views/people/employee/kanban.xml',
-        'views/people/employee/list.xml',
-        'views/people/employee/form.xml',
+        'views/employees/employee/kanban.xml',
+        'views/employees/employee/list.xml',
+        'views/employees/employee/form.xml',
+
+        'views/employees/job/form.xml',
 
         'views/people/student/list.xml',
         'views/people/student/form.xml',
@@ -107,7 +109,6 @@
         'demo/organization/administrative_role.xml',
 
         'demo/people/administrative.xml',        
-        'demo/people/teacher.xml',        
 
         'demo/organization/student_group.xml',
         'demo/organization/teaching.xml',   
