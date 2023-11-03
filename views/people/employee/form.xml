@@ -27,16 +27,20 @@
                     <field name="name" placeholder="ASP's Name"         groups="hr.group_hr_user" attrs="{'invisible': [('employee_type', '!=', 'asp')]}"/>
                 </field>
 
-                <!-- <xpath expr="//group[@name='payroll_group']" position="attributes">
+                <xpath expr="//group[@name='payroll_group']" position="attributes">
                     <attribute name="invisible">1</attribute>
-                </xpath>     -->
+                </xpath>    
 
                 <field name="job_title" position="before">
-                    <field name="roles" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}" placeholder="Roles" />
+                    <field name="job_id" placeholder="Job Position" />                       
                 </field>
 
                 <field name="job_title" position="attributes">
                     <attribute name="invisible">1</attribute>
+                </field>
+
+                <field name="category_ids" position="before">
+                    <field name="roles" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}" placeholder="Roles" />          
                 </field>
                 
                 <field name="category_ids" position="attributes">

@@ -157,9 +157,9 @@
         </record>
 
         <!-- Hiding -->
-        <record id="hr.menu_view_hr_job" model="ir.ui.menu">
+        <!-- <record id="hr.menu_view_hr_job" model="ir.ui.menu">
             <field name="active">false</field>
-        </record>
+        </record> -->
 
          <record id="hr.menu_view_employee_category_form" model="ir.ui.menu">
             <field name="active">false</field>

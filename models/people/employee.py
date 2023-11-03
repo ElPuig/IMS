@@ -3,6 +3,13 @@
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 
+employee_types = [
+    ('asp', 'Administrative and Services Personeel'), 
+    ('teacher', 'Teacher'), 
+    ('student', 'Student')
+
+]
+
 class ims_employee(models.Model):
     _inherit = "hr.employee"
     
@@ -21,14 +28,8 @@ class ims_employee(models.Model):
     tutorships_str = fields.Char(compute='_tutorships_str')	
 
     @api.model
-    def _get_new_employee_type(self):    
-        selection = [
-            ('asp', 'Administrative and Services Personeel'), 
-            ('teacher', 'Teacher'), 
-            ('student', 'Student')
-        
-        ]
-        return selection
+    def _get_new_employee_type(self):            
+        return employee_types
 
 
     @api.constrains('roles')
