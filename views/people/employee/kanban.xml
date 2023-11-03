@@ -1,13 +1,13 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_newteacher_kanban">
-            <field name="name">ims.newteacher.kanban</field>
+        <record model="ir.ui.view" id="view_employee_kanban">
+            <field name="name">ims.employee.kanban</field>
             <field name="model">hr.employee</field>           
             <field name="inherit_id" ref="hr.hr_kanban_view_employees"/> 
             <field name="arch" type="xml">  
-                <field name="category_ids" position="attributes">
+                <!-- <field name="category_ids" position="attributes">
                     <attribute name="name">roles</attribute>
-                </field>  
+                </field>   -->
 
                 <field name="job_title" position="attributes">
                     <attribute name="invisible">1</attribute>

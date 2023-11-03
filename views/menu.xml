@@ -112,7 +112,7 @@
             <field name="view_mode">tree,form</field>
         </record> 
 
-        <record model="ir.actions.act_window" id="action_newteacher_kanban">
+        <record model="ir.actions.act_window" id="action_employee_kanban">
             <field name="name">Teachers</field>
             <field name="res_model">hr.employee</field>
             <field name="view_mode">kanban,tree,form</field>                            
@@ -154,7 +154,7 @@
                 <menuitem name="Administrative Roles"   sequence="1" id="menu_admin_roles"      parent="hr.menu_config_employee"    action="action_administrative_role_tree"/>
                 <menuitem name="Teacher Roles"          sequence="1" id="menu_teacher_roles"    parent="hr.menu_config_employee"    action="action_teacher_role_tree"/>                
                 
-        <menuitem name="Teachers"   sequence="5" id="menu_newteacher"       parent="hr.menu_hr_employee_payroll"    action="action_newteacher_kanban"/>
+        <menuitem name="Teachers"   sequence="5" id="menu_employee"       parent="hr.menu_hr_employee_payroll"    action="action_employee_kanban"/>
         
         <!-- Renaming -->
         <record id="hr.menu_view_hr_contract_type" model="ir.ui.menu">

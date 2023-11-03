@@ -1,7 +1,7 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_newteacher_form">
-            <field name="name">ims.newteacher.form</field>
+        <record model="ir.ui.view" id="view_employee_form">
+            <field name="name">ims.employee.form</field>
             <field name="model">hr.employee</field>            
             <field name="inherit_id" ref="hr.view_employee_form"/> 
             <field name="arch" type="xml">                          

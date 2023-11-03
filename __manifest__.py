@@ -58,9 +58,9 @@
         'views/people/teacher/form.xml',
         'views/people/teacher/kanban.xml',
 
-        'views/people/newteacher/kanban.xml',
-        'views/people/newteacher/list.xml',
-        'views/people/newteacher/form.xml',
+        'views/people/employee/kanban.xml',
+        'views/people/employee/list.xml',
+        'views/people/employee/form.xml',
 
         'views/people/student/list.xml',
         'views/people/student/form.xml',
@@ -119,7 +119,7 @@
         
         'demo/employees/department.xml',
         'demo/employees/work_location.xml',
-        'demo/employees/newteacher.xml',
+        'demo/employees/teacher.xml',
 
         'demo/people/provider.xml',
         'demo/people/student.xml',        
