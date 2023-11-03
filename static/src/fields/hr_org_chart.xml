@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="hr_org_chart_employee_content" t-inherit="hr_org_chart.hr_org_chart_employee_content" t-inherit-mode="extension" owl="1">
+        <xpath expr="//small[@t-esc='employee.job_title']" position="replace">
+            <small class="text-muted fw-bold" t-esc="employee.roles"/>
+        </xpath>   
+    </t>
+</templates>

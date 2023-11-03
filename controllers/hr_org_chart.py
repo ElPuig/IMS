@@ -39,6 +39,7 @@ class ImsOrgChartController(HrOrgChartController):
             job_id=job.id,
             job_name=job.name or '',
             job_title=employee.job_title or '',
+            roles=employee.roles or '',
             direct_sub_count=len(employee.child_ids - employee),
             indirect_sub_count=employee.child_all_count,
         )

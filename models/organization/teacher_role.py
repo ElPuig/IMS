@@ -13,7 +13,7 @@ class ims_teacher_role(models.Model):
 	
 	#The teachers (old teacher) field was a Many2one relation, but kanban view does not work within the form. It will be validated on the fly.
 	#teachers = fields.Many2many(string="Teacher", comodel_name="ims.teacher")		
-	teachers = fields.Many2many(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")		
+	teachers = fields.Many2many(string="Teacher", comodel_name="hr.employee.public", domain="[('employee_type', '=', 'teacher')]")		
 
 	@api.constrains('teachers')
 	@api.onchange('teachers')

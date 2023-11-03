@@ -8,8 +8,8 @@ employee_types = [
     ('teacher', 'Teacher')
 ]
 
-class ims_employee(models.Model):
-    _inherit = "hr.employee"
+class ims_employee(models.AbstractModel):
+    _inherit = ["hr.employee.base"]
     
     notes = fields.Text(string="Notes")
         
@@ -31,15 +31,15 @@ class ims_employee(models.Model):
         return employee_types
 
 
-    @api.constrains('roles')
-    @api.onchange('roles')
+    @api.constrains('role_ids')
+    @api.onchange('role_ids')
     def check_limit(self):
         for rec in self:
             for role in rec.role_ids:
                 if len(role.teachers) > 1:
                     raise ValidationError("This role is already assigned to another teacher.")
 				
-    @api.depends("roles")
+    @api.depends("role_ids")
     def _roles_str(self):			
         for rec in self:
             rec.roles = ""
@@ -50,7 +50,7 @@ class ims_employee(models.Model):
             rec.roles = rec.roles.lstrip(", ")
 
     
-    @api.depends("tutorships")
+    @api.depends("tutorship_ids")
     def _tutorships_str(self):			
         for rec in self:
             rec.tutorships = ""
