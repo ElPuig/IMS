@@ -117,8 +117,6 @@
         'demo/organization/teacher_role.xml',   
         'demo/organization/company.xml',           
         
-        'demo/employees/job.xml',
-        'demo/employees/tag.xml',
         'demo/employees/department.xml',
         'demo/employees/work_location.xml',
         'demo/employees/newteacher.xml',

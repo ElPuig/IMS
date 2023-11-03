@@ -5,13 +5,16 @@
             <field name="model">hr.employee</field>            
             <field name="inherit_id" ref="hr.view_employee_form"/> 
             <field name="arch" type="xml">                          
-                <!-- 
-                    TODO:   The employee_type should be used as placeholder within 'Employee Name'. ¿Maybe an onchange within the employee_type selection?
-                            Other option is to have different views and call them manually, but I don't like this approach...
-                 -->
-                <!-- <field name="name" position="attributes">
-                    <attribute name="attrs">{'placeholder':'TEST'}</attribute>
-                </field> -->
+               <!-- 
+                    Job positions (consultant, chief officer, etc.) are and should be only one. This is used in kanban card and form (within hierarchy). 
+                    Job positions has a name, a department and a job type. In IMS, department and job type are assigned to the employee. 
+                    
+                    Kanban view: display the employment_type (Teacher, Student, etc.) where the job_position is displayed
+                    Fomr view' hierarchy: display the roles (Director, Chief of...), separated by comma, where the job_position is displayed.
+
+                    Unable to change the widget hr_org_chart data... so maybe jobs should be used instead of roles? Only one job per employee is allowed...
+                    
+                -->
 
                 <field name="name" position="replace">
                     <!-- NOTE: I could'nt find a way to setup the placeholders as a computed field using the 'employee_type'... -->

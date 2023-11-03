@@ -18,19 +18,19 @@
         <record id="teacher_role_4" model="ims.teacher_role">
             <field name="name">Quality coordinator</field>
             <field name="teachers" ref="teacher_1"/>      
-            <field name="teachers" eval="[(6, 0, [ ref('ims.teacher_1')])]"/> 
+            <field name="teachers" eval="[(6, 0, [ ref('hr.employee_admin')])]"/> 
             <field name="color">4</field>
         </record>
 
         <record id="teacher_role_5" model="ims.teacher_role">
             <field name="name">Coexistence coordinator</field>
-            <field name="teachers" eval="[(6, 0, [ ref('ims.teacher_2')])]"/> 
+            <field name="teachers" eval="[(6, 0, [ ref('hr.employee_mit')])]"/> 
             <field name="color">10</field>
         </record>
 
         <record id="teacher_role_6" model="ims.teacher_role">
             <field name="name">Occupational risk coordinator</field>
-            <field name="teachers" eval="[(6, 0, [ ref('ims.teacher_2')])]"/> 
+            <field name="teachers" eval="[(6, 0, [ ref('hr.employee_mit')])]"/> 
             <field name="color">11</field>
         </record>
     </data>
