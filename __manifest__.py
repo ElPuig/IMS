@@ -59,6 +59,7 @@
         'views/employees/employee/list.xml',
         'views/employees/employee/form.xml',
 
+        'views/employees/job/list.xml',
         'views/employees/job/form.xml',
 
         'views/people/student/list.xml',
@@ -115,6 +116,7 @@
         'demo/organization/teacher_role.xml',   
         'demo/organization/company.xml',           
         
+        'demo/employees/job.xml',
         'demo/employees/department.xml',
         'demo/employees/work_location.xml',
         'demo/employees/teacher.xml',

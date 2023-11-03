@@ -17,7 +17,7 @@
 
         <record id="teacher_role_4" model="ims.teacher_role">
             <field name="name">Quality coordinator</field>
-            <field name="teachers" ref="teacher_1"/>      
+            <field name="teachers" ref="hr.employee_hne"/>      
             <field name="teachers" eval="[(6, 0, [ ref('hr.employee_admin')])]"/> 
             <field name="color">4</field>
         </record>

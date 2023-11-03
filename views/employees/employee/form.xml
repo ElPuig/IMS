@@ -17,12 +17,7 @@
                 -->
 
                 <field name="name" position="replace">
-                    <!-- NOTE: I could'nt find a way to setup the placeholders as a computed field using the 'employee_type'... -->
-                    <field name="name" placeholder="Employee's Name"    groups="hr.group_hr_user" attrs="{'invisible': [('employee_type', '!=', 'employee')]}"/>
-                    <field name="name" placeholder="Student's Name"     groups="hr.group_hr_user" attrs="{'invisible': [('employee_type', '!=', 'student')]}"/>
-                    <field name="name" placeholder="Trainees's Name"    groups="hr.group_hr_user" attrs="{'invisible': [('employee_type', '!=', 'trainee')]}"/>
-                    <field name="name" placeholder="Contractor's Name"  groups="hr.group_hr_user" attrs="{'invisible': [('employee_type', '!=', 'contractor')]}"/>
-                    <field name="name" placeholder="Freelance's Name"   groups="hr.group_hr_user" attrs="{'invisible': [('employee_type', '!=', 'freelance')]}"/>
+                    <!-- NOTE: I could'nt find a way to setup the placeholders as a computed field using the 'employee_type'... -->                    
                     <field name="name" placeholder="Teacher's Name"     groups="hr.group_hr_user" attrs="{'invisible': [('employee_type', '!=', 'teacher')]}"/>
                     <field name="name" placeholder="ASP's Name"         groups="hr.group_hr_user" attrs="{'invisible': [('employee_type', '!=', 'asp')]}"/>
                 </field>
@@ -31,21 +26,13 @@
                     <attribute name="invisible">1</attribute>
                 </xpath>    
 
-                <field name="job_title" position="before">
-                    <field name="job_id" placeholder="Job Position" />                       
+                <field name="job_title" position="replace">
+                    <field name="job_id" placeholder="Job Position" groups="hr.group_hr_user" domain="[('employee_type', '=', 'asp')]" />                       
                 </field>
 
-                <field name="job_title" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </field>
-
-                <field name="category_ids" position="before">
+                <field name="category_ids" position="replace">
                     <field name="roles" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}" placeholder="Roles" />          
-                </field>
-                
-                <field name="category_ids" position="attributes">
-                   <attribute name="invisible">1</attribute>
-                </field>
+                </field>        
 
                 <field name="coach_id" position="attributes">
                    <attribute name="groups">hr.group_hr_user</attribute>
