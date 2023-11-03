@@ -48,11 +48,8 @@
         <record model="ir.actions.act_window" id="action_teacher_tree">
             <field name="name">Teachers</field>
             <!-- <field name="res_model">ims.teacher</field> -->
-            <field name="res_model">hr.employee</field>
+            <field name="res_model">ims.teacher</field>
             <field name="view_mode">kanban,tree,form</field>
-
-            <!-- <field name="domain">{[('employee_type', 'in', ['teacher'])]}</field> -->
-            <!-- <field name="context">{'employee_type': 'teacher'}</field> -->
         </record>
 
         <record model="ir.actions.act_window" id="action_provider_tree">

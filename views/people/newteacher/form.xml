@@ -52,7 +52,27 @@
 
                 <field name="employee_type" position="after">
                     <field name="contract_type" />
-                </field>                
+                </field>   
+
+                <xpath expr="//notebook" position="inside">
+                    <page string="Teaching">
+                        <field name="teaching">
+                            <tree editable="bottom">
+                                <field name="formative_unit"/>
+                                <field name="group"/>
+                            </tree>
+                        </field>
+                    </page>    
+
+                    <page string="Tutorships">
+                        <field name="tutorships" widget="many2many">
+                            <tree>
+                                <field name="name" string="Group"/>
+                                <field name="classroom"/>
+                            </tree>
+                        </field>
+                    </page>                    
+                </xpath>             
             </field>		      
         </record>   
     </data>

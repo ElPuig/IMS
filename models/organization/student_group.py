@@ -12,7 +12,7 @@ class ims_student_group(models.Model):
 	notes = fields.Text(string="Notes")
 
 	study = fields.Many2one(string="Study", comodel_name="ims.study", required="true")
-	tutor = fields.Many2one(string="Tutor", comodel_name="ims.teacher")	
+	tutor = fields.Many2one(string="Tutor", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")	
 	
 	# newtutor = fields.Many2one(string="New Tutor", comodel_name="hr.employee", domain="[('job_id', '=', 'teacher')]")
 	
