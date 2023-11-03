@@ -14,8 +14,14 @@
                 </field> -->
 
                 <field name="name" position="replace">
-                    <field name="name" placeholder="Teacher's Name" groups="hr.group_hr_user" attrs="{'invisible': [('employee_type', '!=', 'teacher')]}"/>
-                    <field name="name" placeholder="Employee's Name" groups="hr.group_hr_user" attrs="{'invisible': [('employee_type', '!=', 'employee')]}"/>
+                    <!-- NOTE: I could'nt find a way to setup the placeholders as a computed field using the 'employee_type'... -->
+                    <field name="name" placeholder="Employee's Name"    groups="hr.group_hr_user" attrs="{'invisible': [('employee_type', '!=', 'employee')]}"/>
+                    <field name="name" placeholder="Student's Name"     groups="hr.group_hr_user" attrs="{'invisible': [('employee_type', '!=', 'student')]}"/>
+                    <field name="name" placeholder="Trainees's Name"    groups="hr.group_hr_user" attrs="{'invisible': [('employee_type', '!=', 'trainee')]}"/>
+                    <field name="name" placeholder="Contractor's Name"  groups="hr.group_hr_user" attrs="{'invisible': [('employee_type', '!=', 'contractor')]}"/>
+                    <field name="name" placeholder="Freelance's Name"   groups="hr.group_hr_user" attrs="{'invisible': [('employee_type', '!=', 'freelance')]}"/>
+                    <field name="name" placeholder="Teacher's Name"     groups="hr.group_hr_user" attrs="{'invisible': [('employee_type', '!=', 'teacher')]}"/>
+                    <field name="name" placeholder="ASP's Name"         groups="hr.group_hr_user" attrs="{'invisible': [('employee_type', '!=', 'asp')]}"/>
                 </field>
 
                 <xpath expr="//group[@name='payroll_group']" position="attributes">
