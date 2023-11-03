@@ -118,12 +118,7 @@
         <record model="ir.actions.act_window" id="action_newteacher_kanban">
             <field name="name">Teachers</field>
             <field name="res_model">hr.employee</field>
-            <field name="view_mode">kanban,tree,form</field>                 
-            <!-- <field name="view_id" ref="view_newteacher_form"/>       -->
-            <!-- 
-                <field name = "view_id" ref = "view_invoice_tree" />
-                <field name = "search_view_id" ref = "view_account_invoice_filter" />
-            -->
+            <field name="view_mode">kanban,tree,form</field>                            
             <field name="domain"> [('employee_type', '=', 'teacher')] </field>
             <field name="context"> {'default_employee_type': 'teacher'} </field>
         </record>   
@@ -163,6 +158,17 @@
                 <menuitem name="Teacher Roles"          sequence="1" id="menu_teacher_roles"    parent="hr.menu_config_employee"    action="action_teacher_role_tree"/>                
                 
         <menuitem name="Teachers"   sequence="5" id="menu_newteacher"       parent="hr.menu_hr_employee_payroll"    action="action_newteacher_kanban"/>
+        
+        <!-- Renaming -->
+        <record id="hr.menu_view_hr_contract_type" model="ir.ui.menu">
+            <field name="name">Contract Types</field>
+        </record>
+
+        <record id="hr.hr_contract_type_action" model="ir.actions.act_window">
+            <field name="name">Contract Types</field>
+        </record>
+
+        
             
             
 
