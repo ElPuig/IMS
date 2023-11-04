@@ -10,6 +10,7 @@
         <record id="role_2" model="ims.role">         
             <field name="name">Head of studies</field>
             <field name="employee_type">teacher</field>
+            <field name="employee_ids" eval="[(6, 0, [ ref('hr.employee_fpi')])]"/>    
             <field name="color">1</field>
         </record>
 

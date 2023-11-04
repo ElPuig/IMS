@@ -30,6 +30,7 @@
             <field name="job_id" ref="ims.job_5"/>
             <field name="contract_type_id" ref="hr.contract_type_temporary"/>
             <field name="department_id" ref="department_4"/>
+            <field name="parent_id" ref="hr.employee_lur"/>
             <field name="tz">Europe/Madrid</field>
         </record>
     </data>
