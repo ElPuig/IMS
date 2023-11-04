@@ -102,7 +102,7 @@
         </record>   
 
         <record model="ir.actions.act_window" id="action_asp_kanban">
-            <field name="name">ASP</field>
+            <field name="name">Administration and Services Personnel</field>
             <field name="res_model">hr.employee</field>
             <field name="view_mode">kanban,tree,form</field>                            
             <field name="domain"> [('employee_type', '=', 'asp')] </field>
