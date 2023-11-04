@@ -70,7 +70,7 @@
         </record>
 
         <record model="ir.actions.act_window" id="action_role_tree">
-            <field name="name">Teacher Roles</field>
+            <field name="name">Roles</field>
             <field name="res_model">ims.role</field>
             <field name="view_mode">tree,form</field>
         </record>  
