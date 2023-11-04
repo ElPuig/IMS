@@ -39,8 +39,8 @@
                     <field name="job_id" placeholder="Job Position" groups="hr.group_hr_user" />
                 </field>
 
-                <field name="category_ids" position="replace">
-                    <field name="role_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}" placeholder="Roles" />          
+                <field name="category_ids" position="replace">                    
+                    <field name="role_ids" widget="many2many_tags" groups="hr.group_hr_user" options="{'color_field': 'color', 'no_create_edit': True}" placeholder="Roles" />          
                 </field>        
 
                 <field name="coach_id" position="attributes">

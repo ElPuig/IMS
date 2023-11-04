@@ -13,11 +13,13 @@
                             <group>
                                 <field name="color" widget="color_picker"/>                                
                             </group>
+                            <group>
+                                <field string="Assignable to" name="employee_type"/>                                
+                            </group>
                         </group>  
 
                         <notebook>         
-                            <page string="Teacher">
-                                <!-- TODO: in order to display the card, a Many2many (instead of Many2one) relation is needed. Should be limited to 1 teacher for role. -->
+                            <page string="Assigned to">
                                 <field name="teachers" mode="kanban" inherit_id="view_teacher_kanban" />
                             </page>     
 

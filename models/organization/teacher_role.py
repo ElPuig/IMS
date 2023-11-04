@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
+from ..employees import employee
 
 class ims_teacher_role(models.Model):
 	_name = "ims.teacher_role"
@@ -15,7 +16,8 @@ class ims_teacher_role(models.Model):
 	#teachers = fields.Many2many(string="Teacher", comodel_name="hr.employee.public")		
 	#teachers = fields.Many2many(string="Teacher", comodel_name="hr.employee.public", domain="[('employee_type', '=', 'teacher')]")		
 	#Note: manual relation is needed, otherwise Odoo creates two tables within the BBDD, one for 'hr.employee.public' and one for 'hr.employee.base' 
-	teachers = fields.Many2many(string="Teacher", comodel_name='hr.employee.public', relation='hr_employee_public_ims_teacher_role_rel', column1='ims_teacher_role_id', column2='hr_employee_public_id', domain="[('employee_type', '=', 'teacher')]") 
+	employee_type = fields.Selection(string='Employee Type', selection=employee.employee_types)
+	teachers = fields.Many2many(string="Teacher", comodel_name='hr.employee.public', relation='hr_employee_public_ims_teacher_role_rel', column1='ims_teacher_role_id', column2='hr_employee_public_id', domain="[('employee_type', '=', employee_type)]") 
 
 	@api.constrains('teachers')
 	def check_limit(self):

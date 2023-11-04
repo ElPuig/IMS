@@ -21,7 +21,7 @@ class ims_employee(models.AbstractModel):
     #The roles fields was a One2Many relation, but role's kanban view does not work within the form.		
     #role_ids = fields.Many2many(string="Roles", comodel_name="ims.teacher_role")
     #Note: manual relation is needed, otherwise Odoo creates two tables within the BBDD, one for 'hr.employee.public' and one for 'hr.employee.base' 
-    role_ids = fields.Many2many(string="Roles", comodel_name='ims.teacher_role', relation='hr_employee_public_ims_teacher_role_rel', column1='hr_employee_public_id', column2='ims_teacher_role_id') 
+    role_ids = fields.Many2many(string="Roles", comodel_name='ims.teacher_role', relation='hr_employee_public_ims_teacher_role_rel', column1='hr_employee_public_id', column2='ims_teacher_role_id', domain="[('employee_type', '=', employee_type)]") 
     tutorship_ids = fields.One2many(string="Tutorships", comodel_name="ims.student_group", inverse_name="tutor")
 
     #This fields are computed in order to display string data within some views.

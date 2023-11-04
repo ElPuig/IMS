@@ -120,6 +120,7 @@
         'demo/employees/department.xml',
         'demo/employees/work_location.xml',
         'demo/employees/teacher.xml',
+        'demo/employees/pas.xml',
 
         'demo/people/provider.xml',
         'demo/people/student.xml',        
