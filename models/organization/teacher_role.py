@@ -12,11 +12,12 @@ class ims_teacher_role(models.Model):
 	notes = fields.Text(string="Notes")
 	
 	#The teachers (old teacher) field was a Many2one relation, but kanban view does not work within the form. It will be validated on the fly.
-	#teachers = fields.Many2many(string="Teacher", comodel_name="ims.teacher")		
-	teachers = fields.Many2many(string="Teacher", comodel_name="hr.employee.public", domain="[('employee_type', '=', 'teacher')]")		
+	#teachers = fields.Many2many(string="Teacher", comodel_name="hr.employee.public")		
+	#teachers = fields.Many2many(string="Teacher", comodel_name="hr.employee.public", domain="[('employee_type', '=', 'teacher')]")		
+	#Note: manual relation is needed, otherwise Odoo creates two tables within the BBDD, one for 'hr.employee.public' and one for 'hr.employee.base' 
+	teachers = fields.Many2many(string="Teacher", comodel_name='hr.employee.public', relation='hr_employee_public_ims_teacher_role_rel', column1='ims_teacher_role_id', column2='hr_employee_public_id', domain="[('employee_type', '=', 'teacher')]") 
 
 	@api.constrains('teachers')
-	@api.onchange('teachers')
 	def check_limit(self):
 		for rec in self:
 			if len(rec.teachers) > 1:

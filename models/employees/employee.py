@@ -19,7 +19,9 @@ class ims_employee(models.AbstractModel):
     teaching_ids = fields.One2many(string="Teaching", comodel_name="ims.teaching", inverse_name="teacher")	
 
     #The roles fields was a One2Many relation, but role's kanban view does not work within the form.		
-    role_ids = fields.Many2many(string="Roles", comodel_name="ims.teacher_role")
+    #role_ids = fields.Many2many(string="Roles", comodel_name="ims.teacher_role")
+    #Note: manual relation is needed, otherwise Odoo creates two tables within the BBDD, one for 'hr.employee.public' and one for 'hr.employee.base' 
+    role_ids = fields.Many2many(string="Roles", comodel_name='ims.teacher_role', relation='hr_employee_public_ims_teacher_role_rel', column1='hr_employee_public_id', column2='ims_teacher_role_id') 
     tutorship_ids = fields.One2many(string="Tutorships", comodel_name="ims.student_group", inverse_name="tutor")
 
     #This fields are computed in order to display string data within some views.
@@ -29,14 +31,12 @@ class ims_employee(models.AbstractModel):
     @api.model
     def _get_new_employee_type(self):            
         return employee_types
-
+    
     @api.constrains('role_ids')
-    @api.onchange('role_ids')
     def check_limit(self):
         for rec in self:
-            for role in rec.role_ids:
-                if len(role.teachers) > 1:
-                    raise ValidationError("This role is already assigned to another teacher.")
+            for role in rec.role_ids:                
+                role.check_limit()                
 				
     @api.depends("role_ids")
     def _roles_str(self):			
@@ -44,8 +44,6 @@ class ims_employee(models.AbstractModel):
             rec.roles = ""
             for role in rec.role_ids:
                 rec.roles = '%s, %s' % (rec.roles, role.name) 			
-                #rec.roles_str = role.name
-
             rec.roles = rec.roles.lstrip(", ")
 
     
@@ -55,6 +53,4 @@ class ims_employee(models.AbstractModel):
             rec.tutorships = ""
             for tutorship in rec.tutorship_ids:
                 rec.tutorships = '%s, %s' % (rec.tutorships, tutorship.name) 			
-                #rec.roles_str = role.name
-
             rec.tutorships = rec.tutorships.lstrip(", ")
