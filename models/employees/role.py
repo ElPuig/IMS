@@ -19,8 +19,8 @@ class ims_role(models.Model):
 	employee_type = fields.Selection(string='Employee Type', selection=employee.employee_types)
 	employee_ids = fields.Many2many(string="Assigned to", comodel_name='hr.employee.public', relation='hr_employee_public_ims_role_rel', column1='ims_role_id', column2='hr_employee_public_id', domain="[('employee_type', '=', employee_type)]") 
 
-	@api.constrains('teachers')
+	@api.constrains('employee_ids')
 	def check_limit(self):
 		for rec in self:
-			if len(rec.teachers) > 1:
+			if len(rec.employee_ids) > 1:
 				raise ValidationError("This role is already assigned to another teacher.")

@@ -50,10 +50,7 @@
         'views/people/person/kanban.xml',
         'views/people/corporate_person/list.xml',
         'views/people/corporate_person/form.xml',
-        'views/people/corporate_person/kanban.xml',
-        'views/people/administrative/list.xml',
-        'views/people/administrative/form.xml',
-        'views/people/administrative/kanban.xml',        
+        'views/people/corporate_person/kanban.xml',             
 
         'views/employees/employee/kanban.xml',
         'views/employees/employee/list.xml',

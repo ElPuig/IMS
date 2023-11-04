@@ -14,7 +14,7 @@ class ims_professional_module(models.Model):
 	study = fields.Many2one(string="Study", comodel_name="ims.study", required="true")
 	formative_units = fields.One2many(string="Formative Units", comodel_name="ims.formative_unit", inverse_name="professional_module")
 	
-	teacher = fields.Many2one(string="Teacher", comodel_name="ims.teacher")	
+	teacher = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
 	trackings = fields.One2many(string="Follow-ups", comodel_name="ims.tracking", inverse_name="professional_module")
 
 	def name_get(self):

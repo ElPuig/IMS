@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
 
-from . import (person, corporate_person, administrative, student, tracking, provider)
+from . import (person, corporate_person, student, tracking, provider)

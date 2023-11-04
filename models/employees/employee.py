@@ -17,16 +17,14 @@ class ims_employee(models.AbstractModel):
     contract_type_id = fields.Many2one(comodel_name="hr.contract.type", string="Contract Type")
     job_id = fields.Many2one(comodel_name="hr.job", string="Job Position", domain="[('employee_type', '=', employee_type)]")
     teaching_ids = fields.One2many(string="Teaching", comodel_name="ims.teaching", inverse_name="teacher")	
-
-    #The roles fields was a One2Many relation, but role's kanban view does not work within the form.		
-    #role_ids = fields.Many2many(string="Roles", comodel_name="ims.role")
+   
     #Note: manual relation is needed, otherwise Odoo creates two tables within the BBDD, one for 'hr.employee.public' and one for 'hr.employee.base' 
     role_ids = fields.Many2many(string="Roles", comodel_name='ims.role', relation='hr_employee_public_ims_role_rel', column1='hr_employee_public_id', column2='ims_role_id', domain="[('employee_type', '=', employee_type)]") 
     tutorship_ids = fields.One2many(string="Tutorships", comodel_name="ims.student_group", inverse_name="tutor")
 
     #This fields are computed in order to display string data within some views.
-    roles = fields.Char(compute='_roles_str', store=True)	
-    tutorships = fields.Char(compute='_tutorships_str', store=True)	
+    roles = fields.Char(string="Role names", compute='_roles_str', store=True)	
+    tutorships = fields.Char(string="Tutorship names", compute='_tutorships_str', store=True)	
 
     @api.model
     def _get_new_employee_type(self):            
