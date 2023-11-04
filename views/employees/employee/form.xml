@@ -4,11 +4,15 @@
             <field name="name">ims.employee.form</field>
             <field name="model">hr.employee</field>            
             <field name="inherit_id" ref="hr.view_employee_form"/> 
-            <field name="arch" type="xml">                                        
+            <field name="arch" type="xml">        
+                <xpath expr="//form" position="attributes">
+                    <attribute name="groups">hr.group_hr_user</attribute>
+                </xpath>           
+
                 <field name="name" position="replace">
                     <!-- NOTE: I could'nt find a way to setup the placeholders as a computed field using the 'employee_type'... -->                    
-                    <field name="name" placeholder="Teacher's Name"     groups="hr.group_hr_user" attrs="{'invisible': [('employee_type', '!=', 'teacher')]}"/>
-                    <field name="name" placeholder="ASP's Name"         groups="hr.group_hr_user" attrs="{'invisible': [('employee_type', '!=', 'asp')]}"/>
+                    <field name="name" placeholder="Teacher's Name" attrs="{'invisible': [('employee_type', '!=', 'teacher')]}"/>
+                    <field name="name" placeholder="ASP's Name"     attrs="{'invisible': [('employee_type', '!=', 'asp')]}"/>
                 </field>
 
                 <xpath expr="//group[@name='payroll_group']" position="attributes">
@@ -36,34 +40,27 @@
                 </xpath>  
 
                 <field name="job_title" position="replace">
-                    <field name="job_id" placeholder="Job Position" groups="hr.group_hr_user" />
+                    <field name="job_id" placeholder="Job Position" />
                 </field>
 
                 <field name="category_ids" position="replace">                    
-                    <field name="role_ids" widget="many2many_tags" groups="hr.group_hr_user" options="{'color_field': 'color', 'no_create_edit': True}" placeholder="Roles" />          
+                    <field name="role_ids" placeholder="Roles" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}" />          
                 </field>        
 
                 <field name="coach_id" position="attributes">
-                   <attribute name="groups">hr.group_hr_user</attribute>
                    <attribute name="invisible">1</attribute>
-                   <!-- <attribute name="attrs">{'invisible': [('employee_type', '!=', 'student')]}</attribute> -->
-                </field>
-              
-                <field name="parent_id" position="attributes">
-                    <attribute name="groups">hr.group_hr_user</attribute>
-                    <!-- <attribute name="attrs">{'invisible': [('employee_type', '=', 'student')]}</attribute> -->
-                </field>
+                </field>                          
 
                 <field name="employee_type" position="after">
                     <field name="contract_type_id" />
-                </field>   
+                </field>                  
 
                 <xpath expr="//page[@name='hr_settings']" position="attributes">
                     <attribute name="string">Human Resources</attribute>
                 </xpath>         
 
                 <xpath expr="//notebook" position="inside">
-                    <page string="Teaching" groups="hr.group_hr_user" attrs="{'invisible': [('employee_type', '=', 'asp')]}">
+                    <page string="Teaching" attrs="{'invisible': [('employee_type', '=', 'asp')]}">
                         <field name="teaching_ids">
                             <tree editable="bottom">
                                 <field name="formative_unit"/>
@@ -72,7 +69,7 @@
                         </field>
                     </page>    
 
-                    <page string="Tutorships" groups="hr.group_hr_user" attrs="{'invisible': [('employee_type', '=', 'asp')]}">
+                    <page string="Tutorships" attrs="{'invisible': [('employee_type', '=', 'asp')]}">
                         <field name="tutorship_ids" widget="many2many">
                             <tree>
                                 <field name="name" string="Group"/>

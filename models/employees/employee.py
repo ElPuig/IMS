@@ -14,8 +14,8 @@ class ims_employee(models.AbstractModel):
     notes = fields.Text(string="Notes")
         
     employee_type = fields.Selection(string='Employee Type', selection='_get_new_employee_type', compute='_compute_question_type', readonly=False, store=True)
-    contract_type_id = fields.Many2one(comodel_name="hr.contract.type", string="Contract Type")
-    job_id = fields.Many2one(comodel_name="hr.job", string="Job Position", domain="[('employee_type', '=', employee_type)]")
+    contract_type_id = fields.Many2one(string="Contract Type", comodel_name="hr.contract.type")
+    job_id = fields.Many2one(string="Job Position", comodel_name="hr.job", domain="[('employee_type', '=', employee_type)]")
     teaching_ids = fields.One2many(string="Teaching", comodel_name="ims.teaching", inverse_name="teacher")	
    
     #Note: manual relation is needed, otherwise Odoo creates two tables within the BBDD, one for 'hr.employee.public' and one for 'hr.employee.base' 
