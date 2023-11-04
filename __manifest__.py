@@ -75,11 +75,9 @@
         'views/facilities/classroom/form.xml',       
 
         'views/organization/student_group/list.xml',
-        'views/organization/student_group/form.xml',
-        'views/organization/administrative_role/list.xml',
-        'views/organization/administrative_role/form.xml',
-        'views/organization/teacher_role/list.xml',
-        'views/organization/teacher_role/form.xml',
+        'views/organization/student_group/form.xml',        
+        'views/employees/role/list.xml',
+        'views/employees/role/form.xml',
         'views/organization/company/list.xml',
         'views/organization/company/form.xml',
         'views/organization/company/kanban.xml',
@@ -105,15 +103,10 @@
         'demo/curriculum/professional_module.xml',
         'demo/curriculum/formative_unit.xml',
 
-        'demo/facilities/classroom.xml',
-        
-        'demo/organization/administrative_role.xml',
-
-        'demo/people/administrative.xml',        
+        'demo/facilities/classroom.xml',         
 
         'demo/organization/student_group.xml',
         'demo/organization/teaching.xml',   
-        'demo/organization/teacher_role.xml',   
         'demo/organization/company.xml',           
         
         'demo/employees/job.xml',
@@ -121,6 +114,7 @@
         'demo/employees/work_location.xml',
         'demo/employees/teacher.xml',
         'demo/employees/pas.xml',
+        'demo/employees/role.xml',   
 
         'demo/people/provider.xml',
         'demo/people/student.xml',        

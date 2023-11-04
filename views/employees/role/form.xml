@@ -1,10 +1,10 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_teacher_role_form">
-            <field name="name">ims.teacher_role.form</field>
-            <field name="model">ims.teacher_role</field>
+        <record model="ir.ui.view" id="view_role_form">
+            <field name="name">ims.role.form</field>
+            <field name="model">ims.role</field>
             <field name="arch" type="xml">
-                <form string="teacher_role">
+                <form string="role">
                     <sheet>
                         <group string="Main data" col="4">
                             <group>

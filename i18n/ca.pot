@@ -234,7 +234,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_student_group__create_uid
 #: model:ir.model.fields,field_description:ims.field_ims_study__create_uid
 #: model:ir.model.fields,field_description:ims.field_ims_teacher__create_uid
-#: model:ir.model.fields,field_description:ims.field_ims_teacher_role__create_uid
+#: model:ir.model.fields,field_description:ims.field_ims_role__create_uid
 #: model:ir.model.fields,field_description:ims.field_ims_teaching__create_uid
 #: model:ir.model.fields,field_description:ims.field_ims_tracking__create_uid
 msgid "Created by"
@@ -259,7 +259,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_student_group__create_date
 #: model:ir.model.fields,field_description:ims.field_ims_study__create_date
 #: model:ir.model.fields,field_description:ims.field_ims_teacher__create_date
-#: model:ir.model.fields,field_description:ims.field_ims_teacher_role__create_date
+#: model:ir.model.fields,field_description:ims.field_ims_role__create_date
 #: model:ir.model.fields,field_description:ims.field_ims_teaching__create_date
 #: model:ir.model.fields,field_description:ims.field_ims_tracking__create_date
 msgid "Created on"
@@ -309,7 +309,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_student_group__display_name
 #: model:ir.model.fields,field_description:ims.field_ims_study__display_name
 #: model:ir.model.fields,field_description:ims.field_ims_teacher__display_name
-#: model:ir.model.fields,field_description:ims.field_ims_teacher_role__display_name
+#: model:ir.model.fields,field_description:ims.field_ims_role__display_name
 #: model:ir.model.fields,field_description:ims.field_ims_teaching__display_name
 #: model:ir.model.fields,field_description:ims.field_ims_tracking__display_name
 msgid "Display Name"
@@ -470,7 +470,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_student_group__id
 #: model:ir.model.fields,field_description:ims.field_ims_study__id
 #: model:ir.model.fields,field_description:ims.field_ims_teacher__id
-#: model:ir.model.fields,field_description:ims.field_ims_teacher_role__id
+#: model:ir.model.fields,field_description:ims.field_ims_role__id
 #: model:ir.model.fields,field_description:ims.field_ims_teaching__id
 #: model:ir.model.fields,field_description:ims.field_ims_tracking__id
 msgid "ID"
@@ -516,7 +516,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_student_group____last_update
 #: model:ir.model.fields,field_description:ims.field_ims_study____last_update
 #: model:ir.model.fields,field_description:ims.field_ims_teacher____last_update
-#: model:ir.model.fields,field_description:ims.field_ims_teacher_role____last_update
+#: model:ir.model.fields,field_description:ims.field_ims_role____last_update
 #: model:ir.model.fields,field_description:ims.field_ims_teaching____last_update
 #: model:ir.model.fields,field_description:ims.field_ims_tracking____last_update
 msgid "Last Modified on"
@@ -541,7 +541,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_student_group__write_uid
 #: model:ir.model.fields,field_description:ims.field_ims_study__write_uid
 #: model:ir.model.fields,field_description:ims.field_ims_teacher__write_uid
-#: model:ir.model.fields,field_description:ims.field_ims_teacher_role__write_uid
+#: model:ir.model.fields,field_description:ims.field_ims_role__write_uid
 #: model:ir.model.fields,field_description:ims.field_ims_teaching__write_uid
 #: model:ir.model.fields,field_description:ims.field_ims_tracking__write_uid
 msgid "Last Updated by"
@@ -566,7 +566,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_student_group__write_date
 #: model:ir.model.fields,field_description:ims.field_ims_study__write_date
 #: model:ir.model.fields,field_description:ims.field_ims_teacher__write_date
-#: model:ir.model.fields,field_description:ims.field_ims_teacher_role__write_date
+#: model:ir.model.fields,field_description:ims.field_ims_role__write_date
 #: model:ir.model.fields,field_description:ims.field_ims_teaching__write_date
 #: model:ir.model.fields,field_description:ims.field_ims_tracking__write_date
 msgid "Last Updated on"
@@ -602,7 +602,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ims.view_ims_person_form
 #: model_terms:ir.ui.view,arch_db:ims.view_ims_professional_module_form
 #: model_terms:ir.ui.view,arch_db:ims.view_ims_study_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_teacher_role_form
+#: model_terms:ir.ui.view,arch_db:ims.view_ims_role_form
 msgid "Main data"
 msgstr ""
 
@@ -643,7 +643,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_student_group__name
 #: model:ir.model.fields,field_description:ims.field_ims_study__name
 #: model:ir.model.fields,field_description:ims.field_ims_teacher__name
-#: model:ir.model.fields,field_description:ims.field_ims_teacher_role__name
+#: model:ir.model.fields,field_description:ims.field_ims_role__name
 msgid "Name"
 msgstr ""
 
@@ -663,7 +663,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_student_group__notes
 #: model:ir.model.fields,field_description:ims.field_ims_study__notes
 #: model:ir.model.fields,field_description:ims.field_ims_teacher__notes
-#: model:ir.model.fields,field_description:ims.field_ims_teacher_role__notes
+#: model:ir.model.fields,field_description:ims.field_ims_role__notes
 #: model:ir.model.fields,field_description:ims.field_ims_tracking__notes
 #: model_terms:ir.ui.view,arch_db:ims.view_ims_administrative_role_form
 #: model_terms:ir.ui.view,arch_db:ims.view_ims_company_form
@@ -673,7 +673,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ims.view_ims_person_form
 #: model_terms:ir.ui.view,arch_db:ims.view_ims_professional_module_form
 #: model_terms:ir.ui.view,arch_db:ims.view_ims_study_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_teacher_role_form
+#: model_terms:ir.ui.view,arch_db:ims.view_ims_role_form
 #: model_terms:ir.ui.view,arch_db:ims.view_ims_tracking_form
 msgid "Notes"
 msgstr ""
@@ -816,8 +816,8 @@ msgid "Roles (for administratives)"
 msgstr ""
 
 #. module: ims
-#: model:ir.actions.act_window,name:ims.action_teacher_role_tree
-#: model:ir.ui.menu,name:ims.menu_teacher_roles
+#: model:ir.actions.act_window,name:ims.action_role_tree
+#: model:ir.ui.menu,name:ims.menu_roles
 msgid "Roles (for teachers)"
 msgstr ""
 
@@ -941,14 +941,14 @@ msgstr ""
 #. module: ims
 #: model:ir.model.fields,field_description:ims.field_ims_formative_unit__teacher
 #: model:ir.model.fields,field_description:ims.field_ims_professional_module__teacher
-#: model:ir.model.fields,field_description:ims.field_ims_teacher_role__teacher
+#: model:ir.model.fields,field_description:ims.field_ims_role__teacher
 #: model:ir.model.fields,field_description:ims.field_ims_teaching__teacher
 #: model:ir.model.fields,field_description:ims.field_ims_tracking__teacher
 msgid "Teacher"
 msgstr ""
 
 #. module: ims
-#: model:ir.model,name:ims.model_ims_teacher_role
+#: model:ir.model,name:ims.model_ims_role
 msgid ""
 "Teacher's position: The coordination position held by the teachers staff."
 msgstr ""
@@ -1064,7 +1064,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ims.view_ims_person_form
 #: model_terms:ir.ui.view,arch_db:ims.view_ims_professional_module_form
 #: model_terms:ir.ui.view,arch_db:ims.view_ims_study_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_teacher_role_form
+#: model_terms:ir.ui.view,arch_db:ims.view_ims_role_form
 #: model_terms:ir.ui.view,arch_db:ims.view_ims_tracking_form
 msgid "Write down here your notes..."
 msgstr ""
@@ -1100,8 +1100,8 @@ msgid "professional_module"
 msgstr ""
 
 #. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_teacher_role_form
-msgid "teacher_role"
+#: model_terms:ir.ui.view,arch_db:ims.view_ims_role_form
+msgid "role"
 msgstr ""
 
 #. module: ims

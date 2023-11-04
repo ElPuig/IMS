@@ -1,3 +1,4 @@
 # -*- coding: utf-8 -*-
 
-from . import (administrative_role, teacher_role, teaching, student_group, company)
+from ..employees import role
+from . import (teaching, student_group, company)
