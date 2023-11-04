@@ -4,30 +4,40 @@
             <field name="department_id" ref="department_2"/>
             <field name="employee_type">teacher</field>
             <field name="job_id" ref="ims.job_1"/>
+            <field name="contract_type_id" ref="hr.contract_type_permanent"/>
+            <field name="tz">Europe/Madrid</field>
         </record>
 
         <record id="hr.employee_mit" model="hr.employee">
             <field name="department_id" ref="department_1"/>
             <field name="employee_type">teacher</field>
             <field name="job_id" ref="ims.job_1"/>
+             <field name="contract_type_id" ref="hr.contract_type_interim"/>
+            <field name="tz">Europe/Madrid</field>
         </record>
 
         <record id="hr.employee_fpi" model="hr.employee">
             <field name="department_id" ref="department_1"/>
             <field name="employee_type">teacher</field>
             <field name="job_id" ref="ims.job_2"/>
+            <field name="contract_type_id" ref="hr.contract_type_interim"/>
+            <field name="tz">Europe/Madrid</field>
         </record>
 
         <record id="hr.employee_qdp" model="hr.employee">
             <field name="department_id" ref="department_1"/>
             <field name="employee_type">teacher</field>
             <field name="job_id" ref="ims.job_3"/>
+            <field name="contract_type_id" ref="hr.contract_type_temporary"/>
+            <field name="tz">Europe/Madrid</field>
         </record>
 
         <record id="hr.employee_admin" model="hr.employee">
             <field name="department_id" ref="department_2"/>
             <field name="employee_type">teacher</field>
             <field name="job_id" ref="ims.job_1"/>
+            <field name="contract_type_id" ref="hr.contract_type_permanent"/>
+            <field name="tz">Europe/Madrid</field>
         </record>
     </data>
 </odoo>
