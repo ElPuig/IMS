@@ -23,13 +23,12 @@ class ims_employee(models.AbstractModel):
     tutorship_ids = fields.One2many(string="Tutorships", comodel_name="ims.student_group", inverse_name="tutor")
 
     #This fields are computed in order to display string data within some views.
-    roles = fields.Char(compute='_roles_str')	
-    tutorships = fields.Char(compute='_tutorships_str')	
+    roles = fields.Char(compute='_roles_str', store=True)	
+    tutorships = fields.Char(compute='_tutorships_str', store=True)	
 
     @api.model
     def _get_new_employee_type(self):            
         return employee_types
-
 
     @api.constrains('role_ids')
     @api.onchange('role_ids')
