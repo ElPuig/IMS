@@ -35,5 +35,13 @@
         <record id="department_2" model="hr.department">
             <field name="name">Computer Science</field>
         </record>
+
+        <record id="department_3" model="hr.department">
+            <field name="name">Conciergerie</field>
+        </record>
+
+        <record id="department_4" model="hr.department">
+            <field name="name">Secretariat</field>
+        </record>
     </data>
 </odoo>

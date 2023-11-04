@@ -4,7 +4,7 @@
             <field name="name">Director</field>
             <field name="employee_type">teacher</field>
             <field name="color">9</field>            
-            <field name="teachers" eval="[(6, 0, [ ref('hr.employee_hne')])]"/> 
+            <field name="employee_ids" eval="[(6, 0, [ ref('hr.employee_hne')])]"/> 
         </record>
         
         <record id="role_2" model="ims.role">         
@@ -23,35 +23,35 @@
             <field name="name">Quality coordinator</field>       
             <field name="employee_type">teacher</field>          
             <field name="color">4</field>
-            <field name="teachers" eval="[(6, 0, [ ref('hr.employee_admin')])]"/>             
+            <field name="employee_ids" eval="[(6, 0, [ ref('hr.employee_admin')])]"/>             
         </record>
 
         <record id="role_5" model="ims.role">
             <field name="name">Coexistence coordinator</field>
             <field name="employee_type">teacher</field>
             <field name="color">10</field>
-            <field name="teachers" eval="[(6, 0, [ ref('hr.employee_mit')])]"/>             
+            <field name="employee_ids" eval="[(6, 0, [ ref('hr.employee_mit')])]"/>             
         </record>
 
         <record id="role_6" model="ims.role">
             <field name="name">Occupational risk coordinator</field>
             <field name="employee_type">teacher</field>
             <field name="color">11</field>
-            <field name="teachers" eval="[(6, 0, [ ref('hr.employee_mit')])]"/>             
+            <field name="employee_ids" eval="[(6, 0, [ ref('hr.employee_mit')])]"/>             
         </record>
 
         <record id="role_7" model="ims.role">
             <field name="name">Chieff Secretary</field>
             <field name="employee_type">asp</field>
             <field name="color">1</field>
-            <field name="teachers" eval="[(6, 0, [ ref('hr.employee_lur')])]"/>     
+            <field name="employee_ids" eval="[(6, 0, [ ref('hr.employee_lur')])]"/>     
         </record>
         
         <record id="role_8" model="ims.role">
             <field name="name">Chieff Concierje</field>
             <field name="employee_type">asp</field>
             <field name="color">2</field>
-            <field name="teachers" eval="[(6, 0, [ ref('hr.employee_jep')])]"/>          
+            <field name="employee_ids" eval="[(6, 0, [ ref('hr.employee_jep')])]"/>          
         </record>
     </data>
 </odoo>

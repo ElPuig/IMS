@@ -7,7 +7,7 @@
                 <tree expand="1" default_order="name asc">      
                     <field name="name" string="Role" />
                     <field name="employee_type" string="Assignable to" />
-                    <field name="teachers" string="Assigned to" widget="many2many_tags"/>
+                    <field name="employee_ids" string="Assigned to" widget="many2many_tags"/>
                 </tree>
             </field>
         </record>   

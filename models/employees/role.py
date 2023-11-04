@@ -17,7 +17,7 @@ class ims_role(models.Model):
 	#teachers = fields.Many2many(string="Teacher", comodel_name="hr.employee.public", domain="[('employee_type', '=', 'teacher')]")		
 	#Note: manual relation is needed, otherwise Odoo creates two tables within the BBDD, one for 'hr.employee.public' and one for 'hr.employee.base' 
 	employee_type = fields.Selection(string='Employee Type', selection=employee.employee_types)
-	teachers = fields.Many2many(string="Teacher", comodel_name='hr.employee.public', relation='hr_employee_public_ims_role_rel', column1='ims_role_id', column2='hr_employee_public_id', domain="[('employee_type', '=', employee_type)]") 
+	employee_ids = fields.Many2many(string="Assigned to", comodel_name='hr.employee.public', relation='hr_employee_public_ims_role_rel', column1='ims_role_id', column2='hr_employee_public_id', domain="[('employee_type', '=', employee_type)]") 
 
 	@api.constrains('teachers')
 	def check_limit(self):
