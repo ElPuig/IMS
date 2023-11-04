@@ -1,0 +1,14 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_contact_list">
+            <field name="name">ims.contcat.list</field>
+            <field name="model">res.partner</field>            
+            <field name="inherit_id" ref="base.view_partner_tree"/> 
+            <field name="arch" type="xml">        
+                <xpath expr="//tree" position="inside">                     
+                    <field name="contact_type" invisible="1" />
+                </xpath>                               
+            </field>		      
+        </record>   
+    </data>
+</odoo>

@@ -56,6 +56,8 @@
         'views/employees/employee/list.xml',
         'views/employees/employee/form.xml',
 
+        'views/contacts/contact/list.xml',
+
         'views/employees/job/list.xml',
         'views/employees/job/form.xml',
 

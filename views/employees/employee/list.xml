@@ -8,10 +8,7 @@
                 <xpath expr="//tree" position="inside">                     
                     <!-- This field must be loaded in order to filter properly the job_id -->
                     <field name="employee_type" invisible="1" />
-                </xpath>               
-                <!-- <field name="name" position="after">
-                    <field name="type" />
-                </field> -->
+                </xpath>                               
             </field>		      
         </record>   
     </data>
