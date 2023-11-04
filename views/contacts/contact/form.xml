@@ -1,0 +1,20 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_contact_form">
+            <field name="name">ims.contcat.form</field>
+            <field name="model">res.partner</field>            
+            <field name="inherit_id" ref="base.view_partner_form"/> 
+            <field name="arch" type="xml">        
+                <field name="company_type" position="replace" />
+                <field name="vat" position="after">                    
+                    <field name="contact_type"/>
+                    <field name="company_type" attrs="{'invisible': [('contact_type', '!=', 'provider')]}"/>
+                </field>
+                
+                <field name="parent_id" position="attributes">
+                    <attribute name="attrs">{'invisible': ['|', ('contact_type', '!=', 'provider'), '|', '&amp;', ('is_company','=', True),('parent_id', '=', False),('company_name', '!=', False),('company_name', '!=', '')]}</attribute>
+                </field>                                                
+            </field>		      
+        </record>   
+    </data>
+</odoo>

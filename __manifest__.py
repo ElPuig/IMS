@@ -57,6 +57,7 @@
         'views/employees/employee/form.xml',
 
         'views/contacts/contact/list.xml',
+        'views/contacts/contact/form.xml',
 
         'views/employees/job/list.xml',
         'views/employees/job/form.xml',
@@ -113,10 +114,11 @@
         'demo/employees/work_location.xml',
         'demo/employees/teacher.xml',
         'demo/employees/pas.xml',
-        'demo/employees/role.xml',   
+        'demo/employees/role.xml', 
+        'demo/employees/employee.xml',   
 
-        'demo/people/provider.xml',
-        'demo/people/student.xml',        
+        'demo/contacts/student.xml',   
+        'demo/contacts/provider.xml',         
     ],   
     'assets': {       
         'web.assets_backend': [

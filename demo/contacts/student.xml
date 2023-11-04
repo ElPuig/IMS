@@ -1,0 +1,19 @@
+<odoo>
+    <data>    
+        <record id="hr.work_contact_jve" model="res.partner">           
+            <field name="contact_type">student</field>            
+        </record>
+
+        <record id="hr.work_contact_stw" model="res.partner">           
+            <field name="contact_type">student</field>            
+        </record>
+
+        <record id="hr.work_contact_vad" model="res.partner">           
+            <field name="contact_type">student</field>            
+        </record>
+
+        <record id="hr.work_contact_jth" model="res.partner">           
+            <field name="contact_type">student</field>            
+        </record>
+    </data>
+</odoo>
