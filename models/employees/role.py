@@ -12,9 +12,7 @@ class ims_role(models.Model):
 	color = fields.Integer(string="Color")
 	notes = fields.Text(string="Notes")
 	
-	#The teachers (old teacher) field was a Many2one relation, but kanban view does not work within the form. It will be validated on the fly.
-	#teachers = fields.Many2many(string="Teacher", comodel_name="hr.employee.public")		
-	#teachers = fields.Many2many(string="Teacher", comodel_name="hr.employee.public", domain="[('employee_type', '=', 'teacher')]")		
+	#The employee_ids field was a Many2one relation, but kanban view does not work within the form. It will be validated on the fly in order to limit to 1 assignation.
 	#Note: manual relation is needed, otherwise Odoo creates two tables within the BBDD, one for 'hr.employee.public' and one for 'hr.employee.base' 
 	employee_type = fields.Selection(string='Employee Type', selection=employee.employee_types)
 	employee_ids = fields.Many2many(string="Assigned to", comodel_name='hr.employee.public', relation='hr_employee_public_ims_role_rel', column1='ims_role_id', column2='hr_employee_public_id', domain="[('employee_type', '=', employee_type)]") 
