@@ -8,7 +8,7 @@
                     <sheet>                        
                         <group string="Main data" col="4">
                             <group colspan="4">
-                                <field name="study"/>
+                                <field name="study_id"/>
                             </group>
                             <group>
                                 <field name="code"/>
@@ -23,7 +23,7 @@
                         
                         <notebook>                           
                             <page string="Formative Units">
-                                <field name="formative_units" widget="many2many">
+                                <field name="formative_unit_ids" widget="many2many">
                                     <tree>
                                         <field name="code"/>
                                         <field name="acronym"/>

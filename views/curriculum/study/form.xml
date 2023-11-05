@@ -16,7 +16,7 @@
                         </group>
                          <group string="Administrative data" col="4">
                             <group>
-                                <field name="level" />
+                                <field name="level_id" />
                             </group>
                              <group>
                                 <field name="code" />
@@ -37,7 +37,7 @@
                         
                         <notebook>      
                             <page string="Professional Modules">
-                                <field name="professional_modules" widget="many2many">
+                                <field name="professional_module_ids" widget="many2many">
                                     <tree>
                                         <field name="code"/>
                                         <field name="acronym"/>

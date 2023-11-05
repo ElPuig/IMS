@@ -17,7 +17,7 @@
 
                         <notebook>
                             <page string="Studies">
-                                <field name="studies" widget="many2many">
+                                <field name="study_ids" widget="many2many">
                                     <tree>
                                         <field name="code"/>
                                         <field name="acronym"/>

@@ -8,7 +8,7 @@
                     <sheet>                      
                         <group string="Main data" col="3">
                             <group colspan="3">
-                                <field name="professional_module" options="{'model': 'ims.professional_module', 'field': ['code','name']}"/>
+                                <field name="professional_module_id" options="{'model': 'ims.professional_module_id', 'field': ['code','name']}"/>
                             </group>
                             <group>
                                 <field name="code"/>

@@ -122,16 +122,10 @@
             <menuitem name="FUs"        sequence="4" id="menu_ufs"                  parent="menu_curriculum"    action="action_formative_unit_tree"/>
 
         <menuitem id="menu_facilities" name="Facilities" />
-            <menuitem name="Classrooms" sequence="1" id="menu_classrooms"           parent="menu_facilities"    action="action_classroom_tree"/>
-
-        <menuitem id="menu_people" name="People" />
-            
-            
-            <menuitem name="Configuration"          sequence="5" id="menu_people_config"    parent="menu_people"    action="action_settings"/>
-                <menuitem name="Providers"          sequence="1" id="menu_people_config_provs"                          parent="menu_people_config"/>
+            <menuitem name="Classrooms" sequence="1" id="menu_classrooms"           parent="menu_facilities"    action="action_classroom_tree"/>      
                 
-                <menuitem name="Students"           sequence="1" id="menu_people_config_students"                       parent="menu_people_config"/>
-                    <menuitem name="Groups"         sequence="1" id="menu_groups"   parent="menu_people_config_students"    action="action_group_tree"/>
+        <menuitem name="Students"           sequence="4" id="menu_people_config_students"   parent="contacts.res_partner_menu_config"/>
+            <menuitem name="Groups"         sequence="1" id="menu_groups"                   parent="menu_people_config_students"    action="action_group_tree"/>
                 
         <!-- Contacts -->
         <menuitem name="Contacts"   sequence="1"    id="menu_contacts"      parent="contacts.res_partner_menu_contacts"     action="action_contact_kanban"/>

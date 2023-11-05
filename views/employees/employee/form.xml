@@ -63,8 +63,8 @@
                     <page string="Teaching" attrs="{'invisible': [('employee_type', '=', 'asp')]}">
                         <field name="teaching_ids">
                             <tree editable="bottom">
-                                <field name="formative_unit"/>
-                                <field name="group"/>
+                                <field name="formative_unit_id"/>
+                                <field name="group_id"/>
                             </tree>
                         </field>
                     </page>    

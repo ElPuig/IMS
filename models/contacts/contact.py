@@ -8,7 +8,7 @@ class ims_contact(models.Model):
     
     contact_type = fields.Selection(string='Contact Type', selection=[('provider', 'Provider'), ('student', 'Student')])
     main_group_id = fields.Many2one(string="Main Group", comodel_name="ims.group")
-    tutor=fields.Char(string='Tutor', compute='_tutor', store=True)
+    tutor = fields.Char(string='Tutor', compute='_tutor', store=True)
 
     @api.depends("main_group_id")
     def _tutor(self):	

@@ -5,8 +5,8 @@
             <field name="model">ims.tracking</field>
             <field name="arch" type="xml">
                 <tree>                    
-                    <field name="student"/>
-                    <field name="teacher"/>
+                    <field name="student_id"/>
+                    <field name="teacher_id"/>
                     <field name="notes"/>
                 </tree>
             </field>

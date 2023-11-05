@@ -5,7 +5,7 @@
             <field name="acronym">MP01</field>
             <field name="name">Sistemes informàtics</field>
             <field name="notes"></field>
-            <field name="study" ref="ims.study_1"/>
+            <field name="study_id" ref="ims.study_1"/>
         </record>
         
         <record id="professional_module_2" model="ims.professional_module">
@@ -13,7 +13,7 @@
             <field name="acronym">MP03</field>
             <field name="name">Programació</field>
             <field name="notes"></field>
-            <field name="study" ref="ims.study_1"/>
+            <field name="study_id" ref="ims.study_1"/>
         </record>
     </data>
 </odoo>

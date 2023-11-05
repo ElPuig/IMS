@@ -7,7 +7,7 @@
             <field name="acronym">UF1</field>
             <field name="name">Instal·lació, configuració i explotació del  sistema informàtic</field>
             <field name="notes"></field>
-            <field name="professional_module" ref="ims.professional_module_1"/>
+            <field name="professional_module_id" ref="ims.professional_module_1"/>
         </record>
 
         <record id="formative_unit_2" model="ims.formative_unit">
@@ -15,7 +15,7 @@
             <field name="acronym">UF2</field>
             <field name="name">Gestió de la informació i de recursos en una  xarxa</field>
             <field name="notes"></field>
-            <field name="professional_module" ref="ims.professional_module_1"/>
+            <field name="professional_module_id" ref="ims.professional_module_1"/>
         </record>
 
         <record id="formative_unit_3" model="ims.formative_unit">
@@ -23,7 +23,7 @@
             <field name="acronym">UF3</field>
             <field name="name">Implantació de programari específic</field>
             <field name="notes"></field>
-            <field name="professional_module" ref="ims.professional_module_1"/>
+            <field name="professional_module_id" ref="ims.professional_module_1"/>
         </record>
         
         <!-- MP03: Programació -->
@@ -32,7 +32,7 @@
             <field name="acronym">UF1</field>
             <field name="name">Programació estructurada</field>
             <field name="notes"></field>
-            <field name="professional_module" ref="ims.professional_module_2"/>
+            <field name="professional_module_id" ref="ims.professional_module_2"/>
         </record>
 
         <record id="formative_unit_5" model="ims.formative_unit">
@@ -40,7 +40,7 @@
             <field name="acronym">UF2</field>
             <field name="name">Disseny modular</field>
             <field name="notes"></field>
-            <field name="professional_module" ref="ims.professional_module_2"/>
+            <field name="professional_module_id" ref="ims.professional_module_2"/>
         </record>
 
         <record id="formative_unit_6" model="ims.formative_unit">
@@ -48,7 +48,7 @@
             <field name="acronym">UF3</field>
             <field name="name">Fonaments de gestió de fitxers</field>
             <field name="notes"></field>
-            <field name="professional_module" ref="ims.professional_module_2"/>
+            <field name="professional_module_id" ref="ims.professional_module_2"/>
         </record>
 
         <record id="formative_unit_7" model="ims.formative_unit">
@@ -56,7 +56,7 @@
             <field name="acronym">UF4</field>
             <field name="name">Programació orientada a objectes (POO)</field>
             <field name="notes"></field>
-            <field name="professional_module" ref="ims.professional_module_2"/>
+            <field name="professional_module_id" ref="ims.professional_module_2"/>
         </record>
 
         <record id="formative_unit_8" model="ims.formative_unit">
@@ -64,7 +64,7 @@
             <field name="acronym">UF5</field>
             <field name="name">POO. Llibreries de classes fonamentals</field>
             <field name="notes"></field>
-            <field name="professional_module" ref="ims.professional_module_2"/>
+            <field name="professional_module_id" ref="ims.professional_module_2"/>
         </record>
 
         <record id="formative_unit_9" model="ims.formative_unit">
@@ -72,7 +72,7 @@
             <field name="acronym">UF6</field>
             <field name="name">POO. Introducció a la persistència en BD</field>
             <field name="notes"></field>
-            <field name="professional_module" ref="ims.professional_module_2"/>
+            <field name="professional_module_id" ref="ims.professional_module_2"/>
         </record>
     </data>
 </odoo>
