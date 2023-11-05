@@ -62,12 +62,6 @@
             <field name="view_mode">tree,form</field>
         </record>  
 
-        <record model="ir.actions.act_window" id="action_company_tree">
-            <field name="name">Companies</field>
-            <field name="res_model">ims.company</field>
-            <field name="view_mode">kanban,tree,form</field>
-        </record>
-
         <record model="ir.actions.act_window" id="action_attendance_template_tree">
             <field name="name">Attendance Templates</field>
             <field name="res_model">ims.attendance_template</field>
@@ -135,7 +129,6 @@
             
             <menuitem name="Configuration"          sequence="5" id="menu_people_config"    parent="menu_people"    action="action_settings"/>
                 <menuitem name="Providers"          sequence="1" id="menu_people_config_provs"                          parent="menu_people_config"/>
-                    <menuitem name="Companies"      sequence="1" id="menu_company"          parent="menu_people_config_provs"       action="action_company_tree"/>
                 
                 <menuitem name="Students"           sequence="1" id="menu_people_config_students"                       parent="menu_people_config"/>
                     <menuitem name="Groups"         sequence="1" id="menu_groups"   parent="menu_people_config_students"    action="action_group_tree"/>
