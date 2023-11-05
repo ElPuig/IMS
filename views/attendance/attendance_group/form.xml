@@ -17,7 +17,7 @@
                             <field name="classroom"/>
                             <field name="weekday"/>
                             <field name="color" widget="color_picker"/>
-                            <field name="student_group"/>
+                            <field name="group"/>
                             <field name="hasTemplates" invisible="1"/>                                                                              
                         </group>
                         <notebook>

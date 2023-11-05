@@ -1,6 +1,6 @@
 <odoo>
     <data>
-       <record id="student_group_1" model="ims.student_group">
+       <record id="group_1" model="ims.group">
             <field name="course">2</field>
             <field name="acronym">A</field>
             <field name="study" ref="study_1"/>
@@ -9,7 +9,7 @@
             <field name="notes"></field>
         </record>
 
-        <record id="student_group_2" model="ims.student_group">
+        <record id="group_2" model="ims.group">
             <field name="course">2</field>
             <field name="acronym">B</field>
             <field name="study" ref="study_1"/>
@@ -18,7 +18,7 @@
             <field name="notes"></field>
         </record>
 
-         <record id="student_group_3" model="ims.student_group">
+         <record id="group_3" model="ims.group">
             <field name="course">1</field>
             <field name="acronym">A</field>
             <field name="study" ref="study_1"/>

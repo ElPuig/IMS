@@ -13,7 +13,7 @@ class ims_attendance_session(models.Model):
 
 	attendance_group = fields.Many2one(comodel_name="ims.attendance_group", string="Attendance Group")
 
-	student_group = fields.Many2one(comodel_name="ims.student_group", string="Grup")	
+	group = fields.Many2one(comodel_name="ims.group", string="Grup")	
 	attendance_statuses = fields.One2many(comodel_name="ims.attendance_status", inverse_name="attendance_session", string="Student status")
 
 	hasStatuses = fields.Boolean(compute='compute_hasStatuses', store=False)

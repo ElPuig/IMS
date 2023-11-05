@@ -74,8 +74,8 @@
         'views/facilities/classroom/list.xml',
         'views/facilities/classroom/form.xml',       
 
-        'views/organization/student_group/list.xml',
-        'views/organization/student_group/form.xml',        
+        'views/contacts/group/list.xml',
+        'views/contacts/group/form.xml',        
         'views/employees/role/list.xml',
         'views/employees/role/form.xml',
         'views/organization/company/list.xml',
@@ -105,7 +105,7 @@
 
         'demo/facilities/classroom.xml',         
 
-        'demo/organization/student_group.xml',
+        'demo/contacts/group.xml',
         'demo/organization/teaching.xml',   
         'demo/organization/company.xml',           
         

@@ -29,7 +29,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_formative_unit__acronym
 #: model:ir.model.fields,field_description:ims.field_ims_level__acronym
 #: model:ir.model.fields,field_description:ims.field_ims_professional_module__acronym
-#: model:ir.model.fields,field_description:ims.field_ims_student_group__acronym
+#: model:ir.model.fields,field_description:ims.field_ims_group__acronym
 #: model:ir.model.fields,field_description:ims.field_ims_study__acronym
 msgid "Acronym"
 msgstr ""
@@ -119,7 +119,7 @@ msgstr ""
 #. module: ims
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_group__classroom
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_template__classroom
-#: model:ir.model.fields,field_description:ims.field_ims_student_group__classroom
+#: model:ir.model.fields,field_description:ims.field_ims_group__classroom
 #: model_terms:ir.ui.view,arch_db:ims.view_ims_classroom_form
 msgid "Classroom"
 msgstr ""
@@ -211,7 +211,7 @@ msgid "Corporate person: Collects personal and corporative data."
 msgstr ""
 
 #. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_student_group__course
+#: model:ir.model.fields,field_description:ims.field_ims_group__course
 msgid "Course"
 msgstr ""
 
@@ -231,7 +231,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_professional_module__create_uid
 #: model:ir.model.fields,field_description:ims.field_ims_provider__create_uid
 #: model:ir.model.fields,field_description:ims.field_ims_student__create_uid
-#: model:ir.model.fields,field_description:ims.field_ims_student_group__create_uid
+#: model:ir.model.fields,field_description:ims.field_ims_group__create_uid
 #: model:ir.model.fields,field_description:ims.field_ims_study__create_uid
 #: model:ir.model.fields,field_description:ims.field_ims_teacher__create_uid
 #: model:ir.model.fields,field_description:ims.field_ims_role__create_uid
@@ -256,7 +256,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_professional_module__create_date
 #: model:ir.model.fields,field_description:ims.field_ims_provider__create_date
 #: model:ir.model.fields,field_description:ims.field_ims_student__create_date
-#: model:ir.model.fields,field_description:ims.field_ims_student_group__create_date
+#: model:ir.model.fields,field_description:ims.field_ims_group__create_date
 #: model:ir.model.fields,field_description:ims.field_ims_study__create_date
 #: model:ir.model.fields,field_description:ims.field_ims_teacher__create_date
 #: model:ir.model.fields,field_description:ims.field_ims_role__create_date
@@ -281,7 +281,7 @@ msgid "Delay"
 msgstr ""
 
 #. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_student_group__delegate
+#: model:ir.model.fields,field_description:ims.field_ims_group__delegate
 msgid "Delegate"
 msgstr ""
 
@@ -306,7 +306,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_professional_module__display_name
 #: model:ir.model.fields,field_description:ims.field_ims_provider__display_name
 #: model:ir.model.fields,field_description:ims.field_ims_student__display_name
-#: model:ir.model.fields,field_description:ims.field_ims_student_group__display_name
+#: model:ir.model.fields,field_description:ims.field_ims_group__display_name
 #: model:ir.model.fields,field_description:ims.field_ims_study__display_name
 #: model:ir.model.fields,field_description:ims.field_ims_teacher__display_name
 #: model:ir.model.fields,field_description:ims.field_ims_role__display_name
@@ -430,14 +430,14 @@ msgid "Group"
 msgstr ""
 
 #. module: ims
-#: model:ir.actions.act_window,name:ims.action_student_group_tree
-#: model:ir.ui.menu,name:ims.menu_student_groups
+#: model:ir.actions.act_window,name:ims.action_group_tree
+#: model:ir.ui.menu,name:ims.menu_groups
 msgid "Groups (for students)"
 msgstr ""
 
 #. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__student_group
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_session__student_group
+#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__group
+#: model:ir.model.fields,field_description:ims.field_ims_attendance_session__group
 msgid "Grup"
 msgstr ""
 
@@ -467,7 +467,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_professional_module__id
 #: model:ir.model.fields,field_description:ims.field_ims_provider__id
 #: model:ir.model.fields,field_description:ims.field_ims_student__id
-#: model:ir.model.fields,field_description:ims.field_ims_student_group__id
+#: model:ir.model.fields,field_description:ims.field_ims_group__id
 #: model:ir.model.fields,field_description:ims.field_ims_study__id
 #: model:ir.model.fields,field_description:ims.field_ims_teacher__id
 #: model:ir.model.fields,field_description:ims.field_ims_role__id
@@ -513,7 +513,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_professional_module____last_update
 #: model:ir.model.fields,field_description:ims.field_ims_provider____last_update
 #: model:ir.model.fields,field_description:ims.field_ims_student____last_update
-#: model:ir.model.fields,field_description:ims.field_ims_student_group____last_update
+#: model:ir.model.fields,field_description:ims.field_ims_group____last_update
 #: model:ir.model.fields,field_description:ims.field_ims_study____last_update
 #: model:ir.model.fields,field_description:ims.field_ims_teacher____last_update
 #: model:ir.model.fields,field_description:ims.field_ims_role____last_update
@@ -538,7 +538,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_professional_module__write_uid
 #: model:ir.model.fields,field_description:ims.field_ims_provider__write_uid
 #: model:ir.model.fields,field_description:ims.field_ims_student__write_uid
-#: model:ir.model.fields,field_description:ims.field_ims_student_group__write_uid
+#: model:ir.model.fields,field_description:ims.field_ims_group__write_uid
 #: model:ir.model.fields,field_description:ims.field_ims_study__write_uid
 #: model:ir.model.fields,field_description:ims.field_ims_teacher__write_uid
 #: model:ir.model.fields,field_description:ims.field_ims_role__write_uid
@@ -563,7 +563,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_professional_module__write_date
 #: model:ir.model.fields,field_description:ims.field_ims_provider__write_date
 #: model:ir.model.fields,field_description:ims.field_ims_student__write_date
-#: model:ir.model.fields,field_description:ims.field_ims_student_group__write_date
+#: model:ir.model.fields,field_description:ims.field_ims_group__write_date
 #: model:ir.model.fields,field_description:ims.field_ims_study__write_date
 #: model:ir.model.fields,field_description:ims.field_ims_teacher__write_date
 #: model:ir.model.fields,field_description:ims.field_ims_role__write_date
@@ -640,7 +640,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_professional_module__name
 #: model:ir.model.fields,field_description:ims.field_ims_provider__name
 #: model:ir.model.fields,field_description:ims.field_ims_student__name
-#: model:ir.model.fields,field_description:ims.field_ims_student_group__name
+#: model:ir.model.fields,field_description:ims.field_ims_group__name
 #: model:ir.model.fields,field_description:ims.field_ims_study__name
 #: model:ir.model.fields,field_description:ims.field_ims_teacher__name
 #: model:ir.model.fields,field_description:ims.field_ims_role__name
@@ -660,7 +660,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_professional_module__notes
 #: model:ir.model.fields,field_description:ims.field_ims_provider__notes
 #: model:ir.model.fields,field_description:ims.field_ims_student__notes
-#: model:ir.model.fields,field_description:ims.field_ims_student_group__notes
+#: model:ir.model.fields,field_description:ims.field_ims_group__notes
 #: model:ir.model.fields,field_description:ims.field_ims_study__notes
 #: model:ir.model.fields,field_description:ims.field_ims_teacher__notes
 #: model:ir.model.fields,field_description:ims.field_ims_role__notes
@@ -880,7 +880,7 @@ msgid "Student"
 msgstr ""
 
 #. module: ims
-#: model:ir.model,name:ims.model_ims_student_group
+#: model:ir.model,name:ims.model_ims_group
 msgid "Student Groups: Where the students are assigned to."
 msgstr ""
 
@@ -896,7 +896,7 @@ msgstr ""
 
 #. module: ims
 #: model:ir.actions.act_window,name:ims.action_student_tree
-#: model:ir.model.fields,field_description:ims.field_ims_student_group__students
+#: model:ir.model.fields,field_description:ims.field_ims_group__students
 #: model:ir.ui.menu,name:ims.menu_students
 #: model_terms:ir.ui.view,arch_db:ims.view_ims_group_form
 msgid "Students"
@@ -915,7 +915,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_group__study
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_template__study
 #: model:ir.model.fields,field_description:ims.field_ims_professional_module__study
-#: model:ir.model.fields,field_description:ims.field_ims_student_group__study
+#: model:ir.model.fields,field_description:ims.field_ims_group__study
 #: model:ir.model.fields,field_description:ims.field_ims_tracking__study
 #: model_terms:ir.ui.view,arch_db:ims.mp_search
 msgid "Study"
@@ -1022,7 +1022,7 @@ msgstr ""
 
 #. module: ims
 #: model:ir.model.fields,field_description:ims.field_ims_student__tutor
-#: model:ir.model.fields,field_description:ims.field_ims_student_group__tutor
+#: model:ir.model.fields,field_description:ims.field_ims_group__tutor
 msgid "Tutor"
 msgstr ""
 

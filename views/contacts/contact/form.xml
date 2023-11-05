@@ -13,7 +13,19 @@
                 
                 <field name="parent_id" position="attributes">
                     <attribute name="attrs">{'invisible': ['|', ('contact_type', '!=', 'provider'), '|', '&amp;', ('is_company','=', True),('parent_id', '=', False),('company_name', '!=', False),('company_name', '!=', '')]}</attribute>
-                </field>                                                
+                </field>
+
+                <xpath expr="//page[@name='sales_purchases']" position="attributes">                     
+                    <attribute name="attrs">{'invisible': [('contact_type', '!=', 'provider')]}</attribute>
+                </xpath>     
+
+                <xpath expr="//page[@name='sales_purchases']" position="after">                     
+                    <page name="studies" string="Studies" attrs="{'invisible': [('contact_type', '!=', 'student')]}">
+                        <group>
+
+                        </group>
+                    </page>
+                </xpath>                                                
             </field>		      
         </record>   
     </data>
