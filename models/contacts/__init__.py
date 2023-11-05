@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
 
-from . import (contact, group)
+from . import (contact, group, enrollment)

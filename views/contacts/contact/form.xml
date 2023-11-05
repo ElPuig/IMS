@@ -4,12 +4,7 @@
             <field name="name">ims.contcat.form</field>
             <field name="model">res.partner</field>            
             <field name="inherit_id" ref="base.view_partner_form"/> 
-            <field name="arch" type="xml">        
-                <!-- 
-                    TODO: 
-                        Stuents: display the enrollment data (new 'enrollment' model, assigned to N 'teachings')
-                -->
-
+            <field name="arch" type="xml">                       
                 <field name="company_type" position="replace" />
                 <field name="vat" position="after">                    
                     <field name="contact_type"/>
@@ -27,12 +22,21 @@
                 <xpath expr="//page[@name='sales_purchases']" position="after">                     
                     <page name="studies" string="Studies" attrs="{'invisible': [('contact_type', '!=', 'student')]}">
                         <group cols="2">
+                            <separator name="group" string="Group Data"/>
                             <group>
                                 <field name="main_group_id" />
                             </group>
                             <group>
                                 <field name="tutor" readonly="1" />
                             </group>
+
+                            <separator name="enrollment" string="Enrollment Data"/>
+                            <field name="enrollment_ids" string="">
+                                <tree editable="bottom">
+                                    <field name="formative_unit_id"/>
+                                    <field name="group_id"/>
+                                </tree>
+                            </field>
                         </group>
                     </page>
                 </xpath>                                                
