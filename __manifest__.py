@@ -84,10 +84,10 @@
 
         'demo/facilities/classroom.xml',         
 
-        'demo/contacts/group.xml',
-        'demo/organization/teaching.xml',   
-        'demo/organization/company.xml',           
+        'demo/contacts/group.xml',        
+        'demo/contacts/company.xml',           
         
+        'demo/employees/teaching.xml',   
         'demo/employees/job.xml',
         'demo/employees/department.xml',
         'demo/employees/work_location.xml',
