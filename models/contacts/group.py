@@ -11,17 +11,15 @@ class ims_group(models.Model):
 	name=fields.Char(string='Name',compute='_compute_name') #should not be edited manually
 	notes = fields.Text(string="Notes")
 
-	study = fields.Many2one(string="Study", comodel_name="ims.study", required="true")
-	tutor = fields.Many2one(string="Tutor", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")	
+	study_id = fields.Many2one(string="Study", comodel_name="ims.study", required="true")
+	tutor_id = fields.Many2one(string="Tutor", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
 	
-	# newtutor = fields.Many2one(string="New Tutor", comodel_name="hr.employee", domain="[('job_id', '=', 'teacher')]")
-	
-	delegate = fields.Many2one(string="Delegate", comodel_name="res.partner")	
-	classroom = fields.Many2one(string="Classroom", comodel_name="ims.classroom")
+	delegate_id = fields.Many2one(string="Delegate", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")	
+	classroom_id = fields.Many2one(string="Classroom", comodel_name="ims.classroom")
 
-	students = fields.One2many(string="Students", comodel_name="res.partner", inverse_name="main_group_id")
+	student_ids = fields.One2many(string="Students", comodel_name="res.partner", inverse_name="main_group_id", domain="[('contact_type', '=', 'student')]")	
 	
-	@api.depends("study.acronym", "course", "acronym")
+	@api.depends("study_id.acronym", "course", "acronym")
 	def _compute_name(self):
 		for rec in self:
-			rec.name = '%s%s%s' % (rec.study.acronym, rec.course, rec.acronym)
+			rec.name = '%s%s%s' % (rec.study_id.acronym, rec.course, rec.acronym)

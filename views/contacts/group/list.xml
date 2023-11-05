@@ -6,9 +6,9 @@
             <field name="arch" type="xml">
                 <tree expand="1" default_order="name asc">      
                     <field name="name" string="Group"/>
-                    <field name="classroom"/>
-                    <field name="tutor"/>
-                    <field name="delegate"/>
+                    <field name="classroom_id"/>
+                    <field name="tutor_id"/>
+                    <field name="delegate_id"/>
                 </tree>
             </field>
         </record>   

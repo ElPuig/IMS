@@ -13,7 +13,7 @@ class ims_contact(models.Model):
     @api.depends("main_group_id")
     def _tutor(self):	
         for rec in self:			
-            rec.tutor = rec.main_group_id.tutor.name
+            rec.tutor = rec.main_group_id.tutor_id.name
             
             if rec.tutor == "False":
                 rec.tutor = "None"    
