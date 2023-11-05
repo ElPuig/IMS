@@ -10,7 +10,7 @@ class ims_tracking(models.Model):
 	notes = fields.Text('Notes')
 
 	teacher = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
-	student = fields.Many2one(string="Student", comodel_name="ims.student")
+	student = fields.Many2one(string="Student", comodel_name="res.partner")
 	study = fields.Many2one(string="Study", comodel_name="ims.study")
 	professional_module = fields.Many2one(string="Professional Module", comodel_name="ims.professional_module")
 	formative_unit = fields.Many2one(string="Formative Unit", comodel_name="ims.formative_unit")

@@ -7,7 +7,6 @@ ims.access_ims_role,access_ims_role,ims.model_ims_role,ims_group_admin,1,1,1,1
 ims.access_ims_group,access_ims_group,ims.model_ims_group,ims_group_admin,1,1,1,1
 ims.access_ims_person,access_ims_person,ims.model_ims_person,ims_group_admin,1,1,1,1
 ims.access_ims_corporate_person,access_ims_corporate_person,ims.model_ims_corporate_person,ims_group_admin,1,1,1,1
-ims.access_ims_student,access_ims_student,ims.model_ims_student,ims_group_admin,1,1,1,1
 ims.access_ims_study,access_ims_study,ims.model_ims_study,ims_group_admin,1,1,1,1
 ims.access_ims_formative_unit,access_ims_formative_unit,ims.model_ims_formative_unit,ims_group_admin,1,1,1,1
 ims.access_ims_attendance_template,access_ims_attendance_template,ims.model_ims_attendance_template,ims_group_admin,1,1,1,1

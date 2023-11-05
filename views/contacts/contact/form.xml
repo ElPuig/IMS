@@ -21,8 +21,13 @@
 
                 <xpath expr="//page[@name='sales_purchases']" position="after">                     
                     <page name="studies" string="Studies" attrs="{'invisible': [('contact_type', '!=', 'student')]}">
-                        <group>
-
+                        <group cols="2">
+                            <group>
+                                <field name="main_group_id" />
+                            </group>
+                            <group>
+                                <field name="tutor" readonly="1" />
+                            </group>
                         </group>
                     </page>
                 </xpath>                                                

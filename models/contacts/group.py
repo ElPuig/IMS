@@ -16,10 +16,10 @@ class ims_group(models.Model):
 	
 	# newtutor = fields.Many2one(string="New Tutor", comodel_name="hr.employee", domain="[('job_id', '=', 'teacher')]")
 	
-	delegate = fields.Many2one(string="Delegate", comodel_name="ims.student")	
+	delegate = fields.Many2one(string="Delegate", comodel_name="res.partner")	
 	classroom = fields.Many2one(string="Classroom", comodel_name="ims.classroom")
 
-	students = fields.One2many(string="Students", comodel_name="ims.student", inverse_name="group")
+	students = fields.One2many(string="Students", comodel_name="res.partner", inverse_name="main_group_id")
 	
 	@api.depends("study.acronym", "course", "acronym")
 	def _compute_name(self):

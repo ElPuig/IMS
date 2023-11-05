@@ -61,10 +61,7 @@
 
         'views/employees/job/list.xml',
         'views/employees/job/form.xml',
-
-        'views/people/student/list.xml',
-        'views/people/student/form.xml',
-        'views/people/student/kanban.xml',
+        
         'views/people/tracking/list.xml',
         'views/people/tracking/form.xml',
         'views/people/provider/list.xml',
