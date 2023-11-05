@@ -5,6 +5,12 @@
             <field name="model">res.partner</field>            
             <field name="inherit_id" ref="base.view_partner_tree"/> 
             <field name="arch" type="xml">        
+                 <!-- 
+                    TODO: 
+                        Stuents: display the left panel with the student groups (as the employees does with the departments).
+                        Providers: as the students, but with companies
+                -->
+
                 <xpath expr="//tree" position="inside">                     
                     <field name="contact_type" invisible="1" />
                 </xpath>                               

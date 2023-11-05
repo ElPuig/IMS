@@ -7,9 +7,8 @@
             <field name="arch" type="xml">        
                 <!-- 
                     TODO: 
-                        Stuents: display the left panel with the student groups (as the employees does with the departments).
-                        Providers: as the students, but with companies
-                 -->
+                        Stuents: display the enrollment data (use the 'teaching' model, adding the student)
+                -->
 
                 <field name="company_type" position="replace" />
                 <field name="vat" position="after">                    

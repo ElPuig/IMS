@@ -21,6 +21,6 @@ class ims_formative_unit(models.Model):
 
         result = []	
         for rec in self:
-            result.append((rec.id, '%s %s %s: %s' % (rec.professional_module_id.study.acronym, rec.professional_module_id.acronym, rec.acronym, rec.name)))
+            result.append((rec.id, '%s %s %s: %s' % (rec.professional_module_id.study_id.acronym, rec.professional_module_id.acronym, rec.acronym, rec.name)))
             
         return result
