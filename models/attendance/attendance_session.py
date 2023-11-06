@@ -31,4 +31,12 @@ class ims_attendance_session(models.Model):
 				'status' : '1'
 			})
 
+	def GenerateStatuses (self, session):
+		for student in self.attendance_group.attendance_templates.student:
+			status = self.env['ims.attendance_status'].create({
+				'attendance_session': self.id,
+				'student' : student.id,
+				'status' : '1'
+			})
+
 			

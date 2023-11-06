@@ -54,6 +54,12 @@
                             class="oe_highlight"
                             attrs="{'invisible': [('hasTemplates', '=', True)]}"
                             context="{'active_id': active_id, 'active_model': active_model}"
+                        />
+                        <button name="GenerateNextSession" 
+                            string="Generate Next Session" 
+                            type="object"
+                            class="oe_highlight"                            
+                            context="{'active_id': active_id, 'active_model': active_model}"
                         />                    
                     </sheet>	
                 </form>

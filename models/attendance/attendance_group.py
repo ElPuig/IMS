@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
+import datetime
 from odoo import models, fields, api
 
 class ims_attendance_group(models.Model):
 	_name = 'ims.attendance_group'
 	_description = 'Attendance templates linked to a student group that allows template batch generation'
 	_inherit = 'ims.attendance_template'
+	
 	
 	name = fields.Char("Name")
 
@@ -36,3 +38,42 @@ class ims_attendance_group(models.Model):
 				'color': self.color,
 				'attendance_group': self.id
 			})
+
+	#def GenerateSessions(self, initialDate, finalDate)
+		
+
+	def GenerateNextSession (self): #Generate next session with related attendances
+		weekday = int(self.weekday)
+		lastSessionDate = self.getLatestSessionDate()
+		newSession = self.env['ims.attendance_session'].create({
+			'date': self.nextDateByWeekday(weekday, lastSessionDate),
+			'start_time' : self.start_time,
+			'end_time': self.end_time,
+			'attendance_group': self.id,
+			'student_group': self.student_group.id
+		})
+
+		newSession.GenerateStatuses(newSession)
+		
+
+
+	def nextDateByWeekday (self, weekday, lastSessionDate):
+
+		#today = datetime.date.today()
+		currentWeekday = lastSessionDate.weekday() + 1  #Counting monday as 1
+		daysUntil = (weekday - currentWeekday + 7) % 7
+		if daysUntil <= 0:
+			daysUntil += 7
+		nextDate = (lastSessionDate + datetime.timedelta(days=daysUntil))
+		
+		return nextDate
+	
+	def getLatestSessionDate (self):
+		lastSessionDate = datetime.date.today() - datetime.timedelta(days=1)
+		lastSession = self.env['ims.attendance_session'].search(
+			[('attendance_group', '=', self.id)], order='date desc', limit=1)
+		if lastSession:
+			lastSessionDate = lastSession.date
+		
+
+		return lastSessionDate
