@@ -4,18 +4,13 @@
             <field name="name">ims.contcat.search</field>
             <field name="model">res.partner</field>            
             <field name="inherit_id" ref="base.view_res_partner_filter"/> 
-            <field name="arch" type="xml">                        
-                 <!-- 
-                    TODO: 
-                        Stuents: by group on the left panel
-                        Providers: by company on the left panel
-                        All: by type (sublevels???)
-                -->
-
+            <field name="arch" type="xml">                                         
                 <xpath expr="//group[@name='group_by']" position="after">                     
                      <searchpanel>
-                        <field name="company_id" groups="base.group_multi_company" icon="fa-building" enable_counters="1"/>
-                        <field name="contact_type" icon="fa-users" enable_counters="1"/>
+                        <field name="company_id" groups="base.group_multi_company" icon="fa-building" enable_counters="1"/>                  -->
+                        <field name="contact_type"                           icon="fa-users" enable_counters="1" invisible="context.get('default_contact_type', False)"/>
+                        <field name="main_group_id" string="Student group"   icon="fa-users" enable_counters="1" invisible="context.get('default_contact_type') != 'student'"/>
+                        <field name="commercial_partner_id" string="Company" icon="fa-users" enable_counters="1" invisible="context.get('default_contact_type') != 'provider'"/>
                     </searchpanel>
                 </xpath>                               
             </field>		      
