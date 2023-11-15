@@ -1,0 +1,21 @@
+<odoo>
+    <data>
+       <record id="teaching_1" model="ims.teaching">
+            <field name="teacher_id" ref="hr.employee_hne"/>
+            <field name="group_id" ref="ims.group_1"/>
+            <field name="formative_unit_id" ref="ims.formative_unit_7"/>
+        </record>
+        
+        <record id="teaching_2" model="ims.teaching">
+            <field name="teacher_id" ref="hr.employee_hne"/>
+            <field name="group_id" ref="ims.group_1"/>
+            <field name="formative_unit_id" ref="ims.formative_unit_8"/>
+        </record>
+
+        <record id="teaching_3" model="ims.teaching">
+            <field name="teacher_id" ref="hr.employee_hne"/>
+            <field name="group_id" ref="ims.group_1"/>
+            <field name="formative_unit_id" ref="ims.formative_unit_9"/>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,15 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_role_list">
+            <field name="name">ims.role.list</field>
+            <field name="model">ims.role</field>
+            <field name="arch" type="xml">
+                <tree expand="1" default_order="name asc">      
+                    <field name="name" string="Role" />
+                    <field name="employee_type" string="Assignable to" />
+                    <field name="employee_ids" string="Assigned to" widget="many2many_tags"/>
+                </tree>
+            </field>
+        </record>   
+    </data>
+</odoo>

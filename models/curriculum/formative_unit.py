@@ -11,16 +11,16 @@ class ims_formative_unit(models.Model):
     name = fields.Char(string="Name", required="true")
     notes = fields.Text("Notes")
 
-    professional_module = fields.Many2one(string="Professional Module", comodel_name="ims.professional_module")
+    professional_module_id = fields.Many2one(string="Professional Module", comodel_name="ims.professional_module")
 
-    teacher = fields.Many2one(string="Teacher", comodel_name="ims.teacher")
-    trackings = fields.One2many(string="Follow-up", comodel_name="ims.tracking", inverse_name="formative_unit")
+    teacher_id = fields.Many2one(string="teacher_id", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
+    tracking_ids = fields.One2many(string="Follow-up", comodel_name="ims.tracking", inverse_name="formative_unit_id")
 
     def name_get(self):
 		#Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
 
         result = []	
         for rec in self:
-            result.append((rec.id, '%s %s %s: %s' % (rec.professional_module.study.acronym, rec.professional_module.acronym, rec.acronym, rec.name)))
+            result.append((rec.id, '%s %s %s: %s' % (rec.professional_module_id.study_id.acronym, rec.professional_module_id.acronym, rec.acronym, rec.name)))
             
         return result

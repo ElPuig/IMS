@@ -1,0 +1,15 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_tracking_list">
+            <field name="name">ims.follow.list</field>
+            <field name="model">ims.tracking</field>
+            <field name="arch" type="xml">
+                <tree>                    
+                    <field name="student_id"/>
+                    <field name="teacher_id"/>
+                    <field name="notes"/>
+                </tree>
+            </field>
+        </record>   
+    </data>
+</odoo>

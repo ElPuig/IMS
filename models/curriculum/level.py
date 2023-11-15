@@ -8,6 +8,6 @@ class ims_level(models.Model):
 	
 	acronym = fields.Char(string="Acronym", required="true")
 	name = fields.Text(string="Name", required="true")
-	studies = fields.One2many(string="Studies", comodel_name="ims.study", inverse_name="level")
+	study_ids = fields.One2many(string="Studies", comodel_name="ims.study", inverse_name="level_id")
 
 	notes = fields.Text(string="Notes")

@@ -11,17 +11,17 @@ class ims_professional_module(models.Model):
 	name = fields.Char(string="Name", required="true")	
 	notes = fields.Text("Notes")
 	
-	study = fields.Many2one(string="Study", comodel_name="ims.study", required="true")
-	formative_units = fields.One2many(string="Formative Units", comodel_name="ims.formative_unit", inverse_name="professional_module")
+	study_id = fields.Many2one(string="Study", comodel_name="ims.study", required="true")
+	formative_unit_ids = fields.One2many(string="Formative Units", comodel_name="ims.formative_unit", inverse_name="professional_module_id")
 	
-	teacher = fields.Many2one(string="Teacher", comodel_name="ims.teacher")	
-	trackings = fields.One2many(string="Follow-ups", comodel_name="ims.tracking", inverse_name="professional_module")
+	teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
+	tracking_ids = fields.One2many(string="Follow-ups", comodel_name="ims.tracking", inverse_name="professional_module_id")
 
 	def name_get(self):
 		#Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
 
 		result = []	
 		for rec in self:
-			result.append((rec.id, '%s %s: %s' % (rec.study.acronym, rec.acronym, rec.name)))
+			result.append((rec.id, '%s %s: %s' % (rec.study_id.acronym, rec.acronym, rec.name)))
 			
 		return result

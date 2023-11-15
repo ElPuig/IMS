@@ -1,6 +1,6 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="ims_view_level_form">
+        <record model="ir.ui.view" id="view_level_form">
             <field name="name">ims.level.form</field>
             <field name="model">ims.level</field>
             <field name="arch" type="xml">
@@ -17,7 +17,7 @@
 
                         <notebook>
                             <page string="Studies">
-                                <field name="studies" widget="many2many">
+                                <field name="study_ids" widget="many2many">
                                     <tree>
                                         <field name="code"/>
                                         <field name="acronym"/>

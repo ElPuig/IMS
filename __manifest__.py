@@ -21,14 +21,13 @@
     'version': '0.9.0',
 
     # any module necessary for this one to work correctly
-    'depends': ['base_setup', 'auth_oauth'],
+    # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
+    'depends': ['base_setup', 'hr', 'hr_org_chart', 'auth_oauth', 'contacts', 'project', 'mass_mailing', 'survey'],
 
     # always loaded
    'data': [
         'security/groups.xml',        
-        'security/ir.model.access.csv',        
-
-        'templates/form_with_photo.xml',
+        'security/ir.model.access.csv',            
 
         'views/settings/form.xml',
 
@@ -42,41 +41,27 @@
         'views/curriculum/study/list.xml',
         'views/curriculum/study/form.xml',        
         'views/curriculum/level/list.xml',
-        'views/curriculum/level/form.xml',
+        'views/curriculum/level/form.xml',              
 
-        'views/people/person/list.xml',
-        'views/people/person/form.xml',
-        'views/people/person/kanban.xml',
-        'views/people/corporate_person/list.xml',
-        'views/people/corporate_person/form.xml',
-        'views/people/corporate_person/kanban.xml',
-        'views/people/administrative/list.xml',
-        'views/people/administrative/form.xml',
-        'views/people/administrative/kanban.xml',
-        'views/people/teacher/list.xml',
-        'views/people/teacher/form.xml',
-        'views/people/teacher/kanban.xml',
-        'views/people/student/list.xml',
-        'views/people/student/form.xml',
-        'views/people/student/kanban.xml',
-        'views/people/tracking/list.xml',
-        'views/people/tracking/form.xml',
-        'views/people/provider/list.xml',
-        'views/people/provider/form.xml',
-        'views/people/provider/kanban.xml',
+        'views/employees/employee/kanban.xml',
+        'views/employees/employee/list.xml',
+        'views/employees/employee/form.xml',        
+        'views/employees/job/list.xml',
+        'views/employees/job/form.xml',
+        'views/employees/tracking/list.xml',
+        'views/employees/tracking/form.xml',        
 
         'views/facilities/classroom/list.xml',
         'views/facilities/classroom/form.xml',       
 
-        'views/organization/student_group/list.xml',
-        'views/organization/student_group/form.xml',
-        'views/organization/administrative_role/list.xml',
-        'views/organization/administrative_role/form.xml',
-        'views/organization/teacher_role/list.xml',
-        'views/organization/teacher_role/form.xml',
-        'views/organization/company/list.xml',
-        'views/organization/company/form.xml',
-        'views/organization/company/kanban.xml',
+        'views/contacts/contact/list.xml',
+        'views/contacts/contact/form.xml',
+        'views/contacts/contact/search.xml',
+        'views/contacts/contact/kanban.xml',
+        'views/contacts/group/list.xml',
+        'views/contacts/group/form.xml',        
+        'views/employees/role/list.xml',
+        'views/employees/role/form.xml',
 
         'views/attendance/attendance_template/list.xml',
         'views/attendance/attendance_template/form.xml',
@@ -99,19 +84,27 @@
         'demo/curriculum/professional_module.xml',
         'demo/curriculum/formative_unit.xml',
 
-        'demo/facilities/classroom.xml',
+        'demo/facilities/classroom.xml',         
+
+        'demo/contacts/group.xml',        
+        'demo/contacts/company.xml',        
         
-        'demo/organization/administrative_role.xml',
+        'demo/employees/teaching.xml',   
+        'demo/employees/job.xml',
+        'demo/employees/department.xml',
+        'demo/employees/work_location.xml',
+        'demo/employees/teacher.xml',
+        'demo/employees/pas.xml',
+        'demo/employees/role.xml', 
+        'demo/employees/employee.xml',   
 
-        'demo/people/administrative.xml',        
-        'demo/people/teacher.xml',
-
-        'demo/organization/student_group.xml',
-        'demo/organization/teaching.xml',   
-        'demo/organization/teacher_role.xml',   
-        'demo/organization/company.xml',   
-
-        'demo/people/provider.xml',
-        'demo/people/student.xml',
+        'demo/contacts/student.xml',
+        'demo/contacts/provider.xml',
+        'demo/contacts/enrollment.xml',
     ],   
+    'assets': {       
+        'web.assets_backend': [
+            'ims/static/src/fields/*',
+        ],
+    },
 }

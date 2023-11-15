@@ -9,8 +9,8 @@ class ims_attendance_template(models.Model):
 	start_time = fields.Float("Start Time")
 	end_time = fields.Float("End Time")
 
-	teacher = fields.Many2one(comodel_name="ims.teacher", string="Professor")
-	student = fields.Many2one(comodel_name="ims.student", string="Student")
+	teacher = fields.Many2one(comodel_name="hr.employee", string="Professor")
+	student = fields.Many2one(comodel_name="res.partner", string="Student")
 	study = fields.Many2one(comodel_name="ims.study", string="Study")
 	mp = fields.Many2one(comodel_name="ims.professional_module", string="Professional Module")
 	uf = fields.Many2one(comodel_name="ims.formative_unit", string="Formative Unit")

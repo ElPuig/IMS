@@ -1,6 +1,6 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="ims_view_formative_unit_form">
+        <record model="ir.ui.view" id="view_formative_unit_form">
             <field name="name">ims.formative_unit.form</field>
             <field name="model">ims.formative_unit</field>
             <field name="arch" type="xml">
@@ -8,7 +8,7 @@
                     <sheet>                      
                         <group string="Main data" col="3">
                             <group colspan="3">
-                                <field name="professional_module" options="{'model': 'ims.professional_module', 'field': ['code','name']}"/>
+                                <field name="professional_module_id" options="{'model': 'ims.professional_module_id', 'field': ['code','name']}"/>
                             </group>
                             <group>
                                 <field name="code"/>

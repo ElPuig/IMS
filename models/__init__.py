@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
 
-from . import (attendance, curriculum, facilities, people, organization, settings)
+from . import (attendance, curriculum, facilities, employees, contacts, settings)

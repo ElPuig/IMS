@@ -1,6 +1,6 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="ims_view_attendance_group_form">
+        <record model="ir.ui.view" id="view_attendance_group_form">
             <field name="name">ims.attendance.group.form</field>
             <field name="model">ims.attendance_group</field>
             <field name="arch" type="xml">
@@ -17,7 +17,7 @@
                             <field name="classroom"/>
                             <field name="weekday"/>
                             <field name="color" widget="color_picker"/>
-                            <field name="student_group"/>
+                            <field name="group"/>
                             <field name="hasTemplates" invisible="1"/>                                                                              
                         </group>
                         <notebook>
