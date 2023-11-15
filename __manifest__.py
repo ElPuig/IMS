@@ -57,6 +57,7 @@
         'views/contacts/contact/list.xml',
         'views/contacts/contact/form.xml',
         'views/contacts/contact/search.xml',
+        'views/contacts/contact/kanban.xml',
         'views/contacts/group/list.xml',
         'views/contacts/group/form.xml',        
         'views/employees/role/list.xml',

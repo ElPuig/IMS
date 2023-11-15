@@ -1,0 +1,23 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_contact_kanban">
+            <field name="name">ims.contact.kanban</field>
+            <field name="model">res.partner</field>           
+            <field name="inherit_id" ref="base.res_partner_kanban_view"/> 
+            <field name="arch" type="xml">  
+                <xpath expr="//kanban" position="inside">
+                    <!-- WARNING: All the Kanban fields must be included also as "fields" within the view. -->
+                    <field name="main_group_id"/>
+                    <field name="tutor"/>
+                </xpath>
+
+                <xpath expr="//div[hasclass('oe_kanban_partner_categories')]/following-sibling::ul" position="after">
+                    <field name="main_group_id" invisible="context.get('default_contact_type') != 'student'" />
+                    <span t-if="record.tutor.value != ''">
+                        (<t t-esc="record.tutor.value"/>)
+                    </span>    
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
