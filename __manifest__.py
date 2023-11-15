@@ -87,7 +87,7 @@
         'demo/facilities/classroom.xml',         
 
         'demo/contacts/group.xml',        
-        'demo/contacts/company.xml',           
+        'demo/contacts/company.xml',        
         
         'demo/employees/teaching.xml',   
         'demo/employees/job.xml',
@@ -98,8 +98,9 @@
         'demo/employees/role.xml', 
         'demo/employees/employee.xml',   
 
-        'demo/contacts/student.xml',   
-        'demo/contacts/provider.xml',         
+        'demo/contacts/student.xml',
+        'demo/contacts/provider.xml',
+        'demo/contacts/enrollment.xml',
     ],   
     'assets': {       
         'web.assets_backend': [
