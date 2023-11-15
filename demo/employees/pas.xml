@@ -1,11 +1,5 @@
 <odoo>
     <data>
-        <!-- 
-            TODO:   department, only Secretary or Concierjary available
-                    department by worktype
-                    
-         -->
-
         <record id="hr.employee_jep" model="hr.employee">
             <!-- <field name="department_id" ref="department_2"/> -->
             <field name="employee_type">asp</field>

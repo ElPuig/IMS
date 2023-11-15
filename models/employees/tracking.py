@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-#TODO: rename to 'tracking'
 from odoo import models, fields, api
 
 class ims_tracking(models.Model):
