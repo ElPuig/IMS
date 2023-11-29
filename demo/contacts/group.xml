@@ -5,7 +5,7 @@
             <field name="acronym">A</field>
             <field name="study_id" ref="study_1"/>
             <field name="tutor_id" ref="hr.employee_hne"/>
-            <field name="classroom_id" ref="classroom_2"/>            
+            <field name="room_id" ref="room_2"/>            
             <field name="notes"></field>
         </record>
 
@@ -14,7 +14,7 @@
             <field name="acronym">B</field>
             <field name="study_id" ref="study_1"/>
             <field name="tutor_id" ref="hr.employee_hne"/>
-            <field name="classroom_id" ref="classroom_5"/>            
+            <field name="room_id" ref="room_5"/>            
             <field name="notes"></field>
         </record>
 
@@ -23,7 +23,7 @@
             <field name="acronym">A</field>
             <field name="study_id" ref="study_1"/>
             <field name="tutor_id" ref="hr.employee_mit"/>
-            <field name="classroom_id" ref="classroom_3"/>            
+            <field name="room_id" ref="room_3"/>            
             <field name="notes"></field>
         </record>
     </data>

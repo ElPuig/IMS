@@ -9,7 +9,7 @@ class record(models.Model):
 	date = fields.Datetime(string="Date", required="true")
 	nature = fields.Selection(string="Nature", selection=[("Ordinary", "ordinary"), ("Extraordinary", "extraordinary")])
 	modality = fields.Selection(string="Modality", selection=[("In person", "in person"), ("Online", "online"), ("Hybrid", "hybrid")])
-	#place -> Many2one (users should be ablte to add places, like classroom or other facilities)
+	#place -> Many2one (users should be ablte to add places, like room or other facilities)
 	#assistances -> Many2one (usually teachers/employees... maybe also studens/contacts?)
 	#absents -> Many2one
 

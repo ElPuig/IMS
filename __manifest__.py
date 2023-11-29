@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '0.9.0',
+    'version': '0.10.0',
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -51,8 +51,8 @@
         'views/employees/tracking/list.xml',
         'views/employees/tracking/form.xml',        
 
-        'views/facilities/classroom/list.xml',
-        'views/facilities/classroom/form.xml',       
+        'views/facilities/room/list.xml',
+        'views/facilities/room/form.xml',       
 
         'views/contacts/contact/list.xml',
         'views/contacts/contact/form.xml',
@@ -84,7 +84,7 @@
         'demo/curriculum/professional_module.xml',
         'demo/curriculum/formative_unit.xml',
 
-        'demo/facilities/classroom.xml',         
+        'demo/facilities/room.xml',         
 
         'demo/contacts/group.xml',        
         'demo/contacts/company.xml',        

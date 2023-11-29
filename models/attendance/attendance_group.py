@@ -31,7 +31,7 @@ class ims_attendance_group(models.Model):
 				'mp': self.mp.id,
 				'uf': self.uf.id,
 				'level': self.level.id,
-				'classroom': self.classroom.id,
+				'room': self.room.id,
 				'weekday': self.weekday,
 				'color': self.color,
 				'attendance_group': self.id

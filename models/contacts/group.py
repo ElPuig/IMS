@@ -15,7 +15,7 @@ class ims_group(models.Model):
 	tutor_id = fields.Many2one(string="Tutor", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
 	
 	delegate_id = fields.Many2one(string="Delegate", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")	
-	classroom_id = fields.Many2one(string="Classroom", comodel_name="ims.classroom")
+	room_id = fields.Many2one(string="room", comodel_name="ims.room")
 
 	student_ids = fields.One2many(string="Students", comodel_name="res.partner", inverse_name="main_group_id", domain="[('contact_type', '=', 'student')]")	
 	

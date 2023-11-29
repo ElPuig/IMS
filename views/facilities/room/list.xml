@@ -1,8 +1,8 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_classroom_list">
-            <field name="name">ims.classroom.list</field>
-            <field name="model">ims.classroom</field>
+        <record model="ir.ui.view" id="view_room_list">
+            <field name="name">ims.room.list</field>
+            <field name="model">ims.room</field>
             <field name="arch" type="xml">
                 <tree expand="1" default_order="code asc">                           
                     <field name="code"/>
