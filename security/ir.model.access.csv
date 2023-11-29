@@ -1,5 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-ims.access_ims_room,access_ims_room,ims.model_ims_room,ims_group_admin,1,1,1,1
+ims.access_ims_space,access_ims_space,ims.model_ims_space,ims_group_admin,1,1,1,1
 ims.access_ims_tracking,access_ims_tracking,ims.model_ims_tracking,ims_group_admin,1,1,1,1
 ims.access_ims_level,access_ims_level,ims.model_ims_level,ims_group_admin,1,1,1,1
 ims.access_ims_professional_module,access_ims_professional_module,ims.model_ims_professional_module,ims_group_admin,1,1,1,1

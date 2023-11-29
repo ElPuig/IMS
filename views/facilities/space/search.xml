@@ -1,0 +1,18 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_space_search">
+            <field name="name">ims.space.search</field>
+            <field name="model">ims.space</field>            
+            <field name="arch" type="xml">                                         
+                <search string="Search Partner">
+                    <field name="name" filter_domain="['|', '|', '|', '|', ('display_name', 'ilike', self), ('ref', '=', self), ('email', 'ilike', self), ('vat', 'ilike', self), ('company_registry', 'ilike', self)]"/>                    
+                    <field name="type"/>                    
+                    <separator/>
+                    <group expand="0" name="group_by" string="Group By">
+                        <field name="type" icon="fa-users" enable_counters="1" />
+                    </group>
+                </search>                 
+            </field>		      
+        </record>   
+    </data>
+</odoo>

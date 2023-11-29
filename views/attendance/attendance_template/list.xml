@@ -12,7 +12,7 @@
                     <field name="study"/>
                     <field name="mp"/>
                     <field name="uf"/>
-                    <field name="room"/>
+                    <field name="space"/>
                     <field name="weekday"/>
                     <field name="color" widget="color_picker"/>
                     <field name="attendance_group"/>                    

@@ -1,63 +1,63 @@
 <odoo>
     <data>
-       <record id="room_1" model="ims.room">
+       <record id="space_1" model="ims.space">
             <field name="code">0.13</field>
             <field name="name">Chomsky</field>
-            <field name="type">Classroom</field>
+            <field name="type">classspace</field>
         </record>
 
-        <record id="room_2" model="ims.room">
+        <record id="space_2" model="ims.space">
             <field name="code">0.19</field>
             <field name="name">Tesla</field>
-            <field name="type">Classroom</field>
+            <field name="type">classspace</field>
         </record>
 
-        <record id="room_3" model="ims.room">
+        <record id="space_3" model="ims.space">
             <field name="code">0.18</field>
             <field name="name">Torvalds</field>
-            <field name="type">Classroom</field>
+            <field name="type">classspace</field>
         </record>
 
-        <record id="room_4" model="ims.room">
+        <record id="space_4" model="ims.space">
             <field name="code">0.01</field>
             <field name="name">Stallman</field>
-            <field name="type">Classroom</field>
+            <field name="type">classspace</field>
         </record>
 
-        <record id="room_5" model="ims.room">
+        <record id="space_5" model="ims.space">
             <field name="code">2.08</field>
             <field name="name">Berners-Lee</field>
-            <field name="type">Classroom</field>
+            <field name="type">classspace</field>
         </record>
 
-        <record id="room_6" model="ims.room">
+        <record id="space_6" model="ims.space">
             <field name="code">2.10</field>
             <field name="name">Ada</field>
-            <field name="type">Classroom</field>
+            <field name="type">classspace</field>
         </record>
 
-        <record id="room_7" model="ims.room">
+        <record id="space_7" model="ims.space">
             <field name="code">2.09</field>
             <field name="name">Snowden</field>
-            <field name="type">Classroom</field>
+            <field name="type">classspace</field>
         </record>
 
-        <record id="room_8" model="ims.room">
+        <record id="space_8" model="ims.space">
             <field name="code">3.03</field>
             <field name="name">Turing</field>
-            <field name="type">Classroom</field>
+            <field name="type">classspace</field>
         </record>
 
-        <record id="room_9" model="ims.room">
+        <record id="space_9" model="ims.space">
             <field name="code">-1.03</field>
             <field name="name">Gym</field>
-            <field name="type">Equipment</field>
+            <field name="type">equipment</field>
         </record>
 
-         <record id="room_10" model="ims.room">
+         <record id="space_10" model="ims.space">
             <field name="code">1.12</field>
             <field name="name">Principal's office</field>
-            <field name="type">Office</field>
+            <field name="type">office</field>
         </record>
     </data>
 </odoo>

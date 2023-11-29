@@ -117,22 +117,22 @@ msgid "Basic data"
 msgstr ""
 
 #. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__room
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_template__room
-#: model:ir.model.fields,field_description:ims.field_ims_group__room
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_room_form
-msgid "room"
+#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__space
+#: model:ir.model.fields,field_description:ims.field_ims_attendance_template__space
+#: model:ir.model.fields,field_description:ims.field_ims_group__space
+#: model_terms:ir.ui.view,arch_db:ims.view_ims_space_form
+msgid "space"
 msgstr ""
 
 #. module: ims
-#: model:ir.model,name:ims.model_ims_room
-msgid "room: where each student group are assigned to."
+#: model:ir.model,name:ims.model_ims_space
+msgid "space: where each student group are assigned to."
 msgstr ""
 
 #. module: ims
-#: model:ir.actions.act_window,name:ims.action_room_tree
-#: model:ir.ui.menu,name:ims.menu_rooms
-msgid "rooms"
+#: model:ir.actions.act_window,name:ims.action_space_tree
+#: model:ir.ui.menu,name:ims.menu_spaces
+msgid "spaces"
 msgstr ""
 
 #. module: ims
@@ -222,7 +222,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_session__create_uid
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_status__create_uid
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_template__create_uid
-#: model:ir.model.fields,field_description:ims.field_ims_room__create_uid
+#: model:ir.model.fields,field_description:ims.field_ims_space__create_uid
 #: model:ir.model.fields,field_description:ims.field_ims_company__create_uid
 #: model:ir.model.fields,field_description:ims.field_ims_corporate_person__create_uid
 #: model:ir.model.fields,field_description:ims.field_ims_formative_unit__create_uid
@@ -247,7 +247,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_session__create_date
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_status__create_date
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_template__create_date
-#: model:ir.model.fields,field_description:ims.field_ims_room__create_date
+#: model:ir.model.fields,field_description:ims.field_ims_space__create_date
 #: model:ir.model.fields,field_description:ims.field_ims_company__create_date
 #: model:ir.model.fields,field_description:ims.field_ims_corporate_person__create_date
 #: model:ir.model.fields,field_description:ims.field_ims_formative_unit__create_date
@@ -297,7 +297,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_session__display_name
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_status__display_name
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_template__display_name
-#: model:ir.model.fields,field_description:ims.field_ims_room__display_name
+#: model:ir.model.fields,field_description:ims.field_ims_space__display_name
 #: model:ir.model.fields,field_description:ims.field_ims_company__display_name
 #: model:ir.model.fields,field_description:ims.field_ims_corporate_person__display_name
 #: model:ir.model.fields,field_description:ims.field_ims_formative_unit__display_name
@@ -458,7 +458,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_session__id
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_status__id
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_template__id
-#: model:ir.model.fields,field_description:ims.field_ims_room__id
+#: model:ir.model.fields,field_description:ims.field_ims_space__id
 #: model:ir.model.fields,field_description:ims.field_ims_company__id
 #: model:ir.model.fields,field_description:ims.field_ims_corporate_person__id
 #: model:ir.model.fields,field_description:ims.field_ims_formative_unit__id
@@ -504,7 +504,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_session____last_update
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_status____last_update
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_template____last_update
-#: model:ir.model.fields,field_description:ims.field_ims_room____last_update
+#: model:ir.model.fields,field_description:ims.field_ims_space____last_update
 #: model:ir.model.fields,field_description:ims.field_ims_company____last_update
 #: model:ir.model.fields,field_description:ims.field_ims_corporate_person____last_update
 #: model:ir.model.fields,field_description:ims.field_ims_formative_unit____last_update
@@ -529,7 +529,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_session__write_uid
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_status__write_uid
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_template__write_uid
-#: model:ir.model.fields,field_description:ims.field_ims_room__write_uid
+#: model:ir.model.fields,field_description:ims.field_ims_space__write_uid
 #: model:ir.model.fields,field_description:ims.field_ims_company__write_uid
 #: model:ir.model.fields,field_description:ims.field_ims_corporate_person__write_uid
 #: model:ir.model.fields,field_description:ims.field_ims_formative_unit__write_uid
@@ -554,7 +554,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_session__write_date
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_status__write_date
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_template__write_date
-#: model:ir.model.fields,field_description:ims.field_ims_room__write_date
+#: model:ir.model.fields,field_description:ims.field_ims_space__write_date
 #: model:ir.model.fields,field_description:ims.field_ims_company__write_date
 #: model:ir.model.fields,field_description:ims.field_ims_corporate_person__write_date
 #: model:ir.model.fields,field_description:ims.field_ims_formative_unit__write_date
@@ -594,7 +594,7 @@ msgstr ""
 
 #. module: ims
 #: model_terms:ir.ui.view,arch_db:ims.view_ims_administrative_role_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_room_form
+#: model_terms:ir.ui.view,arch_db:ims.view_ims_space_form
 #: model_terms:ir.ui.view,arch_db:ims.view_ims_company_form
 #: model_terms:ir.ui.view,arch_db:ims.view_ims_formative_unit_form
 #: model_terms:ir.ui.view,arch_db:ims.view_ims_group_form
@@ -631,7 +631,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ims.field_ims_administrative__name
 #: model:ir.model.fields,field_description:ims.field_ims_administrative_role__name
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_group__name
-#: model:ir.model.fields,field_description:ims.field_ims_room__name
+#: model:ir.model.fields,field_description:ims.field_ims_space__name
 #: model:ir.model.fields,field_description:ims.field_ims_company__name
 #: model:ir.model.fields,field_description:ims.field_ims_corporate_person__name
 #: model:ir.model.fields,field_description:ims.field_ims_formative_unit__name
@@ -679,7 +679,7 @@ msgid "Notes"
 msgstr ""
 
 #. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_room__code
+#: model:ir.model.fields,field_description:ims.field_ims_space__code
 msgid "Numeric Code"
 msgstr ""
 

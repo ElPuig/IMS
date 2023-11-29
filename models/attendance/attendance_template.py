@@ -15,7 +15,7 @@ class ims_attendance_template(models.Model):
 	mp = fields.Many2one(comodel_name="ims.professional_module", string="Professional Module")
 	uf = fields.Many2one(comodel_name="ims.formative_unit", string="Formative Unit")
 	level = fields.Many2one(comodel_name="ims.level", string="Level")
-	room = fields.Many2one(comodel_name="ims.room", string="room")
+	space = fields.Many2one(comodel_name="ims.space", string="space")
 	weekday = fields.Selection([
 		('1', 'Monday'),
         ('2', 'Tuesday'),

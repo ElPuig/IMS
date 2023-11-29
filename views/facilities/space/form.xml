@@ -1,10 +1,10 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_room_form">
-            <field name="name">ims.room.form</field>
-            <field name="model">ims.room</field>
+        <record model="ir.ui.view" id="view_space_form">
+            <field name="name">ims.space.form</field>
+            <field name="model">ims.space</field>
             <field name="arch" type="xml">
-                <form string="room">
+                <form string="space">
                     <sheet>
                         <group string="Main data" col="4">
                             <group>

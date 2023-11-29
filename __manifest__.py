@@ -51,8 +51,9 @@
         'views/employees/tracking/list.xml',
         'views/employees/tracking/form.xml',        
 
-        'views/facilities/room/list.xml',
-        'views/facilities/room/form.xml',       
+        'views/facilities/space/list.xml',
+        'views/facilities/space/form.xml',
+        'views/facilities/space/search.xml',       
 
         'views/contacts/contact/list.xml',
         'views/contacts/contact/form.xml',
@@ -84,7 +85,7 @@
         'demo/curriculum/professional_module.xml',
         'demo/curriculum/formative_unit.xml',
 
-        'demo/facilities/room.xml',         
+        'demo/facilities/space.xml',         
 
         'demo/contacts/group.xml',        
         'demo/contacts/company.xml',        
