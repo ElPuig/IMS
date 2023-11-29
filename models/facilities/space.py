@@ -8,5 +8,5 @@ class ims_space(models.Model):
 	
 	code = fields.Char(string="Numeric Code", required="true")
 	name = fields.Char(string="Name", required="true")
-	type = fields.Selection(string="Type", selection=[("classspace", "Classspace"), ("equipment", "Equipment"), ("laboratory", "Laboratory"), ("office", "Office"), ("workshop", "Workshop")], required="true")
+	type = fields.Selection(string="Type", selection=[("classroom", "Classroom"), ("equipment", "Equipment"), ("laboratory", "Laboratory"), ("office", "Office"), ("workshop", "Workshop")], required="true")
 
