@@ -13,6 +13,8 @@ class record(models.Model):
 	assistant_ids = fields.Many2many(string="Assistants", comodel_name='res.partner') 
 	abstent_ids = fields.Many2many(string="Abstents", comodel_name='res.partner') 
 
+	#TODO: Should also set the permissions for the record (department and also workgroup <-- NEW)
+
 	#index -> should be computed using the record section but some content is fixed
 	#	1. Last record approval (if exists).
 	#	2. Last agreements review.
