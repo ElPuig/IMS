@@ -53,7 +53,9 @@
 
         'views/facilities/space/list.xml',
         'views/facilities/space/form.xml',
-        'views/facilities/space/search.xml',       
+        'views/facilities/space/search.xml',
+        'views/facilities/space_type/list.xml',
+        'views/facilities/space_type/form.xml',
 
         'views/contacts/contact/list.xml',
         'views/contacts/contact/form.xml',

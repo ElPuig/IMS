@@ -50,6 +50,12 @@
             <field name="view_mode">tree,form</field>
         </record>
 
+        <record model="ir.actions.act_window" id="action_space_type_tree">
+            <field name="name">Space Types</field>
+            <field name="res_model">ims.space_type</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
         <record model="ir.actions.act_window" id="action_group_tree">
             <field name="name">Groups (for students)</field>
             <field name="res_model">ims.group</field>
@@ -122,7 +128,9 @@
             <menuitem name="FUs"        sequence="4" id="menu_ufs"                  parent="menu_curriculum"    action="action_formative_unit_tree"/>
 
         <menuitem id="menu_facilities" name="Facilities" />
-            <menuitem name="Spaces" sequence="1" id="menu_spaces"           parent="menu_facilities"    action="action_space_tree"/>      
+            <menuitem name="Spaces"         sequence="1" id="menu_spaces"                        parent="menu_facilities"        action="action_space_tree"/>
+            <menuitem name="Configuration"  sequence="1" id="menu_facilities_config"             parent="menu_facilities" />
+            <menuitem name="Space types"    sequence="1" id="menu_facilities_config_space_type"  parent="menu_facilities_config" action="action_space_type_tree"/>
                 
         <menuitem name="Students"           sequence="4" id="menu_people_config_students"   parent="contacts.res_partner_menu_config"/>
             <menuitem name="Groups"         sequence="1" id="menu_groups"                   parent="menu_people_config_students"    action="action_group_tree"/>
