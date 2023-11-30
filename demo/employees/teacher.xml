@@ -9,7 +9,7 @@
         </record>
 
         <record id="hr.employee_mit" model="hr.employee">
-            <field name="department_id" ref="department_1"/>
+            <field name="department_id" ref="department_3"/>
             <field name="employee_type">teacher</field>
             <field name="job_id" ref="ims.job_1"/>
             <field name="parent_id" ref="hr.employee_hne"/>
@@ -18,7 +18,7 @@
         </record>
 
         <record id="hr.employee_fpi" model="hr.employee">
-            <field name="department_id" ref="department_1"/>
+            <field name="department_id" ref="department_3"/>
             <field name="employee_type">teacher</field>
             <field name="job_id" ref="ims.job_2"/>
             <field name="parent_id" ref="hr.employee_hne"/>            
@@ -27,7 +27,7 @@
         </record>
 
         <record id="hr.employee_qdp" model="hr.employee">
-            <field name="department_id" ref="department_1"/>
+            <field name="department_id" ref="department_3"/>
             <field name="employee_type">teacher</field>
             <field name="job_id" ref="ims.job_3"/>
             <field name="parent_id" ref="hr.employee_fpi"/>

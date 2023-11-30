@@ -8,8 +8,6 @@
             <field name="view_mode">form</field>
             <field name="target">inline</field>
             <field name="context">{'module' : 'ims'}</field>
-        </record>
-        
-        <menuitem name="Space types" sequence="1" id="menu_facilities_config_space_type" parent="menu_facilities_config" action="action_space_type_tree"/>
+        </record>    
     </data>
 </odoo>
