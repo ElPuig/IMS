@@ -85,6 +85,7 @@
         'demo/curriculum/professional_module.xml',
         'demo/curriculum/formative_unit.xml',
 
+        'demo/facilities/space_type.xml',         
         'demo/facilities/space.xml',         
 
         'demo/contacts/group.xml',        

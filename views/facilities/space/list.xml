@@ -7,7 +7,7 @@
                 <tree expand="1" default_order="code asc">                           
                     <field name="code"/>
                     <field name="name"/>
-                    <field name="type"/>
+                    <field name="space_type_id"/>
                 </tree>
             </field>
         </record>        
