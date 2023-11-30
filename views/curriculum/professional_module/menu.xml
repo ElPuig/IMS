@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>          
+        <record model="ir.actions.act_window" id="action_professional_module_tree">
+            <field name="name">Professional Modules</field>
+            <field name="res_model">ims.professional_module</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'search_default_group_by_study': 1}</field>
+        </record>
+            
+        <menuitem name="PMs" sequence="3" id="menu_mps" parent="menu_curriculum" action="action_professional_module_tree"/>
+    </data>
+</odoo>

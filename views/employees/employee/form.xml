@@ -73,7 +73,7 @@
                         <field name="tutorship_ids" widget="many2many">
                             <tree>
                                 <field name="name" string="Group"/>
-                                <field name="classroom_id"/>
+                                <field name="space_id"/>
                             </tree>
                         </field>
                     </page>                    

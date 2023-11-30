@@ -23,7 +23,7 @@
                                 <field name="delegate_id" />
                             </group>
                             <group>
-                                <field name="classroom_id" />
+                                <field name="space_id" />
                             </group>
                         </group>                       
                         
