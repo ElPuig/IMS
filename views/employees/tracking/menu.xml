@@ -5,8 +5,6 @@
             <field name="name">Tracking</field>
             <field name="res_model">ims.tracking</field>
             <field name="view_mode">tree,form</field>
-        </record>
-
-        <menuitem name="Roles" sequence="1" id="menu_roles" parent="hr.menu_config_employee" action="action_role_tree"/>                                
+        </record>                           
     </data>
 </odoo>

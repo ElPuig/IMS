@@ -9,9 +9,11 @@ class record(models.Model):
 	date = fields.Datetime(string="Date", required="true")
 	nature = fields.Selection(string="Nature", selection=[("Ordinary", "ordinary"), ("Extraordinary", "extraordinary")])
 	modality = fields.Selection(string="Modality", selection=[("In person", "in person"), ("Online", "online"), ("Hybrid", "hybrid")])
-	#space -> Many2one (users should be ablte to add places)
-	#assistances -> Many2one (usually teachers/employees... maybe also studens/contacts?)
-	#absents -> Many2one
+	space_id = fields.Many2one(string="Space", comodel_name="ims.space")
+	assistant_ids = fields.Many2many(string="Assistants", comodel_name='res.partner') 
+	abstent_ids = fields.Many2many(string="Abstents", comodel_name='res.partner') 
+
+	#TODO: Should also set the permissions for the record (department and also workgroup <-- NEW)
 
 	#index -> should be computed using the record section but some content is fixed
 	#	1. Last record approval (if exists).
