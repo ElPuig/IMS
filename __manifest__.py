@@ -28,43 +28,62 @@
    'data': [
         'security/groups.xml',        
         'security/ir.model.access.csv',            
-
-        'views/settings/form.xml',
-
+        
         'views/menu.xml',
+        
+        'views/settings/form.xml',
+        'views/settings/menu.xml',        
 
         'views/curriculum/formative_unit/list.xml',
         'views/curriculum/formative_unit/form.xml',
+        'views/curriculum/formative_unit/menu.xml',
+
         'views/curriculum/professional_module/list.xml',
         'views/curriculum/professional_module/form.xml',
         'views/curriculum/professional_module/report.xml',
+        'views/curriculum/professional_module/menu.xml',
+
         'views/curriculum/study/list.xml',
-        'views/curriculum/study/form.xml',        
+        'views/curriculum/study/form.xml',     
+        'views/curriculum/study/menu.xml',        
+
         'views/curriculum/level/list.xml',
-        'views/curriculum/level/form.xml',              
+        'views/curriculum/level/form.xml',
+        'views/curriculum/level/menu.xml',
 
         'views/employees/employee/kanban.xml',
         'views/employees/employee/list.xml',
-        'views/employees/employee/form.xml',        
+        'views/employees/employee/form.xml',       
+        'views/employees/employee/menu.xml',       
+
         'views/employees/job/list.xml',
-        'views/employees/job/form.xml',
+        'views/employees/job/form.xml',        
+
         'views/employees/tracking/list.xml',
-        'views/employees/tracking/form.xml',        
+        'views/employees/tracking/form.xml',  
+        'views/employees/tracking/menu.xml',        
 
         'views/facilities/space/list.xml',
         'views/facilities/space/form.xml',
         'views/facilities/space/search.xml',
+        'views/facilities/space/menu.xml',
+
         'views/facilities/space_type/list.xml',
         'views/facilities/space_type/form.xml',
+        'views/facilities/space_type/menu.xml',
 
         'views/contacts/contact/list.xml',
         'views/contacts/contact/form.xml',
         'views/contacts/contact/search.xml',
         'views/contacts/contact/kanban.xml',
+        'views/contacts/contact/menu.xml',
         'views/contacts/group/list.xml',
-        'views/contacts/group/form.xml',        
+        'views/contacts/group/form.xml',  
+        'views/contacts/group/menu.xml',
+
         'views/employees/role/list.xml',
         'views/employees/role/form.xml',
+        'views/employees/role/menu.xml',
 
         'views/attendance/attendance_template/list.xml',
         'views/attendance/attendance_template/form.xml',

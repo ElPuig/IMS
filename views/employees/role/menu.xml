@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>          
+        <record model="ir.actions.act_window" id="action_role_tree">
+            <field name="name">Roles</field>
+            <field name="res_model">ims.role</field>
+            <field name="view_mode">tree,form</field>
+        </record>  
+
+        <menuitem name="Roles" sequence="1" id="menu_roles" parent="hr.menu_config_employee" action="action_role_tree"/>                                
+    </data>
+</odoo>
