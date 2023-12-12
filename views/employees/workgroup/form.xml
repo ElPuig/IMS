@@ -1,26 +1,20 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_role_form">
-            <field name="name">ims.role.form</field>
-            <field name="model">ims.role</field>
+        <record model="ir.ui.view" id="view_workgroup_form">
+            <field name="name">ims.workgroup.form</field>
+            <field name="model">ims.workgroup</field>
             <field name="arch" type="xml">
-                <form string="role">
+                <form string="workgroup">
                     <sheet>
                         <group string="Main data" col="4">
-                            <group>
+                            <group colspan="4">
                                 <field name="name"/>                                
-                            </group>
-                            <group>
-                                <field name="color" widget="color_picker"/>                                
-                            </group>
-                            <group>
-                                <field string="Assignable to" name="employee_type"/>                                
-                            </group>
+                            </group>                           
                         </group>  
 
                         <notebook>         
-                            <page string="Assigned to">
-                                <field name="employee_ids" mode="kanban" inherit_id="view_employee_kanban" />
+                            <page string="Assigned to">                                
+                                <field name="employee_ids" mode="kanban" inherit_id="view_employee_kanban" create="false" />
                                 <!-- TODO: add a remove button: https://www.odoo.com/es_ES/forum/ayuda-1/delete-button-in-kanban-view-odoo-11-129296 -->
                             </page>     
 

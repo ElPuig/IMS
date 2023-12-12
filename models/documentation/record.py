@@ -14,6 +14,7 @@ class record(models.Model):
 	abstent_ids = fields.Many2many(string="Abstents", comodel_name='res.partner') 
 
 	#TODO: Should also set the permissions for the record (department and also workgroup <-- NEW)
+	#	   https://www.cybrosys.com/blog/how-to-create-record-rule-in-odoo-16
 
 	#index -> should be computed using the record section but some content is fixed
 	#	1. Last record approval (if exists).

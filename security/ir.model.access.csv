@@ -14,3 +14,4 @@ ims.access_ims_attendance_session,access_ims_attendance_session,ims.model_ims_at
 ims.access_ims_attendance_status,access_ims_attendance_status,ims.model_ims_attendance_status,ims_group_admin,1,1,1,1
 ims.access_ims_teaching,access_ims_teaching,ims.model_ims_teaching,ims_group_admin,1,1,1,1
 ims.access_ims_enrollment,access_ims_enrollment,ims.model_ims_enrollment,ims_group_admin,1,1,1,1
+ims.access_ims_workgroup,access_ims_workgroup,ims.model_ims_workgroup,ims_group_admin,1,1,1,1
