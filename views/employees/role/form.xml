@@ -20,8 +20,7 @@
 
                         <notebook>         
                             <page string="Assigned to">
-                                <field name="employee_ids" mode="kanban" inherit_id="view_employee_kanban" />
-                                <!-- TODO: add a remove button: https://www.odoo.com/es_ES/forum/ayuda-1/delete-button-in-kanban-view-odoo-11-129296 -->
+                                <field name="employee_ids" mode="kanban" />                                
                             </page>     
 
                             <page string="Notes">

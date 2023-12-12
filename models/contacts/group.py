@@ -17,6 +17,7 @@ class ims_group(models.Model):
 	delegate_id = fields.Many2one(string="Delegate", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")	
 	space_id = fields.Many2one(string="space", comodel_name="ims.space")
 
+	#TODO: the students must be automatically loaded from sutent's enrollment data
 	student_ids = fields.One2many(string="Students", comodel_name="res.partner", inverse_name="main_group_id", domain="[('contact_type', '=', 'student')]")	
 	
 	@api.depends("study_id.acronym", "course", "acronym")
