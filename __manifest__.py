@@ -51,7 +51,7 @@
         'views/curriculum/level/form.xml',
         'views/curriculum/level/menu.xml',
 
-        'views/employees/employee/kanban.xml',
+        'views/employees/employee/kanban.xml',        
         'views/employees/employee/list.xml',
         'views/employees/employee/form.xml',       
         'views/employees/employee/menu.xml',       
