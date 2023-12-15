@@ -21,16 +21,16 @@
         <menuitem name="Teachers" sequence="3" id="menu_teachers" parent="hr.menu_hr_employee_payroll" action="action_employee_kanban"/>       
 
         <!-- Renaming -->
-        <record id="hr.menu_view_hr_contract_type" model="ir.ui.menu">
+        <record model="ir.ui.menu" id="hr.menu_view_hr_contract_type">
             <field name="name">Contract Types</field>
         </record>
 
-        <record id="hr.hr_contract_type_action" model="ir.actions.act_window">
+        <record model="ir.actions.act_window" id="hr.hr_contract_type_action">
             <field name="name">Contract Types</field>
         </record>
 
         <!-- Hiding -->
-        <record id="hr.menu_view_employee_category_form" model="ir.ui.menu">
+        <record model="ir.ui.menu" id="hr.menu_view_employee_category_form">
             <field name="active">false</field>
         </record> 
     </data>

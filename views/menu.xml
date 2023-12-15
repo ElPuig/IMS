@@ -2,7 +2,8 @@
 <odoo>
     <data>   
         <!-- Root menu items only -->
-        <menuitem id="menu_curriculum" name="Curriculum" />
-        <menuitem id="menu_facilities" name="Facilities" />
+        <menuitem name="Contacts"   id="contacts.menu_contacts" action="action_contact_kanban"/> <!-- original action replaced -->    
+        <menuitem name="Curriculum" id="menu_curriculum" />
+        <menuitem name="Facilities" id="menu_facilities" />
     </data>
 </odoo>
