@@ -22,6 +22,6 @@ class ims_professional_module(models.Model):
 
 		result = []	
 		for rec in self:
-			result.append((rec.id, '%s %s: %s' % (rec.study_id.acronym, rec.acronym, rec.name)))
+			result.append((rec.id, "%s %s: %s" % (rec.study_id.acronym, rec.acronym, rec.name)))
 			
 		return result

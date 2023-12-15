@@ -24,6 +24,6 @@ class ims_study(models.Model):
         result = []	
 
         for rec in self:
-            result.append((rec.id, '%s: %s' % (rec.acronym, rec.name)))			
+            result.append((rec.id, "%s: %s" % (rec.acronym, rec.name)))			
             
         return result
