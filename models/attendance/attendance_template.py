@@ -6,8 +6,10 @@ class ims_attendance_template(models.Model):
 	_name = 'ims.attendance_template'
 	_description = 'Attendance template'
 
-	start_time = fields.Float("Start Time")
-	end_time = fields.Float("End Time")
+	start_date = fields.Datetime(string="Date", default = fields.Datetime.now)
+	duration = fields.Integer(string="Duration", default = 60)
+	# start_time = fields.Float("Start Time")
+	# end_time = fields.Float("End Time")
 
 	teacher = fields.Many2one(comodel_name="ims.teacher", string="Professor")
 	student = fields.Many2one(comodel_name="ims.student", string="Student")

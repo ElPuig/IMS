@@ -9,8 +9,14 @@ class ims_attendance_status(models.Model):
 	notes = fields.Text('Notes')
 	#TODO revisar si en lugar de un Selection debe ser un modelo status 
 	# many2many para permitir varias entradas en una misma sesión (por ejemplo incidencias)
+
+	#Status constants
+	CONS_ATTENDED='1'
+	CONS_MISS='2'
+	CONS_DELAY='3'
+
 	status = fields.Selection(
-        [('1', 'Attended'), ('2', 'Miss'), ('3', 'Delay')],
+        [(CONS_ATTENDED, 'Attended'), (CONS_MISS, 'Miss'), (CONS_DELAY, 'Delay')],
         string='Status',
         default='1',
         required=True,
@@ -18,5 +24,17 @@ class ims_attendance_status(models.Model):
 
 	attendance_session = fields.Many2one(comodel_name="ims.attendance_session", string="Session")
 	student = fields.Many2one(comodel_name="ims.student", string="Student")
+
+	def action_miss(self):
+		self.ensure_one()
+		self.status = self.CONS_MISS
+
+	def action_attend(self):
+		self.ensure_one()
+		self.status = self.CONS_ATTENDED
+
+	def action_delay(self):
+		self.ensure_one()
+		self.status = self.CONS_DELAY
 
 	

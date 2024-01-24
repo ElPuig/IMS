@@ -8,8 +8,10 @@
                     <sheet>
                         <group string="Basic data">
                             <field name="date"/>
-                            <field name="start_time" widget="float_time"/>
-                            <field name="end_time" widget="float_time"/>
+                            <field name="duration" tooltip="Duration in minutes"/>
+                            <!-- <field name="date"/> -->
+                            <!-- <field name="start_time" widget="float_time"/> -->
+                            <!-- <field name="end_time" widget="float_time"/> -->
                             <field name="notes"/>
                             <field name="hasStatuses" invisible="1"/>                      
                         </group>
@@ -20,6 +22,9 @@
                                         <field name="student"/>
                                         <field name="status"/>
                                         <field name="notes"/>
+                                        <button name="action_miss" icon="fa-times" title="miss" type="object" attrs="{'invisible': [('status', '=', '2')]}"/> <!--TODO: Figure out how to reference model constants-->
+                                        <button name="action_attend" icon="fa-check" title="attend" type="object" attrs="{'invisible': [('status', '=', '1')]}"/>
+                                        <button name="action_delay" icon="fa-clock-o" title="delay" type="object" attrs="{'invisible': [('status', '=', '3')]}"/>
                                     </tree>
                                 </field>
                             </page>                                                        

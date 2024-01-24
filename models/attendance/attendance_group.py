@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import datetime
+import datetime, pytz
 from odoo import models, fields, api
 
 class ims_attendance_group(models.Model):
@@ -25,8 +25,8 @@ class ims_attendance_group(models.Model):
 	def GenerateTemplatesByStudent (self):
 		for student in self.student_group.students:			
 			template = self.env['ims.attendance_template'].create({
-				'start_time': self.start_time,
-				'end_time': self.end_time,
+				# 'start_time': self.start_time,
+				# 'end_time': self.end_time,
 				'teacher': self.teacher.id,
 				'study': self.study.id,
 				'student': student.id,
@@ -44,11 +44,10 @@ class ims_attendance_group(models.Model):
 
 	def GenerateNextSession (self): #Generate next session with related attendances
 		weekday = int(self.weekday)
-		lastSessionDate = self.getLatestSessionDate()
+		lastSessionDate = self.getLatestSessionDateTime()
 		newSession = self.env['ims.attendance_session'].create({
 			'date': self.nextDateByWeekday(weekday, lastSessionDate),
-			'start_time' : self.start_time,
-			'end_time': self.end_time,
+			'duration': self.duration,
 			'attendance_group': self.id,
 			'student_group': self.student_group.id
 		})
@@ -58,22 +57,30 @@ class ims_attendance_group(models.Model):
 
 
 	def nextDateByWeekday (self, weekday, lastSessionDate):
-
-		#today = datetime.date.today()
 		currentWeekday = lastSessionDate.weekday() + 1  #Counting monday as 1
 		daysUntil = (weekday - currentWeekday + 7) % 7
 		if daysUntil <= 0:
 			daysUntil += 7
 		nextDate = (lastSessionDate + datetime.timedelta(days=daysUntil))
-		
+		nextDate = self.addHourToDate(nextDate)
+
 		return nextDate
 	
-	def getLatestSessionDate (self):
-		lastSessionDate = datetime.date.today() - datetime.timedelta(days=1)
+	def addHourToDate(self, date):				
+		hora = self.start_date.hour
+		minuto = self.start_date.minute
+		segundo = self.start_date.second
+
+		date = datetime.datetime(date.year, date.month, date.day, hora, minuto, segundo, tzinfo=None)
+
+		return date
+	
+	
+	def getLatestSessionDateTime (self):
+		lastSessionDateTime = datetime.date.today() - datetime.timedelta(days=1)
 		lastSession = self.env['ims.attendance_session'].search(
 			[('attendance_group', '=', self.id)], order='date desc', limit=1)
 		if lastSession:
-			lastSessionDate = lastSession.date
-		
-
-		return lastSessionDate
+			lastSessionDateTime = lastSession.date
+				
+		return lastSessionDateTime
