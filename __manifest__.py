@@ -34,6 +34,10 @@
         'views/settings/form.xml',
         'views/settings/menu.xml',        
 
+        'views/curriculum/subject/list.xml',
+        'views/curriculum/subject/form.xml',
+        'views/curriculum/subject/menu.xml',
+
         'views/curriculum/formative_unit/list.xml',
         'views/curriculum/formative_unit/form.xml',
         'views/curriculum/formative_unit/menu.xml',
