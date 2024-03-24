@@ -4,16 +4,16 @@
             <field name="name">ims.subject.list</field>
             <field name="model">ims.subject</field>
             <field name="arch" type="xml">
-                <tree expand="1" default_order="study_id desc, code asc, acronym asc">
-                    <field name="study_id"/>
-                    <!-- TODO: order also by level, hide this field and paint the rows by level. This will clarify which one is inside another one... I hope... -->
-                    <!-- <field name="level"/>     -->
+                <tree expand="1" default_order="study_id desc, code asc, level asc, acronym asc"
+                    decoration-bf="level==1" decoration-muted="level==2" decoration-it="level==3">
+                    <!-- https://www.cybrosys.com/blog/add-colors-to-tree-view-odoo-13 -->
+                    <field name="study_id"/>  
+                    <field name="level" invisible="1"/>                    
                     <field name="code"/>
                     <field name="acronym"/>
                     <field name="name"/>    
                     <!-- <field name="subject_ids" widget="many2many_tags" /> -->
-                </tree>
-              
+                </tree>              
             </field>
         </record>   
 
