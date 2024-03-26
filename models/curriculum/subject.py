@@ -17,7 +17,7 @@ class ims_subject(models.Model):
     teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
 
     # TODO: some way to directly open the new form instead of searching (no search is needed, no orphan should be allowed)
-    subject_ids = fields.One2many(string="Content", comodel_name="ims.subject", inverse_name="subject_id", domain="[('id', '!=', id), ('level', '<', level)]")
+    subject_ids = fields.One2many(string="Content", comodel_name="ims.subject", inverse_name="subject_id", domain="[('id', '!=', id), ('level', '>', level), ('subject_id', '=', False)]")
     subject_id = fields.Many2one(string="Main subject", comodel_name="ims.subject")    
     
     @api.onchange("subject_id")
