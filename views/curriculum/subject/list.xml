@@ -6,13 +6,14 @@
             <field name="arch" type="xml">
                 <tree expand="1" default_order="study_id desc, code asc, level asc, acronym asc"
                     decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
-                    <!-- https://www.cybrosys.com/blog/add-colors-to-tree-view-odoo-13 -->
+                    <!--https://www.cybrosys.com/blog/tree-view-decoration-attributes-in-odoo-15 -->
                     <field name="study_id" invisible="1"/>  
                     <field name="level" invisible="1"/>
                     <field name="code"/>
                     <field name="acronym"/>
                     <field name="name"/>    
                     <!-- <field name="subject_ids" widget="many2many_tags" /> -->
+                    <!-- TODO: keep bf and muted, and play with padding-left: (level-1)em on muted. -->
                 </tree>              
             </field>
         </record>   
