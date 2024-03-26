@@ -56,6 +56,7 @@
             <field name="code">AOCOA</field>
             <field name="acronym">UF1</field>
             <field name="name">Programació estructurada</field>
+            <field name="level">2</field>
             <field name="notes"></field>
             <field name="study_id" ref="ims.study_1"/>
             <field name="subject_id" ref="ims.subject_5"/>
