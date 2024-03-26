@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>          
-        <record model="ir.actions.act_window" id="action_contact_kanban">
-            <field name="name">Contacts</field>
-            <field name="res_model">res.partner</field>
-            <field name="view_mode">kanban,tree,form</field>                            
-            <field name="domain"> ['|', ('contact_type', '=', 'student'), ('contact_type', '=', 'provider')] </field>
-        </record>
-
         <record model="ir.actions.act_window" id="action_student_kanban">
             <field name="name">Students</field>
             <field name="res_model">res.partner</field>
@@ -24,7 +17,7 @@
             <field name="context"> {'default_contact_type': 'provider'} </field>
         </record>     
         
-        <menuitem name="Contacts"  sequence="1" id="menu_contacts"  parent="contacts.res_partner_menu_contacts" action="action_contact_kanban"/>
+        <menuitem name="All"  sequence="1" id="menu_contacts"  parent="contacts.res_partner_menu_contacts" action="action_contact_kanban"/> <!-- Defined at root menu level for contact -->
         <menuitem name="Students"  sequence="2" id="menu_students"  parent="contacts.res_partner_menu_contacts" action="action_student_kanban"/>
         <menuitem name="Providers" sequence="3" id="menu_providers" parent="contacts.res_partner_menu_contacts" action="action_provider_kanban"/>                                  
 

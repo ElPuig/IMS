@@ -27,12 +27,12 @@
     # always loaded
    'data': [
         'security/groups.xml',        
-        'security/ir.model.access.csv',            
-        
-        'views/menu.xml',
+        'security/ir.model.access.csv',                        
         
         'views/settings/form.xml',
         'views/settings/menu.xml',        
+
+        'views/curriculum/menu.xml',
 
         'views/curriculum/subject/list.xml',
         'views/curriculum/subject/form.xml',
@@ -50,7 +50,7 @@
         'views/curriculum/study/list.xml',
         'views/curriculum/study/form.xml',     
         'views/curriculum/study/menu.xml',        
-
+        
         'views/curriculum/level/list.xml',
         'views/curriculum/level/form.xml',
         'views/curriculum/level/menu.xml',
@@ -71,6 +71,8 @@
         'views/employees/workgroup/form.xml',  
         'views/employees/workgroup/menu.xml',        
 
+        'views/facilities/menu.xml',
+
         'views/facilities/space/list.xml',
         'views/facilities/space/form.xml',
         'views/facilities/space/search.xml',
@@ -80,6 +82,8 @@
         'views/facilities/space_type/form.xml',
         'views/facilities/space_type/menu.xml',
 
+        'views/contacts/menu.xml',
+        
         'views/contacts/contact/list.xml',
         'views/contacts/contact/form.xml',
         'views/contacts/contact/search.xml',
@@ -113,6 +117,7 @@
         'demo/curriculum/study.xml',
         'demo/curriculum/professional_module.xml',
         'demo/curriculum/formative_unit.xml',
+        'demo/curriculum/subject.xml',
 
         'demo/facilities/space_type.xml',         
         'demo/facilities/space.xml',         
