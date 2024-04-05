@@ -6,8 +6,8 @@
             <field name="arch" type="xml">				
                 <form string="subject">                   
                     <sheet>                        
-                        <group string="Main data" col="4">
-                            <group colspan="4">
+                        <group string="Main data" col="6">
+                            <group colspan="6">
                                 <field name="study_id" attrs="{'invisible':[('level', '>', 1)]}"/>
                                 <field name="subject_id" attrs="{'invisible':[('level', '==', 1)]}"/>
                                 
@@ -20,7 +20,12 @@
                             <group>							
                                 <field name="acronym"/>
                             </group>
-                            <group colspan="2">							
+                            <group>		
+                                <field name="last" invisible="1"/>                
+                                <field name="total_hours" attrs="{'invisible':[('last', '==', True)]}"/>
+                                <field name="hours" attrs="{'invisible':[('last', '==', False)]}"/>
+                            </group>
+                            <group colspan="3">							
                                 <field name="name"/>
                             </group>
                         </group>
