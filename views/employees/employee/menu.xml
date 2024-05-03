@@ -29,6 +29,10 @@
             <field name="name">Contract Types</field>
         </record>
 
+        <record model="ir.ui.menu" id="hr.menu_hr_employee_user">
+            <field name="name">All</field>
+        </record>
+
         <!-- Hiding -->
         <record model="ir.ui.menu" id="hr.menu_view_employee_category_form">
             <field name="active">false</field>
