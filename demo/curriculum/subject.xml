@@ -16,6 +16,7 @@
             <field name="acronym">UF1</field>
             <field name="name">Instal·lació, configuració i explotació del  sistema informàtic</field>
             <field name="level">2</field>
+            <field name="hours">49</field>
             <field name="notes"></field>
             <field name="study_id" ref="ims.study_1"/>
             <field name="subject_id" ref="ims.subject_1"/>
@@ -26,6 +27,7 @@
             <field name="acronym">UF2</field>
             <field name="name">Gestió de la informació i de recursos en una  xarxa</field>
             <field name="level">2</field>
+            <field name="hours">69</field>
             <field name="notes"></field>
             <field name="study_id" ref="ims.study_1"/>
             <field name="subject_id" ref="ims.subject_1"/>
@@ -36,6 +38,7 @@
             <field name="acronym">UF3</field>
             <field name="name">Implantació de programari específic</field>
             <field name="level">2</field>
+            <field name="hours">14</field>
             <field name="notes"></field>
             <field name="study_id" ref="ims.study_1"/>
             <field name="subject_id" ref="ims.subject_1"/>
@@ -57,6 +60,7 @@
             <field name="acronym">UF1</field>
             <field name="name">Programació estructurada</field>
             <field name="level">2</field>
+            <field name="hours">85</field>
             <field name="notes"></field>
             <field name="study_id" ref="ims.study_1"/>
             <field name="subject_id" ref="ims.subject_2"/>
@@ -67,6 +71,7 @@
             <field name="acronym">UF2</field>
             <field name="name">Disseny modular</field>
             <field name="level">2</field>
+            <field name="hours">50</field>
             <field name="notes"></field>
             <field name="study_id" ref="ims.study_1"/>
             <field name="subject_id" ref="ims.subject_2"/>
@@ -77,6 +82,7 @@
             <field name="acronym">UF3</field>
             <field name="name">Fonaments de gestió de fitxers</field>
             <field name="level">2</field>
+            <field name="hours">30</field>
             <field name="notes"></field>
             <field name="study_id" ref="ims.study_1"/>
             <field name="subject_id" ref="ims.subject_2"/>
@@ -87,6 +93,7 @@
             <field name="acronym">UF4</field>
             <field name="name">Programació orientada a objectes (POO)</field>
             <field name="level">2</field>
+            <field name="hours">24</field>
             <field name="notes"></field>
             <field name="study_id" ref="ims.study_1"/>
             <field name="subject_id" ref="ims.subject_2"/>
@@ -97,6 +104,7 @@
             <field name="acronym">UF5</field>
             <field name="name">POO. Llibreries de classes fonamentals</field>
             <field name="level">2</field>
+            <field name="hours">24</field>
             <field name="notes"></field>
             <field name="study_id" ref="ims.study_1"/>
             <field name="subject_id" ref="ims.subject_2"/>            
@@ -107,6 +115,7 @@
             <field name="acronym">UF6</field>
             <field name="name">POO. Introducció a la persistència en BD</field>
             <field name="level">2</field>
+            <field name="hours">18</field>
             <field name="notes"></field>
             <field name="study_id" ref="ims.study_1"/>
             <field name="subject_id" ref="ims.subject_2"/>
