@@ -42,8 +42,17 @@ class ims_subject(models.Model):
     def name_get(self):
 		#Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
 
-        result = []	
+        result = []	    
+        acronyms = []    
         for rec in self:
-            result.append((rec.id, "%s %s: %s" % (rec.study_id.acronym, rec.acronym, rec.name)))
+            acronyms.clear()
+            acronyms.append(rec.acronym)
+
+            parent = rec.subject_id
+            while(parent):
+                acronyms.append(parent.acronym)
+                parent = parent.subject_id     
+
+            result.append((rec.id, "%s %s: %s" % (rec.study_id.acronym, " ".join(list(reversed(acronyms))), rec.name)))
             
         return result

@@ -38,7 +38,9 @@
                         <notebook>      
                             <page string="Subjects">
                                 <field name="subject_ids" widget="many2many">
-                                    <tree>
+                                     <tree expand="1" default_order="code asc, level asc, acronym asc"
+                                           decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
+                                        <field name="level" invisible="1"/>
                                         <field name="code"/>
                                         <field name="acronym"/>
                                         <field name="name"/>

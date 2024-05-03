@@ -52,7 +52,6 @@
             <field name="level">1</field>
             <field name="notes"></field>
             <field name="study_id" ref="ims.study_1"/>
-            <field name="study_id" ref="ims.study_1"/>
         </record>
 
          <record id="subject_2_1" model="ims.subject">
