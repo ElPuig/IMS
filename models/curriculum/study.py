@@ -15,7 +15,7 @@ class ims_study(models.Model):
     regional_decree = fields.Binary(string="Regional decree")
     notes = fields.Text(string="Notes")
 
-    professional_module_ids = fields.One2many(string="Professional Modules", comodel_name="ims.professional_module", inverse_name="study_id")
+    subject_ids = fields.One2many(string="Subjects", comodel_name="ims.subject", inverse_name="study_id")
     follow_ids = fields.One2many(string="Follow-up", comodel_name="ims.tracking", inverse_name="study_id")
     level_id = fields.Many2one(string="Level", comodel_name="ims.level")
 
@@ -24,6 +24,6 @@ class ims_study(models.Model):
         result = []	
 
         for rec in self:
-            result.append((rec.id, '%s: %s' % (rec.acronym, rec.name)))			
+            result.append((rec.id, "%s: %s" % (rec.acronym, rec.name)))			
             
         return result

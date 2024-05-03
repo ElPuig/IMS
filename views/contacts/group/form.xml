@@ -28,9 +28,17 @@
                         </group>                       
                         
                         <notebook> 
-                            <page string="Students">
-                                <field name="student_ids" mode="kanban" inherit_id="view_student_kanban" />
-                            </page>        
+                            <!-- <page string="Students"> -->
+                                <!-- TODO: read only, unable to create from here -->
+                                <!-- <field name="student_ids" mode="kanban" /> -->
+                            <!-- </page>         -->
+                            <page string="Students (main group)">
+                                <field name="main_student_ids" mode="kanban" />
+                            </page>
+
+                            <page string="Students (enrolled)">
+                                <field name="enrolled_student_ids" mode="kanban" />
+                            </page>
 
                             <page string="Notes">
                                 <field name="notes" placeholder="Write down here your notes..."/>

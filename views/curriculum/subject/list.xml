@@ -1,0 +1,33 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_subject_list">
+            <field name="name">ims.subject.list</field>
+            <field name="model">ims.subject</field>
+            <field name="arch" type="xml">
+                <tree expand="1" default_order="study_id desc, code asc, level asc, acronym asc"
+                    decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
+                    <!--https://www.cybrosys.com/blog/tree-view-decoration-attributes-in-odoo-15 -->
+                    <field name="study_id" invisible="1"/>  
+                    <field name="level" invisible="1"/>
+                    <field name="code"/>
+                    <field name="acronym"/>
+                    <field name="name"/>    
+                    <!-- <field name="subject_ids" widget="many2many_tags" /> -->
+                    <!-- TODO: keep bf and muted, and play with padding-left: (level-1)em on muted. -->
+                </tree>              
+            </field>
+        </record>   
+
+        <record model="ir.ui.view" id="subject_search">
+            <field name="name">ims subject search</field>
+            <field name="model">ims.subject</field>            
+            <field name="arch" type="xml">
+                <search string="Study">
+                    <group expand="1" string="Order By">
+                        <filter string="Study" name="group_by_study" context="{'group_by':'study_id'}" />
+                    </group>
+                </search>
+            </field>
+        </record>  
+    </data>
+</odoo>

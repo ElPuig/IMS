@@ -20,7 +20,7 @@
 
                         <notebook>         
                             <page string="Assigned to">
-                                <field name="employee_ids" mode="kanban" inherit_id="view_teacher_kanban" />
+                                <field name="employee_ids" mode="kanban" />                                
                             </page>     
 
                             <page string="Notes">
@@ -30,6 +30,6 @@
                     </sheet>	
                 </form>
             </field>			
-        </record>
+        </record>      
     </data>
 </odoo>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>   
+        <record model="ir.actions.act_window" id="action_contact_kanban">
+            <field name="name">Contacts</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_mode">kanban,tree,form</field>                            
+            <field name="domain"> ['|', ('contact_type', '=', 'student'), ('contact_type', '=', 'provider')] </field>
+        </record>
+        
+        <!-- Root menu items only -->
+        <menuitem name="Contacts"   id="contacts.menu_contacts" action="action_contact_kanban"/> <!-- original action replaced -->    
+    </data>
+</odoo>

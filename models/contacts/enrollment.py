@@ -8,4 +8,4 @@ class ims_enrollment(models.Model):
 
 	student_id = fields.Many2one(string="Student", comodel_name="res.partner", required="true", domain="[('contact_type', '=', 'student')]")	
 	group_id = fields.Many2one(string="Group", comodel_name="ims.group", required="true")	
-	formative_unit_id = fields.Many2one(string="Formative Unit", comodel_name="ims.formative_unit", required="true")	
+	subject_id = fields.Many2one(string="Subject", comodel_name="ims.subject", required="true")	

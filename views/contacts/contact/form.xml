@@ -33,7 +33,7 @@
                             <separator name="enrollment" string="Enrollment Data"/>
                             <field name="enrollment_ids" string="">
                                 <tree editable="bottom">
-                                    <field name="formative_unit_id"/>
+                                    <field name="subject_id"/>
                                     <field name="group_id"/>
                                 </tree>
                             </field>

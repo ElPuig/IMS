@@ -12,8 +12,7 @@
                             <field name="teacher"/>
                             <field name="student"/>
                             <field name="study"/>
-                            <field name="mp"/>
-                            <field name="uf"/>
+                            <field name="subject"/>
                             <field name="space"/>
                             <field name="weekday"/>
                             <field name="color" widget="color_picker"/>

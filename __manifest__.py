@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '0.10.0',
+    'version': '0.12.0',
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -27,31 +27,26 @@
     # always loaded
    'data': [
         'security/groups.xml',        
-        'security/ir.model.access.csv',            
-        
-        'views/menu.xml',
+        'security/ir.model.access.csv',                        
         
         'views/settings/form.xml',
         'views/settings/menu.xml',        
 
-        'views/curriculum/formative_unit/list.xml',
-        'views/curriculum/formative_unit/form.xml',
-        'views/curriculum/formative_unit/menu.xml',
+        'views/curriculum/menu.xml',
 
-        'views/curriculum/professional_module/list.xml',
-        'views/curriculum/professional_module/form.xml',
-        'views/curriculum/professional_module/report.xml',
-        'views/curriculum/professional_module/menu.xml',
+        'views/curriculum/subject/list.xml',
+        'views/curriculum/subject/form.xml',
+        'views/curriculum/subject/menu.xml',
 
         'views/curriculum/study/list.xml',
         'views/curriculum/study/form.xml',     
         'views/curriculum/study/menu.xml',        
-
+        
         'views/curriculum/level/list.xml',
         'views/curriculum/level/form.xml',
         'views/curriculum/level/menu.xml',
 
-        'views/employees/employee/kanban.xml',
+        'views/employees/employee/kanban.xml',        
         'views/employees/employee/list.xml',
         'views/employees/employee/form.xml',       
         'views/employees/employee/menu.xml',       
@@ -61,7 +56,13 @@
 
         'views/employees/tracking/list.xml',
         'views/employees/tracking/form.xml',  
-        'views/employees/tracking/menu.xml',        
+        'views/employees/tracking/menu.xml',     
+
+        'views/employees/workgroup/list.xml',
+        'views/employees/workgroup/form.xml',  
+        'views/employees/workgroup/menu.xml',        
+
+        'views/facilities/menu.xml',
 
         'views/facilities/space/list.xml',
         'views/facilities/space/form.xml',
@@ -71,6 +72,8 @@
         'views/facilities/space_type/list.xml',
         'views/facilities/space_type/form.xml',
         'views/facilities/space_type/menu.xml',
+
+        'views/contacts/menu.xml',
 
         'views/contacts/contact/list.xml',
         'views/contacts/contact/form.xml',
@@ -103,8 +106,7 @@
         # this order is needed due dependencies
         'demo/curriculum/level.xml',
         'demo/curriculum/study.xml',
-        'demo/curriculum/professional_module.xml',
-        'demo/curriculum/formative_unit.xml',
+        'demo/curriculum/subject.xml',
 
         'demo/facilities/space_type.xml',         
         'demo/facilities/space.xml',         
@@ -119,7 +121,8 @@
         'demo/employees/teacher.xml',
         'demo/employees/pas.xml',
         'demo/employees/role.xml', 
-        'demo/employees/employee.xml',   
+        'demo/employees/employee.xml',  
+        'demo/employees/workgroup.xml',   
 
         'demo/contacts/student.xml',
         'demo/contacts/provider.xml',

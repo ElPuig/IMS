@@ -3,11 +3,11 @@
 from odoo import models, fields, api
 
 class ims_settings(models.TransientModel):
-   _inherit = 'res.config.settings'
+   _inherit = "res.config.settings"
 
    contract_type = fields.Selection(
-       [('monthly', 'Monthly'), ('half_yearly', '6 Months'),
-        ('yearly', 'Yearly')],
+       [("monthly", "Monthly"), ("half_yearly", "6 Months"),
+        ("yearly", "Yearly")],
        string="Contract Type",
-       config_parameter='ims.contract_type',
+       config_parameter="ims.contract_type",
        help="Select contract types from the selection field")

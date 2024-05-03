@@ -3,14 +3,14 @@ ims.access_ims_space,access_ims_space,ims.model_ims_space,ims_group_admin,1,1,1,
 ims.access_ims_space_type,access_ims_space_type,ims.model_ims_space_type,ims_group_admin,1,1,1,1
 ims.access_ims_tracking,access_ims_tracking,ims.model_ims_tracking,ims_group_admin,1,1,1,1
 ims.access_ims_level,access_ims_level,ims.model_ims_level,ims_group_admin,1,1,1,1
-ims.access_ims_professional_module,access_ims_professional_module,ims.model_ims_professional_module,ims_group_admin,1,1,1,1
 ims.access_ims_role,access_ims_role,ims.model_ims_role,ims_group_admin,1,1,1,1
 ims.access_ims_group,access_ims_group,ims.model_ims_group,ims_group_admin,1,1,1,1
 ims.access_ims_study,access_ims_study,ims.model_ims_study,ims_group_admin,1,1,1,1
-ims.access_ims_formative_unit,access_ims_formative_unit,ims.model_ims_formative_unit,ims_group_admin,1,1,1,1
 ims.access_ims_attendance_template,access_ims_attendance_template,ims.model_ims_attendance_template,ims_group_admin,1,1,1,1
 ims.access_ims_attendance_group,access_ims_attendance_group,ims.model_ims_attendance_group,ims_group_admin,1,1,1,1
 ims.access_ims_attendance_session,access_ims_attendance_session,ims.model_ims_attendance_session,ims_group_admin,1,1,1,1
 ims.access_ims_attendance_status,access_ims_attendance_status,ims.model_ims_attendance_status,ims_group_admin,1,1,1,1
 ims.access_ims_teaching,access_ims_teaching,ims.model_ims_teaching,ims_group_admin,1,1,1,1
 ims.access_ims_enrollment,access_ims_enrollment,ims.model_ims_enrollment,ims_group_admin,1,1,1,1
+ims.access_ims_workgroup,access_ims_workgroup,ims.model_ims_workgroup,ims_group_admin,1,1,1,1
+ims.access_ims_subject,access_ims_subject,ims.model_ims_subject,ims_group_admin,1,1,1,1
