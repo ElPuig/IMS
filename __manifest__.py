@@ -115,8 +115,6 @@
         # this order is needed due dependencies
         'demo/curriculum/level.xml',
         'demo/curriculum/study.xml',
-        'demo/curriculum/professional_module.xml',
-        'demo/curriculum/formative_unit.xml',
         'demo/curriculum/subject.xml',
 
         'demo/facilities/space_type.xml',         
