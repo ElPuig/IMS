@@ -9,8 +9,7 @@
                     <sheet>
                         <group string="Basic data">
                             <field name="study_id"/>
-                            <field name="professional_module_id"/>
-                            <field name="formative_unit_id"/>
+                            <field name="subject_id"/>
                             <field name="student_id"/>
                             <field name="teacher_id"/>
                         </group>

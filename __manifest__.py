@@ -38,15 +38,6 @@
         'views/curriculum/subject/form.xml',
         'views/curriculum/subject/menu.xml',
 
-        'views/curriculum/formative_unit/list.xml',
-        'views/curriculum/formative_unit/form.xml',
-        'views/curriculum/formative_unit/menu.xml',
-
-        'views/curriculum/professional_module/list.xml',
-        'views/curriculum/professional_module/form.xml',
-        'views/curriculum/professional_module/report.xml',
-        'views/curriculum/professional_module/menu.xml',
-
         'views/curriculum/study/list.xml',
         'views/curriculum/study/form.xml',     
         'views/curriculum/study/menu.xml',        

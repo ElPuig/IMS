@@ -36,8 +36,8 @@
                         </group>
                         
                         <notebook>      
-                            <page string="Professional Modules">
-                                <field name="professional_module_ids" widget="many2many">
+                            <page string="Subjects">
+                                <field name="subject_ids" widget="many2many">
                                     <tree>
                                         <field name="code"/>
                                         <field name="acronym"/>

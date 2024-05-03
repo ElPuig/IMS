@@ -12,9 +12,8 @@ class ims_attendance_template(models.Model):
 	teacher = fields.Many2one(comodel_name="hr.employee", string="Professor")
 	student = fields.Many2one(comodel_name="res.partner", string="Student")
 	study = fields.Many2one(comodel_name="ims.study", string="Study")
-	mp = fields.Many2one(comodel_name="ims.professional_module", string="Professional Module")
-	uf = fields.Many2one(comodel_name="ims.formative_unit", string="Formative Unit")
-	level = fields.Many2one(comodel_name="ims.level", string="Level")
+	subject = fields.Many2one(comodel_name="ims.subject", string="Subject")
+	level = fields.Many2one(comodel_name="ims.level", string="Level") #TODO: this should be loaded from subject
 	space = fields.Many2one(comodel_name="ims.space", string="space")
 	weekday = fields.Selection([
 		('1', 'Monday'),
