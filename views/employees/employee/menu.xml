@@ -33,6 +33,9 @@
             <field name="name">All</field>
         </record>
 
+        <!-- TODO: Departments should display the list with all option selected and everything expanded: /web#action=175&active_id=8&model=hr.employee&view_type=list&cids=1&menu_id=127 -->
+        <!-- TODO: Why VET is displaying 0 employees? Subdepartments should be added... -->
+
         <!-- Hiding -->
         <record model="ir.ui.menu" id="hr.menu_view_employee_category_form">
             <field name="active">false</field>
