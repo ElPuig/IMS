@@ -1,5 +1,17 @@
 <odoo>
-    <data>    
+    <data>
+        <record id="hr.employee_jep" model="hr.employee">
+            <field name="department_id" ref="department_6"/>
+        </record>
+
+        <record id="hr.employee_lur" model="hr.employee">
+            <field name="department_id" ref="department_5"/>
+        </record>
+
+        <record id="hr.employee_jgo" model="hr.employee">
+            <field name="department_id" ref="department_5"/>
+        </record>
+
         <record id="hr.employee_jog" model="hr.employee">           
             <field name="active">false</field>            
         </record>
