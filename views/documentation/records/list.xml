@@ -1,0 +1,13 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_record_list">
+            <field name="name">ims.record.list</field>
+            <field name="model">ims.record</field>
+            <field name="arch" type="xml">
+                <tree expand="1" >
+                    <field name="date"/>                    
+                </tree>
+            </field>
+        </record>   
+    </data>
+</odoo>

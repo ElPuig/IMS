@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '0.12.0',
+    'version': '0.13.0',
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -96,6 +96,11 @@
         'views/attendance/attendance_session/form.xml',
         'views/attendance/attendance_status/list.xml',
         'views/attendance/attendance_status/form.xml',       
+
+        'views/documentation/menu.xml',       
+        'views/documentation/records/menu.xml',       
+        'views/documentation/records/list.xml',       
+        'views/documentation/records/form.xml',   
     ],
     'license': 'AGPL-3',
     'installable': True,

@@ -1,0 +1,54 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_record_form">
+            <field name="name">ims.record.form</field>
+            <field name="model">ims.record</field>
+            <field name="arch" type="xml">
+                <form string="Record">
+                    <sheet>
+                        <group string="Main data" col="4">
+                            <group>
+                                <field name="date"/>
+                            </group>
+                            <group>
+                                <field name="nature"/>
+                            </group>
+                            <group>
+                                <field name="modality"/>
+                            </group>
+                            <group>
+                                <field name="space_id"/>
+                            </group>                          
+                        </group>  
+                        <group string="Assistants" col="4">
+                            <group colspan="2">
+                                <field name="assistant_ids" widget="many2many_tags"/>    
+                            </group> 
+
+                             <group colspan="2">
+                                <field name="abstent_ids" widget="many2many_tags"/>    
+                            </group> 
+                        </group>  
+
+<!-- 
+                        <notebook>
+                            <page string="Studies">
+                                <field name="study_ids" widget="many2many">
+                                    <tree>
+                                        <field name="code"/>
+                                        <field name="acronym"/>
+                                        <field name="name"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
+                            </page>
+                        </notebook>                   -->
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>

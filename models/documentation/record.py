@@ -10,8 +10,11 @@ class record(models.Model):
 	nature = fields.Selection(string="Nature", selection=[("Ordinary", "ordinary"), ("Extraordinary", "extraordinary")])
 	modality = fields.Selection(string="Modality", selection=[("In person", "in person"), ("Online", "online"), ("Hybrid", "hybrid")])
 	space_id = fields.Many2one(string="Space", comodel_name="ims.space")
-	assistant_ids = fields.Many2many(string="Assistants", comodel_name="res.partner") 
-	abstent_ids = fields.Many2many(string="Abstents", comodel_name="res.partner") 
+
+	#Note: foreign to the same table should be declared manually
+	assistant_ids = fields.Many2many(string="Assistants", comodel_name="res.partner", relation="ims_record_assistant_rel", column1="ims_record__id", column2="res_partner_id", domain="[('type','=','contact')]") 
+	abstent_ids = fields.Many2many(string="Abstents", comodel_name="res.partner", relation="ims_record_absetnt_rel", column1="ims_record__id", column2="res_partner_id", domain="[('type','=','contact')]") 
+
 
 	#TODO: Should also set the permissions for the record (department and also workgroup <-- NEW)
 	#	   https://www.cybrosys.com/blog/how-to-create-record-rule-in-odoo-16
