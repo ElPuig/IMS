@@ -98,9 +98,9 @@
         'views/attendance/attendance_status/form.xml',       
 
         'views/documentation/menu.xml',       
-        'views/documentation/records/menu.xml',       
-        'views/documentation/records/list.xml',       
-        'views/documentation/records/form.xml',   
+        'views/documentation/minutes/menu.xml',       
+        'views/documentation/minutes/list.xml',       
+        'views/documentation/minutes/form.xml',   
     ],
     'license': 'AGPL-3',
     'installable': True,

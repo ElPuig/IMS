@@ -1,22 +1,29 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_record_form">
-            <field name="name">ims.record.form</field>
-            <field name="model">ims.record</field>
+        <record model="ir.ui.view" id="view_minute_form">
+            <field name="name">ims.minute.form</field>
+            <field name="model">ims.minute</field>
             <field name="arch" type="xml">
-                <form string="Record">
+                <form string="Minute">
                     <sheet>
                         <group string="Main data" col="4">
                             <group>
                                 <field name="date"/>
                             </group>
                             <group>
-                                <field name="nature"/>
+                                <field name="type"/>
                             </group>
+                            <group colspan="2">
+                                <field name="department_id" attrs="{'invisible': [('type', '=', 'workgroup')]}" />
+                                <field name="workgroup_id" attrs="{'invisible': [('type', '!=', 'workgroup')]}" />
+                            </group>                                                                                                    
+                            <group>
+                                <field name="nature"/>
+                            </group>                                
                             <group>
                                 <field name="modality"/>
                             </group>
-                            <group>
+                            <group colspan="2">
                                 <field name="space_id"/>
                             </group>                          
                         </group>  
@@ -27,6 +34,11 @@
 
                              <group colspan="2">
                                 <field name="abstent_ids" widget="many2many_tags"/>    
+                            </group> 
+                        </group>  
+                        <group string="Abstract" col="4">
+                            <group colspan="4">
+                                <field name="abstract" />    
                             </group> 
                         </group>  
 
