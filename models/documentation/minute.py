@@ -72,6 +72,7 @@ class minute(models.Model):
 	# The main idea is to define the minute type with its content, and the create the entry (from scratch or using a previous one) in order to write the regular meeting content. 
 	# A wizard will be used in order to fill the minute, it will be clearer the barrier between setup and redacting. 
 
+	# IDEA: maybe the department could inherit from a workgroup (or viceversa), so the minute can use just a single type of members (simplification). 
 
 
 
