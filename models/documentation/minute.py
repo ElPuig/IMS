@@ -40,24 +40,39 @@ class minute(models.Model):
 	#TODO: Should also set the permissions for the record (department and also workgroup <-- NEW)
 	#	   https://www.cybrosys.com/blog/how-to-create-record-rule-in-odoo-16
 
-	#index -> should be computed using the record section but some content is fixed
-	#	1. Last record approval (if exists).
-	#	2. Last agreements review.
-	#	3. Regular meeting content. where each record section should have.
-	#		3.1. Title.
-	#		3.2. The content or another section.
-	#		NOTE: pending topics of the last meeting could be added.
-	#	4. Agreements
-	#	5. Pending topics.
-	#	6. Signature
-	#		6.1. By the user who created the record (will be signed by clicking on a button).
-	#		6.2. By another user who aproves it, should be loaded as manager of the previous one, but this could limit some scenearios so it"s better to let it free.
-	#			 The redactor adds the aprover, and a notification will be sent. The aprover can aprove the record or not.
-	#			 The record can be edited, but then it becomes desaproved. 
+	#TODO:
+	#	Minute types: should be able to create new ones, specifying the content.
+	#		Regular:
+	#			1. Last record approval (if exists).
+	#			2. Last agreements review (if exists).
+	#			3. Regular meeting content (each entry has title/topic + content). Note: pending topics of the last meeting could be added first.
+	#			4. Current agreements.
+	#			5. Pending topics (maybe automatically computed)
+	#			6. Attachments (this will allow to attach any custom document).
+	#			7. Signature
+	#				7.1. By the user who created the record (will be signed by clicking on a button).
+	#				7.2. By another user who aproves it, should be loaded as manager of the previous one, but this could limit some scenearios so it"s better to let it free.
+	#			 		 The redactor adds the aprover, and a notification will be sent. The aprover can aprove the record or not.
+	#			 		 The record can be edited, but then it becomes desaproved.
+	# 					 Once aproved, all the members can read the minute (maybe a PDF?) 
+	#			0. Changes registry, only when something has changed, maybe every PDF can be stored and available. 
 	#
-	#	7. Attachments (this will allow to attach any custom document).
-	#
-	#	PENDING: changes registry?
+	#		Department:
+	#			1. Exactly as the "regular" one, but between 2 and 3, an entry for harmonization.
+	#		
+	#		Workgroup (open): 
+	# 			TODO
+	#		Workgroup (regular): 
+	# 			TODO
+	#		Workgroup (clone): 
+	# 			TODO
+	#		Avaluation (pre / 1st / 2nd / 3th): 
+	# 			TODO
+
+	# The main idea is to define the minute type with its content, and the create the entry (from scratch or using a previous one) in order to write the regular meeting content. 
+	# A wizard will be used in order to fill the minute, it will be clearer the barrier between setup and redacting. 
+
+
 
 
 
