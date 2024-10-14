@@ -20,7 +20,7 @@ class minute(models.Model):
 	assistant_ids = fields.Many2many(string="Assistants", comodel_name="res.partner", relation="ims_minute_assistant_rel", column1="ims_minute_id", column2="res_partner_id", domain="[('type','=','contact')]", required="true") 
 	abstent_ids = fields.Many2many(string="Abstents", comodel_name="res.partner", relation="ims_minute_absetnt_rel", column1="ims_minute_id", column2="res_partner_id", domain="[('type','=','contact')]") 
 	
-	called = fields.Char(string="Called", compute='_compute_called')
+	members = fields.Char(string="Memebers", compute='_compute_members')
 	abstract = fields.Char(string="Abstract or main topic", size=255, required="true")
 	
 	def name_get(self):
@@ -32,10 +32,10 @@ class minute(models.Model):
             
 		return result
 
-	@api.depends('type')
-	def _compute_called(self):
+	@api.depends("type")
+	def _compute_members(self):
 		for rec in self:
-			rec.called = rec.workgroup_id.name if type == "workgroup" else rec.department_id.name
+			rec.members = "Workgroup: %s" % rec.workgroup_id.name if rec.type == "workgroup" else "Department: %s" % rec.department_id.name
 
 	#TODO: Should also set the permissions for the record (department and also workgroup <-- NEW)
 	#	   https://www.cybrosys.com/blog/how-to-create-record-rule-in-odoo-16

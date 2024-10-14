@@ -7,7 +7,7 @@
                 <tree expand="1" >
                     <field name="date"/>
                     <field name="type"/>
-                    <field name="called"/>
+                    <field name="members"/>
                     <field name="nature"/>
                     <field name="abstract" />  
                 </tree>
