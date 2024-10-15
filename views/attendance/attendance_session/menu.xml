@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>          
+        <record model="ir.actions.act_window" id="action_attendance_session_tree">
+            <field name="name">Attendance session</field>
+            <field name="res_model">ims.attendance_session</field>
+            <field name="view_mode">tree,form,calendar</field>
+            <!-- <field name="context">{'search_default_group_by_study': 1}</field> -->
+        </record>
+            
+        <menuitem name="Sessions" sequence="2" id="menu_attendance_sessions" parent="menu_attendance" action="action_attendance_session_tree"/>
+    </data>
+</odoo>

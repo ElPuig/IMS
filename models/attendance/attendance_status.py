@@ -23,7 +23,11 @@ class ims_attendance_status(models.Model):
     )
 
 	attendance_session = fields.Many2one(comodel_name="ims.attendance_session", string="Session")
+<<<<<<< Updated upstream
 	student = fields.Many2one(comodel_name="ims.student", string="Student")
+=======
+	student = fields.Many2one(comodel_name="res.partner", string="Student", domain = "[('contact_type','=','student')]")
+>>>>>>> Stashed changes
 
 	def action_miss(self):
 		self.ensure_one()

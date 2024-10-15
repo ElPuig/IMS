@@ -1,5 +1,5 @@
 <odoo>
-    <data>
+    <data>        
         <record model="ir.ui.view" id="view_attendance_group_form">
             <field name="name">ims.attendance.group.form</field>
             <field name="model">ims.attendance_group</field>
@@ -9,8 +9,11 @@
                         <group string="Basic data">
                             <field name="start_date"/>
                             <field name="duration"/>
+<<<<<<< Updated upstream
                             <!-- <field name="start_time" widget="float_time"/>
                             <field name="end_time" widget="float_time"/> -->
+=======
+>>>>>>> Stashed changes
                             <field name="teacher"/>
                             <!-- <field name="student"/> -->
                             <field name="study"/>
@@ -25,8 +28,21 @@
                         <notebook>
                             <page string="Templates">
                                 <field name="attendance_templates" widget="one2many_list" context="{'show_attribute': False}">
+<<<<<<< Updated upstream
                                     <tree>                                        
                                         <field name="student"/>                                        
+=======
+                                    <tree>
+                                        <!-- <field name="start_date"/> -->
+                                        <!-- <field name="duration"/> -->
+                                        <!-- <field name="teacher"/> -->
+                                        <field name="student"/>
+                                        <!-- <field name="study"/> -->
+                                        <!-- <field name="subject"/> -->
+                                        <!-- <field name="space"/> -->
+                                        <!-- <field name="weekday"/> -->
+                                        <!-- <field name="color" widget="color_picker"/> -->
+>>>>>>> Stashed changes
                                     </tree>
                                 </field>
                             </page>
@@ -35,7 +51,10 @@
                                     <tree>
                                         <field name="date"/>
                                         <field name="duration"/>
+<<<<<<< Updated upstream
                                         <!-- <field name="end_time"/> -->
+=======
+>>>>>>> Stashed changes
                                         <field name="notes"/>
                                     </tree>
                                 </field>

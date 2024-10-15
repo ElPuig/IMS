@@ -7,8 +7,11 @@
                 <tree>                    
                     <field name="date"/>
                     <field name="duration"/>
+<<<<<<< Updated upstream
                     <!-- <field name="start_time"/> -->
                     <!-- <field name="end_time"/> -->
+=======
+>>>>>>> Stashed changes
                     <field name="notes"/>                 
                 </tree>
             </field>

@@ -13,29 +13,39 @@
                             <!-- <field name="start_time" widget="float_time"/> -->
                             <!-- <field name="end_time" widget="float_time"/> -->
                             <field name="notes"/>
-                            <field name="hasStatuses" invisible="1"/>                      
+                            <!-- <field name="hasStatuses" invisible="1"/>                       -->
                         </group>
                         <notebook>
                             <page string="Statuses">
                                 <field name="attendance_statuses" widget="one2many_list" context="{'show_attribute': False}">
-                                    <tree>
+                                    
+                                    <tree   decoration-bf="status=='2'"
+                                            decoration-danger="status=='2'" 
+                                            decoration-warning="status=='3'" 
+                                            decoration-success="status=='1'">
+                                    
                                         <field name="student"/>
                                         <field name="status"/>
                                         <field name="notes"/>
+<<<<<<< Updated upstream
                                         <button name="action_miss" icon="fa-times" title="miss" type="object" attrs="{'invisible': [('status', '=', '2')]}"/> <!--TODO: Figure out how to reference model constants-->
+=======
+                                        <button name="action_miss" icon="fa-times" title="miss" type="object" attrs="{'invisible': [('status', '=', '2')]}"/> 
+>>>>>>> Stashed changes
                                         <button name="action_attend" icon="fa-check" title="attend" type="object" attrs="{'invisible': [('status', '=', '1')]}"/>
                                         <button name="action_delay" icon="fa-clock-o" title="delay" type="object" attrs="{'invisible': [('status', '=', '3')]}"/>
                                     </tree>
                                 </field>
-                            </page>                                                        
+                            </page>                                                         
                         </notebook>
-                        <button name="GenerateStatusesByTemplates" 
+
+                        <!-- <button name="GenerateStatusesByTemplates" 
                             string="Generate Statuses" 
                             type="object"
                             class="oe_highlight"
                             attrs="{'invisible': [('hasStatuses', '=', True)]}"
                             context="{'active_id': active_id, 'active_model': active_model}"
-                        />                    
+                        /> -->
                     </sheet>	
                 </form>
             </field>			

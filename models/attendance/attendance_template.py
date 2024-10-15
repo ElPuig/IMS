@@ -11,6 +11,7 @@ class ims_attendance_template(models.Model):
 	# start_time = fields.Float("Start Time")
 	# end_time = fields.Float("End Time")
 
+<<<<<<< Updated upstream
 	teacher = fields.Many2one(comodel_name="ims.teacher", string="Professor")
 	student = fields.Many2one(comodel_name="ims.student", string="Student")
 	study = fields.Many2one(comodel_name="ims.study", string="Study")
@@ -18,6 +19,14 @@ class ims_attendance_template(models.Model):
 	uf = fields.Many2one(comodel_name="ims.formative_unit", string="Formative Unit")
 	level = fields.Many2one(comodel_name="ims.level", string="Level")
 	classroom = fields.Many2one(comodel_name="ims.classroom", string="Classroom")
+=======
+	teacher = fields.Many2one(comodel_name="hr.employee", string="Professor")
+	student = fields.Many2one(comodel_name="res.partner", string="Student", domain = "[('contact_type','=','student')]")
+	study = fields.Many2one(comodel_name="ims.study", string="Study")
+	subject = fields.Many2one(comodel_name="ims.subject", string="Subject")
+	level = fields.Many2one(comodel_name="ims.level", string="Level") #TODO: this should be loaded from subject
+	space = fields.Many2one(comodel_name="ims.space", string="Space")
+>>>>>>> Stashed changes
 	weekday = fields.Selection([
 		('1', 'Monday'),
         ('2', 'Tuesday'),
@@ -29,6 +38,19 @@ class ims_attendance_template(models.Model):
 	color = fields.Integer(string='Color', help='Field to store the color that will be used for calendar view')
     
 	attendance_group = fields.Many2one(comodel_name="ims.attendance_group", string="Attendance Template Group")
+
+	# TODO: Revisar porqué el onchange no funciona
+	@api.onchange("attendance_group")
+	def _onchange_attendance_group(self):
+		if self.attendance_group:
+			self.study = self.attendance_group.study
+			self.subject = self.attendance_group.subject
+			self.teacher = self.attendance_group.teacher
+			self.space = self.attendance_group.space
+			self.weekday = self.attendance_group.weekday
+			self.color = self.attendance_group.color
+
+	
 
 	
     

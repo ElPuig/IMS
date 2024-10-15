@@ -8,7 +8,10 @@ class ims_attendance_session(models.Model):
 	
 	date = fields.Datetime(string="Date", default = fields.Datetime.now)
 	duration = fields.Integer(string="Duration", default = 60)
+<<<<<<< Updated upstream
 	# start_time = fields.Float("Start Time", default=lambda self: self.attendance_group.start_time)
+=======
+>>>>>>> Stashed changes
 	# end_time = fields.Float("End Time", default=lambda self: self.attendance_group.end_time)
 	notes = fields.Text('Notes')
 
@@ -21,6 +24,7 @@ class ims_attendance_session(models.Model):
 	date_start = fields.Datetime(string="date_start", compute='computeDate')
 	date_stop = fields.Datetime(string="date_stop", compute='computeDate')
 	name =fields.Char(string="name", compute='computeName')
+<<<<<<< Updated upstream
 	event_color = fields.Integer("Color", compute='computeColor')
 
 	def computeColor(self):
@@ -30,6 +34,17 @@ class ims_attendance_session(models.Model):
 	def computeName(self):
 		for record in self:
 			record.name = record.attendance_group.mp.acronym
+=======
+	# event_color = fields.Integer("Color", compute='computeColor')
+
+	# def computeColor(self):
+	# 	for record in self:
+	# 		record.name = record.attendance_group.color
+	
+	def computeName(self):
+		for record in self:
+			record.name = record.attendance_group.subject.acronym
+>>>>>>> Stashed changes
 
 	@api.depends('date')
 	def computeDate(self):
@@ -43,10 +58,18 @@ class ims_attendance_session(models.Model):
 			record.hasStatuses = len(record.attendance_statuses) > 0
 
 	def GenerateStatusesByTemplates (self):
-		for student in self.attendance_group.attendance_templates.student:
+		for contact in self.attendance_group.attendance_templates.student:
 			status = self.env['ims.attendance_status'].create({
 				'attendance_session': self.id,
-				'student' : student.id,
+				'student' : contact.id,
+				'status' : '1'
+			})
+
+	def GenerateStatuses (self, session):
+		for contact in self.attendance_group.attendance_templates.student:
+			status = self.env['ims.attendance_status'].create({
+				'attendance_session': self.id,
+				'student' : contact.id,
 				'status' : '1'
 			})
 
