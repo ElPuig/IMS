@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>          
+        <record model="ir.actions.act_window" id="action_attendance_group_tree">
+            <field name="name">Attendance group</field>
+            <field name="res_model">ims.attendance_group</field>
+            <field name="view_mode">tree,form</field>
+            <!-- <field name="context">{'search_default_group_by_study': 1}</field> -->
+        </record>
+            
+        <menuitem name="Groups" sequence="1" id="menu_attendance_groups" parent="menu_attendance" action="action_attendance_group_tree"/>
+    </data>
+</odoo>
