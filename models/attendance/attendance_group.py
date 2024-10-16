@@ -9,12 +9,11 @@ class ims_attendance_group(models.Model):
 	_description = 'Attendance templates linked to a student group that allows template batch generation'
 	_inherit = 'ims.attendance_template'
 	
-	name = fields.Char(compute='_compute_name', string="Name")
+	name = fields.Char(string="Name", compute='_compute_name')
 
 	group = fields.Many2one(comodel_name="ims.group", string="Grup")	
-	attendance_templates = fields.One2many(comodel_name="ims.attendance_template", inverse_name="attendance_group", string="Templates")
-	attendance_sessions = fields.One2many(comodel_name="ims.attendance_session", inverse_name="attendance_group", string="Sessions")
-
+	attendance_templates = fields.One2many(string="Templates", comodel_name="ims.attendance_template", inverse_name="attendance_group")
+	attendance_sessions = fields.One2many(string="Sessions", comodel_name="ims.attendance_session", inverse_name="attendance_group")
 	has_templates = fields.Boolean(compute='_compute_has_templates', store=False)
 
 	@api.depends('attendance_templates')
@@ -26,7 +25,7 @@ class ims_attendance_group(models.Model):
 	def _compute_name(self):
 		for record in self:
 			# TODO: Pulir la generación del nombre
-			record.name = "-".join([record.group.name, record.subject.name, record.weekday, str(record.start_date.time())])
+			record.name = "-".join([record.group.name, record.subject.name, record.weekday, str(record.end_date.time())])
 
 	# TODO: Rename to GenerateTemplatesByGroup
 	# TODO: Create GenerateTemplatesByEnrollment method or GenerateAllTemplates (group+enrollment)
@@ -65,9 +64,9 @@ class ims_attendance_group(models.Model):
 		return nextDate
 	
 	def add_hour_to_date(self, date):				
-		hora = self.start_date.hour
-		minuto = self.start_date.minute
-		segundo = self.start_date.second
+		hora = self.end_date.hour
+		minuto = self.end_date.minute
+		segundo = self.end_date.second
 		date = datetime.datetime(date.year, date.month, date.day, hora, minuto, segundo, tzinfo=None)
 		return date
 	

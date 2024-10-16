@@ -7,14 +7,16 @@
                 <form string="Template group">
                     <sheet>                        
                         <group string="Basic data">
-                            <field name="start_date"/>
-                            <field name="duration"/>
+                            <!-- <field name="end_date"/> -->
+                            <!-- <field name="duration"/> -->
                             <field name="teacher"/>
                             <!-- <field name="student"/> -->
                             <field name="study"/>
                             <field name="subject"/>
                             <field name="space"/>
                             <field name="weekday"/>
+                            <field name="start_time"/>
+                            <field name="end_time"/>
                             <field name="color" widget="color_picker"/>
                             <field name="group"/>
                             <field name="has_templates" invisible="1"/>                                                                              
@@ -23,7 +25,7 @@
                             <page string="Templates">
                                 <field name="attendance_templates" widget="one2many_list" context="{'show_attribute': False}">
                                     <tree>
-                                        <!-- <field name="start_date"/> -->
+                                        <!-- <field name="end_date"/> -->
                                         <!-- <field name="duration"/> -->
                                         <!-- <field name="teacher"/> -->
                                         <field name="student"/>

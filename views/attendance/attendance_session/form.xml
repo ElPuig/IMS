@@ -13,7 +13,7 @@
                             <!-- <field name="start_time" widget="float_time"/> -->
                             <!-- <field name="end_time" widget="float_time"/> -->
                             <field name="notes"/>
-                            <!-- <field name="hasStatuses" invisible="1"/>                       -->
+                            <!-- <field name="has_statuses" invisible="1"/>                       -->
                         </group>
                         <notebook>
                             <page string="Statuses">
@@ -39,7 +39,7 @@
                             string="Generate Statuses" 
                             type="object"
                             class="oe_highlight"
-                            attrs="{'invisible': [('hasStatuses', '=', True)]}"
+                            attrs="{'invisible': [('has_statuses', '=', True)]}"
                             context="{'active_id': active_id, 'active_model': active_model}"
                         /> -->
                     </sheet>	

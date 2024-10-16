@@ -22,7 +22,7 @@ class ims_attendance_status(models.Model):
         required=True,
     )
 
-	attendance_session = fields.Many2one(comodel_name="ims.attendance_session", string="Session")
+	attendance_session = fields.Many2one(string="Session", comodel_name="ims.attendance_session")
 	student = fields.Many2one(comodel_name="res.partner", string="Student", domain = "[('contact_type','=','student')]")
 
 	def action_miss(self):

@@ -6,17 +6,17 @@ class ims_attendance_template(models.Model):
 	_name = 'ims.attendance_template'
 	_description = 'Attendance template'
 
-	start_date = fields.Datetime(string="Date", default = fields.Datetime.now)
-	duration = fields.Integer(string="Duration", default = 60)
-	# start_time = fields.Float("Start Time")
-	# end_time = fields.Float("End Time")
+	# end_date = fields.Datetime(string="Date", default = fields.Datetime.now)	
+	# duration = fields.Integer(string="Duration", default = 60)
+	start_time = fields.Float("Start Time")
+	end_time = fields.Float("End Time")
 
-	teacher = fields.Many2one(comodel_name="hr.employee", string="Professor")
-	student = fields.Many2one(comodel_name="res.partner", string="Student")
-	study = fields.Many2one(comodel_name="ims.study", string="Study")
-	subject = fields.Many2one(comodel_name="ims.subject", string="Subject")
-	level = fields.Many2one(comodel_name="ims.level", string="Level") #TODO: this should be loaded from subject
-	space = fields.Many2one(comodel_name="ims.space", string="space")
+	teacher = fields.Many2one(string="Teacher", comodel_name="hr.employee")
+	student = fields.Many2one(string="Student", comodel_name="res.partner")
+	study = fields.Many2one(string="Study", comodel_name="ims.study")
+	subject = fields.Many2one(string="Subject",comodel_name="ims.subject")
+	level = fields.Many2one(string="Level", comodel_name="ims.level") #TODO: this should be loaded from subject
+	space = fields.Many2one(string="Space", comodel_name="ims.space")
 	weekday = fields.Selection([
 		('1', 'Monday'),
         ('2', 'Tuesday'),
@@ -27,7 +27,7 @@ class ims_attendance_template(models.Model):
 
 	color = fields.Integer(string='Color', help='Field to store the color that will be used for calendar view')
     
-	attendance_group = fields.Many2one(comodel_name="ims.attendance_group", string="Attendance Template Group")
+	attendance_group = fields.Many2one(string="Attendance Template Group", comodel_name="ims.attendance_group")
 
 	# TODO: Revisar porqué el onchange no funciona
 	@api.onchange("attendance_group")
