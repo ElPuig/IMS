@@ -35,7 +35,7 @@
                             </page>                                                         
                         </notebook>
 
-                        <!-- <button name="GenerateStatusesByTemplates" 
+                        <!-- <button name="generate_statuses_by_templates" 
                             string="Generate Statuses" 
                             type="object"
                             class="oe_highlight"

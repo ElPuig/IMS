@@ -17,7 +17,7 @@
                             <field name="weekday"/>
                             <field name="color" widget="color_picker"/>
                             <field name="group"/>
-                            <field name="hasTemplates" invisible="1"/>                                                                              
+                            <field name="has_templates" invisible="1"/>                                                                              
                         </group>
                         <notebook>
                             <page string="Templates">
@@ -45,14 +45,14 @@
                                 </field>
                             </page>                                                        
                         </notebook>
-                        <button name="GenerateTemplatesByStudent" 
+                        <button name="generate_templates_by_student" 
                             string="Generate Templates" 
                             type="object"
                             class="oe_highlight"
-                            attrs="{'invisible': [('hasTemplates', '=', True)]}"
+                            attrs="{'invisible': [('has_templates', '=', True)]}"
                             context="{'active_id': active_id, 'active_model': active_model}"
                         />
-                        <button name="GenerateNextSession" 
+                        <button name="generate_next_session" 
                             string="Generate Next Session" 
                             type="object"
                             class="oe_highlight"                            

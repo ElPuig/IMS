@@ -447,8 +447,8 @@ msgid "Hasstatuses"
 msgstr ""
 
 #. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__hasTemplates
-msgid "Hastemplates"
+#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__has_templates
+msgid "has_templates"
 msgstr ""
 
 #. module: ims

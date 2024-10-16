@@ -23,8 +23,8 @@ class ims_employee(models.AbstractModel):
     tutorship_ids = fields.One2many(string="Tutorships", comodel_name="ims.group", inverse_name="tutor_id")
 
     #This fields are computed in order to display string data within some views.
-    roles = fields.Char(string="Role names", compute="_roles_str", store=True)	
-    tutorships = fields.Char(string="Tutorship names", compute="_tutorships_str", store=True)	
+    roles = fields.Char(string="Role names", compute="_compute_roles_str", store=True)	
+    tutorships = fields.Char(string="Tutorship names", compute="_compute_tutorships_str", store=True)	
 
     @api.model
     def _get_new_employee_type(self):            
@@ -37,7 +37,7 @@ class ims_employee(models.AbstractModel):
                 role.check_limit()                
 				
     @api.depends("role_ids")
-    def _roles_str(self):			
+    def _compute_roles_str(self):			
         for rec in self:
             rec.roles = ""
             for role in rec.role_ids:
@@ -46,7 +46,7 @@ class ims_employee(models.AbstractModel):
 
     
     @api.depends("tutorship_ids")
-    def _tutorships_str(self):			
+    def _compute_tutorships_str(self):			
         for rec in self:
             rec.tutorships = ""
             for tutorship in rec.tutorship_ids:
