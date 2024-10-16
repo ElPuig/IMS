@@ -43,5 +43,11 @@ class ims_attendance_template(models.Model):
 	
 
 	
-    
+
+
+   # TODO:
+   # Template: teacher -> group -> subject -> loads the students data and also the space (allows to edit)
+   # Sessions: which day and our to use the template
+   # Instance: use a session to fill assistance data (attendance_status)
+   # Status: attencade status per student in an instance
     

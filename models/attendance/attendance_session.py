@@ -14,17 +14,12 @@ class ims_attendance_session(models.Model):
 	start_time = fields.Float(string="Start Time", related='attendance_group.start_time') #, store=True)
 	end_time = fields.Float(string="End Time", related='attendance_group.end_time') #, store=True)
 	start_date = fields.Datetime(string="Start date", compute="_compute_start_date", readonly=False, store=True)
+	# TODO: enddate
 	duration = fields.Integer(string="Duration", compute="_compute_duration", readonly=False, store=True)
 
-	# start_date = fields.Datetime(string="Start date", compute='_compute_date')
-	# end_date = fields.Datetime(string="End date", compute='_compute_date')
-
-	#duration = fields.Integer(string="Duration", default = 60)
-	# end_time = fields.Float("End Time", default=lambda self: self.attendance_group.end_time)
 	notes = fields.Text(string="Notes")
 	attendance_group = fields.Many2one(string="Attendance Group", comodel_name="ims.attendance_group")
 
-	# group = fields.Many2one(string="Grup", comodel_name="ims.group")	
 	attendance_statuses = fields.One2many(string="Student status", comodel_name="ims.attendance_status", inverse_name="attendance_session")		
 	has_statuses = fields.Boolean(compute='_compute_has_statuses', store=False)	
 	# event_color = fields.Integer("Color", compute='computeColor')

@@ -8,14 +8,9 @@
                     <sheet>
                         <group string="Basic data">
                             <field name="date"/>
-                            <!-- <field name="duration" tooltip="Duration in minutes"/> -->
-                            <!-- <field name="date"/> -->
-                            <!-- <field name="start_time" widget="float_time"/> -->
-                            <!-- <field name="end_time" widget="float_time"/> -->
                             <field name="weekday"/>
                             <field name="start_time"/>
-                            <field name="end_time"/>
-                            <field name="start_date"/>
+                            <field name="end_time"/>                            
                             <field name="notes"/>
                             <!-- <field name="has_statuses" invisible="1"/>                       -->
                         </group>
