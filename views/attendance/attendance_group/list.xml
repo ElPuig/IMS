@@ -5,12 +5,8 @@
             <field name="model">ims.attendance_group</field>
             <field name="arch" type="xml">
                 <tree>                    
-<<<<<<< Updated upstream
-                    <field name="start_date"/>                    
-=======
                     <field name="start_date"/>
                     <field name="duration"/>
->>>>>>> Stashed changes
                     <field name="teacher"/>
                     <!-- <field name="student"/> -->
                     <field name="study"/>

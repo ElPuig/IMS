@@ -23,6 +23,18 @@ class ims_attendance_status(models.Model):
     )
 
 	attendance_session = fields.Many2one(comodel_name="ims.attendance_session", string="Session")
-	student = fields.Many2one(comodel_name="res.partner", string="Student")
+	student = fields.Many2one(comodel_name="res.partner", string="Student", domain = "[('contact_type','=','student')]")
+
+	def action_miss(self):
+		self.ensure_one()
+		self.status = self.CONS_MISS
+
+	def action_attend(self):
+		self.ensure_one()
+		self.status = self.CONS_ATTENDED
+
+	def action_delay(self):
+		self.ensure_one()
+		self.status = self.CONS_DELAY
 
 	
