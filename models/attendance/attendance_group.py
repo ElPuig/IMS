@@ -9,7 +9,8 @@ class ims_attendance_group(models.Model):
 	_description = 'Attendance templates linked to a student group that allows template batch generation'
 	_inherit = 'ims.attendance_template'
 	
-	name = fields.Char(string="Name", compute='_compute_name')
+	# name = fields.Char(string="Name", compute='_compute_name')
+	name = fields.Char(string="Name")
 
 	group = fields.Many2one(comodel_name="ims.group", string="Grup")	
 	attendance_templates = fields.One2many(string="Templates", comodel_name="ims.attendance_template", inverse_name="attendance_group")

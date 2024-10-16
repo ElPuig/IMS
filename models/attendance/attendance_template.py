@@ -6,18 +6,19 @@ class ims_attendance_template(models.Model):
 	_name = 'ims.attendance_template'
 	_description = 'Attendance template'
 
-	# end_date = fields.Datetime(string="Date", default = fields.Datetime.now)	
+	# start_date = fields.Datetime(string="Start date", default = fields.Datetime.now)	
+	# end_date = fields.Datetime(string="End date", default = fields.Datetime.now)	
 	# duration = fields.Integer(string="Duration", default = 60)
 	start_time = fields.Float("Start Time")
 	end_time = fields.Float("End Time")
 
 	teacher = fields.Many2one(string="Teacher", comodel_name="hr.employee")
-	student = fields.Many2one(string="Student", comodel_name="res.partner")
+	student = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")
 	study = fields.Many2one(string="Study", comodel_name="ims.study")
 	subject = fields.Many2one(string="Subject",comodel_name="ims.subject")
 	level = fields.Many2one(string="Level", comodel_name="ims.level") #TODO: this should be loaded from subject
 	space = fields.Many2one(string="Space", comodel_name="ims.space")
-	weekday = fields.Selection([
+	weekday = fields.Selection(string="Weekday", selection=[
 		('1', 'Monday'),
         ('2', 'Tuesday'),
         ('3', 'Wednesday'),
@@ -25,9 +26,8 @@ class ims_attendance_template(models.Model):
         ('5', 'Friday'),
     ])
 
-	color = fields.Integer(string='Color', help='Field to store the color that will be used for calendar view')
-    
-	attendance_group = fields.Many2one(string="Attendance Template Group", comodel_name="ims.attendance_group")
+	color = fields.Integer(string='Color', help='Field to store the color that will be used for calendar view')    
+	attendance_group = fields.Many2one(string="Attendance Template Group", comodel_name="ims.attendance_group")		
 
 	# TODO: Revisar porqué el onchange no funciona
 	@api.onchange("attendance_group")

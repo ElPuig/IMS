@@ -6,8 +6,10 @@
             <field name="arch" type="xml">
                 <tree>                    
                     <field name="date"/>
-                    <field name="duration"/>
-                    <field name="notes"/>                 
+                    <field name="weekday"/>
+                    <field name="start_time"/>
+                    <field name="end_time"/>
+                    <field name="notes"/>             
                 </tree>
             </field>
         </record>   
