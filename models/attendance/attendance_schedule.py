@@ -1,44 +1,27 @@
 # -*- coding: utf-8 -*-
 
-# import math, pytz
-# from datetime import datetime, time
+import math, pytz
+from datetime import datetime, time
 from odoo import models, fields, api
-#from attendance_session import ims_attendance_session
 
-class ims_attendance_session(models.Model):
-	_name = 'ims.attendance_session'
-	_description = 'Attendance session: contains the data about every session done with the students.'
+class ims_attendance_schedule(models.Model):
+	_name = 'ims.attendance_schedule'
+	_description = 'Attendance schedule: concretes the weekdays data.'
 	
-	# NOTE: This is an statistical data model, should be unaltered if master-data changes, so the parent data will be copied.
-	teacher = fields.Char(string="Name", related='attendance_session_id.attendance_template_id.teacher_id.name', store=True)
-	level = fields.Char(string="Level", related='attendance_session_id.attendance_template_id.level_id.name', store=True)
-	study = fields.Char(string="Study", related='attendance_session_id.attendance_template_id.study_id.name', store=True)
-	group = fields.Char(string="Group", related='attendance_session_id.attendance_template_id.group_id.name', store=True)
-	subject = fields.Char(string="Subject", related='attendance_session_id.attendance_template_id.subject_id.name', store=True)	
-	student = fields.Char(string="Student", related='attendance_session_id.attendance_template_id.student_id.name', store=True)
-	
-	#weekday = fields.Selection(string="Weekday", selection=ims_attendance_session.weekday)		
-	weekday = fields.Selection(string="Weekday", related='attendance_session_id.weekday', store=True)
-	start_time = fields.Float("Start Time", related='attendance_session_id.start_time', store=True)
-	end_time = fields.Float("End Time", related='attendance_session_id.end_time', store=True)
-	space = fields.Char(string="Space", related='attendance_session_id.space_id.name', store=True)
-	
-	date = fields.Datetime(string="Date", default=fields.Datetime.now)
-	notes = fields.Text('Notes')
-	
-	attendance_schedule_id = fields.Many2one(string="Schedule", comodel_name="ims.attendance_schedule")
+	weekday = fields.Selection(string="Weekday", selection=[
+		('1', 'Monday'),
+        ('2', 'Tuesday'),
+        ('3', 'Wednesday'),
+        ('4', 'Thursday'),
+        ('5', 'Friday'),
+    ])
 
-	# TODO: In order to speedup the development, the status will be setup as a selection, so it's single-choice (radio button) 
-	#		In a near future, this should be multi-choice (checkbox) but new statuses should be allowed for customization purposes
-	#		so another kind of field should be used (one2many relation BUT be aware of the BBDD registries in order to generate 
-	# 		only the selected ones.).
-	status = fields.Selection(string='Status', default='1', required=True, selection=
-        [(1, 'Attended'), (2, 'Delay'), (3, 'Miss'), (4, 'Issue')]
-    )
-
-	
-
-	
+	start_time = fields.Float("Start Time")
+	end_time = fields.Float("End Time")
+	space_id = fields.Many2one(string="Space", comodel_name="ims.space")	# TODO: autofill by template (allow changes)
+	attendance_template_id = fields.Many2one(string="Template", comodel_name="ims.attendance_template")
+	#attendance_instance_ids = fields.One2many(string="Instances", comodel_name="ims.attendance_instance", inverse_name="attendance_session_id")		
+	notes = fields.Text(string="Notes")
 
 
 
@@ -52,7 +35,7 @@ class ims_attendance_session(models.Model):
 	# # TODO: enddate
 	# duration = fields.Integer(string="Duration", compute="_compute_duration", readonly=False, store=True)
 
-	# notes = fields.Text(string="Notes")
+	
 	# attendance_group = fields.Many2one(string="Attendance Group", comodel_name="ims.attendance_group")
 
 	# attendance_statuses = fields.One2many(string="Student status", comodel_name="ims.attendance_status", inverse_name="attendance_session")		

@@ -6,21 +6,54 @@
             <field name="arch" type="xml">
                 <form string="Template">
                     <sheet>
-                        <group string="Basic data">
-                            <!-- <field name="start_time" widget="float_time"/>
-                            <field name="end_time" widget="float_time"/> -->
-                            <field name="teacher"/>
-                            <field name="student"/>
-                            <field name="study"/>
-                            <field name="subject"/>
-                            <field name="space"/>
-                            <field name="weekday"/>
-                            <field name="color" widget="color_picker"/>
-                            <field name="attendance_group"/>                      
-                        </group>                    
+                        <group string="Main data" col="4">    
+                            <group colspan="3">
+                                <group colspan="3">
+                                    <field name="teacher_id"/>    
+                                </group>
+                                <group>
+                                    <field name="level_id"/>                                    
+                                </group>
+                                <group>
+                                    <field name="study_id"/>
+                                </group>
+                                <group colspan="3">
+                                    <field name="subject_id"/>
+                                </group>
+                            </group>
+                            <group>                                
+                                <field name="color" widget="color_picker"/>                                 
+                                    <field name="group_id"/>   
+                                <field name="space_id"/>  
+                            </group>      
+                        </group>
+
+                        <notebook>
+                            <page string="Scheduled">
+                                <field name="attendance_schedule_ids" string="" context="{'show_attribute': False}">
+                                    <tree editable="bottom" default_order="weekday asc, start_time asc">
+                                        <field name="weekday" width="175px" />
+                                        <field name="space_id" />
+                                        <field name="start_time" widget="float_time" width="120px" />
+                                        <field name="end_time" widget="float_time" width="120px" />                                        
+                                    </tree>
+                                </field>
+                            </page>
+
+                            <page string="Students">
+                                <field name="student_ids" mode="kanban" />
+                                <!-- <field name="student_ids" widget="many2many_tags_avatar"/> -->
+                                <!-- <field name="student_ids" string="" context="{'show_attribute': False}" widget="many2many_kanban">
+                                    <tree>
+                                        <field name="name" />
+                                        <field name="email" />
+                                    </tree>
+                                </field> -->
+                            </page>
+                        </notebook> 
                     </sheet>	
                 </form>
-            </field>			
+            </field>
         </record>
     </data>
 </odoo>

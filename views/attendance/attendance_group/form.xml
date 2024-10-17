@@ -1,16 +1,16 @@
 <odoo>
     <data>        
-        <record model="ir.ui.view" id="view_attendance_group_form">
+        <!-- <record model="ir.ui.view" id="view_attendance_group_form">
             <field name="name">ims.attendance.group.form</field>
             <field name="model">ims.attendance_group</field>
             <field name="arch" type="xml">
                 <form string="Template group">
                     <sheet>                        
                         <group string="Basic data">
-                            <!-- <field name="end_date"/> -->
-                            <!-- <field name="duration"/> -->
+                            <field name="end_date"/>
+                            <field name="duration"/>
                             <field name="teacher"/>
-                            <!-- <field name="student"/> -->
+                            <field name="student"/>
                             <field name="study"/>
                             <field name="subject"/>
                             <field name="space"/>
@@ -24,7 +24,7 @@
                         <notebook>
                             <page string="Templates">
                                 <field name="attendance_templates" string="" context="{'show_attribute': False}">
-                                    <!-- TODO: this sould be automatically filled when selecting the group. -->
+                                    TODO: this sould be automatically filled when selecting the group.
                                     <tree editable="bottom">
                                         <field name="student" />
                                     </tree>
@@ -58,6 +58,6 @@
                     </sheet>	
                 </form>
             </field>			
-        </record>
+        </record> -->
     </data>
 </odoo>

@@ -24,5 +24,14 @@
         <!-- <record model="ir.ui.menu" id="contacts.menu_contacts">
             <field name="active">false</field>
         </record>  -->
+
+        <!-- 
+            TODO: Change menu
+                People:
+                    Students (default)
+                    Teachers
+                    ASPs
+                    Providers
+        -->
     </data>
 </odoo>

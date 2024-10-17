@@ -1,21 +1,21 @@
 <odoo>
     <data>       
-        <record model="ir.ui.view" id="view_attendance_group_list">
+        <!-- <record model="ir.ui.view" id="view_attendance_group_list">
             <field name="name">ims.attendance_group.list</field>
             <field name="model">ims.attendance_group</field>
             <field name="arch" type="xml">               
-                <tree expand="1" default_order="weekday asc">
-                    <field name="weekday" width="125px" />                                
+                <tree expand="1" default_order="weekday asc"> -->
+                    <!-- <field name="weekday" width="125px" />                                
                     <field name="study" width="150px" /> 
                     <field name="subject" /> 
                     <field name="space" width="125px" /> 
-                    <field name="teacher" width="250px"/> 
+                    <field name="teacher" width="250px"/>  -->
                     <!-- TODO: numeric values aligns to right, but I was unable to force its align to left...  -->
-                    <field name="color" widget="color_picker" width="80px"/> 
+                    <!-- <field name="color" widget="color_picker" width="80px"/> 
                     <field name="start_time" widget="float_time" width="100px" />      
-                    <field name="end_time" widget="float_time" width="100px" />         
-                </tree>
+                    <field name="end_time" widget="float_time" width="100px" />          -->
+                <!-- </tree>
             </field>
-        </record>   
+        </record>    -->
     </data>
 </odoo>

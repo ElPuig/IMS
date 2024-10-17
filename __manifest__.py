@@ -90,6 +90,7 @@
 
         'views/attendance/menu.xml',
 
+        'views/attendance/attendance_template/menu.xml',
         'views/attendance/attendance_template/list.xml',
         'views/attendance/attendance_template/form.xml',
         'views/attendance/attendance_group/list.xml',

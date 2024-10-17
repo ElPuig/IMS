@@ -1,6 +1,6 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_attendance_session_form">
+        <!-- <record model="ir.ui.view" id="view_attendance_session_form">
             <field name="name">ims.attendance_session.form</field>
             <field name="model">ims.attendance_session</field>
             <field name="arch" type="xml">
@@ -12,7 +12,7 @@
                             <field name="start_time"/>
                             <field name="end_time"/>                            
                             <field name="notes"/>
-                            <!-- <field name="has_statuses" invisible="1"/>                       -->
+                            <field name="has_statuses" invisible="1"/>                      
                         </group>
                         <notebook>
                             <page string="Statuses">
@@ -34,16 +34,16 @@
                             </page>                                                         
                         </notebook>
 
-                        <!-- <button name="generate_statuses_by_templates" 
+                        <button name="generate_statuses_by_templates" 
                             string="Generate Statuses" 
                             type="object"
                             class="oe_highlight"
                             attrs="{'invisible': [('has_statuses', '=', True)]}"
                             context="{'active_id': active_id, 'active_model': active_model}"
-                        /> -->
+                        />
                     </sheet>	
                 </form>
             </field>			
-        </record>
+        </record> -->
     </data>
 </odoo>
