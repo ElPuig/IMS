@@ -6,6 +6,8 @@ class ims_attendance_template(models.Model):
 	_name = 'ims.attendance_template'
 	_description = 'Attendance template: contains the basic attendance data (who teaches what, where and for whom)'
 
+	# TODO: add a start_date and an end_date. It will be used to select the current data when creating a new session.
+
 	color = fields.Integer(string='Color', help='Field to store the color that will be used for calendar view')   
 	teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
 	level_id = fields.Many2one(string="Level", comodel_name="ims.level")
