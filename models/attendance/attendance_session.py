@@ -26,22 +26,36 @@ class ims_attendance_session(models.Model):
 	date = fields.Date(string="Date", default=fields.Datetime.now)
 	notes = fields.Text('Notes')
 	
-	#attendance_status_ids = fields.One2many(string="Statuses", comodel_name="ims.attendance_status", inverse_name="attendance_session_id")
+	attendance_status_ids = fields.One2many(string="Statuses", comodel_name="ims.attendance_status", inverse_name="attendance_session_id")
 
-	# TODO: In order to speedup the development, the status will be setup as a selection, so it's single-choice (radio button) 
-	#		In a near future, this should be multi-choice (checkbox) but new statuses should be allowed for customization purposes
-	#		so another kind of field should be used (one2many relation BUT be aware of the BBDD registries in order to generate 
-	# 		only the selected ones.).
-	# status = fields.Selection(string='Status', default='1', required=True, selection=
-    #     [(1, 'Attended'), (2, 'Delay'), (3, 'Miss'), (4, 'Issue')]
-    # )
+	@api.onchange('attendance_schedule_id')	
+	def _onchange_attendance_schedule_id(self):		
+		for rec in self:
+			students = []
+			
+			for attendance_status in rec.attendance_status_ids:
+				# Unlink previous students
+				students.append([3, attendance_status.id])
 
-	
+			for student in rec.attendance_schedule_id.attendance_template_id.student_ids:
+				# Sources: 
+				# 	https://stackoverflow.com/a/70843263
+				#	https://www.odoo.com/ro_RO/forum/suport-1/how-to-insert-value-to-a-one2many-field-in-table-with-create-method-28714
+				
+				# Linking new students
+				students.append([0, 0, {
+					'student_id': student
+				}])	
 
-	
+			self.write({'attendance_status_ids': students})
 
-
-
+	def name_get(self):
+        #Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
+		result = []	
+		for rec in self:
+			result.append((rec.id, "%s | %s" % (rec.attendance_schedule_id.name_get()[0][1], rec.date)))			
+			
+		return result
 
 	# #name =fields.Char(string="Name", compute='_compute_name')
 	# # date = fields.Datetime(string="Date", default=fields.Datetime.now)

@@ -15,10 +15,10 @@
                                 <field name="teacher_id"/>                               
                             </group>
                             <group colspan="1">
-                                <field name="start_date"/>
+                                <field name="start_date" widget="daterange" class="oe_inline" options="{'related_end_date': 'end_date'}"/>
                             </group>
                             <group colspan="1">
-                                <field name="end_date"/>
+                                <field name="end_date" widget="daterange" class="oe_inline" options="{'related_start_date': 'start_date'}"/>
                             </group>
                             <group colspan="2">
                                 <field name="level_id"/>                               

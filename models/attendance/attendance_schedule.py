@@ -25,6 +25,13 @@ class ims_attendance_schedule(models.Model):
 
 	attendance_session_ids = fields.One2many(string="Sessions", comodel_name="ims.attendance_session", inverse_name="attendance_schedule_id")
 	
+	def name_get(self):
+        #Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
+		result = []	
+		for rec in self:
+			result.append((rec.id, "%s | %s" % (rec.attendance_template_id.name_get()[0][1], dict(self._fields['weekday'].selection).get(self.weekday))))			
+			
+		return result
 
 
 

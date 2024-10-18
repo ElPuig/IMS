@@ -7,9 +7,9 @@
                 <form string="Session">
                     <sheet>
                         <group string="Main data" col="6"> 
-                            <group colspan="6">
+                            <!-- <group colspan="6">
                                 <field name="attendance_schedule_id"/>
-                            </group>                            
+                            </group>                             -->
                             <group colspan="2">
                                 <field name="teacher_id"/>                               
                             </group>
@@ -36,25 +36,20 @@
                                 <field name="subject_id"/>                               
                             </group>                                                           
                         </group>
-                        <!-- <notebook>
+                        <notebook>
                             <page string="Statuses">
-                                <field name="attendance_statuses" widget="one2many_list" context="{'show_attribute': False}">
-                                    
-                                    <tree   decoration-bf="status=='2'"
-                                            decoration-danger="status=='2'" 
-                                            decoration-warning="status=='3'" 
-                                            decoration-success="status=='1'">
-                                    
-                                        <field name="student"/>
-                                        <field name="status"/>
-                                        <field name="notes"/>
-                                        <button name="action_miss" icon="fa-times" title="miss" type="object" attrs="{'invisible': [('status', '=', '2')]}"/> 
-                                        <button name="action_attend" icon="fa-check" title="attend" type="object" attrs="{'invisible': [('status', '=', '1')]}"/>
-                                        <button name="action_delay" icon="fa-clock-o" title="delay" type="object" attrs="{'invisible': [('status', '=', '3')]}"/>
-                                    </tree>
+                                <field name="attendance_status_ids" widget="one2many_list" context="{'show_attribute': False}">
+                                    <tree editable="bottom" default_order="student_id asc">
+                                        <field name="student_id" width="150px"/>
+                                        <field name="status" widget="radio" options="{'horizontal': true}"/>
+                                        <field name="notes" width="300px"/>
+                                    </tree>                                   
                                 </field>
-                            </page>                                                         
-                        </notebook> -->
+                            </page>     
+                            <page string="Notes">
+                                <field name="notes"/>
+                            </page>                                                    
+                        </notebook>
 
                         <!-- <button name="generate_statuses_by_templates" 
                             string="Generate Statuses" 
