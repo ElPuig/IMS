@@ -20,70 +20,24 @@
                             <group colspan="1">
                                 <field name="end_date" widget="date"/>
                             </group>
-                            <group colspan="1">
-                                <field name="group_id"/>
-                            </group>
-                            <group colspan="1">
-                                <field name="space_id"/>
-                            </group>                          
-                            
                             <group colspan="2">
                                 <field name="level_id"/>                               
                             </group>
+
                             <group colspan="2">
                                 <field name="study_id"/>                               
                             </group>
-                            <group colspan="2">
-                                <field name="subject_id"/>                               
-                            </group>
-                            
-                            
-                            
-                            
-                            <!-- <group colspan="3">
-                                <field name="color" widget="color_picker"/>
+                            <group colspan="1">
+                                <field name="group_id"/>
                             </group>
                             <group colspan="1">
                                 <field name="space_id"/>
-                            </group>
-                            <group colspan="1">
-                            </group>
-                            <group colspan="1">
-                                <field name="group_id"/>
-                            </group> -->
-                                    
-                                
-                                
-                                
-                                  
-                                
-                                 
-                                
-                               
+                            </group>                                                      
+                            <group colspan="2">
+                                <field name="subject_id"/>                               
+                            </group>                                                           
                         </group>
-                        
-                            <!-- <group colspan="3">
-                                <group colspan="2">
-                                    <field name="teacher_id"/>    
-                                </group>
-                                <group>
-                                    <field name="level_id"/>                                    
-                                </group>
-                                <group>
-                                    <field name="study_id"/>
-                                </group>
-                                <group colspan="3">
-                                    <field name="subject_id"/>
-                                </group>
-                            </group>
-                            <group>                                
-                                <field name="color" widget="color_picker"/>                                 
-                                    <field name="group_id"/>   
-                                <field name="space_id"/>  
-                            </group>      
-                        </group> -->
-                        
-
+                                            
                         <notebook>
                             <page string="Scheduled">
                                 <field name="attendance_schedule_ids" string="" context="{'show_attribute': False}">
@@ -97,14 +51,7 @@
                             </page>
 
                             <page string="Students">
-                                <field name="student_ids" mode="kanban" />
-                                <!-- <field name="student_ids" widget="many2many_tags_avatar"/> -->
-                                <!-- <field name="student_ids" string="" context="{'show_attribute': False}" widget="many2many_kanban">
-                                    <tree>
-                                        <field name="name" />
-                                        <field name="email" />
-                                    </tree>
-                                </field> -->
+                                <field name="student_ids" mode="kanban" />                               
                             </page>
                         </notebook> 
                     </sheet>	
