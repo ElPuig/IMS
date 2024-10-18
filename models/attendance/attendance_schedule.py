@@ -18,10 +18,13 @@ class ims_attendance_schedule(models.Model):
 
 	start_time = fields.Float("Start Time")
 	end_time = fields.Float("End Time")
+	notes = fields.Text(string="Notes")
+
 	space_id = fields.Many2one(string="Space", comodel_name="ims.space")	# TODO: autofill by template (allow changes)
 	attendance_template_id = fields.Many2one(string="Template", comodel_name="ims.attendance_template")
-	#attendance_instance_ids = fields.One2many(string="Instances", comodel_name="ims.attendance_instance", inverse_name="attendance_session_id")		
-	notes = fields.Text(string="Notes")
+
+	attendance_session_ids = fields.One2many(string="Sessions", comodel_name="ims.attendance_session", inverse_name="attendance_schedule_id")
+	
 
 
 

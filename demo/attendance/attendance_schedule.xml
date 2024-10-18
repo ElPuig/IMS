@@ -1,0 +1,21 @@
+<odoo>
+    <data>
+        <record id="attendance_schedule_1" model="ims.attendance_schedule">
+            <field name="weekday">1</field>
+            <field name="start_time">16.00</field>
+            <field name="end_time">17.916666666666668</field>
+
+            <field name="space_id" ref="space_3"/>
+            <field name="attendance_template_id" ref="attendance_template_1"/>
+        </record>
+
+        <record id="attendance_schedule_2" model="ims.attendance_schedule">
+            <field name="weekday">3</field>
+            <field name="start_time">18.25</field>
+            <field name="end_time">20.916666666666668</field>
+
+            <field name="space_id" ref="space_3"/>
+            <field name="attendance_template_id" ref="attendance_template_1"/>
+        </record>
+    </data>
+</odoo>

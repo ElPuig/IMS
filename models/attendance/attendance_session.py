@@ -9,32 +9,32 @@ class ims_attendance_session(models.Model):
 	_name = 'ims.attendance_session'
 	_description = 'Attendance session: contains the data about every session done with the students.'
 	
-	# NOTE: This is an statistical data model, should be unaltered if master-data changes, so the parent data will be copied.
-	teacher = fields.Char(string="Name", related='attendance_session_id.attendance_template_id.teacher_id.name', store=True)
-	level = fields.Char(string="Level", related='attendance_session_id.attendance_template_id.level_id.name', store=True)
-	study = fields.Char(string="Study", related='attendance_session_id.attendance_template_id.study_id.name', store=True)
-	group = fields.Char(string="Group", related='attendance_session_id.attendance_template_id.group_id.name', store=True)
-	subject = fields.Char(string="Subject", related='attendance_session_id.attendance_template_id.subject_id.name', store=True)	
-	student = fields.Char(string="Student", related='attendance_session_id.attendance_template_id.student_id.name', store=True)
+	attendance_schedule_id = fields.Many2one(string="Schedule", comodel_name="ims.attendance_schedule")
 	
-	#weekday = fields.Selection(string="Weekday", selection=ims_attendance_session.weekday)		
-	weekday = fields.Selection(string="Weekday", related='attendance_session_id.weekday', store=True)
-	start_time = fields.Float("Start Time", related='attendance_session_id.start_time', store=True)
-	end_time = fields.Float("End Time", related='attendance_session_id.end_time', store=True)
-	space = fields.Char(string="Space", related='attendance_session_id.space_id.name', store=True)
+	# NOTE: This is an statistical data model, should be unaltered if master-data changes, so the parent data will be copied.		
+	weekday = fields.Selection(string="Weekday", related='attendance_schedule_id.weekday', store=True)
+	start_time = fields.Float("Start Time", related='attendance_schedule_id.start_time', store=True)
+	end_time = fields.Float("End Time", related='attendance_schedule_id.end_time', store=True)		
 	
-	date = fields.Datetime(string="Date", default=fields.Datetime.now)
+	teacher_id = fields.Many2one(string="Teacher", related='attendance_schedule_id.attendance_template_id.teacher_id', store=True)
+	level_id = fields.Many2one(string="Level", related='attendance_schedule_id.attendance_template_id.level_id', store=True)
+	study_id = fields.Many2one(string="Study", related='attendance_schedule_id.attendance_template_id.study_id', store=True)
+	group_id = fields.Many2one(string="Group", related='attendance_schedule_id.attendance_template_id.group_id', store=True)
+	subject_id = fields.Many2one(string="Subject", related='attendance_schedule_id.attendance_template_id.subject_id', store=True)			
+	space_id = fields.Many2one(string="Space", related='attendance_schedule_id.space_id', store=True)		
+
+	date = fields.Date(string="Date", default=fields.Datetime.now)
 	notes = fields.Text('Notes')
 	
-	attendance_schedule_id = fields.Many2one(string="Schedule", comodel_name="ims.attendance_schedule")
+	#attendance_status_ids = fields.One2many(string="Statuses", comodel_name="ims.attendance_status", inverse_name="attendance_session_id")
 
 	# TODO: In order to speedup the development, the status will be setup as a selection, so it's single-choice (radio button) 
 	#		In a near future, this should be multi-choice (checkbox) but new statuses should be allowed for customization purposes
 	#		so another kind of field should be used (one2many relation BUT be aware of the BBDD registries in order to generate 
 	# 		only the selected ones.).
-	status = fields.Selection(string='Status', default='1', required=True, selection=
-        [(1, 'Attended'), (2, 'Delay'), (3, 'Miss'), (4, 'Issue')]
-    )
+	# status = fields.Selection(string='Status', default='1', required=True, selection=
+    #     [(1, 'Attended'), (2, 'Delay'), (3, 'Miss'), (4, 'Issue')]
+    # )
 
 	
 

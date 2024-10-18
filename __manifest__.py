@@ -140,6 +140,10 @@
         'demo/contacts/student.xml',
         'demo/contacts/provider.xml',
         'demo/contacts/enrollment.xml',
+
+        'demo/attendance/attendance_template.xml',
+        'demo/attendance/attendance_schedule.xml',
+        'demo/attendance/attendance_session.xml',
     ],   
     'assets': {       
         'web.assets_backend': [

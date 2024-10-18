@@ -1,17 +1,19 @@
 <odoo>
     <data>
-        <!-- <record model="ir.ui.view" id="view_attendance_session_list">
+        <record model="ir.ui.view" id="view_attendance_session_list">
             <field name="name">ims.attendance_session.list</field>
             <field name="model">ims.attendance_session</field>
             <field name="arch" type="xml">
                 <tree>                    
-                    <field name="date"/>
-                    <field name="weekday"/>
-                    <field name="start_time"/>
-                    <field name="end_time"/>
-                    <field name="notes"/>             
+                    <field name="date" width="125px"/>                    
+                    <field name="teacher_id" width="250px"/>
+                    <field name="group_id" width="125px"/>
+                    <field name="subject_id"/>
+                    <field name="weekday" width="125px"/>
+                    <field name="start_time" widget="float_time" width="125px"/>
+                    <field name="end_time" widget="float_time" width="125px"/>
                 </tree>
             </field>
-        </record>    -->
+        </record>   
     </data>
 </odoo>

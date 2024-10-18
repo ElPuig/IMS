@@ -1,0 +1,8 @@
+<odoo>
+    <data>
+        <record id="attendance_session_1" model="ims.attendance_session">
+            <field name="attendance_schedule_id" ref="attendance_schedule_1"/>
+            <field name="date">2024-10-14</field>            
+        </record>
+    </data>
+</odoo>
