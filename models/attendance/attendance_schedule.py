@@ -5,22 +5,22 @@ from datetime import datetime, time
 from odoo import models, fields, api
 
 class ims_attendance_schedule(models.Model):
-	_name = 'ims.attendance_schedule'
-	_description = 'Attendance schedule: concretes the weekdays data.'
+	_name = "ims.attendance_schedule"
+	_description = "Attendance schedule: concretes the weekdays data."
 	
 	weekday = fields.Selection(string="Weekday", selection=[
-		('1', 'Monday'),
-        ('2', 'Tuesday'),
-        ('3', 'Wednesday'),
-        ('4', 'Thursday'),
-        ('5', 'Friday'),
-    ])
+		("1", "Monday"),
+        ("2", "Tuesday"),
+        ("3", "Wednesday"),
+        ("4", "Thursday"),
+        ("5", "Friday"),
+    ], default="1", required=True)
 
-	start_time = fields.Float("Start Time")
-	end_time = fields.Float("End Time")
+	start_time = fields.Float("Start Time", required=True)
+	end_time = fields.Float("End Time", required=True)
 	notes = fields.Text(string="Notes")
 
-	space_id = fields.Many2one(string="Space", comodel_name="ims.space")	# TODO: autofill by template (allow changes)
+	space_id = fields.Many2one(string="Space", comodel_name="ims.space", required=True)
 	attendance_template_id = fields.Many2one(string="Template", comodel_name="ims.attendance_template")
 
 	attendance_session_ids = fields.One2many(string="Sessions", comodel_name="ims.attendance_session", inverse_name="attendance_schedule_id")
@@ -28,19 +28,21 @@ class ims_attendance_schedule(models.Model):
 	def name_get(self):
         #Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
 		result = []	
+
 		for rec in self:
-			result.append((rec.id, "%s | %s" % (rec.attendance_template_id.name_get()[0][1], dict(self._fields['weekday'].selection).get(self.weekday))))			
+			weekday_str = rec._fields['weekday'].convert_to_export(rec.weekday, rec)
+			result.append((rec.id, "%s | %s" % (rec.attendance_template_id.name_get()[0][1], weekday_str)))			
 			
 		return result
 
 
 
 
-	# #name =fields.Char(string="Name", compute='_compute_name')
+	# #name =fields.Char(string="Name", compute="_compute_name")
 	# # date = fields.Datetime(string="Date", default=fields.Datetime.now)
-	# # weekday = fields.Selection(string="Weekday", related='attendance_group.weekday') #, store=True)
-	# # start_time = fields.Float(string="Start Time", related='attendance_group.start_time') #, store=True)
-	# # end_time = fields.Float(string="End Time", related='attendance_group.end_time') #, store=True)
+	# # weekday = fields.Selection(string="Weekday", related="attendance_group.weekday") #, store=True)
+	# # start_time = fields.Float(string="Start Time", related="attendance_group.start_time") #, store=True)
+	# # end_time = fields.Float(string="End Time", related="attendance_group.end_time") #, store=True)
 	# # start_date = fields.Datetime(string="Start date", compute="_compute_start_date", readonly=False, store=True)
 	# # TODO: enddate
 	# duration = fields.Integer(string="Duration", compute="_compute_duration", readonly=False, store=True)
@@ -49,8 +51,8 @@ class ims_attendance_schedule(models.Model):
 	# attendance_group = fields.Many2one(string="Attendance Group", comodel_name="ims.attendance_group")
 
 	# attendance_statuses = fields.One2many(string="Student status", comodel_name="ims.attendance_status", inverse_name="attendance_session")		
-	# has_statuses = fields.Boolean(compute='_compute_has_statuses', store=False)	
-	# # event_color = fields.Integer("Color", compute='computeColor')
+	# has_statuses = fields.Boolean(compute="_compute_has_statuses", store=False)	
+	# # event_color = fields.Integer("Color", compute="computeColor")
 
 	# # def computeColor(self):
 	# # 	for record in self:
@@ -69,38 +71,38 @@ class ims_attendance_schedule(models.Model):
 	# 		rec.start_date = self.convert_to_utc_date(local_time)
 
 
-	# # @api.depends('date')
+	# # @api.depends("date")
 	# # def _compute_date(self):
 	# # 	for record in self:
 	# # 		record.start_date = record.date
 	# # 		record.end_date = record.date
 
 	# def convert_to_utc_date(self, local_date):
-	# 	user_time_zone = self.env.context['tz'] # can be fetched form logged in user if it is set 
+	# 	user_time_zone = self.env.context["tz"] # can be fetched form logged in user if it is set 
 	# 	local = pytz.timezone(user_time_zone) 
 	# 	start_date = local.localize(local_date, is_dst=None) # start_date is a naive datetime 
 	# 	start_date = start_date.astimezone(pytz.utc) 
 		
 	# 	return datetime(start_date.year, start_date.month, start_date.day, start_date.hour, start_date.minute, 0, tzinfo=None)
 
-	# @api.depends('attendance_statuses')
+	# @api.depends("attendance_statuses")
 	# def _compute_has_statuses(self):
 	# 	for record in self:
 	# 		record.has_statuses = len(record.attendance_statuses) > 0
 
 	# def generate_statuses_by_templates (self):
 	# 	for contact in self.attendance_group.attendance_templates.student:
-	# 		status = self.env['ims.attendance_status'].create({
-	# 			'attendance_session': self.id,
-	# 			'student' : contact.id,
-	# 			'status' : '1'
+	# 		status = self.env["ims.attendance_status"].create({
+	# 			"attendance_session": self.id,
+	# 			"student" : contact.id,
+	# 			"status" : "1"
 	# 		})
 
 	# def generate_statuses (self, session):
 	# 	for contact in self.attendance_group.attendance_templates.student:
-	# 		status = self.env['ims.attendance_status'].create({
-	# 			'attendance_session': self.id,
-	# 			'student' : contact.id,
-	# 			'status' : '1'
+	# 		status = self.env["ims.attendance_status"].create({
+	# 			"attendance_session": self.id,
+	# 			"student" : contact.id,
+	# 			"status" : "1"
 	# 		})
 			

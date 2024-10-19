@@ -3,13 +3,13 @@
 from odoo import models, fields, api
 
 class ims_attendance_template(models.Model):
-	_name = 'ims.attendance_template'
-	_description = 'Attendance template: contains the basic attendance data (who teaches what, where and for whom)'
+	_name = "ims.attendance_template"
+	_description = "Attendance template: contains the basic attendance data (who teaches what, where and for whom)"
 
 	# TODO: add a start_date and an end_date. It will be used to select the current data when creating a new session.
 	start_date = fields.Date(string="Start date", required=True)
 	end_date = fields.Date(string="End date", required=True)
-	color = fields.Integer(string='Color', help='Field to store the color that will be used for calendar view')   
+	color = fields.Integer(string="Color", help="Field to store the color that will be used for calendar view")   
 
 	teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]", required=True)
 	level_id = fields.Many2one(string="Level", comodel_name="ims.level", required=True)
@@ -30,7 +30,7 @@ class ims_attendance_template(models.Model):
 			
 		return result
 
-	@api.onchange('group_id')	
+	@api.onchange("group_id")	
 	def _onchange_group_id(self):		
 		for rec in self:
 			rec.space_id = rec.group_id.space_id

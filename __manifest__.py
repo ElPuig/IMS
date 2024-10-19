@@ -93,9 +93,9 @@
         'views/attendance/attendance_template/menu.xml',
         'views/attendance/attendance_template/list.xml',
         'views/attendance/attendance_template/form.xml',
-        'views/attendance/attendance_group/list.xml',
-        'views/attendance/attendance_group/form.xml',
-        'views/attendance/attendance_group/menu.xml',
+        # 'views/attendance/attendance_schedule/list.xml',
+        # 'views/attendance/attendance_schedule/form.xml',
+        # 'views/attendance/attendance_schedule/menu.xml',
         'views/attendance/attendance_session/list.xml',
         'views/attendance/attendance_session/form.xml',
         'views/attendance/attendance_session/calendar.xml',
@@ -144,6 +144,7 @@
         'demo/attendance/attendance_template.xml',
         'demo/attendance/attendance_schedule.xml',
         'demo/attendance/attendance_session.xml',
+        'demo/attendance/attendance_status.xml',
     ],   
     'assets': {       
         'web.assets_backend': [
