@@ -23,8 +23,8 @@ class ims_attendance_session(models.Model):
 	# NOTE: This is an statistical data model, should be unaltered if master-data changes, so the parent data will be copied.		
 	weekday = fields.Selection(string="Weekday", related="attendance_schedule_id.weekday", store=True)
 	start_time = fields.Float("Start Time", related="attendance_schedule_id.start_time", store=True)
-	end_time = fields.Float("End Time", related="attendance_schedule_id.end_time", store=True)
-	
+	end_time = fields.Float("End Time", related="attendance_schedule_id.end_time", store=True)	
+
 	#TODO: related IDs are changing when the template changes. Should not!
 	teacher_id = fields.Many2one(string="Teacher", related="attendance_schedule_id.attendance_template_id.teacher_id", store=True)
 	level_id = fields.Many2one(string="Level", related="attendance_schedule_id.attendance_template_id.level_id", store=True)
@@ -34,6 +34,10 @@ class ims_attendance_session(models.Model):
 	space_id = fields.Many2one(string="Space", related="attendance_schedule_id.space_id", store=True)
 
 	date = fields.Date(string="Date", default=fields.Datetime.now, required=True)
+	# TODO: Maybe UTC dates are needed? If it's the case, do as in schedule (build the dates)
+	# start_date = fields.Datetime(required=True)	
+	# end_date = fields.Datetime(required=True)
+
 	notes = fields.Text("Notes")
 	
 	attendance_status_ids = fields.One2many(string="Statuses", comodel_name="ims.attendance_status", inverse_name="attendance_session_id")

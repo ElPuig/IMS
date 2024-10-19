@@ -57,9 +57,11 @@ class ims_attendance_schedule(models.Model):
 	def name_get(self):
         #Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
 		result = []	
-		for rec in self:
+		for rec in self:			
+			end_time = math.modf(rec.end_time)	
+			start_time = math.modf(rec.start_time)				
 			weekday_str = rec._fields['weekday'].convert_to_export(rec.weekday, rec)
-			result.append((rec.id, "%s | %s" % (rec.attendance_template_id.name_get()[0][1], weekday_str)))						
+			result.append((rec.id, "%s | %s | %02d:%02d - %02d:%02d" % (rec.attendance_template_id.name_get()[0][1], weekday_str, int(start_time[1]), round(start_time[0]*60), int(end_time[1]), round(end_time[0]*60))))						
 		return result
 
 

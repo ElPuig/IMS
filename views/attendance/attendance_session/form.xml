@@ -12,38 +12,43 @@
                     </div> -->
                     <sheet>
                         <group string="Main data" col="6">                             
-                            <group colspan="4">      
+                            <group colspan="3">      
                                 <!-- Order not working, no name on field (just name_get) so, maybe name should be stored using name_get?  -->
                                 <field name="attendance_schedule_id" context="{'order_display': 'name asc' }"/> 
                             </group>    
-                            <group colspan="2">
-                                <field name="guard_mode"/>
-                            </group>                            
-                            <group colspan="2">
-                                <field name="teacher_id"/>                               
-                            </group>
                             <group colspan="1">
                                 <field name="date"/>
-                            </group>         
-                            <group colspan="1">
-                                <field name="weekday"/>
-                            </group>                          
+                            </group>   
+                            <group colspan="2">
+                                <field name="guard_mode"/>
+                            </group>     
+
                             <group colspan="2">
                                 <field name="level_id"/>                               
                             </group>
-
                             <group colspan="2">
                                 <field name="study_id"/>                               
                             </group>
-                            <group colspan="1">
+                            <group colspan="2">
+                                <field name="subject_id"/>                               
+                            </group>   
+
+                            <group colspan="2">
+                                <field name="teacher_id"/>                               
+                            </group>                            
+                            <group colspan="2">
                                 <field name="group_id"/>
                             </group>
                             <group colspan="1">
                                 <field name="space_id"/>
-                            </group>                                                      
-                            <group colspan="2">
-                                <field name="subject_id"/>                               
-                            </group>                                                           
+                            </group> 
+
+
+
+                           
+                           
+                                                                                
+                                                                                  
                         </group>
                         <notebook>
                             <page string="Statuses">
