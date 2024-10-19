@@ -14,7 +14,6 @@
             <field name="space_id" ref="space_3"/>    
 
             <field name="date">2024-10-14</field>
-            <field name="_display_warning">false</field>
         </record>
     </data>
 </odoo>

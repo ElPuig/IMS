@@ -19,12 +19,12 @@ class ims_attendance_schedule(models.Model):
 		("6", "Sunday")
     ], default="1", required=True)
 
-	start_time = fields.Float("Start Time", required=True)
-	end_time = fields.Float("End Time", required=True)
+	start_time = fields.Float(string="Start Time", required=True)
+	end_time = fields.Float(string="End Time", required=True)
 
 	#Storing as dates is required due to timezones
-	start_date = fields.Datetime("Start Time", required=True)	
-	end_date = fields.Datetime("End Time", required=True)	
+	start_date = fields.Datetime(required=True)	
+	end_date = fields.Datetime(required=True)
 	
 	space_id = fields.Many2one(string="Space", comodel_name="ims.space", required=True)
 	attendance_template_id = fields.Many2one(string="Template", comodel_name="ims.attendance_template")	

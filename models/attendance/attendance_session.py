@@ -44,7 +44,7 @@ class ims_attendance_session(models.Model):
 		time = now.hour + (now.minute / 60)	
 		#attendance_schedule_records = self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday()), ("start_time", ">=", time), ("end_time", "<=", time), ("attendance_template_id.start_date", ">=", today), ("attendance_template_id.end_date", "<=", today)])
 		attendance_schedule_records = self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday()), ("start_time", ">=", time)])
-		raise UserError(time)
+		#raise UserError(time)
 		#raise UserError(len(attendance_schedule_records))
 
 	attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ims.attendance_schedule", default=_current_attendance_schedule, required=True)
