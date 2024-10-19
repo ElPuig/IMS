@@ -40,12 +40,12 @@
                                             
                         <notebook>
                             <page string="Sessions">
-                                <field name="attendance_schedule_ids" string="" context="{'show_attribute': False}">
+                                <field name="attendance_schedule_ids" string="" context="{'default_space_id' : space_id}">
                                     <tree editable="bottom" default_order="weekday asc, start_time asc">
                                         <field name="weekday" width="175px" />
                                         <field name="space_id" />
                                         <field name="start_time" widget="float_time" width="120px" />
-                                        <field name="end_time" widget="float_time" width="120px" />                                        
+                                        <field name="end_time" widget="float_time" width="120px" />                                          
                                     </tree>
                                 </field>
                             </page>

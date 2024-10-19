@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# import math, pytz
-# from datetime import datetime, time
+import math, pytz
 from datetime import datetime, time
 from odoo import models, fields, api
 from odoo.exceptions import UserError
@@ -10,45 +9,69 @@ from odoo.exceptions import UserError
 class ims_attendance_session(models.Model):
 	_name = "ims.attendance_session"
 	_description = "Attendance session: contains the data about every session done with the students."	
-	_display_warning = fields.Boolean(store=True, default="_compute_display_warning")
-	_attendance_schedule_records=[]	# Must be after _display_warning (filled by _compute_display_warning)						
-		
-	attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ims.attendance_schedule", default="_current_attendance_schedule", required=True)
-	guard_mode = fields.Boolean(string= "Guard mode", default=False)	
+	#_display_warning = fields.Boolean(store=False, compute="_compute_display_warning")	
+	#_attendance_schedule_records = fields.Many2one(store=False, comodel_name="ims.attendance_schedule", default="_compute_schedule_records")	# Must be after _display_warning (filled by _compute_display_warning)						
+
+	# TODO: not working!
+	#		new registry: display_warning should be displayed only in some scenarios
+	#		existing registry: never display the warning
+
+	
+	#attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ims.attendance_schedule", required=True)
+	guard_mode = fields.Boolean(string= "Guard mode", default=False, store=True)
 	
 	# NOTE: This is an statistical data model, should be unaltered if master-data changes, so the parent data will be copied.		
-	weekday = fields.Selection(string="Weekday", related="attendance_schedule_id.weekday", store=True, required=True)
-	start_time = fields.Float("Start Time", related="attendance_schedule_id.start_time", store=True, required=True)
-	end_time = fields.Float("End Time", related="attendance_schedule_id.end_time", store=True, required=True)
+	weekday = fields.Selection(string="Weekday", related="attendance_schedule_id.weekday", store=True)
+	start_time = fields.Float("Start Time", related="attendance_schedule_id.start_time", store=True)
+	end_time = fields.Float("End Time", related="attendance_schedule_id.end_time", store=True)
 	
 	#TODO: related IDs are changing when the template changes. Should not!
-	teacher_id = fields.Many2one(string="Teacher", related="attendance_schedule_id.attendance_template_id.teacher_id", store=True, required=True)
-	level_id = fields.Many2one(string="Level", related="attendance_schedule_id.attendance_template_id.level_id", store=True, required=True)
-	study_id = fields.Many2one(string="Study", related="attendance_schedule_id.attendance_template_id.study_id", store=True, required=True)
+	teacher_id = fields.Many2one(string="Teacher", related="attendance_schedule_id.attendance_template_id.teacher_id", store=True)
+	level_id = fields.Many2one(string="Level", related="attendance_schedule_id.attendance_template_id.level_id", store=True)
+	study_id = fields.Many2one(string="Study", related="attendance_schedule_id.attendance_template_id.study_id", store=True)
 	group_id = fields.Many2one(string="Group", related="attendance_schedule_id.attendance_template_id.group_id", store=True)
-	subject_id = fields.Many2one(string="Subject", related="attendance_schedule_id.attendance_template_id.subject_id", store=True, required=True)			
-	space_id = fields.Many2one(string="Space", related="attendance_schedule_id.space_id", store=True, required=True)
+	subject_id = fields.Many2one(string="Subject", related="attendance_schedule_id.attendance_template_id.subject_id", store=True)
+	space_id = fields.Many2one(string="Space", related="attendance_schedule_id.space_id", store=True)
 
 	date = fields.Date(string="Date", default=fields.Datetime.now, required=True)
 	notes = fields.Text("Notes")
 	
 	attendance_status_ids = fields.One2many(string="Statuses", comodel_name="ims.attendance_status", inverse_name="attendance_session_id")
 	
-	def _compute_display_warning(self):		
+	def _current_attendance_schedule(self):			
 		today = fields.date.today()	
-		now = datetime.now()	
+		now = self.convert_to_utc_date(datetime.now())
+		time = now.hour + (now.minute / 60)	
+		#attendance_schedule_records = self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday()), ("start_time", ">=", time), ("end_time", "<=", time), ("attendance_template_id.start_date", ">=", today), ("attendance_template_id.end_date", "<=", today)])
+		attendance_schedule_records = self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday()), ("start_time", ">=", time)])
+		raise UserError(time)
+		#raise UserError(len(attendance_schedule_records))
 
-		# NOTE: Odoo stores the time as a float as hours.minutes where the minutes are stored in seconds, so the decimal part should be divided by 60 to convert from real minutes to odoo-float
-		time = now.hour + (now.minute / 60)			
-		# TODO: not filtering properly, should be corrected!
-		_attendance_schedule_records = self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday()), ("start_time", ">=", time), ("end_time", "<=", time), ("attendance_template_id.start_date", ">=", today), ("attendance_template_id.end_date", "<=", today)])					
-		return (len(_attendance_schedule_records) != 1)
+	attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ims.attendance_schedule", default=_current_attendance_schedule, required=True)
 
-	def _current_attendance_schedule(self):						
-		if len(self._attendance_schedule_records) == 1:				
-			return self._attendance_schedule_records[0]
-		else:							
-			return False	
+	# def _compute_schedule_records(self):
+	# 	raise UserError("RECS")
+	
+	
+	# def _compute_display_warning(self):
+	# 	raise UserError("COMP")
+	# 	today = fields.date.today()	
+	# 	now = datetime.now()	
+
+	# 	#tmp =  self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday())])
+		
+	
+	# 	# NOTE: Odoo stores the time as a float as hours.minutes where the minutes are stored in seconds, so the decimal part should be divided by 60 to convert from real minutes to odoo-float
+	# 	time = now.hour + (now.minute / 60)			
+	# 	# TODO: not filtering properly, should be corrected!		
+	# 	self._attendance_schedule_records = self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday()), ("start_time", ">=", time), ("end_time", "<=", time), ("attendance_template_id.start_date", ">=", today), ("attendance_template_id.end_date", "<=", today)])					
+	# 	self._display_warning = (len(self._attendance_schedule_records) != 1)		
+
+	# def _current_attendance_schedule(self):						
+	# 	if len(self._attendance_schedule_records) == 1:				
+	# 		return self._attendance_schedule_records[0]
+	# 	else:							
+	# 		return False	
 			
 	@api.onchange("guard_mode")
 	def _onchange_guard_mode(self):		
@@ -82,6 +105,15 @@ class ims_attendance_session(models.Model):
 			result.append((rec.id, "%s | %s" % (rec.attendance_schedule_id.name_get()[0][1], rec.date)))			
 			
 		return result
+
+
+	def convert_to_utc_date(self, local_date):
+		user_time_zone = self.env.context["tz"] # can be fetched form logged in user if it is set 
+		local = pytz.timezone(user_time_zone) 
+		start_date = local.localize(local_date, is_dst=None) # start_date is a naive datetime 
+		start_date = start_date.astimezone(pytz.utc) 
+		
+		return datetime(start_date.year, start_date.month, start_date.day, start_date.hour, start_date.minute, 0, tzinfo=None)
 
 	# #name =fields.Char(string="Name", compute="_compute_name")
 	# # date = fields.Datetime(string="Date", default=fields.Datetime.now)

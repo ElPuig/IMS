@@ -21,25 +21,45 @@ class ims_attendance_schedule(models.Model):
 
 	start_time = fields.Float("Start Time", required=True)
 	end_time = fields.Float("End Time", required=True)
+
+	#Storing as dates is required due to timezones
+	start_date = fields.Datetime("Start Time", required=True)	
+	end_date = fields.Datetime("End Time", required=True)	
+	
+	space_id = fields.Many2one(string="Space", comodel_name="ims.space", required=True)
+	attendance_template_id = fields.Many2one(string="Template", comodel_name="ims.attendance_template")	
+	attendance_session_ids = fields.One2many(string="Sessions", comodel_name="ims.attendance_session", inverse_name="attendance_schedule_id")	
+		
 	notes = fields.Text(string="Notes")
 
-	space_id = fields.Many2one(string="Space", comodel_name="ims.space", default="_default_space_id", required=True)
-	attendance_template_id = fields.Many2one(string="Template", comodel_name="ims.attendance_template")
-
-	attendance_session_ids = fields.One2many(string="Sessions", comodel_name="ims.attendance_session", inverse_name="attendance_schedule_id")
+	@api.onchange("start_time")
+	def _onchange_start_time(self):			
+		for rec in self:
+			rec.start_date = rec._time_float_to_utc_datetime(rec.start_time)
 	
-	def _default_space_id(self):	
-		# TODO: not working, maybe not being fired on inline mode?		
-		return self.attendance_template_id.space_id
+	@api.onchange("end_time")
+	def _onchange_end_time(self):			
+		for rec in self:
+			rec.end_date = rec._time_float_to_utc_datetime(rec.end_time)	
+
+	def _time_float_to_utc_datetime(self, time_float):
+		today = fields.date.today()	
+		split_time = math.modf(time_float)				
+		return self._convert_to_utc_date(datetime(today.year, today.month, today.day, int(split_time[1]), round(split_time[0]*60), 0))
+
+	def _convert_to_utc_date(self, local_date):
+		user_time_zone = self.env.context["tz"] # can be fetched form logged in user if it is set 
+		local = pytz.timezone(user_time_zone) 
+		start_date = local.localize(local_date, is_dst=None) # start_date is a naive datetime 
+		start_date = start_date.astimezone(pytz.utc) 		
+		return datetime(start_date.year, start_date.month, start_date.day, start_date.hour, start_date.minute, 0, tzinfo=None)	
 
 	def name_get(self):
         #Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
 		result = []	
-
 		for rec in self:
 			weekday_str = rec._fields['weekday'].convert_to_export(rec.weekday, rec)
-			result.append((rec.id, "%s | %s" % (rec.attendance_template_id.name_get()[0][1], weekday_str)))			
-			
+			result.append((rec.id, "%s | %s" % (rec.attendance_template_id.name_get()[0][1], weekday_str)))						
 		return result
 
 
