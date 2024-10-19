@@ -11,10 +11,10 @@
                         <!-- Unable to load the current session, maybe none has been scheduled for the current date and time?. Please, choose one manually or activate the "guard mode" if needed.
                     </div> -->
                     <sheet>
-                        <group string="Main data" col="6">                             
+                        <group string="Main data" col="6" attrs="{'readonly': [('id', '!=', False)]}"/>
                             <group colspan="3">      
                                 <!-- Order not working, no name on field (just name_get) so, maybe name should be stored using name_get?  -->
-                                <field name="attendance_schedule_id" context="{'order_display': 'name asc' }"/> 
+                                <field name="attendance_schedule_id" context="{'order_display': 'name asc' }"/>
                             </group>    
                             <group colspan="1">
                                 <field name="date"/>

@@ -1,5 +1,6 @@
 <odoo>
-    <data>        
+    <data>    
+        <!-- TODO: accessible from session form, everything should be readonly (or disable the link)  -->
         <!-- <record model="ir.ui.view" id="view_attendance_group_form">
             <field name="name">ims.attendance.group.form</field>
             <field name="model">ims.attendance_group</field>
