@@ -7,8 +7,11 @@
                 <form string="Session">
                     <sheet>
                         <group string="Main data" col="6"> 
-                            <group colspan="6">
+                            <group colspan="4">
                                 <field name="attendance_schedule_id"/>
+                            </group>    
+                            <group colspan="2">
+                                <field name="guard_mode"/>
                             </group>                            
                             <group colspan="2">
                                 <field name="teacher_id"/>                               

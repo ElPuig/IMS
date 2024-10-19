@@ -2,7 +2,18 @@
     <data>
         <record id="attendance_session_1" model="ims.attendance_session">
             <field name="attendance_schedule_id" ref="attendance_schedule_1"/>
-            <field name="date">2024-10-14</field>            
+            <field name="weekday">1</field>
+            <field name="start_time">16.00</field>
+            <field name="end_time">17.916666666666668</field>
+
+            <field name="teacher_id" ref="hr.employee_admin"/>
+            <field name="level_id" ref="level_2"/>
+            <field name="study_id" ref="study_1"/>
+            <field name="group_id" ref="group_3"/>
+            <field name="subject_id" ref="subject_2"/>
+            <field name="space_id" ref="space_3"/>    
+
+            <field name="date">2024-10-14</field>
         </record>
     </data>
 </odoo>

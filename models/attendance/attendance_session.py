@@ -7,26 +7,33 @@ from odoo import models, fields, api
 
 class ims_attendance_session(models.Model):
 	_name = "ims.attendance_session"
-	_description = "Attendance session: contains the data about every session done with the students."
-	
-	attendance_schedule_id = fields.Many2one(string="Schedule", comodel_name="ims.attendance_schedule")
+	_description = "Attendance session: contains the data about every session done with the students."	
+
+	# NOTE: uid -> hr_employees.user_id -> hr_employees.id
+	attendance_schedule_id = fields.Many2one(string="Schedule", comodel_name="ims.attendance_schedule", required=True)
+	guard_mode = fields.Boolean(string= "Guard mode", default=False)
 	
 	# NOTE: This is an statistical data model, should be unaltered if master-data changes, so the parent data will be copied.		
-	weekday = fields.Selection(string="Weekday", related="attendance_schedule_id.weekday", store=True)
-	start_time = fields.Float("Start Time", related="attendance_schedule_id.start_time", store=True)
-	end_time = fields.Float("End Time", related="attendance_schedule_id.end_time", store=True)		
+	weekday = fields.Selection(string="Weekday", related="attendance_schedule_id.weekday", store=True, required=True)
+	start_time = fields.Float("Start Time", related="attendance_schedule_id.start_time", store=True, required=True)
+	end_time = fields.Float("End Time", related="attendance_schedule_id.end_time", store=True, required=True)
 	
-	teacher_id = fields.Many2one(string="Teacher", related="attendance_schedule_id.attendance_template_id.teacher_id", store=True)
-	level_id = fields.Many2one(string="Level", related="attendance_schedule_id.attendance_template_id.level_id", store=True)
-	study_id = fields.Many2one(string="Study", related="attendance_schedule_id.attendance_template_id.study_id", store=True)
+	#TODO: related IDs are changing when the template changes. Should not!
+	teacher_id = fields.Many2one(string="Teacher", related="attendance_schedule_id.attendance_template_id.teacher_id", store=True, required=True)
+	level_id = fields.Many2one(string="Level", related="attendance_schedule_id.attendance_template_id.level_id", store=True, required=True)
+	study_id = fields.Many2one(string="Study", related="attendance_schedule_id.attendance_template_id.study_id", store=True, required=True)
 	group_id = fields.Many2one(string="Group", related="attendance_schedule_id.attendance_template_id.group_id", store=True)
-	subject_id = fields.Many2one(string="Subject", related="attendance_schedule_id.attendance_template_id.subject_id", store=True)			
-	space_id = fields.Many2one(string="Space", related="attendance_schedule_id.space_id", store=True)		
+	subject_id = fields.Many2one(string="Subject", related="attendance_schedule_id.attendance_template_id.subject_id", store=True, required=True)			
+	space_id = fields.Many2one(string="Space", related="attendance_schedule_id.space_id", store=True, required=True)
 
-	date = fields.Date(string="Date", default=fields.Datetime.now)
+	date = fields.Date(string="Date", default=fields.Datetime.now, required=True)
 	notes = fields.Text("Notes")
 	
 	attendance_status_ids = fields.One2many(string="Statuses", comodel_name="ims.attendance_status", inverse_name="attendance_session_id")
+
+	@api.onchange("guard_mode")
+	def onchange_guard_mode(self):		
+		return {'domain': {'attendance_schedule_id': "[]" if self.guard_mode else "[('attendance_template_id.teacher_id.user_id', '=', uid)]"}}
 
 	@api.onchange("attendance_schedule_id")	
 	def _onchange_attendance_schedule_id(self):		
