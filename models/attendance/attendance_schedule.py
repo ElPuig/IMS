@@ -35,17 +35,16 @@ class ims_attendance_schedule(models.Model):
 	@api.onchange("start_time")
 	def _onchange_start_time(self):			
 		for rec in self:
-			rec.start_date = rec._time_float_to_utc_datetime(rec.start_time)
+			rec.start_date = rec._time_float_to_utc_datetime(rec.attendance_template_id.start_date, rec.start_time)
 	
 	@api.onchange("end_time")
 	def _onchange_end_time(self):			
 		for rec in self:
-			rec.end_date = rec._time_float_to_utc_datetime(rec.end_time)	
+			rec.end_date = rec._time_float_to_utc_datetime(rec.attendance_template_id.end_date, rec.end_time)	
 
-	def _time_float_to_utc_datetime(self, time_float):
-		today = fields.date.today()	
-		split_time = math.modf(time_float)				
-		return self._convert_to_utc_date(datetime(today.year, today.month, today.day, int(split_time[1]), round(split_time[0]*60), 0))
+	def _time_float_to_utc_datetime(self, template_date, schedule_time):
+		split_time = math.modf(schedule_time)				
+		return self._convert_to_utc_date(datetime(template_date.year, template_date.month, template_date.day, int(split_time[1]), round(split_time[0]*60), 0))
 
 	def _convert_to_utc_date(self, local_date):
 		user_time_zone = self.env.context["tz"] # can be fetched form logged in user if it is set 

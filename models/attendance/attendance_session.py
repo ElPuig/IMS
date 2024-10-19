@@ -42,16 +42,12 @@ class ims_attendance_session(models.Model):
 	
 	attendance_status_ids = fields.One2many(string="Statuses", comodel_name="ims.attendance_status", inverse_name="attendance_session_id")
 	
-	def _current_attendance_schedule(self):			
-		today = fields.date.today()	
-		now = self.convert_to_utc_date(datetime.now())
-		time = now.hour + (now.minute / 60)	
-		#attendance_schedule_records = self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday()), ("start_time", ">=", time), ("end_time", "<=", time), ("attendance_template_id.start_date", ">=", today), ("attendance_template_id.end_date", "<=", today)])
-		attendance_schedule_records = self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday()), ("start_time", ">=", time)])
-		#raise UserError(time)
-		#raise UserError(len(attendance_schedule_records))
+	def _default_attendance_schedule(self):					
+		today = datetime.now()		
+		attendance_schedule_records = self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday()), ("start_date", "<=", today), ("end_date", ">=", today)])
+		return attendance_schedule_records[0] if len(attendance_schedule_records) == 1 else False				
 
-	attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ims.attendance_schedule", default=_current_attendance_schedule, required=True)
+	attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ims.attendance_schedule", default=_default_attendance_schedule, required=True)
 
 	# def _compute_schedule_records(self):
 	# 	raise UserError("RECS")

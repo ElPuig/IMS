@@ -11,16 +11,16 @@
                         <!-- Unable to load the current session, maybe none has been scheduled for the current date and time?. Please, choose one manually or activate the "guard mode" if needed.
                     </div> -->
                     <sheet>
-                        <group string="Main data" col="6" attrs="{'readonly': [('id', '!=', False)]}"/>
+                        <group string="Main data" col="6" >
                             <group colspan="3">      
-                                <!-- Order not working, no name on field (just name_get) so, maybe name should be stored using name_get?  -->
-                                <field name="attendance_schedule_id" context="{'order_display': 'name asc' }"/>
+                                <!-- TODO: Order not working, no name on field (just name_get) so, maybe name should be stored using name_get?  -->
+                                <field name="attendance_schedule_id" context="{'order_display': 'group_id asc, subject_id asc, weekday asc, start_time asc' }" attrs="{'readonly': [('id', '!=', False)]}"/>
                             </group>    
                             <group colspan="1">
-                                <field name="date"/>
+                                <field name="date" attrs="{'readonly': [('id', '!=', False)]}"/>
                             </group>   
                             <group colspan="2">
-                                <field name="guard_mode"/>
+                                <field name="guard_mode" attrs="{'readonly': [('id', '!=', False)]}"/>
                             </group>     
 
                             <group colspan="2">
@@ -41,15 +41,9 @@
                             </group>
                             <group colspan="1">
                                 <field name="space_id"/>
-                            </group> 
-
-
-
-                           
-                           
-                                                                                
-                                                                                  
+                            </group>                        
                         </group>
+
                         <notebook>
                             <page string="Statuses">
                                 <field name="attendance_status_ids" widget="one2many_list" context="{'show_attribute': False}">
