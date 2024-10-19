@@ -5,7 +5,8 @@
             <field name="model">ims.attendance_session</field>
             <field name="arch" type="xml">
                 <form string="Session">
-                    <!-- <field name="_display_warning" invisible="0"/>
+                    <!-- <field name="_display_warning" invisible="0"/> -->
+                    <!-- 
                     <div class="alert alert-warning" role="alert" name="test_warning" attrs="{'invisible': [('_display_warning', '=', False)]}"> -->
                         <!-- TODO: this should be translated (localization) -->
                         <!-- Unable to load the current session, maybe none has been scheduled for the current date and time?. Please, choose one manually or activate the "guard mode" if needed.

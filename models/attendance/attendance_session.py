@@ -8,18 +8,14 @@ from odoo.exceptions import UserError
 
 class ims_attendance_session(models.Model):
 	_name = "ims.attendance_session"
-	_description = "Attendance session: contains the data about every session done with the students."	
-	#_display_warning = fields.Boolean(store=False, compute="_compute_display_warning")	
-	#_attendance_schedule_records = fields.Many2one(store=False, comodel_name="ims.attendance_schedule", default="_compute_schedule_records")	# Must be after _display_warning (filled by _compute_display_warning)						
+	_description = "Attendance session: contains the data about every session done with the students."		
 
-	# TODO: not working!
-	#		new registry: display_warning should be displayed only in some scenarios
-	#		existing registry: never display the warning
-
-	
-	#attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ims.attendance_schedule", required=True)
-	guard_mode = fields.Boolean(string= "Guard mode", default=False, store=True)
-	
+	# NOTE: The default methods should be defined after the field declaration, otherwise doesn't work properly.
+	def _default_attendance_schedule(self):					
+		today = datetime.now()		
+		attendance_schedule_records = self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday()), ("start_date", "<=", today), ("end_date", ">=", today)])
+		return attendance_schedule_records[0] if len(attendance_schedule_records) == 1 else False				
+		
 	# NOTE: This is an statistical data model, should be unaltered if master-data changes, so the parent data will be copied.		
 	weekday = fields.Selection(string="Weekday", related="attendance_schedule_id.weekday", store=True)
 	start_time = fields.Float("Start Time", related="attendance_schedule_id.start_time", store=True)
@@ -32,23 +28,32 @@ class ims_attendance_session(models.Model):
 	group_id = fields.Many2one(string="Group", related="attendance_schedule_id.attendance_template_id.group_id", store=True)
 	subject_id = fields.Many2one(string="Subject", related="attendance_schedule_id.attendance_template_id.subject_id", store=True)
 	space_id = fields.Many2one(string="Space", related="attendance_schedule_id.space_id", store=True)
-
+	
 	date = fields.Date(string="Date", default=fields.Datetime.now, required=True)
+	guard_mode = fields.Boolean(string= "Guard mode", default=False, store=True)
+	notes = fields.Text("Notes")
+	
 	# TODO: Maybe UTC dates are needed? If it's the case, do as in schedule (build the dates)
 	# start_date = fields.Datetime(required=True)	
 	# end_date = fields.Datetime(required=True)
-
-	notes = fields.Text("Notes")
 	
-	attendance_status_ids = fields.One2many(string="Statuses", comodel_name="ims.attendance_status", inverse_name="attendance_session_id")
-	
-	def _default_attendance_schedule(self):					
-		today = datetime.now()		
-		attendance_schedule_records = self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday()), ("start_date", "<=", today), ("end_date", ">=", today)])
-		return attendance_schedule_records[0] if len(attendance_schedule_records) == 1 else False				
-
+	attendance_status_ids = fields.One2many(string="Statuses", comodel_name="ims.attendance_status", inverse_name="attendance_session_id")	
 	attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ims.attendance_schedule", default=_default_attendance_schedule, required=True)
+	
+	# TODO: Missing warning / alert when there's no default session to load (or more than one):
+	#			1. Only for new records.
+	#			2. Compute a checkbox as _default_attendance_schedule is doing
+	#			3. Display if needed.
+	#			4. Try to avoid storing the field. 
+	#			5. Try to avoid code duplication with _default_attendance_schedule
 
+	# def _compute_display_warning(self):
+	# 	today = datetime.now()		
+	# 	attendance_schedule_records = self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday()), ("start_date", "<=", today), ("end_date", ">=", today)])
+	# 	return attendance_schedule_records[0] != 1
+	
+	# _display_warning = fields.Boolean(store=False, compute=_compute_display_warning)	
+	
 	# def _compute_schedule_records(self):
 	# 	raise UserError("RECS")
 	
