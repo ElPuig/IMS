@@ -5,10 +5,16 @@
             <field name="model">ims.attendance_session</field>
             <field name="arch" type="xml">
                 <form string="Session">
+                    <field name="_display_warning" invisible="1"/>
+                    <div class="alert alert-warning" role="alert" name="test_warning" attrs="{'invisible': [('_display_warning', '=', False)]}">
+                        <!-- TODO: this should be translated (localization) -->
+                        Unable to load the current session, maybe none has been scheduled for the current date and time?. Please, choose one manually or activate the "guard mode" if needed.
+                    </div>
                     <sheet>
-                        <group string="Main data" col="6"> 
-                            <group colspan="4">
-                                <field name="attendance_schedule_id"/>
+                        <group string="Main data" col="6">                             
+                            <group colspan="4">      
+                                <!-- Order not working, no name on field (just name_get) so, maybe name should be stored using name_get?  -->
+                                <field name="attendance_schedule_id" context="{'order_display': 'name asc' }"/> 
                             </group>    
                             <group colspan="2">
                                 <field name="guard_mode"/>

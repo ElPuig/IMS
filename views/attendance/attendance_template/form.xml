@@ -39,7 +39,7 @@
                         </group>
                                             
                         <notebook>
-                            <page string="Scheduled">
+                            <page string="Sessions">
                                 <field name="attendance_schedule_ids" string="" context="{'show_attribute': False}">
                                     <tree editable="bottom" default_order="weekday asc, start_time asc">
                                         <field name="weekday" width="175px" />

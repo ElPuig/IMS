@@ -2,16 +2,19 @@
 
 # import math, pytz
 # from datetime import datetime, time
+from datetime import datetime, time
 from odoo import models, fields, api
+from odoo.exceptions import UserError
 #from attendance_session import ims_attendance_session
 
 class ims_attendance_session(models.Model):
 	_name = "ims.attendance_session"
 	_description = "Attendance session: contains the data about every session done with the students."	
-
-	# NOTE: uid -> hr_employees.user_id -> hr_employees.id
-	attendance_schedule_id = fields.Many2one(string="Schedule", comodel_name="ims.attendance_schedule", required=True)
-	guard_mode = fields.Boolean(string= "Guard mode", default=False)
+	_display_warning = fields.Boolean(store=True, default="_compute_display_warning")
+	_attendance_schedule_records=[]	# Must be after _display_warning (filled by _compute_display_warning)						
+		
+	attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ims.attendance_schedule", default="_current_attendance_schedule", required=True)
+	guard_mode = fields.Boolean(string= "Guard mode", default=False)	
 	
 	# NOTE: This is an statistical data model, should be unaltered if master-data changes, so the parent data will be copied.		
 	weekday = fields.Selection(string="Weekday", related="attendance_schedule_id.weekday", store=True, required=True)
@@ -30,9 +33,25 @@ class ims_attendance_session(models.Model):
 	notes = fields.Text("Notes")
 	
 	attendance_status_ids = fields.One2many(string="Statuses", comodel_name="ims.attendance_status", inverse_name="attendance_session_id")
+	
+	def _compute_display_warning(self):		
+		today = fields.date.today()	
+		now = datetime.now()	
 
+		# NOTE: Odoo stores the time as a float as hours.minutes where the minutes are stored in seconds, so the decimal part should be divided by 60 to convert from real minutes to odoo-float
+		time = now.hour + (now.minute / 60)			
+		# TODO: not filtering properly, should be corrected!
+		_attendance_schedule_records = self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday()), ("start_time", ">=", time), ("end_time", "<=", time), ("attendance_template_id.start_date", ">=", today), ("attendance_template_id.end_date", "<=", today)])					
+		return (len(_attendance_schedule_records) != 1)
+
+	def _current_attendance_schedule(self):						
+		if len(self._attendance_schedule_records) == 1:				
+			return self._attendance_schedule_records[0]
+		else:							
+			return False	
+			
 	@api.onchange("guard_mode")
-	def onchange_guard_mode(self):		
+	def _onchange_guard_mode(self):		
 		return {'domain': {'attendance_schedule_id': "[]" if self.guard_mode else "[('attendance_template_id.teacher_id.user_id', '=', uid)]"}}
 
 	@api.onchange("attendance_schedule_id")	

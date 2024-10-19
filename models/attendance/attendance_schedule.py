@@ -3,28 +3,35 @@
 import math, pytz
 from datetime import datetime, time
 from odoo import models, fields, api
+from odoo.exceptions import UserError
 
 class ims_attendance_schedule(models.Model):
 	_name = "ims.attendance_schedule"
 	_description = "Attendance schedule: concretes the weekdays data."
 	
 	weekday = fields.Selection(string="Weekday", selection=[
-		("1", "Monday"),
-        ("2", "Tuesday"),
-        ("3", "Wednesday"),
-        ("4", "Thursday"),
-        ("5", "Friday"),
+		("0", "Monday"),
+        ("1", "Tuesday"),
+        ("2", "Wednesday"),
+        ("3", "Thursday"),
+        ("4", "Friday"),
+		("5", "Saturday"),
+		("6", "Sunday")
     ], default="1", required=True)
 
 	start_time = fields.Float("Start Time", required=True)
 	end_time = fields.Float("End Time", required=True)
 	notes = fields.Text(string="Notes")
 
-	space_id = fields.Many2one(string="Space", comodel_name="ims.space", required=True)
+	space_id = fields.Many2one(string="Space", comodel_name="ims.space", default="_default_space_id", required=True)
 	attendance_template_id = fields.Many2one(string="Template", comodel_name="ims.attendance_template")
 
 	attendance_session_ids = fields.One2many(string="Sessions", comodel_name="ims.attendance_session", inverse_name="attendance_schedule_id")
 	
+	def _default_space_id(self):	
+		# TODO: not working, maybe not being fired on inline mode?		
+		return self.attendance_template_id.space_id
+
 	def name_get(self):
         #Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
 		result = []	

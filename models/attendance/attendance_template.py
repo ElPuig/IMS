@@ -18,7 +18,7 @@ class ims_attendance_template(models.Model):
 	subject_id = fields.Many2one(string="Subject", comodel_name="ims.subject", domain="[('study_id', '=', study_id)]", required=True)
 	space_id = fields.Many2one(string="Space", comodel_name="ims.space", required=True)
 	
-	attendance_schedule_ids = fields.One2many(string="Schedules", comodel_name="ims.attendance_schedule", inverse_name="attendance_template_id")		
+	attendance_schedule_ids = fields.One2many(string="Sessions", comodel_name="ims.attendance_schedule", inverse_name="attendance_template_id")		
 	
 	student_ids = fields.Many2many(string="Students", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]") # TODO: autofill by group + subject | allow changes
 
