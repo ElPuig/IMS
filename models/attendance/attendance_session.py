@@ -9,7 +9,8 @@ from odoo.exceptions import UserError
 class ims_attendance_session(models.Model):
 	_name = "ims.attendance_session"
 	_description = "Attendance session: contains the data about every session done with the students."		
-	_display_warning = fields.Boolean(compute="_default_display_warning", store=False)	
+	#_display_warning = fields.Boolean(compute="_default_display_warning", store=False)	
+	_display_warning = fields.Boolean(default=lambda self: self._default_display_warning(), store=False)	
 	
 	# NOTE: This is an statistical data model, should be unaltered if master-data changes, so the parent data will be copied.		
 	weekday = fields.Selection(string="Weekday", related="attendance_schedule_id.weekday", store=True)
@@ -36,18 +37,22 @@ class ims_attendance_session(models.Model):
 	attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ims.attendance_schedule", default=lambda self: self._default_attendance_schedule(), required=True)
 	
 
-	
+
 	def _default_attendance_schedule(self):			
 		today = datetime.now()		
 		attendance_schedule_records = self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday()), ("start_date", "<=", today), ("end_date", ">=", today)])
 		return attendance_schedule_records[0] if len(attendance_schedule_records) == 1 else False				
 
-	@api.depends("attendance_schedule_id")
-	def _default_display_warning(self):		
-		for rec in self:			
-			today = datetime.now()		
-			attendance_schedule_records = self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday()), ("start_date", "<=", today), ("end_date", ">=", today)])
-			rec._display_warning=("NewId" in str(rec.id) and len(attendance_schedule_records) != 1)
+	def _default_display_warning(self):						
+		today = datetime.now()		
+		attendance_schedule_records = self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday()), ("start_date", "<=", today), ("end_date", ">=", today)])
+		return (self.id == False and len(attendance_schedule_records) != 1)
+	# @api.depends("attendance_schedule_id")
+	# def _default_display_warning(self):		
+	# 	for rec in self:			
+	# 		today = datetime.now()		
+	# 		attendance_schedule_records = self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday()), ("start_date", "<=", today), ("end_date", ">=", today)])
+	# 		rec._display_warning=("NewId" in str(rec.id) and len(attendance_schedule_records) != 1)
 
 	@api.onchange("guard_mode")
 	def _onchange_guard_mode(self):		
