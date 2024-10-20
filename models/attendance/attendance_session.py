@@ -17,7 +17,7 @@ class ims_attendance_session(models.Model):
 	start_time = fields.Float("Start Time", related="attendance_schedule_id.start_time", store=True)
 	end_time = fields.Float("End Time", related="attendance_schedule_id.end_time", store=True)	
 
-	#TODO: related IDs are changing when the template changes. Should not!
+	#TODO: related IDs are changing when the template changes. Should not! Also, the teacher must be the current one, not the template creator. 
 	teacher_id = fields.Many2one(string="Teacher", related="attendance_schedule_id.attendance_template_id.teacher_id", store=True)
 	level_id = fields.Many2one(string="Level", related="attendance_schedule_id.attendance_template_id.level_id", store=True)
 	study_id = fields.Many2one(string="Study", related="attendance_schedule_id.attendance_template_id.study_id", store=True)
