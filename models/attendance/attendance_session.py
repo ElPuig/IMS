@@ -39,14 +39,17 @@ class ims_attendance_session(models.Model):
 
 
 	def _default_attendance_schedule(self):			
-		today = datetime.now()		
-		attendance_schedule_records = self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday()), ("start_date", "<=", today), ("end_date", ">=", today)])
+		attendance_schedule_records = self._get_attendance_schedule_records()		
 		return attendance_schedule_records[0] if len(attendance_schedule_records) == 1 else False				
 
 	def _default_display_warning(self):						
-		today = datetime.now()		
-		attendance_schedule_records = self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday()), ("start_date", "<=", today), ("end_date", ">=", today)])
+		attendance_schedule_records = self._get_attendance_schedule_records()
 		return (self.id == False and len(attendance_schedule_records) != 1)
+	
+	def _get_attendance_schedule_records(self):		
+		today = datetime.now()		
+		return self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday()), ("start_date", "<=", today), ("end_date", ">=", today)])
+
 	# @api.depends("attendance_schedule_id")
 	# def _default_display_warning(self):		
 	# 	for rec in self:			
