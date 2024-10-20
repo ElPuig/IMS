@@ -36,8 +36,6 @@ class ims_attendance_session(models.Model):
 	attendance_status_ids = fields.One2many(string="Statuses", comodel_name="ims.attendance_status", inverse_name="attendance_session_id")	
 	attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ims.attendance_schedule", default=lambda self: self._default_attendance_schedule(), required=True)
 	
-
-
 	def _default_attendance_schedule(self):			
 		attendance_schedule_records = self._get_attendance_schedule_records()		
 		return attendance_schedule_records[0] if len(attendance_schedule_records) == 1 else False				
@@ -47,15 +45,9 @@ class ims_attendance_session(models.Model):
 		return (self.id == False and len(attendance_schedule_records) != 1)
 	
 	def _get_attendance_schedule_records(self):		
+		# TODO: this method is called twice, I tried to store the result somewhere in order to catch it and avoid duped queries, but I can't do it work properly :(
 		today = datetime.now()		
 		return self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday()), ("start_date", "<=", today), ("end_date", ">=", today)])
-
-	# @api.depends("attendance_schedule_id")
-	# def _default_display_warning(self):		
-	# 	for rec in self:			
-	# 		today = datetime.now()		
-	# 		attendance_schedule_records = self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday()), ("start_date", "<=", today), ("end_date", ">=", today)])
-	# 		rec._display_warning=("NewId" in str(rec.id) and len(attendance_schedule_records) != 1)
 
 	@api.onchange("guard_mode")
 	def _onchange_guard_mode(self):		
