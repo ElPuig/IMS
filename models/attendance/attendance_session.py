@@ -9,13 +9,14 @@ from odoo.exceptions import UserError
 class ims_attendance_session(models.Model):
 	_name = "ims.attendance_session"
 	_description = "Attendance session: contains the data about every session done with the students."		
+	_display_warning = fields.Boolean(compute="_default_display_warning", store=False)	
 
 	# NOTE: The default methods should be defined after the field declaration, otherwise doesn't work properly.
 	def _default_attendance_schedule(self):					
 		today = datetime.now()		
 		attendance_schedule_records = self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday()), ("start_date", "<=", today), ("end_date", ">=", today)])
 		return attendance_schedule_records[0] if len(attendance_schedule_records) == 1 else False				
-		
+
 	# NOTE: This is an statistical data model, should be unaltered if master-data changes, so the parent data will be copied.		
 	weekday = fields.Selection(string="Weekday", related="attendance_schedule_id.weekday", store=True)
 	start_time = fields.Float("Start Time", related="attendance_schedule_id.start_time", store=True)
@@ -40,44 +41,13 @@ class ims_attendance_session(models.Model):
 	attendance_status_ids = fields.One2many(string="Statuses", comodel_name="ims.attendance_status", inverse_name="attendance_session_id")	
 	attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ims.attendance_schedule", default=_default_attendance_schedule, required=True)
 	
-	# TODO: Missing warning / alert when there's no default session to load (or more than one):
-	#			1. Only for new records.
-	#			2. Compute a checkbox as _default_attendance_schedule is doing
-	#			3. Display if needed.
-	#			4. Try to avoid storing the field. 
-	#			5. Try to avoid code duplication with _default_attendance_schedule
+	@api.depends("attendance_schedule_id")
+	def _default_display_warning(self):		
+		for rec in self:			
+			today = datetime.now()		
+			attendance_schedule_records = self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday()), ("start_date", "<=", today), ("end_date", ">=", today)])
+			rec._display_warning=("NewId" in str(rec.id) and len(attendance_schedule_records) != 1)
 
-	# def _compute_display_warning(self):
-	# 	today = datetime.now()		
-	# 	attendance_schedule_records = self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday()), ("start_date", "<=", today), ("end_date", ">=", today)])
-	# 	return attendance_schedule_records[0] != 1
-	
-	# _display_warning = fields.Boolean(store=False, compute=_compute_display_warning)	
-	
-	# def _compute_schedule_records(self):
-	# 	raise UserError("RECS")
-	
-	
-	# def _compute_display_warning(self):
-	# 	raise UserError("COMP")
-	# 	today = fields.date.today()	
-	# 	now = datetime.now()	
-
-	# 	#tmp =  self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday())])
-		
-	
-	# 	# NOTE: Odoo stores the time as a float as hours.minutes where the minutes are stored in seconds, so the decimal part should be divided by 60 to convert from real minutes to odoo-float
-	# 	time = now.hour + (now.minute / 60)			
-	# 	# TODO: not filtering properly, should be corrected!		
-	# 	self._attendance_schedule_records = self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday()), ("start_time", ">=", time), ("end_time", "<=", time), ("attendance_template_id.start_date", ">=", today), ("attendance_template_id.end_date", "<=", today)])					
-	# 	self._display_warning = (len(self._attendance_schedule_records) != 1)		
-
-	# def _current_attendance_schedule(self):						
-	# 	if len(self._attendance_schedule_records) == 1:				
-	# 		return self._attendance_schedule_records[0]
-	# 	else:							
-	# 		return False	
-			
 	@api.onchange("guard_mode")
 	def _onchange_guard_mode(self):		
 		return {'domain': {'attendance_schedule_id': "[]" if self.guard_mode else "[('attendance_template_id.teacher_id.user_id', '=', uid)]"}}
@@ -119,6 +89,13 @@ class ims_attendance_session(models.Model):
 		start_date = start_date.astimezone(pytz.utc) 
 		
 		return datetime(start_date.year, start_date.month, start_date.day, start_date.hour, start_date.minute, 0, tzinfo=None)
+
+
+
+
+
+
+
 
 	# #name =fields.Char(string="Name", compute="_compute_name")
 	# # date = fields.Datetime(string="Date", default=fields.Datetime.now)
