@@ -24,8 +24,8 @@ class ims_attendance_session(models.Model):
 	group_id = fields.Many2one(string="Group", comodel_name="ims.group", compute="_compute_group_id", required=True, store=True)
 	subject_id = fields.Many2one(string="Subject", comodel_name="ims.subject", compute="_compute_subject_id", required=True, store=True)
 	space_id = fields.Many2one(string="Space", comodel_name="ims.space", compute="_compute_space_id", required=True, store=True)
-	template_teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", compute="_compute_template_teacher_id", required=True, store=True)
-	session_teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", compute="_compute_session_teacher_id", required=True, store=True)
+	template_teacher_id = fields.Many2one(string="Template's teacher", comodel_name="hr.employee", compute="_compute_template_teacher_id", required=True, store=True)
+	session_teacher_id = fields.Many2one(string="Session's teacher", comodel_name="hr.employee", compute="_compute_session_teacher_id", required=True, store=True)
 	
 	date = fields.Date(string="Date", default=fields.Datetime.now, required=True)
 	guard_mode = fields.Boolean(string= "Guard mode", default=False, store=True)
@@ -82,7 +82,8 @@ class ims_attendance_session(models.Model):
 	def _compute_template_teacher_id(self):
 		for rec in self:
 			rec.template_teacher_id = rec.attendance_schedule_id.attendance_template_id.teacher_id
-
+	
+	@api.depends("attendance_schedule_id")
 	def _compute_session_teacher_id(self):
 		for rec in self:
 			rec.session_teacher_id = self.env["hr.employee"].search([("user_id", "=", self.env.uid)])
@@ -98,7 +99,7 @@ class ims_attendance_session(models.Model):
 	def _get_attendance_schedule_records(self):		
 		# TODO: this method is called twice, I tried to store the result somewhere in order to catch it and avoid duped queries, but I can't do it work properly :(
 		today = datetime.now()		
-		return self.env["ims.attendance_schedule"].search([("weekday", "=", today.weekday()), ("start_date", "<=", today), ("end_date", ">=", today)])
+		return self.env["ims.attendance_schedule"].search([("attendance_template_id.teacher_id.user_id", "=", self.env.uid), ("weekday", "=", today.weekday()), ("start_date", "<=", today), ("end_date", ">=", today)]) # TODO: , order="group_id asc, subject_id asc, weekday asc, start_time asc"
 
 	@api.onchange("guard_mode")
 	def _onchange_guard_mode(self):		
