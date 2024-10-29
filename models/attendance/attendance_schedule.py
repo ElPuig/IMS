@@ -9,7 +9,7 @@ class ims_attendance_schedule(models.Model):
 	_name = "ims.attendance_schedule"
 	_description = "Attendance schedule: concretes the weekdays data."
 	
-	weekday = fields.Selection(string="Weekday", selection=[
+	weekdays_selection=[
 		("0", "Monday"),
         ("1", "Tuesday"),
         ("2", "Wednesday"),
@@ -17,7 +17,9 @@ class ims_attendance_schedule(models.Model):
         ("4", "Friday"),
 		("5", "Saturday"),
 		("6", "Sunday")
-    ], default="1", required=True)
+    ]
+
+	weekday = fields.Selection(string="Weekday", selection=weekdays_selection, default="1", required=True)
 
 	start_time = fields.Float(string="Start Time", required=True)
 	end_time = fields.Float(string="End Time", required=True)

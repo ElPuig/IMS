@@ -4,6 +4,8 @@ import math, pytz
 from datetime import datetime, time
 from odoo import models, fields, api
 from odoo.exceptions import UserError
+from .attendance_schedule import ims_attendance_schedule
+
 #from attendance_session import ims_attendance_session
 
 class ims_attendance_session(models.Model):
@@ -13,17 +15,17 @@ class ims_attendance_session(models.Model):
 	_display_warning = fields.Boolean(default=lambda self: self._default_display_warning(), store=False)	
 	
 	# NOTE: This is an statistical data model, should be unaltered if master-data changes, so the parent data will be copied.		
-	weekday = fields.Selection(string="Weekday", related="attendance_schedule_id.weekday", store=True)
-	start_time = fields.Float("Start Time", related="attendance_schedule_id.start_time", store=True)
-	end_time = fields.Float("End Time", related="attendance_schedule_id.end_time", store=True)	
-
-	#TODO: related IDs are changing when the template changes. Should not! Also, the teacher must be the current one, not the template creator. 
-	teacher_id = fields.Many2one(string="Teacher", related="attendance_schedule_id.attendance_template_id.teacher_id", store=True)
-	level_id = fields.Many2one(string="Level", related="attendance_schedule_id.attendance_template_id.level_id", store=True)
-	study_id = fields.Many2one(string="Study", related="attendance_schedule_id.attendance_template_id.study_id", store=True)
-	group_id = fields.Many2one(string="Group", related="attendance_schedule_id.attendance_template_id.group_id", store=True)
-	subject_id = fields.Many2one(string="Subject", related="attendance_schedule_id.attendance_template_id.subject_id", store=True)
-	space_id = fields.Many2one(string="Space", related="attendance_schedule_id.space_id", store=True)
+	weekday = fields.Selection(string="Weekday", compute="_compute_weekday", selection=ims_attendance_schedule.weekdays_selection, required=True, store=True)
+	start_time = fields.Float("Start Time", compute="_compute_start_time", required=True, store=True)
+	end_time = fields.Float("End Time", compute="_compute_end_time", required=True, store=True)	
+	
+	level_id = fields.Many2one(string="Level", comodel_name="ims.level", compute="_compute_level_id", required=True, store=True)
+	study_id = fields.Many2one(string="Study", comodel_name="ims.study", compute="_compute_study_id", required=True, store=True)
+	group_id = fields.Many2one(string="Group", comodel_name="ims.group", compute="_compute_group_id", required=True, store=True)
+	subject_id = fields.Many2one(string="Subject", comodel_name="ims.subject", compute="_compute_subject_id", required=True, store=True)
+	space_id = fields.Many2one(string="Space", comodel_name="ims.space", compute="_compute_space_id", required=True, store=True)
+	template_teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", compute="_compute_template_teacher_id", required=True, store=True)
+	session_teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", compute="_compute_session_teacher_id", required=True, store=True)
 	
 	date = fields.Date(string="Date", default=fields.Datetime.now, required=True)
 	guard_mode = fields.Boolean(string= "Guard mode", default=False, store=True)
@@ -36,9 +38,58 @@ class ims_attendance_session(models.Model):
 	attendance_status_ids = fields.One2many(string="Statuses", comodel_name="ims.attendance_status", inverse_name="attendance_session_id")	
 	attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ims.attendance_schedule", default=lambda self: self._default_attendance_schedule(), required=True)
 	
-	def _default_attendance_schedule(self):			
-		attendance_schedule_records = self._get_attendance_schedule_records()		
-		return attendance_schedule_records[0] if len(attendance_schedule_records) == 1 else False				
+	@api.depends("attendance_schedule_id")
+	def _compute_weekday(self):
+		for rec in self:
+			rec.weekday = rec.attendance_schedule_id.weekday
+
+	@api.depends("attendance_schedule_id")
+	def _compute_start_time(self):
+		for rec in self:
+			rec.start_time = rec.attendance_schedule_id.start_time
+
+	@api.depends("attendance_schedule_id")
+	def _compute_end_time(self):
+		for rec in self:
+			rec.end_time = rec.attendance_schedule_id.end_time
+
+	@api.depends("attendance_schedule_id")
+	def _compute_level_id(self):
+		for rec in self:
+			rec.level_id = rec.attendance_schedule_id.attendance_template_id.level_id
+
+	@api.depends("attendance_schedule_id")
+	def _compute_study_id(self):
+		for rec in self:
+			rec.study_id = rec.attendance_schedule_id.attendance_template_id.study_id
+
+	@api.depends("attendance_schedule_id")
+	def _compute_group_id(self):
+		for rec in self:
+			rec.group_id = rec.attendance_schedule_id.attendance_template_id.group_id
+
+	@api.depends("attendance_schedule_id")
+	def _compute_subject_id(self):
+		for rec in self:
+			rec.subject_id = rec.attendance_schedule_id.attendance_template_id.subject_id
+
+	@api.depends("attendance_schedule_id")
+	def _compute_space_id(self):
+		for rec in self:
+			rec.space_id = rec.attendance_schedule_id.attendance_template_id.space_id
+
+	@api.depends("attendance_schedule_id")
+	def _compute_template_teacher_id(self):
+		for rec in self:
+			rec.template_teacher_id = rec.attendance_schedule_id.attendance_template_id.teacher_id
+
+	def _compute_session_teacher_id(self):
+		for rec in self:
+			rec.session_teacher_id = self.env["hr.employee"].search([("user_id", "=", self.env.uid)])
+
+	def _default_attendance_schedule(self):
+		attendance_schedule_records = self._get_attendance_schedule_records()
+		return attendance_schedule_records[0] if len(attendance_schedule_records) == 1 else False
 
 	def _default_display_warning(self):						
 		attendance_schedule_records = self._get_attendance_schedule_records()
