@@ -8,6 +8,7 @@ from odoo.exceptions import UserError
 class ims_attendance_schedule(models.Model):
 	_name = "ims.attendance_schedule"
 	_description = "Attendance schedule: concretes the weekdays data."
+	_order = 'attendance_template_id asc, weekday asc, start_time asc'
 	
 	weekdays_selection=[
 		("0", "Monday"),

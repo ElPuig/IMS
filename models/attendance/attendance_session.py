@@ -99,7 +99,8 @@ class ims_attendance_session(models.Model):
 	def _get_attendance_schedule_records(self):		
 		# TODO: this method is called twice, I tried to store the result somewhere in order to catch it and avoid duped queries, but I can't do it work properly :(
 		today = datetime.now()		
-		return self.env["ims.attendance_schedule"].search([("attendance_template_id.teacher_id.user_id", "=", self.env.uid), ("weekday", "=", today.weekday()), ("start_date", "<=", today), ("end_date", ">=", today)]) # TODO: , order="group_id asc, subject_id asc, weekday asc, start_time asc"
+		# TODO: filter by current hour
+		return self.env["ims.attendance_schedule"].search([("attendance_template_id.teacher_id.user_id", "=", self.env.uid), ("weekday", "=", today.weekday()), ("start_date", "<=", today), ("end_date", ">=", today)])
 
 	@api.onchange("guard_mode")
 	def _onchange_guard_mode(self):		

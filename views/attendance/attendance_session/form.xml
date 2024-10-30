@@ -13,8 +13,7 @@
                     <sheet>
                         <group string="Main data" col="6" >
                             <group colspan="3">      
-                                <!-- TODO: Order not working, no name on field (just name_get) so, maybe name should be stored using name_get?  -->
-                                <field name="attendance_schedule_id" context="{'order_display': 'group_id asc, subject_id asc, weekday asc, start_time asc' }" attrs="{'readonly': [('id', '!=', False)]}"/>
+                                <field name="attendance_schedule_id" attrs="{'readonly': [('id', '!=', False)]}"/>
                             </group>    
                             <group colspan="1">
                                 <field name="date" attrs="{'readonly': [('id', '!=', False)]}"/>
