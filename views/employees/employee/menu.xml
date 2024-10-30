@@ -17,6 +17,13 @@
             <field name="context"> {'default_employee_type': 'asp'} </field>
         </record>
 
+        <!-- TODO: Departments should display all the employees grouped by dept.-->
+        <!-- <record model="ir.actions.act_window" id="action_departments_list">
+            <field name="name">Departments</field>
+            <field name="res_model">hr.employee</field>
+            <field name="view_mode">tree,kanban,form</field>
+        </record> -->
+
         <menuitem name="ASP"      sequence="2" id="menu_asp"      parent="hr.menu_hr_employee_payroll" action="action_asp_kanban"/>
         <menuitem name="Teachers" sequence="3" id="menu_teachers" parent="hr.menu_hr_employee_payroll" action="action_employee_kanban"/>       
 
@@ -32,6 +39,10 @@
         <record model="ir.ui.menu" id="hr.menu_hr_employee_user">
             <field name="name">All</field>
         </record>
+
+        <!-- TODO: Departments should display the list with all option selected and everything expanded: /web#action=175&active_id=8&model=hr.employee&view_type=list&cids=1&menu_id=127 -->
+            <!-- https://www.odoo.com/documentation/16.0/developer/reference/backend/views.html#list -->
+            <!-- https://www.odoo.com/es/forum/ayuda-1/extend-search-view-in-odoo-123842 -->
 
         <!-- Hiding -->
         <record model="ir.ui.menu" id="hr.menu_view_employee_category_form">

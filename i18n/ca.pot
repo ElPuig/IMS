@@ -443,12 +443,12 @@ msgstr ""
 
 #. module: ims
 #: model:ir.model.fields,field_description:ims.field_ims_attendance_session__hasStatuses
-msgid "Hasstatuses"
+msgid "has_statuses"
 msgstr ""
 
 #. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__hasTemplates
-msgid "Hastemplates"
+#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__has_templates
+msgid "has_templates"
 msgstr ""
 
 #. module: ims

@@ -40,14 +40,20 @@
         <record id="department_3" model="hr.department">
             <field name="name">Administration and management</field>
             <field name="parent_id" ref="department_1"/>
-        </record>        
+        </record>     
 
         <record id="department_4" model="hr.department">
-            <field name="name">Secretariat</field>
-        </record>
+            <field name="name">ASP</field>
+        </record>   
 
         <record id="department_5" model="hr.department">
+            <field name="name">Secretariat</field>
+            <field name="parent_id" ref="department_4"/>
+        </record>
+
+        <record id="department_6" model="hr.department">
             <field name="name">Conciergerie</field>
+            <field name="parent_id" ref="department_4"/>
         </record>    
     </data>
 </odoo>

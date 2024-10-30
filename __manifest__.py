@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '0.12.0',
+    'version': '0.13.0',
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -88,14 +88,27 @@
         'views/employees/role/form.xml',
         'views/employees/role/menu.xml',
 
+        'views/attendance/menu.xml',
+
+        'views/attendance/attendance_template/menu.xml',
         'views/attendance/attendance_template/list.xml',
         'views/attendance/attendance_template/form.xml',
-        'views/attendance/attendance_group/list.xml',
-        'views/attendance/attendance_group/form.xml',
+        # 'views/attendance/attendance_schedule/list.xml',
+        # 'views/attendance/attendance_schedule/form.xml',
+        # 'views/attendance/attendance_schedule/menu.xml',
         'views/attendance/attendance_session/list.xml',
         'views/attendance/attendance_session/form.xml',
+        'views/attendance/attendance_session/calendar.xml',
+        'views/attendance/attendance_session/menu.xml',
         'views/attendance/attendance_status/list.xml',
-        'views/attendance/attendance_status/form.xml',       
+        'views/attendance/attendance_status/form.xml',
+        'views/attendance/attendance_status/menu.xml',       
+        
+        'views/documentation/menu.xml',       
+        'views/documentation/minutes/menu.xml',       
+        'views/documentation/minutes/list.xml',       
+        'views/documentation/minutes/form.xml',   
+        
     ],
     'license': 'AGPL-3',
     'installable': True,
@@ -127,6 +140,11 @@
         'demo/contacts/student.xml',
         'demo/contacts/provider.xml',
         'demo/contacts/enrollment.xml',
+
+        'demo/attendance/attendance_template.xml',
+        'demo/attendance/attendance_schedule.xml',
+        'demo/attendance/attendance_session.xml',
+        'demo/attendance/attendance_status.xml',
     ],   
     'assets': {       
         'web.assets_backend': [

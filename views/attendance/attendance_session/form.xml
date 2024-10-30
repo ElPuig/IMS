@@ -5,32 +5,60 @@
             <field name="model">ims.attendance_session</field>
             <field name="arch" type="xml">
                 <form string="Session">
-                    <sheet>
-                        <group string="Basic data">
-                            <field name="date"/>
-                            <field name="start_time" widget="float_time"/>
-                            <field name="end_time" widget="float_time"/>
-                            <field name="notes"/>
-                            <field name="hasStatuses" invisible="1"/>                      
+                    <field name="_display_warning" invisible="1"/>                   
+                    <div class="alert alert-warning" role="alert" name="test_warning" attrs="{'invisible': [('_display_warning', '=', False)]}">
+                        <!-- TODO: this should be translated (localization) -->
+                        Unable to load the current session, maybe none has been scheduled for the current date and time?. Please, choose one manually or activate the "guard mode" if needed.
+                    </div>
+                    <sheet>                   
+                        <group string="Main data" col="6" >
+                            <group colspan="3">      
+                                <field name="attendance_schedule_id" attrs="{'readonly': [('id', '!=', False)]}"/>
+                            </group>    
+                            <group colspan="1">
+                                <field name="date" attrs="{'readonly': [('id', '!=', False)]}"/>
+                            </group>   
+                            <group colspan="2">
+                                <field name="guard_mode" attrs="{'readonly': [('id', '!=', False)]}"/>
+                            </group>     
+
+                            <group colspan="2">
+                                <field name="level_id"/>                               
+                            </group>
+                            <group colspan="2">
+                                <field name="study_id"/>                               
+                            </group>
+                            <group colspan="2">
+                                <field name="subject_id"/>                               
+                            </group>   
+
+                            <group colspan="2">
+                                <field name="session_teacher_id"/>                               
+                            </group>                            
+                            <group colspan="2">
+                                <field name="group_id"/>
+                            </group>
+                            <group colspan="1">
+                                <field name="space_id"/>
+                            </group>                        
                         </group>
+
                         <notebook>
                             <page string="Statuses">
-                                <field name="attendance_statuses" widget="one2many_list" context="{'show_attribute': False}">
-                                    <tree>
-                                        <field name="student"/>
-                                        <field name="status"/>
-                                        <field name="notes"/>
+                                <field name="attendance_status_ids" widget="one2many_list" context="{'show_attribute': False}">
+                                    <!-- TODO: custom CSS needed in order to fit aligns and other stuff -->
+                                    <tree editable="bottom" default_order="student_id asc">
+                                        <field name="student_image" widget="image" options="{'size': [75,75]}" />
+                                        <field name="student_id" width="175px"  /> <!-- class="align-middle" -->
+                                        <field name="status" widget="radio" options="{'horizontal': true}"   />
+                                        <field name="notes" width="350px"/>
                                     </tree>
                                 </field>
-                            </page>                                                        
+                            </page>     
+                            <page string="Notes">
+                                <field name="notes"/>
+                            </page>
                         </notebook>
-                        <button name="GenerateStatusesByTemplates" 
-                            string="Generate Statuses" 
-                            type="object"
-                            class="oe_highlight"
-                            attrs="{'invisible': [('hasStatuses', '=', True)]}"
-                            context="{'active_id': active_id, 'active_model': active_model}"
-                        />                    
                     </sheet>	
                 </form>
             </field>			
