@@ -15,17 +15,17 @@ class ims_attendance_session(models.Model):
 	_display_warning = fields.Boolean(default=lambda self: self._default_display_warning(), store=False)	
 	
 	# NOTE: This is an statistical data model, should be unaltered if master-data changes, so the parent data will be copied.		
-	weekday = fields.Selection(string="Weekday", compute="_compute_weekday", selection=ims_attendance_schedule.weekdays_selection, required=True, store=True)
-	start_time = fields.Float("Start Time", compute="_compute_start_time", required=True, store=True)
-	end_time = fields.Float("End Time", compute="_compute_end_time", required=True, store=True)	
+	weekday = fields.Selection(string="Weekday", compute="_compute_weekday", selection=ims_attendance_schedule.weekdays_selection, store=True)
+	start_time = fields.Float("Start Time", compute="_compute_start_time", store=True)
+	end_time = fields.Float("End Time", compute="_compute_end_time", store=True)	
 	
-	level_id = fields.Many2one(string="Level", comodel_name="ims.level", compute="_compute_level_id", required=True, store=True)
-	study_id = fields.Many2one(string="Study", comodel_name="ims.study", compute="_compute_study_id", required=True, store=True)
-	group_id = fields.Many2one(string="Group", comodel_name="ims.group", compute="_compute_group_id", required=True, store=True)
-	subject_id = fields.Many2one(string="Subject", comodel_name="ims.subject", compute="_compute_subject_id", required=True, store=True)
-	space_id = fields.Many2one(string="Space", comodel_name="ims.space", compute="_compute_space_id", required=True, store=True)
-	template_teacher_id = fields.Many2one(string="Template's teacher", comodel_name="hr.employee", compute="_compute_template_teacher_id", required=True, store=True)
-	session_teacher_id = fields.Many2one(string="Session's teacher", comodel_name="hr.employee", compute="_compute_session_teacher_id", required=True, store=True)
+	level_id = fields.Many2one(string="Level", comodel_name="ims.level", compute="_compute_level_id", store=True)
+	study_id = fields.Many2one(string="Study", comodel_name="ims.study", compute="_compute_study_id", store=True)
+	group_id = fields.Many2one(string="Group", comodel_name="ims.group", compute="_compute_group_id", store=True)
+	subject_id = fields.Many2one(string="Subject", comodel_name="ims.subject", compute="_compute_subject_id", store=True)
+	space_id = fields.Many2one(string="Space", comodel_name="ims.space", compute="_compute_space_id", store=True)
+	template_teacher_id = fields.Many2one(string="Template's teacher", comodel_name="hr.employee", compute="_compute_template_teacher_id", store=True)
+	session_teacher_id = fields.Many2one(string="Session's teacher", comodel_name="hr.employee", compute="_compute_session_teacher_id", store=True)
 	
 	date = fields.Date(string="Date", default=fields.Datetime.now, required=True)
 	guard_mode = fields.Boolean(string= "Guard mode", default=False, store=True)

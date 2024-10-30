@@ -20,7 +20,7 @@ class ims_attendance_schedule(models.Model):
 		("6", "Sunday")
     ]
 
-	name = fields.Char(string="Name", compute="_compute_name", store=True, required=True) #Used to sort the dropdown within the session form
+	name = fields.Char(string="Name", compute="_compute_name", store=True) #Used to sort the dropdown within the session form
 	weekday = fields.Selection(string="Weekday", selection=weekdays_selection, default="1", required=True)
 
 	start_time = fields.Float(string="Start Time", required=True)
