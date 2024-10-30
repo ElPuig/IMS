@@ -31,10 +31,6 @@ class ims_attendance_session(models.Model):
 	guard_mode = fields.Boolean(string= "Guard mode", default=False, store=True)
 	notes = fields.Text("Notes")
 	
-	# TODO: Maybe UTC dates are needed? If it's the case, do as in schedule (build the dates)
-	# start_date = fields.Datetime(required=True)	
-	# end_date = fields.Datetime(required=True)
-	
 	attendance_status_ids = fields.One2many(string="Statuses", comodel_name="ims.attendance_status", inverse_name="attendance_session_id")	
 	attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ims.attendance_schedule", default=lambda self: self._default_attendance_schedule(), required=True)
 	
@@ -84,9 +80,11 @@ class ims_attendance_session(models.Model):
 			rec.template_teacher_id = rec.attendance_schedule_id.attendance_template_id.teacher_id
 	
 	@api.depends("attendance_schedule_id")
-	def _compute_session_teacher_id(self):
+	def _compute_session_teacher_id(self):		
 		for rec in self:
-			rec.session_teacher_id = self.env["hr.employee"].search([("user_id", "=", self.env.uid)])
+			# NOTE: When loading the demo data, the root user fires this method			
+			current_teacher = self.env["hr.employee"].search([("user_id", "=", self.env.uid)])
+			rec.session_teacher_id = rec.template_teacher_id if current_teacher.name == False else current_teacher									
 
 	def _default_attendance_schedule(self):
 		attendance_schedule_records = self._get_attendance_schedule_records()
@@ -98,9 +96,20 @@ class ims_attendance_session(models.Model):
 	
 	def _get_attendance_schedule_records(self):		
 		# TODO: this method is called twice, I tried to store the result somewhere in order to catch it and avoid duped queries, but I can't do it work properly :(
-		today = datetime.now()		
-		# TODO: filter by current hour
-		return self.env["ims.attendance_schedule"].search([("attendance_template_id.teacher_id.user_id", "=", self.env.uid), ("weekday", "=", today.weekday()), ("start_date", "<=", today), ("end_date", ">=", today)])
+		today = datetime.now()
+				
+		# TODO: filter directly on search, I tried but didn't worked :(
+		current = []
+		regs = self.env["ims.attendance_schedule"].search([("attendance_template_id.teacher_id.user_id", "=", self.env.uid), ("weekday", "=", today.weekday()), ("start_date", "<=", today), ("end_date", ">=", today)])
+		for r in regs:
+			start = r.start_date.time()
+			end = r.end_date.time()
+			now = today.time()
+			if now >= start and now < end:
+				current.append(r)
+		return current
+		
+	
 
 	@api.onchange("guard_mode")
 	def _onchange_guard_mode(self):		

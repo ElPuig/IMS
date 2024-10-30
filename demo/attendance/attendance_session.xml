@@ -1,13 +1,14 @@
 <odoo>
     <data>
         <record id="attendance_session_1" model="ims.attendance_session">
-            <field name="attendance_schedule_id" ref="attendance_schedule_1"/>
+            <field name="attendance_schedule_id" ref="attendance_schedule_1"/>            
             <field name="weekday">1</field>
             <field name="start_time">16.00</field>
             <field name="end_time">17.916666666666668</field>           
 
-            <field name="template_teacher_id" ref="hr.employee_mit"/>
             <field name="session_teacher_id" ref="hr.employee_mit"/>
+            <field name="template_teacher_id" ref="hr.employee_mit"/>
+            
             <field name="level_id" ref="level_2"/>
             <field name="study_id" ref="study_1"/>
             <field name="group_id" ref="group_1"/>

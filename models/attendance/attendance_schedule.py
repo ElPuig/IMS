@@ -8,7 +8,7 @@ from odoo.exceptions import UserError
 class ims_attendance_schedule(models.Model):
 	_name = "ims.attendance_schedule"
 	_description = "Attendance schedule: concretes the weekdays data."
-	_order = 'attendance_template_id asc, weekday asc, start_time asc'
+	_order = 'name asc'
 	
 	weekdays_selection=[
 		("0", "Monday"),
@@ -20,6 +20,7 @@ class ims_attendance_schedule(models.Model):
 		("6", "Sunday")
     ]
 
+	name = fields.Char(string="Name", compute="_compute_name", store=True, required=True) #Used to sort the dropdown within the session form
 	weekday = fields.Selection(string="Weekday", selection=weekdays_selection, default="1", required=True)
 
 	start_time = fields.Float(string="Start Time", required=True)
@@ -34,6 +35,14 @@ class ims_attendance_schedule(models.Model):
 	attendance_session_ids = fields.One2many(string="Sessions", comodel_name="ims.attendance_session", inverse_name="attendance_schedule_id")	
 		
 	notes = fields.Text(string="Notes")
+
+	@api.depends("attendance_template_id", "weekday", "start_time", "end_time")
+	def _compute_name(self):			
+		for rec in self:			
+			end_time = math.modf(rec.end_time)	
+			start_time = math.modf(rec.start_time)				
+			weekday_str = rec._fields['weekday'].convert_to_export(rec.weekday, rec)
+			rec.name = "%s | %s | %02d:%02d - %02d:%02d" % (rec.attendance_template_id.name_get()[0][1], weekday_str, int(start_time[1]), round(start_time[0]*60), int(end_time[1]), round(end_time[0]*60))
 
 	@api.onchange("start_time")
 	def _onchange_start_time(self):			
@@ -56,15 +65,15 @@ class ims_attendance_schedule(models.Model):
 		start_date = start_date.astimezone(pytz.utc) 		
 		return datetime(start_date.year, start_date.month, start_date.day, start_date.hour, start_date.minute, 0, tzinfo=None)	
 
-	def name_get(self):
-        #Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
-		result = []	
-		for rec in self:			
-			end_time = math.modf(rec.end_time)	
-			start_time = math.modf(rec.start_time)				
-			weekday_str = rec._fields['weekday'].convert_to_export(rec.weekday, rec)
-			result.append((rec.id, "%s | %s | %02d:%02d - %02d:%02d" % (rec.attendance_template_id.name_get()[0][1], weekday_str, int(start_time[1]), round(start_time[0]*60), int(end_time[1]), round(end_time[0]*60))))						
-		return result
+	# def name_get(self):
+    #     #Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
+	# 	result = []	
+	# 	for rec in self:			
+	# 		end_time = math.modf(rec.end_time)	
+	# 		start_time = math.modf(rec.start_time)				
+	# 		weekday_str = rec._fields['weekday'].convert_to_export(rec.weekday, rec)
+	# 		result.append((rec.id, "%s | %s | %02d:%02d - %02d:%02d" % (rec.attendance_template_id.name_get()[0][1], weekday_str, int(start_time[1]), round(start_time[0]*60), int(end_time[1]), round(end_time[0]*60))))						
+	# 	return result
 
 
 

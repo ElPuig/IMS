@@ -1,6 +1,7 @@
 <odoo>
     <data>
         <record id="attendance_schedule_1" model="ims.attendance_schedule">
+            <field name="name">DAM MP03: Programació (DAM1A) | Monday | 16:01 - 17:55</field>
             <field name="weekday">0</field>
             <field name="start_time">16.00</field>
             <field name="end_time">17.916666666666668</field>
@@ -11,6 +12,7 @@
         </record>
 
         <record id="attendance_schedule_2" model="ims.attendance_schedule">
+            <field name="name">DAM MP03: Programació (DAM1A) | Wednesday | 18:16 - 20:55</field>
             <field name="weekday">2</field>
             <field name="start_time">18.25</field>
             <field name="end_time">20.916666666666668</field>
@@ -21,6 +23,7 @@
         </record>
 
          <record id="attendance_schedule_3" model="ims.attendance_schedule">
+            <field name="name">DAM MP01: Sistemes informàtics (DAM2A) | Tuesday | 15:01 - 16:00</field>
             <field name="weekday">1</field>
             <field name="start_time">15.00</field>
             <field name="end_time">16.00</field>
@@ -31,6 +34,7 @@
         </record>
 
         <record id="attendance_schedule_4" model="ims.attendance_schedule">
+            <field name="name">DAM MP01: Sistemes informàtics (DAM2A) | Thursday | 16:11 - 17:00</field>
             <field name="weekday">3</field>
             <field name="start_time">16.00</field>
             <field name="end_time">17.00</field>
