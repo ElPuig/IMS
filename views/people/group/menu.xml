@@ -6,9 +6,8 @@
             <field name="res_model">ims.group</field>
             <field name="view_mode">tree,form</field>
         </record>  
-
-        <menuitem name="Configuration"  sequence="9" id="menu_people_config"  parent="menu_people" />        
-        <menuitem name="Students" sequence="4" id="menu_people_config_students" parent="menu_people_config"/>
-        <menuitem name="Groups"   sequence="1" id="menu_groups"                 parent="menu_people_config_students" action="action_group_tree"/>
+           
+        <menuitem name="Students" sequence="1" id="menu_people_config_students" parent="menu_people_config"/>
+        <menuitem name="Groups"   sequence="1" id="menu_people_config_groups" parent="menu_people_config_students" action="action_group_tree"/>
     </data>
 </odoo>

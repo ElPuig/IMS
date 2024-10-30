@@ -46,10 +46,10 @@
         'views/curriculum/level/form.xml',
         'views/curriculum/level/menu.xml',
 
-        'views/employees/employee/kanban.xml',        
-        'views/employees/employee/list.xml',
-        'views/employees/employee/form.xml',       
-        'views/employees/employee/menu.xml',       
+        'views/people/employee/kanban.xml',        
+        'views/people/employee/list.xml',
+        'views/people/employee/form.xml',       
+        'views/people/employee/menu.xml',       
 
         'views/employees/job/list.xml',
         'views/employees/job/form.xml',        
@@ -58,9 +58,9 @@
         'views/employees/tracking/form.xml',  
         'views/employees/tracking/menu.xml',     
 
-        'views/employees/workgroup/list.xml',
-        'views/employees/workgroup/form.xml',  
-        'views/employees/workgroup/menu.xml',  
+        'views/people/workgroup/list.xml',
+        'views/people/workgroup/form.xml',  
+        'views/people/workgroup/menu.xml',  
 
         'views/people/menu.xml',  
         'views/people/contact/list.xml',

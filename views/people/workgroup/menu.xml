@@ -7,6 +7,7 @@
             <field name="view_mode">tree,form</field>
         </record>  
 
-        <menuitem name="Workgroups" sequence="2" id="menu_workgroups" parent="hr.menu_config_employee" action="action_workgroup_tree"/>                                
+        <menuitem name="Teachers" sequence="2" id="menu_people_config_teachers" parent="menu_people_config"/>
+        <menuitem name="Workgroups" sequence="1" id="menu_people_config_workgroups" parent="menu_people_config_teachers" action="action_workgroup_tree"/>                                
     </data>
 </odoo>
