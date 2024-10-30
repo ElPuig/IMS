@@ -60,7 +60,17 @@
 
         'views/employees/workgroup/list.xml',
         'views/employees/workgroup/form.xml',  
-        'views/employees/workgroup/menu.xml',        
+        'views/employees/workgroup/menu.xml',  
+
+        'views/people/menu.xml',  
+        'views/people/contact/list.xml',
+        'views/people/contact/form.xml',
+        'views/people/contact/search.xml',
+        'views/people/contact/kanban.xml',
+        'views/people/contact/menu.xml',
+        'views/people/group/list.xml',
+        'views/people/group/form.xml',  
+        'views/people/group/menu.xml',      
 
         'views/facilities/menu.xml',
 
@@ -71,18 +81,7 @@
 
         'views/facilities/space_type/list.xml',
         'views/facilities/space_type/form.xml',
-        'views/facilities/space_type/menu.xml',
-
-        'views/contacts/menu.xml',
-
-        'views/contacts/contact/list.xml',
-        'views/contacts/contact/form.xml',
-        'views/contacts/contact/search.xml',
-        'views/contacts/contact/kanban.xml',
-        'views/contacts/contact/menu.xml',
-        'views/contacts/group/list.xml',
-        'views/contacts/group/form.xml',  
-        'views/contacts/group/menu.xml',
+        'views/facilities/space_type/menu.xml',       
 
         'views/employees/role/list.xml',
         'views/employees/role/form.xml',
@@ -93,9 +92,6 @@
         'views/attendance/attendance_template/menu.xml',
         'views/attendance/attendance_template/list.xml',
         'views/attendance/attendance_template/form.xml',
-        # 'views/attendance/attendance_schedule/list.xml',
-        # 'views/attendance/attendance_schedule/form.xml',
-        # 'views/attendance/attendance_schedule/menu.xml',
         'views/attendance/attendance_session/list.xml',
         'views/attendance/attendance_session/form.xml',
         'views/attendance/attendance_session/calendar.xml',
