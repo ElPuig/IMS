@@ -701,7 +701,7 @@ msgid "PMs"
 msgstr ""
 
 #. module: ims
-#: model:ir.ui.menu,name:ims.menu_people
+#: model:ir.ui.menu,name:ims.menu_community
 msgid "People"
 msgstr ""
 

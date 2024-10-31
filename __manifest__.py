@@ -29,63 +29,72 @@
         'security/groups.xml',        
         'security/ir.model.access.csv',                        
         
+        'views/menu.xml',
+
         'views/settings/form.xml',
-        'views/settings/menu.xml',        
-
-        'views/curriculum/menu.xml',
-
-        'views/curriculum/subject/list.xml',
-        'views/curriculum/subject/form.xml',
-        'views/curriculum/subject/menu.xml',
-
-        'views/curriculum/study/list.xml',
-        'views/curriculum/study/form.xml',     
-        'views/curriculum/study/menu.xml',        
+        'views/settings/menu.xml',                                    
         
-        'views/curriculum/level/list.xml',
-        'views/curriculum/level/form.xml',
-        'views/curriculum/level/menu.xml',
+        'views/community/menu.xml',  
+            'views/community/configuration/menu.xml',            
 
-        'views/people/employee/kanban.xml',        
-        'views/people/employee/list.xml',
-        'views/people/employee/form.xml',       
-        'views/people/employee/menu.xml',       
+            'views/community/employee/menu.xml', 
+            'views/community/employee/kanban.xml',        
+            'views/community/employee/list.xml',
+            'views/community/employee/form.xml',                                      
 
-        'views/employees/job/list.xml',
-        'views/employees/job/form.xml',        
+            'views/community/workgroup/list.xml',
+            'views/community/workgroup/form.xml',  
+            'views/community/workgroup/menu.xml',  
+            
+            'views/community/contact/list.xml',
+            'views/community/contact/form.xml',
+            'views/community/contact/search.xml',
+            'views/community/contact/kanban.xml',
+            'views/community/contact/menu.xml',
 
-        'views/employees/tracking/list.xml',
-        'views/employees/tracking/form.xml',  
-        'views/employees/tracking/menu.xml',     
+            'views/community/group/list.xml',
+            'views/community/group/form.xml',  
+            'views/community/group/menu.xml',    
 
-        'views/people/workgroup/list.xml',
-        'views/people/workgroup/form.xml',  
-        'views/people/workgroup/menu.xml',  
+            'views/community/job/list.xml',
+            'views/community/job/form.xml', 
+            'views/community/job/menu.xml',    
 
-        'views/people/menu.xml',  
-        'views/people/contact/list.xml',
-        'views/people/contact/form.xml',
-        'views/people/contact/search.xml',
-        'views/people/contact/kanban.xml',
-        'views/people/contact/menu.xml',
-        'views/people/group/list.xml',
-        'views/people/group/form.xml',  
-        'views/people/group/menu.xml',      
+            'views/community/role/list.xml',
+            'views/community/role/form.xml',
+            'views/community/role/menu.xml',
+                
+            'views/community/department/menu.xml',
+            'views/community/worklocation/menu.xml',
+            'views/community/employmenttypes/menu.xml',
 
-        'views/facilities/menu.xml',
+            'views/community/curriculum/subject/list.xml',
+            'views/community/curriculum/subject/form.xml',
+            'views/community/curriculum/subject/menu.xml',
 
-        'views/facilities/space/list.xml',
-        'views/facilities/space/form.xml',
-        'views/facilities/space/search.xml',
-        'views/facilities/space/menu.xml',
+            'views/community/curriculum/study/list.xml',
+            'views/community/curriculum/study/form.xml',     
+            'views/community/curriculum/study/menu.xml',        
+        
+            'views/community/curriculum/level/list.xml',
+            'views/community/curriculum/level/form.xml',
+            'views/community/curriculum/level/menu.xml',   
 
-        'views/facilities/space_type/list.xml',
-        'views/facilities/space_type/form.xml',
-        'views/facilities/space_type/menu.xml',       
+            'views/community/facilities/menu.xml',
 
-        'views/employees/role/list.xml',
-        'views/employees/role/form.xml',
-        'views/employees/role/menu.xml',
+            'views/community/facilities/space/list.xml',
+            'views/community/facilities/space/form.xml',
+            'views/community/facilities/space/search.xml',
+
+            'views/community/facilities/space_type/list.xml',
+            'views/community/facilities/space_type/form.xml',
+            'views/community/facilities/space_type/menu.xml',    
+
+        # 'views/community/tracking/list.xml',
+        # 'views/community/tracking/form.xml',  
+        # 'views/community/tracking/menu.xml',     
+
+                   
 
         'views/attendance/menu.xml',
 

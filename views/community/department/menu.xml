@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>          
+        <record model="ir.actions.act_window" id="action_department_tree">
+            <field name="name">Departments</field>
+            <field name="res_model">hr.department</field>
+            <field name="view_mode">tree,form</field>
+        </record>  
+
+        <menuitem name="Departments" sequence="2" id="menu_departments" parent="menu_community_config_hhrr" action="action_department_tree"/>
+    </data>
+</odoo>
