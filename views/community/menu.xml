@@ -10,6 +10,6 @@
         </record>
         
         <!-- Root menu items only -->
-        <menuitem name="Educational Community"   id="menu_community" action="action_community_kanban"/> 
+        <menuitem name="Educational Community" id="menu_community" action="action_community_kanban"/> 
     </data>
 </odoo>

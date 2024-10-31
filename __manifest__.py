@@ -97,22 +97,23 @@
                    
 
         'views/attendance/menu.xml',
+            'views/attendance/configuration/menu.xml',
 
-        'views/attendance/attendance_template/menu.xml',
-        'views/attendance/attendance_template/list.xml',
-        'views/attendance/attendance_template/form.xml',
-        'views/attendance/attendance_session/list.xml',
-        'views/attendance/attendance_session/form.xml',
-        'views/attendance/attendance_session/calendar.xml',
-        'views/attendance/attendance_session/menu.xml',
-        'views/attendance/attendance_status/list.xml',
-        'views/attendance/attendance_status/form.xml',
-        'views/attendance/attendance_status/menu.xml',       
-        
+            'views/attendance/attendance_template/menu.xml',
+            'views/attendance/attendance_template/list.xml',
+            'views/attendance/attendance_template/form.xml',
+            'views/attendance/attendance_session/list.xml',
+            'views/attendance/attendance_session/form.xml',
+            'views/attendance/attendance_session/calendar.xml',
+            'views/attendance/attendance_session/menu.xml',
+            'views/attendance/attendance_status/list.xml',
+            'views/attendance/attendance_status/form.xml',
+            'views/attendance/attendance_status/menu.xml',       
+            
         'views/documentation/menu.xml',       
-        'views/documentation/minutes/menu.xml',       
-        'views/documentation/minutes/list.xml',       
-        'views/documentation/minutes/form.xml',   
+            'views/documentation/minutes/menu.xml',       
+            'views/documentation/minutes/list.xml',       
+            'views/documentation/minutes/form.xml',   
         
     ],
     'license': 'AGPL-3',
