@@ -68,27 +68,27 @@
             'views/community/worklocation/menu.xml',
             'views/community/employmenttypes/menu.xml',
 
-            'views/community/curriculum/subject/list.xml',
-            'views/community/curriculum/subject/form.xml',
-            'views/community/curriculum/subject/menu.xml',
+            'views/community/subject/list.xml',
+            'views/community/subject/form.xml',
+            'views/community/subject/menu.xml',
 
-            'views/community/curriculum/study/list.xml',
-            'views/community/curriculum/study/form.xml',     
-            'views/community/curriculum/study/menu.xml',        
+            'views/community/study/list.xml',
+            'views/community/study/form.xml',     
+            'views/community/study/menu.xml',        
         
-            'views/community/curriculum/level/list.xml',
-            'views/community/curriculum/level/form.xml',
-            'views/community/curriculum/level/menu.xml',   
+            'views/community/level/list.xml',
+            'views/community/level/form.xml',
+            'views/community/level/menu.xml',   
 
-            'views/community/facilities/menu.xml',
+            'views/community/space/menu.xml',
 
-            'views/community/facilities/space/list.xml',
-            'views/community/facilities/space/form.xml',
-            'views/community/facilities/space/search.xml',
+            'views/community/space/list.xml',
+            'views/community/space/form.xml',
+            'views/community/space/search.xml',
 
-            'views/community/facilities/space_type/list.xml',
-            'views/community/facilities/space_type/form.xml',
-            'views/community/facilities/space_type/menu.xml',    
+            'views/community/space_type/list.xml',
+            'views/community/space_type/form.xml',
+            'views/community/space_type/menu.xml',    
 
         # 'views/community/tracking/list.xml',
         # 'views/community/tracking/form.xml',  
