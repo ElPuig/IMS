@@ -47,11 +47,11 @@
                             <page string="Statuses">
                                 <field name="attendance_status_ids" widget="one2many_list" context="{'show_attribute': False}">
                                     <!-- TODO: custom CSS needed in order to fit aligns and other stuff -->
-                                    <tree editable="bottom" default_order="student_id asc">
+                                    <tree editable="bottom" default_order="student_id asc">                                       
                                         <field name="student_image" widget="image" options="{'size': [75,75]}" />
                                         <field name="student_id" width="175px"  /> <!-- class="align-middle" -->
                                         <field name="status" widget="radio" options="{'horizontal': true}"   />
-                                        <field name="notes" width="350px"/>
+                                        <field name="notes" width="350px"/>                                       
                                     </tree>
                                 </field>
                             </page>     
@@ -61,6 +61,24 @@
                         </notebook>
                     </sheet>	
                 </form>
+
+                <!-- TODO: This wont work without a mouse... -->
+                <!-- TODO: Should be reenabled on manual save... -->
+                <script type="text/javascript">                   
+                    $(document).ready(function() {                        
+                        Array.from(document.getElementsByClassName("o_field_cell o_radio_cell")).forEach(
+                            function(element, index, array) {
+                                $(element).mouseover(function() {                                    
+                                    $(this).click();
+                                });
+
+                                $(element).mouseout(function() {
+                                    $(".o_horizontal_separator").first().click();
+                                });
+                            }
+                        );
+                    });                   
+                </script> 
             </field>			
         </record>
     </data>
