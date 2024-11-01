@@ -7,6 +7,6 @@
             <field name="view_mode">tree,form</field>
         </record>
                 
-        <menuitem name="Minutes" sequence="1" id="menu_minutes" parent="menu_documentation" action="action_minute_tree"/>
+        <!-- <menuitem name="Minutes" sequence="1" id="menu_minutes" parent="menu_documentation" action="action_minute_tree"/> -->
     </data>
 </odoo>

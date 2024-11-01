@@ -2,6 +2,7 @@
 <odoo>
     <data>   
         <!-- Root menu items only -->
-        <menuitem name="Documentation" id="menu_documentation" />
+        <!-- TODO: under early development -->
+        <!-- <menuitem name="Documentation" id="menu_documentation" /> -->
     </data>
 </odoo>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>    
+        <!-- Hiding native menu items -->
+        <record model="ir.ui.menu" id="hr.menu_hr_root">
+            <field name="active">false</field>
+        </record>   
+
+        <record model="ir.ui.menu" id="contacts.menu_contacts">
+            <field name="active">false</field>
+        </record>   
+    </data>
+</odoo>

@@ -7,6 +7,6 @@
             <field name="view_mode">tree,form</field>            
         </record>
             
-        <menuitem name="Templates" sequence="1" id="menu_attendance_template" parent="menu_attendance" action="action_attendance_template_tree"/>
+        <menuitem name="Templates" sequence="2" id="menu_attendance_template" parent="menu_attendance_config_sessions" action="action_attendance_template_tree"/>
     </data>
 </odoo>
