@@ -63,26 +63,17 @@
                 </form>
 
                 <!-- TODO: This wont work without a mouse... -->
-                <!-- WARNING: Reinstall won't work if "script" is not removed... WHY!? -->
-                <script type="text/javascript">                   
-                    $(document).ready(function() {  
-                        autofocusForAttendanceStatus();
-                        
-                        $(".o_form_button_save").on("click", function(){
-                            /*
-                                TODO: Ugly... Try to find an event or something... 
-                                Check this out: https://www.odoo.com/es_ES/forum/ayuda-1/how-to-add-my-custom-javascript-code-into-form-view-page-225586
-                                                https://stackoverflow.com/questions/52253493/how-to-perform-some-action-on-a-node-after-it-is-loaded-in-javascript-in-odoo
-                                                https://www.odoo.com/es_ES/forum/ayuda-1/how-to-create-javascript-event-on-odoo16-214754
-                                                https://www.odoo.com/es_ES/forum/ayuda-1/how-i-can-trigger-save-button-from-view-form-js-75550
-                                                https://www.odoo.com/es_ES/forum/ayuda-1/how-to-add-special-javascript-code-to-a-from-view-261231
-                            */
-                            setTimeout(function(){
-                                autofocusForAttendanceStatus();
-                            }, 100);                            
-                        });
-                    });      
+                <!-- 
+                    TODO: $(".o_form_button_save").on("click", function():
+                        Ugly... Try to find an event or something... 
+                        Check this out: https://www.odoo.com/es_ES/forum/ayuda-1/how-to-add-my-custom-javascript-code-into-form-view-page-225586
+                                        https://stackoverflow.com/questions/52253493/how-to-perform-some-action-on-a-node-after-it-is-loaded-in-javascript-in-odoo
+                                        https://www.odoo.com/es_ES/forum/ayuda-1/how-to-create-javascript-event-on-odoo16-214754
+                                        https://www.odoo.com/es_ES/forum/ayuda-1/how-i-can-trigger-save-button-from-view-form-js-75550
+                                        https://www.odoo.com/es_ES/forum/ayuda-1/how-to-add-special-javascript-code-to-a-from-view-261231
+                 -->
 
+                <script type="text/javascript">                   
                     function autofocusForAttendanceStatus(){
                         $(".o_field_cell.o_radio_cell").on("mouseover", function(){
                             $(this).mouseover(function() {                                    
@@ -93,7 +84,16 @@
                                 $(".o_horizontal_separator").first().click();
                             });
                         });                        
-                    }             
+                    } 
+
+                    $(document).ready(function() {  
+                        autofocusForAttendanceStatus();                    
+                        $(".o_form_button_save").on("click", function(){
+                            setTimeout(function(){
+                                autofocusForAttendanceStatus();
+                            }, 100);                            
+                        });
+                    });                  
                 </script> 
             </field>			
         </record>
