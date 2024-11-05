@@ -63,7 +63,7 @@
                 </form>
 
                 <!-- TODO: This wont work without a mouse... -->
-                <!-- TODO: Should be reenabled on manual save... -->
+                <!-- WARNING: Reinstall won't work if "script" is not removed... WHY!? -->
                 <script type="text/javascript">                   
                     $(document).ready(function() {  
                         autofocusForAttendanceStatus();
