@@ -155,6 +155,9 @@
     'assets': {       
         'web.assets_backend': [
             'ims/static/src/fields/*',
+        ],       
+        'web.assets_common': [
+            'ims/static/src/js/**/*',
         ],
     },
 }
