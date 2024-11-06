@@ -4,21 +4,43 @@ import { FormView } from "@web/views/form/form_view";
 import { FormController } from "@web/views/form/form_controller";
 import { useService } from "@web/core/utils/hooks";
 
-
+var _intervalID = null;
 
 patch(FormController.prototype, "radiobutton_autofocus", {
-    setup(){
+    setup(){    
         this._super.apply();
         this.action = useService("action");    
-    },    
-    _onButtonClicked(event) {
-        console.log(event);
+
+        if(this.props.resModel == "ims.attendance_session"){
+            start_poll();    
+        }
     }     
 });
 
-function customTest(ev){
-   console.log("HOOLA");
-};
+function start_poll(){
+    _intervalID = setInterval(poll, 100);
+}
+
+function poll(){
+    if($(".o_field_cell.o_radio_cell").length != 0){
+        clearInterval(_intervalID);        
+        
+        $(".o_form_button_save").off('click').on("click", start_poll());
+        autofocusForAttendanceStatus();
+    } 
+}
+
+function autofocusForAttendanceStatus(){
+    $(".o_field_cell.o_radio_cell").on("mouseover", function(){
+        $(this).mouseover(function() {                                    
+            $(this).click();
+        });
+
+        $(this).mouseout(function() {
+            $(".o_horizontal_separator").first().click();
+        });
+    });                        
+} 
 
 //A malas, si no consigo capturar el evento, puedo hacer un timer y cuando encuentre que ha cargado, lo aplique.
 
