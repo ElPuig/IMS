@@ -5,21 +5,21 @@
             <field name="model">ims.study</field>
             <field name="arch" type="xml">
                 <tree expand="1" default_order="level_id asc, code asc">
-                    <field name="level_id"/>
-                    <field name="code"/>  
-                    <field name="acronym"/>
+                    <field name="level_id" invisible="1"/>  
+                    <field name="code" width="50px"/>  
+                    <field name="acronym" width="50px"/>
                     <field name="name"/>                                                              
                 </tree>
             </field>
         </record>   
 
-        <record model="ir.ui.view" id="ims_study_search">
+        <record model="ir.ui.view" id="study_search">
             <field name="name">ims study search</field>
             <field name="model">ims.study</field>            
             <field name="arch" type="xml">
                 <search string="Level">
                     <group expand="1" string="Order By">
-                        <filter string="Level" name="group_by_level_id" context="{'group_by':'level_id'}" />
+                        <filter string="Level" name="group_by_level" context="{'group_by':'level_id'}" />
                     </group>
                 </search>
             </field>
