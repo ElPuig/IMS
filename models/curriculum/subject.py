@@ -56,3 +56,15 @@ class ims_subject(models.Model):
             result.append((rec.id, "%s %s: %s" % (rec.study_id.acronym, " ".join(list(reversed(acronyms))), rec.name)))
             
         return result
+    
+    def open_form_view_subject(self):
+        return {
+            'name': 'Subject Edit',
+            'domain': [],
+            'res_model': 'ims.subject',
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'view_type': 'form',
+            'res_id': self.id,
+            'target': 'new',
+        }

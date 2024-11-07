@@ -27,3 +27,4 @@ class ims_study(models.Model):
             result.append((rec.id, "%s: %s" % (rec.acronym, rec.name)))			
             
         return result
+    

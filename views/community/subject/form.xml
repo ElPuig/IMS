@@ -33,7 +33,7 @@
                         <notebook>                           
                             <page string="Sub subjects">
                                 <field name="subject_ids" widget="many2many" context="{'default_subject_id': id, 'default_level': level+1}">
-                                    <tree>                                                     
+                                    <tree>
                                         <field name="code"/>
                                         <field name="acronym"/>
                                         <field name="name"/>
