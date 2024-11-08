@@ -19,7 +19,7 @@ class ims_subject(models.Model):
     study_id = fields.Many2one(string="Study", comodel_name="ims.study", required="true")
     teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
 
-    subject_ids = fields.One2many(string="Content", comodel_name="ims.subject", inverse_name="subject_id", domain="[('id', '!=', id), ('level', '>', level), ('subject_id', '=', False)]")
+    subject_ids = fields.One2many(string="Composite", comodel_name="ims.subject", inverse_name="subject_id", domain="[('id', '!=', id), ('level', '>', level), ('subject_id', '=', False)]")
     subject_id = fields.Many2one(string="Main subject", comodel_name="ims.subject")
     
     # TODO: add "internal_hours" and "external_hours", including the computation of "hours" due this and its children.
