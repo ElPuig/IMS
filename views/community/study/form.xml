@@ -44,12 +44,7 @@
                                         <field name="code"/>
                                         <field name="acronym"/>
                                         <field name="name"/>
-                                        <button class="oe_stat_button"
-                                            title="Edit Subject"
-                                            icon="fa-pencil-square-o"
-                                            name="open_form_view_subject"
-                                            type="object"
-                                        />
+                                        <button class="oe_stat_button" title="Edit Subject" icon="fa-pencil-square-o" name="open_form_view_subject" type="object" />
                                     </tree>
                                 </field>
                             </page>

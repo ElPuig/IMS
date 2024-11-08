@@ -28,3 +28,14 @@ class ims_study(models.Model):
             
         return result
     
+    def open_form_view_study(self):
+        return {
+            'name': 'Study Edit',
+            'domain': [],
+            'res_model': 'ims.study',
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'view_type': 'form',
+            'res_id': self.id,
+            'target': 'new',
+        }
