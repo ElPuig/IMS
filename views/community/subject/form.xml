@@ -6,28 +6,36 @@
             <field name="arch" type="xml">				
                 <form string="subject">                   
                     <sheet>                        
-                        <group string="Main data" col="6">
-                            <group colspan="6">
+                        <group string="Main data" col="4">
+                            <group colspan="4">
                                 <field name="study_id" attrs="{'invisible':[('level', '>', 1)]}"/>
                                 <field name="subject_id" attrs="{'invisible':[('level', '==', 1)]}"/>
                                 
                                 <!-- Needed but hidden for filtering purposes -->
-                                <field name="level" invisible="1"/>                                 
+                                <field name="level" invisible="1"/>   
+                                <field name="last" invisible="1"/>                                       
                             </group>
                             <group>
                                 <field name="code"/>
+                                <field name="total_hours" />
                             </group>
                             <group>							
                                 <field name="acronym"/>
-                            </group>
-                            <group>		
-                                <field name="last" invisible="1"/>                
-                                <field name="total_hours" attrs="{'invisible':[('last', '==', True)]}"/>
-                                <field name="hours" attrs="{'invisible':[('last', '==', False)]}"/>
-                            </group>
-                            <group colspan="3">							
-                                <field name="name"/>
-                            </group>
+                                <field string="Internal hours" name="total_internal_hours" attrs="{'invisible':['|', ('last', '==', True), ('total_internal_hours', '==', 0)]}"/>
+                                <field name="internal_hours" attrs="{'invisible':[('last', '==', False), ('total_internal_hours', '!=', 0)]}"/>
+                            </group>  
+                            <group colspan="2">
+                                <group colspan="2">
+                                    <field name="name"/>
+                                </group>    
+                                 <group>			
+                                    <field string="External hours" name="total_external_hours" attrs="{'invisible':['|', ('last', '==', True), ('total_external_hours', '==', 0)]}"/>
+                                    <field name="external_hours" attrs="{'invisible':[('last', '==', False), ('total_external_hours', '!=', 0)]}"/>
+                                </group>                                
+                                <group>                        
+                                    <field name="ects" attrs="{'invisible':[('subject_id', '!=', False)]}"/>
+                                </group>
+                            </group>                                                                                                                               
                         </group>
                         
                         <notebook>                           

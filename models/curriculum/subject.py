@@ -11,9 +11,16 @@ class ims_subject(models.Model):
     acronym = fields.Char(string="Acronym", required="true")
     name = fields.Char(string="Name", required="true")
     level = fields.Integer(string="Level")  # Note: this field is computed, but marking as compute needs Store=true for filtering and then is not beeing updated :(
-    hours = fields.Integer(string="Hours")  # For the last sub-subject
-    last = fields.Boolean(string="Last", compute='_compute_last') # To know if it's the last sub-subject (needed for views)
+    ects = fields.Integer(string="ECTS Credits") 
+    internal_hours = fields.Integer(string="Internal hours") 
+    external_hours = fields.Integer(string="External hours")   
+
+    total_internal_hours = fields.Integer(string="Total internal hours", compute='_compute_total_internal_hours', recursive=True) # Computed sum(hours / total_hours)
+    total_external_hours = fields.Integer(string="Total external hours", compute='_compute_total_external_hours', recursive=True) # Computed sum(hours / total_hours)
     total_hours = fields.Integer(string="Total hours", compute='_compute_total_hours', recursive=True) # Computed sum(hours / total_hours)
+
+    last = fields.Boolean(string="Last", compute='_compute_last') # To know if it's the last sub-subject (needed for views)
+    
     notes = fields.Text("Notes")
 
     study_id = fields.Many2one(string="Study", comodel_name="ims.study", required="true")
@@ -25,19 +32,29 @@ class ims_subject(models.Model):
     content_ids = fields.One2many(string="Content", comodel_name="ims.content", inverse_name="subject_id")
     criteria_ids = fields.One2many(string="Criteria", comodel_name="ims.criteria", inverse_name="subject_id")
 
-    # TODO: add "internal_hours" and "external_hours", including the computation of "hours" due this and its children.
-    # TODO: add AR only for VET, every AR has "ACs" and "Cs". "ACs" and "Cs" are recursive.
-
     @api.onchange("subject_id")
     def _onchange_subject_id(self):
         for rec in self:
             rec.study_id = rec.subject_id.study_id
             rec.level = rec.subject_id.level + 1    
+   
+    @api.depends('subject_ids.internal_hours')
+    def _compute_total_internal_hours(self):
+        for rec in self:
+            rec.total_internal_hours = sum((line.internal_hours if line.last else line.total_internal_hours) for line in rec.subject_ids)
+
+    @api.depends('subject_ids.external_hours')
+    def _compute_total_external_hours(self):
+        for rec in self:
+            rec.total_external_hours = sum((line.external_hours if line.last else line.total_external_hours) for line in rec.subject_ids)
 
     @api.depends('subject_ids.total_hours')
+    @api.onchange("internal_hours", "external_hours")
     def _compute_total_hours(self):
         for rec in self:
-            rec.total_hours = sum((line.hours if line.last else line.total_hours) for line in rec.subject_ids)
+            th = rec.total_internal_hours + rec.total_external_hours            
+            rec.total_hours = rec.internal_hours + rec.external_hours if rec.last or th == 0 else th
+
 
     @api.depends('subject_ids')
     def _compute_last(self):
