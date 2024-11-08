@@ -48,7 +48,9 @@
                                         <field name="phone" class="align-middle"/>
                                         <field name="main_group_id" class="align-middle"/>
                                         <field name="enrollment_ids" widget="many2many_tags"/> <!-- TODO: the domain is beeing ignored, only the subjects enrolled in the current group should be displayed 
-                                                                                                    Should be store=True on model in order to allow search on view, but nothing displays... https://www.odoo.com/es_ES/forum/ayuda-1/filter-and-group-by-for-many2many-fields-how-to-do-that-151888
+                                                                                                    Should be store=True on model in order to allow search on view, but nothing displays... 
+                                                                                                    https://www.odoo.com/es_ES/forum/ayuda-1/filter-and-group-by-for-many2many-fields-how-to-do-that-151888
+                                                                                                    https://www.odoo.com/es_ES/forum/ayuda-1/domain-for-computed-field-205801
                                         -->
                                     </tree>
                                 </field>
