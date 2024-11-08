@@ -1,6 +1,6 @@
 <odoo>
     <data>
-         <record model="ir.ui.view" id="view_group_form">
+        <record model="ir.ui.view" id="view_group_form">
             <field name="name">ims.group.form</field>
             <field name="model">ims.group</field>
             <field name="arch" type="xml">
@@ -17,43 +17,41 @@
                                 <field name="acronym" />
                             </group>
                             <group colspan="2">
-                                <field name="tutor_id" />
+                                <field name="tutor_id" widget="many2one_avatar_employee" />
                             </group>
                             <group>
-                                <field name="delegate_id" />
+                                <field name="delegate_id" /> <!-- TODO: many2one_avatar_employee does not work, maybe could be extended for res.partner? -->
                             </group>
                             <group>
                                 <field name="space_id" />
                             </group>
                         </group>                       
                         
-                        <notebook> 
-                            <!-- <page string="Students"> -->
-                                <!-- TODO: read only, unable to create from here -->
-                                <!-- <field name="student_ids" mode="kanban" /> -->
-                            <!-- </page>         -->
+                        <notebook>                            
                             <page string="Students (main group)">
-                                <!-- <field name="main_student_ids" mode="kanban" /> -->
-                                 <field name="main_student_ids" widget="one2many_list" context="{'show_attribute': False}">
-                                    <tree editable="bottom" default_order="student_id asc">                                       
-                                        <field name="image_1920" widget="image" options="{'size': [75,75]}" />
-                                        <field name="id" width="175px"  />
-                                        <field name="email" width="175px"  />
+                                 <field name="main_student_ids" widget="many2many" context="{'show_attribute': False}">
+                                    <tree default_order="name asc">                                       
+                                        <field name="image_1920" widget="image" />
+                                        <field name="name" class="align-middle"/>
+                                        <field name="email" class="align-middle"/>
+                                        <field name="phone" class="align-middle"/>
                                     </tree>
                                 </field>
                             </page>
 
                             <page string="Students (enrolled)">
-                                <field name="enrolled_student_ids" mode="kanban" />
-                                <!-- 
-                                  <field name="main_student_ids" widget="one2many_list" context="{'show_attribute': False}">
-                                    <tree editable="bottom" default_order="student_id asc">                                       
-                                        <field name="image_1920" widget="image" options="{'size': [75,75]}" />
-                                        <field name="id" width="175px"  />
-                                        <field name="email" width="175px"  />
+                                <field name="enrolled_student_ids" widget="many2many" context="{'show_attribute': False}">
+                                    <tree default_order="name asc">                                       
+                                        <field name="image_1920" widget="image" />
+                                        <field name="name" class="align-middle"/>
+                                        <field name="email" class="align-middle"/>
+                                        <field name="phone" class="align-middle"/>
+                                        <field name="main_group_id" class="align-middle"/>
+                                        <field name="enrollment_ids" widget="many2many_tags"/> <!-- TODO: the domain is beeing ignored, only the subjects enrolled in the current group should be displayed 
+                                                                                                    Should be store=True on model in order to allow search on view, but nothing displays... https://www.odoo.com/es_ES/forum/ayuda-1/filter-and-group-by-for-many2many-fields-how-to-do-that-151888
+                                        -->
                                     </tree>
                                 </field>
-                                 -->
                             </page>
 
                             <page string="Notes">
@@ -64,74 +62,5 @@
                 </form>
             </field>			
         </record>
-
-        <!-- <record id="view_group_form" model="ir.ui.view">
-            <field name="name">group form</field>
-            <field name="model">ims.group</field>
-            <field name="type">form</field>
-            <field name="arch" type="xml">
-                <form string="Groups">
-                    <sheet>                        
-                        <group class="o_group" string="Basic data">
-                            <field name="acronym"/>
-                            <field name="name"/>
-                            <field name="email"/>
-                        </group>                        
-                        <notebook>
-                            <page string="Students">
-                                <field name="students" widget="one2many_list" context="{'show_attribute': False}">
-                                    <tree>
-                                        <field name="name"/>
-                                        <field name="surname"/>
-                                        <field name="email"/>                                        
-                                    </tree>
-                                </field>
-                            </page>                                                                             
-                            <page string="Notes">
-                                <field name="notes" placeholder="Write down here your notes..."/>
-                            </page>
-                            <page string="Audit">
-                                <group string="Audit">
-                                    <field name="create_date"/>
-                                    <field name="create_uid"/>
-                                    <field name="write_date"/>
-                                    <field name="write_uid"/>
-                                </group>
-                            </page>
-                        </notebook>                
-                    </sheet>	
-                </form>
-            </field>			
-        </record> -->
-        <!-- <record id="view_group_form_2" model="ir.ui.view">
-            <field name="name">group form</field>
-            <field name="model">ims.group</field>
-            <field name="type">form</field>
-            <field name="arch" type="xml">
-                <form string="Group">
-                    <sheet>                        
-                        <group class="o_group" string="Basic data">
-                            <field name="acronym"/>
-                            <field name="name"/>
-                            <field name="email"/>
-                        </group>                        
-                        <notebook>
-                            <page string="Students">
-                                <field name="students" widget="one2many_list" context="{'show_attribute': False}">
-                                    <tree>
-                                        <field name="name"/>
-                                        <field name="surname"/>
-                                        <field name="email"/>
-                                    </tree>
-                                </field>
-                            </page>                                                                             
-                            <page string="Notes">
-                                <field name="notes" placeholder="Write down here your notes..."/>
-                            </page>
-                        </notebook>
-                    </sheet>	
-                </form>
-            </field>			
-        </record> -->
     </data>
 </odoo>

@@ -9,3 +9,12 @@ class ims_enrollment(models.Model):
 	student_id = fields.Many2one(string="Student", comodel_name="res.partner", required="true", domain="[('contact_type', '=', 'student')]")	
 	group_id = fields.Many2one(string="Group", comodel_name="ims.group", required="true")	
 	subject_id = fields.Many2one(string="Subject", comodel_name="ims.subject", required="true")	
+
+	def name_get(self):
+        #Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
+		result = []	
+
+		for rec in self:
+			result.append((rec.id, "%s" % rec.subject_id.name_get()[0][1]))			
+			
+		return result
