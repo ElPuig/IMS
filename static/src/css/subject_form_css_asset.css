@@ -1,0 +1,9 @@
+th.o_column_sortable[data-name="acronym"]{ 
+    width:125px !important; 
+    max-width:125px !important;
+}
+
+th.o_list_button{ 
+    width:32px !important; 
+    max-width:32px !important;
+}

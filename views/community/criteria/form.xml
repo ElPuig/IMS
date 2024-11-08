@@ -1,0 +1,41 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_criteria_form">
+            <field name="name">ims.criteria.form</field>
+            <field name="model">ims.criteria</field>
+            <field name="arch" type="xml">				
+                <form string="criteria">                   
+                    <sheet>                        
+                        <group string="Main data" col="6">                            
+                            <group>
+                                <field name="acronym"/>
+                            </group>
+                            <group colspan="4">							
+                                <field name="name"/>
+                            </group>                            
+                        </group>
+                        
+                        <notebook>                           
+                            <page string="Composite">
+                                <field name="criteria_ids" widget="one2many">
+                                    <tree editable="bottom" default_order="acronym asc, name asc">
+                                        <field name="acronym"/>
+                                        <field name="name"/>       
+                                        <button class="oe_stat_button" title="Edit Criteria" icon="fa-pencil-square-o" name="open_form_view_criteria" type="object" />
+
+                                        <!-- Needed but hidden for filtering purposes -->
+                                        <field name="subject_id" invisible="1"/>                                                                                
+                                    </tree>
+                                </field>
+                            </page>
+                            
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
+                            </page>
+                        </notebook>
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>

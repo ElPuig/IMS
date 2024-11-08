@@ -22,6 +22,9 @@ class ims_subject(models.Model):
     subject_ids = fields.One2many(string="Composite", comodel_name="ims.subject", inverse_name="subject_id", domain="[('id', '!=', id), ('level', '>', level), ('subject_id', '=', False)]")
     subject_id = fields.Many2one(string="Main subject", comodel_name="ims.subject")
     
+    content_ids = fields.One2many(string="Content", comodel_name="ims.content", inverse_name="subject_id")
+    criteria_ids = fields.One2many(string="Criteria", comodel_name="ims.criteria", inverse_name="subject_id")
+
     # TODO: add "internal_hours" and "external_hours", including the computation of "hours" due this and its children.
     # TODO: add AR only for VET, every AR has "ACs" and "Cs". "ACs" and "Cs" are recursive.
 
