@@ -18,7 +18,7 @@ class ims_group(models.Model):
 	delegate_id = fields.Many2one(string="Delegate", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")	
 	space_id = fields.Many2one(string="Classroom", comodel_name="ims.space")
 	
-	main_student_ids = fields.One2many(string="Students (main group)", comodel_name="res.partner", inverse_name="main_group_id", domain="[('contact_type', '=', 'student')]", readonly=True)		
+	main_student_ids = fields.One2many(string="Students (main group)", comodel_name="res.partner", inverse_name="main_group_id", domain="[('contact_type', '=', 'student')]") #, readonly=True		
 	enrolled_student_ids = fields.Many2many(string="Students (enrolled)", comodel_name="res.partner", compute="_compute_enrolled_student_ids")
 
 	@api.depends("study_id.acronym", "course", "acronym")
