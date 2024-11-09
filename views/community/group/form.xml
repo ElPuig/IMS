@@ -32,8 +32,8 @@
                                  <!-- <field name="enrollment_ids" widget="many2many" context="{'group_by': 'student_id'}"> -->
                                  <field name="enrollment_ids" widget="many2many">
                                     <tree default_order="student_id asc">                                       
-                                        <field name="student_id" class="align-middle"/>
-                                        <field name="subject_id" class="align-middle"/>
+                                        <field name="contact_id" class="align-middle"/>
+                                        <field name="subject_ids" class="align-middle"/>
                                     </tree>
                                 </field>
                             </page>

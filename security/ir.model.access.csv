@@ -17,3 +17,4 @@ ims.access_ims_subject,access_ims_subject,ims.model_ims_subject,ims_group_admin,
 ims.access_ims_minute,access_ims_minute,ims.model_ims_minute,ims_group_admin,1,1,1,1
 ims.access_ims_content,access_ims_content,ims.model_ims_content,ims_group_admin,1,1,1,1
 ims.access_ims_criteria,access_ims_criteria,ims.model_ims_criteria,ims_group_admin,1,1,1,1
+ims.access_ims_transient_enrollment,access_ims_transient_enrollment,ims.model_ims_transient_enrollment,ims_group_admin,1,1,1,1

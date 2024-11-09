@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError
 
 class ims_group(models.Model):
 	_name = "ims.group"
@@ -24,7 +24,7 @@ class ims_group(models.Model):
 	#																																							https://www.odoo.com/es_ES/forum/ayuda-1/domain-for-computed-field-205801
 
 	# enrollment_ids = fields.Many2many(string="Enrollment", comodel_name="ims.enrollment", compute="_compute_enrollment_ids", store=True)
-	enrollment_ids = fields.Many2many(string="Enrollment", comodel_name="ims.transient_enrollment", compute="_compute_enrollment_ids", store=True)
+	enrollment_ids = fields.Many2many(string="Enrollment", comodel_name="ims.transient_enrollment", compute="_compute_enrollment_ids")
 
 	@api.depends("study_id.acronym", "course", "acronym")
 	def _compute_name(self):
@@ -40,11 +40,31 @@ class ims_group(models.Model):
 	# 	for rec in self:			
 	# 		rec.enrollment_ids = self.env["ims.enrollment"].search([("group_id", "=", rec.id)]).mapped("id") or False
 
-	def _compute_enrollment_ids(self):					
-		for rec in self:			
-			for enroll in self.env["ims.enrollment"].search([("group_id", "=", rec.id)]):
-				# TODO: create the transitien model by hand, the contact_id and subject_ids are needed.
-				rec.enrollment_ids = False
+	def _compute_enrollment_ids(self):			
+		enrollments = []						
+		for rec in self:	
+			data = self.env['ims.enrollment'].read_group(
+				domain=[('group_id', '=', rec.id)],
+				fields=['student_id', 'subject_id'], 
+				groupby=['student_id'],
+				lazy=False
+			)
+			
+			#TODO: fix this
+			#raise UserError(data[0]['student_id'])			
+			collection = dict([(m['student_id'][0], m) for m in data])
+						
+			for current in rec.enrollment_ids:
+				enrollments.append([3, current.id])
+
+			for key in collection:
+				raise UserError(collection[key].values())
+			# 	enrollments.append([0, 0, {
+			# 		"contact_id": key,
+			# 		"subject_ids": collection[key],
+			# 	}])	
+				
+			self.write({"enrollment_ids": enrollments})
 				
 
 class ims_transient_enrollment(models.TransientModel):
