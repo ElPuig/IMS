@@ -27,7 +27,17 @@
                             </group>
                         </group>                       
                         
-                        <notebook>                            
+                        <notebook>   
+                             <page string="Enrollment">
+                                 <!-- <field name="enrollment_ids" widget="many2many" context="{'group_by': 'student_id'}"> -->
+                                 <field name="enrollment_ids" widget="many2many">
+                                    <tree default_order="student_id asc">                                       
+                                        <field name="student_id" class="align-middle"/>
+                                        <field name="subject_id" class="align-middle"/>
+                                    </tree>
+                                </field>
+                            </page>
+
                             <page string="Students (main group)">
                                  <field name="main_student_ids" widget="many2many" context="{'show_attribute': False}">
                                     <tree default_order="name asc">                                       
@@ -47,11 +57,7 @@
                                         <field name="email" class="align-middle"/>
                                         <field name="phone" class="align-middle"/>
                                         <field name="main_group_id" class="align-middle"/>
-                                        <field name="enrollment_ids" widget="many2many_tags"/> <!-- TODO: the domain is beeing ignored, only the subjects enrolled in the current group should be displayed 
-                                                                                                    Should be store=True on model in order to allow search on view, but nothing displays... 
-                                                                                                    https://www.odoo.com/es_ES/forum/ayuda-1/filter-and-group-by-for-many2many-fields-how-to-do-that-151888
-                                                                                                    https://www.odoo.com/es_ES/forum/ayuda-1/domain-for-computed-field-205801
-                                        -->
+                                        <field name="enrollment_ids" widget="many2many_tags"/> <!-- Unable to filter by domain :( -->
                                     </tree>
                                 </field>
                             </page>
