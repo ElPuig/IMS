@@ -11,7 +11,7 @@ class ims_attendance_status(models.Model):
     )
 
 	student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")
-	student_image = fields.Binary(string="Image", related='student_id.image_1920')
+	image_1920 = fields.Binary(string="Image", related='student_id.image_1920')
 	attendance_session_id = fields.Many2one(string="Session", comodel_name="ims.attendance_session")
 	notes = fields.Text("Notes")
 	

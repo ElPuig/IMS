@@ -27,18 +27,8 @@
                             </group>
                         </group>                       
                         
-                        <notebook>   
-                             <page string="Enrollment">
-                                 <!-- <field name="enrollment_ids" widget="many2many" context="{'group_by': 'student_id'}"> -->
-                                 <field name="enrollment_ids" widget="many2many">
-                                    <tree default_order="student_id asc">                                       
-                                        <field name="contact_id" class="align-middle"/>
-                                        <field name="subject_ids" class="align-middle"/>
-                                    </tree>
-                                </field>
-                            </page>
-
-                            <page string="Students (main group)">
+                        <notebook> 
+                            <page string="Students">
                                  <field name="main_student_ids" widget="many2many" context="{'show_attribute': False}">
                                     <tree default_order="name asc">                                       
                                         <field name="image_1920" widget="image" />
@@ -47,21 +37,19 @@
                                         <field name="phone" class="align-middle"/>
                                     </tree>
                                 </field>
-                            </page>
-
-                            <page string="Students (enrolled)">
-                                <field name="enrolled_student_ids" widget="many2many" context="{'show_attribute': False}">
-                                    <tree default_order="name asc">                                       
-                                        <field name="image_1920" widget="image" />
-                                        <field name="name" class="align-middle"/>
-                                        <field name="email" class="align-middle"/>
-                                        <field name="phone" class="align-middle"/>
-                                        <field name="main_group_id" class="align-middle"/>
-                                        <field name="enrollment_ids" widget="many2many_tags"/> <!-- Unable to filter by domain :( -->
+                            </page>                         
+  
+                             <page string="Enrolled">
+                                <!-- TODO: on clic, open the student's form. Context is not enough, because not only the form must be selected, also the model. Help? https://www.odoo.com/fi_FI/forum/apua-1/how-to-open-a-form-view-from-click-on-list-view-68175 -->
+                                <field name="transient_enrollment_ids" widget="many2many" style="pointer-events:none;"> 
+                                    <tree default_order="student_id asc">    
+                                        <field name="image_1920" widget="image" />                                   
+                                        <field name="student_id" class="align-middle"/>
+                                        <field name="subject_ids" widget="many2many_tags"/>
                                     </tree>
                                 </field>
                             </page>
-
+                           
                             <page string="Notes">
                                 <field name="notes" placeholder="Write down here your notes..."/>
                             </page>

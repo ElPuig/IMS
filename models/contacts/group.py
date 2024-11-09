@@ -18,13 +18,9 @@ class ims_group(models.Model):
 	delegate_id = fields.Many2one(string="Delegate", comodel_name="res.partner", domain="[('contact_type', '=', 'student'), ('main_group_id', '=', id)]")	
 	space_id = fields.Many2one(string="Classroom", comodel_name="ims.space")
 	
-	main_student_ids = fields.One2many(string="Students (main group)", comodel_name="res.partner", inverse_name="main_group_id", domain="[('contact_type', '=', 'student')]") #, readonly=True		
-	enrolled_student_ids = fields.Many2many(string="Students (enrolled)", comodel_name="res.partner", compute="_compute_enrolled_student_ids") # 	TODO: should be store=True in order to allow search on view, but nothing displays... 
-	#																																							https://www.odoo.com/es_ES/forum/ayuda-1/filter-and-group-by-for-many2many-fields-how-to-do-that-151888
-	#																																							https://www.odoo.com/es_ES/forum/ayuda-1/domain-for-computed-field-205801
-
-	# enrollment_ids = fields.Many2many(string="Enrollment", comodel_name="ims.enrollment", compute="_compute_enrollment_ids", store=True)
-	enrollment_ids = fields.Many2many(string="Enrollment", comodel_name="ims.transient_enrollment", compute="_compute_enrollment_ids")
+	main_student_ids = fields.One2many(string="Students", comodel_name="res.partner", inverse_name="main_group_id", domain="[('contact_type', '=', 'student')]")
+	enrolled_student_ids = fields.Many2many(string="Enrolled", comodel_name="res.partner", compute="_compute_enrolled_student_ids") 	
+	transient_enrollment_ids = fields.One2many(string="Enrollment", comodel_name="ims.transient_enrollment", inverse_name="group_id", compute="_compute_enrollment_ids") # Contains the same data as enrolled_student_ids but filtered for the current group (sadly, it cannot be filtered on view...)
 
 	@api.depends("study_id.acronym", "course", "acronym")
 	def _compute_name(self):
@@ -36,42 +32,29 @@ class ims_group(models.Model):
 		for rec in self:			
 			rec.enrolled_student_ids = self.env["ims.enrollment"].search([("group_id", "=", rec.id)]).mapped("student_id") or False
 
-	# def _compute_enrollment_ids(self):			
-	# 	for rec in self:			
-	# 		rec.enrollment_ids = self.env["ims.enrollment"].search([("group_id", "=", rec.id)]).mapped("id") or False
-
-	def _compute_enrollment_ids(self):			
-		enrollments = []						
-		for rec in self:	
-			data = self.env['ims.enrollment'].read_group(
-				domain=[('group_id', '=', rec.id)],
-				fields=['student_id', 'subject_id'], 
-				groupby=['student_id'],
-				lazy=False
-			)
-			
-			#TODO: fix this
-			#raise UserError(data[0]['student_id'])			
-			collection = dict([(m['student_id'][0], m) for m in data])
-						
-			for current in rec.enrollment_ids:
-				enrollments.append([3, current.id])
-
-			for key in collection:
-				raise UserError(collection[key].values())
-			# 	enrollments.append([0, 0, {
-			# 		"contact_id": key,
-			# 		"subject_ids": collection[key],
-			# 	}])	
+	def _compute_enrollment_ids(self):					
+		self.env['ims.transient_enrollment'].search([('group_id', '=', self.id)]).unlink()
+		for rec in self:				
+			#Sources: 
+			# 	https://www.odoo.com/documentation/16.0/developer/reference/backend/orm.html?highlight=read_group#search-read
+			#	https://www.cybrosys.com/odoo/odoo-books/odoo-15-development/ch15/grouped-data/	
+			for student in self.env['ims.enrollment'].read_group(domain=[('group_id', '=', rec.id)], fields=['student_id'], groupby=['student_id']):	
+				sid = student['student_id'][0]	
+				subs = self.env["ims.enrollment"].search([("group_id", "=", rec.id), ('student_id', '=', sid)]).mapped("subject_id")
 				
-			self.write({"enrollment_ids": enrollments})
-				
+				# Source: https://www.odoo.com/fi_FI/forum/apua-1/how-to-insert-value-to-a-one2many-field-in-table-with-create-method-28714
+				rec.transient_enrollment_ids.create({
+					"group_id": rec.id,
+					"student_id": sid,
+					"subject_ids": subs,					
+				})				
 
 class ims_transient_enrollment(models.TransientModel):
 	_name = "ims.transient_enrollment"
-	_description = "Transitient model for displaying enrollment data within groups (no BBDD changes performed)."
+	_description = "Transitient model for displaying enrollment data within groups but filtered (allows ims.group.transient_enrollment_ids to work: contains the same data as enrolled_student_ids but filtered for the current group because it cannot be filtered on view...)."
 	
-	contact_id = fields.Many2one(comodel_name="res.partner")
-	subject_ids = fields.Many2many(string="Subjects", comodel_name="ims.subject")
-
+	group_id = fields.Many2one(comodel_name="ims.group")
+	student_id = fields.Many2one(comodel_name="res.partner")
+	subject_ids = fields.Many2many(comodel_name="ims.subject")	
+	image_1920 = fields.Binary(string="Image", related='student_id.image_1920')
 

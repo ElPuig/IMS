@@ -48,7 +48,7 @@
                                 <field name="attendance_status_ids" widget="one2many_list" context="{'show_attribute': False}">
                                     <!-- TODO: custom CSS needed in order to fit aligns and other stuff -->
                                     <tree editable="bottom" default_order="student_id asc">                                       
-                                        <field name="student_image" widget="image" options="{'size': [75,75]}" />
+                                        <field name="image_1920" widget="image" />
                                         <field name="student_id" width="175px"  /> <!-- class="align-middle" -->
                                         <field name="status" widget="radio" options="{'horizontal': true}" />
                                         <field name="notes" width="350px"/>                                       
