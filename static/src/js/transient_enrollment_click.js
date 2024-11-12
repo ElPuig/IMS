@@ -2,6 +2,7 @@
 
 import { patch } from "@web/core/utils/patch";
 import { ListRenderer } from "@web/views/list/list_renderer";
+import { actionService } from "@web/webclient/actions/action_service";
 
 patch(ListRenderer.prototype, "transient_enrollment_click", {
     setup() {
@@ -16,7 +17,8 @@ patch(ListRenderer.prototype, "transient_enrollment_click", {
             ev.stopPropagation();
 
             // TODO: "this" is not ok, which object should be used?
-            this.do_action({
+            // Maybe call the python method to open the form through RCP? https://www.odoo.com/pl_PL/forum/pomoc-1/hi-how-call-a-function-python-in-file-javascript-in-odoo-15-please-help-216189
+            actionService.do_action({
                 type: "ir.actions.act_window",
                 res_model: "res.partner",
                 res_id: record.student_id,
