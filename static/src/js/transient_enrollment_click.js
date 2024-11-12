@@ -4,28 +4,38 @@ import { patch } from "@web/core/utils/patch";
 import { ListRenderer } from "@web/views/list/list_renderer";
 import { actionService } from "@web/webclient/actions/action_service";
 
+var BasicRenderer = require('web.BasicRenderer');
+var FormRenderer = BasicRenderer.extend({
+    className: "transient_enrollment",
+    events: _.extend({}, BasicRenderer.prototype.events, {
+        'click .o_list_many2one': '_onTransientClick',        
+    }),
+    _onTransientClick(record){
+        console.log("HOLA");
+    }
+})
+
 patch(ListRenderer.prototype, "transient_enrollment_click", {
     setup() {
         this._super.apply(this, arguments);
     },
 
     onClickCapture(record, ev){
-        console.log("onClickCapture");
-        debugger;
         if(record.resModel == "ims.transient_enrollment"){
             ev.preventDefault();
             ev.stopPropagation();
-
+            
+            var rpc = require('web.rpc');
             // TODO: "this" is not ok, which object should be used?
             // Maybe call the python method to open the form through RCP? https://www.odoo.com/pl_PL/forum/pomoc-1/hi-how-call-a-function-python-in-file-javascript-in-odoo-15-please-help-216189
-            actionService.do_action({
-                type: "ir.actions.act_window",
-                res_model: "res.partner",
-                res_id: record.student_id,
-                views: [[false, "form"]],
-                target: "target",
-                context: record.context || {},
-            });
+
+            rpc.query({
+                model: 'res.partner',
+                method: 'open_form_view_contact_by_id',
+                args: [[], record.fields.student_id],
+            }).then(function (result) {
+                console.log(result);
+            });          
         }        
     },
        
