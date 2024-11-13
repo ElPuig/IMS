@@ -18,18 +18,3 @@ class ims_contact(models.Model):
             
             if rec.tutor == "False":
                 rec.tutor = "None"    
-
-    def open_form_view_contact_by_id(self, id):
-         return {
-            'name': 'Student',
-            'domain': [],
-            'res_model': 'res.partner',
-            'type': 'ir.actions.act_window',
-            'view_mode': 'form',
-            'view_type': 'form',
-            'res_id': id,
-            'target': 'new',
-        }
-
-    def open_form_view_contact(self):
-        return self.open_form_view_contact_by_id(self.id)

@@ -39,9 +39,7 @@
                                 </field>
                             </page>                         
   
-                             <page string="Enrolled">
-                                <!-- TODO: on clic, open the student's form. Context is not enough, because not only the form must be selected, also the model. Help? https://www.odoo.com/fi_FI/forum/apua-1/how-to-open-a-form-view-from-click-on-list-view-68175 -->
-                                <!-- <field name="transient_enrollment_ids" widget="many2many" style="pointer-events:none;">  -->
+                             <page string="Enrolled">                                
                                 <field name="transient_enrollment_ids" widget="many2many"> 
                                     <tree default_order="student_id asc">    
                                         <field name="image_1920" widget="image" />                                   
