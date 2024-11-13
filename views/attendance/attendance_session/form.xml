@@ -45,7 +45,7 @@
 
                         <notebook>
                             <page string="Statuses">
-                                <field name="attendance_status_ids" widget="one2many_list" context="{'show_attribute': False}">
+                                <field name="attendance_status_ids" widget="one2many_list" context="{'show_attribute': False}"  mouseover="_onMouseOver">
                                     <!-- TODO: custom CSS needed in order to fit aligns and other stuff -->
                                     <tree editable="bottom" default_order="student_id asc">                                       
                                         <field name="image_1920" widget="image" />

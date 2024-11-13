@@ -7,10 +7,11 @@ import { ListRenderer } from "@web/views/list/list_renderer";
 var _intervalID = null;
 
 // TODO: check transient_enrollment_click in order to try to capture the "hover" event natively
+// Try extending and using the custom: https://www.cybrosys.com/blog/how-to-extend-tree-list-view-in-odoo-16
 patch(ListRenderer.prototype, "radiobutton_autofocus_v2", {
     setup() {        
         this._super.apply(this, arguments);    
-        debugger;                     
+        //debugger;                     
     },
 
     onRowTouchStart(record, ev){
