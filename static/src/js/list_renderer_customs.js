@@ -51,30 +51,6 @@ patch(ListRenderer.prototype, "list_renderer_customs", {
                     });
                 }); 
             } 
-        }, 100);    
-
-        // console.log($(".o_field_cell.o_radio_cell").length);     
-        // $(".o_field_cell.o_radio_cell").on("mouseover", function(){
-        //     $(this).mouseover(function() {                                    
-        //         $(this).click();
-        //     });
-
-        //     $(this).mouseout(function() {
-        //         $(".o_horizontal_separator").first().click();
-        //     });
-        // });                        
+        }, 100);                               
     },
-
-    // TODO: on saving, another event should be triggered but this not depends 
-    // startPoll(){
-    //     var self = this;
-    //     var intervalID = setInterval(function(){
-    //         if($(".o_field_cell.o_radio_cell").length != 0){
-    //             clearInterval(intervalID);        
-                
-    //             $(".o_form_button_save").off('click').on("click", self.startPoll());
-    //             self.autofocusForRadioCells();
-    //         } 
-    //     }, 100);
-    // },
 });
