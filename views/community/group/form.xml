@@ -20,7 +20,12 @@
                                 <field name="tutor_id" widget="many2one_avatar_employee" />
                             </group>
                             <group>
-                                <field name="delegate_id" /> <!-- TODO: many2one_avatar_employee does not work, maybe could be extended for res.partner? -->
+                                <!-- 
+                                    TODO: many2one_avatar_employee does not work, maybe could be extended for res.partner? 
+                                    Opt 1: Copy the many2one_avatar_employee widget and modify it: https://www.cybrosys.com/blog/how-to-create-a-field-widget-in-the-odoo-16
+                                    Opt 2: Extends the many2one_avatar_employee to add the new field: https://www.cybrosys.com/blog/how-to-extend-field-widget-in-odoo-16
+                                -->
+                                <field name="delegate_id" /> 
                             </group>
                             <group>
                                 <field name="space_id" />
