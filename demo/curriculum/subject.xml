@@ -9,7 +9,7 @@
             <field name="level">1</field>
             <field name="notes"></field>
             <field name="study_id" ref="ims.study_1"/>
-            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1')])]"/>             
+            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1'), ref('ims.study_2')])]"/>             
             <field name="subject_view_ids" />
         </record>
 
