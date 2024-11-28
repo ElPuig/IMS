@@ -32,9 +32,9 @@ class ims_group(models.Model):
 		for rec in self:			
 			rec.enrolled_student_ids = self.env["ims.enrollment"].search([("group_id", "=", rec.id)]).mapped("student_id") or False
 
-	def _compute_enrollment_ids(self):					
-		self.env['ims.enrollment_view'].search([('group_id', '=', self.id)]).unlink()
+	def _compute_enrollment_ids(self):							
 		for rec in self:				
+			self.env['ims.enrollment_view'].search([('group_id', '=', rec.id)]).unlink()
 			#Sources: 
 			# 	https://www.odoo.com/documentation/16.0/developer/reference/backend/orm.html?highlight=read_group#search-read
 			#	https://www.cybrosys.com/odoo/odoo-books/odoo-15-development/ch15/grouped-data/	

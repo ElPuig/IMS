@@ -13,10 +13,7 @@
                                 
                                 <!-- Needed but hidden for filtering purposes -->
                                 <field name="level" invisible="1"/>   
-                                <field name="last" invisible="1"/>  
-                                
-                                <!-- Needed but hidden for computing purposes -->
-                                <field name="subject_view_ids" invisible="1" />                                     
+                                <field name="last" invisible="1"/>                                                                          
                             </group>
                             <group>
                                 <field name="code"/>

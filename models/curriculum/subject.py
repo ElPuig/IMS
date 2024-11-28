@@ -35,7 +35,41 @@ class ims_subject(models.Model):
 
     #The subject_view_ids is used as a view for the subject list
     #TODO: _compute_subject_views should run on every save (even when creating the model from demo data, not just saving the form...)
-    subject_view_ids = fields.One2many(comodel_name="ims.subject_view", inverse_name="subject_id") #, compute="_compute_subject_views")
+    subject_view_ids = fields.One2many(comodel_name="ims.subject_view", inverse_name="subject_id", compute="_compute_subject_views", store=True)
+
+    @api.depends("study_ids")
+    def _compute_subject_views(self):	        
+        for rec in self:
+            self.env['ims.subject_view'].search([('subject_id', '=', rec.id)]).unlink()
+            for study in rec.study_ids:                
+                rec.subject_view_ids.create({
+                    "level": rec.level,
+                    "code": rec.code,
+                    "acronym": rec.acronym,
+                    "name": rec.name,
+                    "study_id": study.id,
+                    "subject_id": rec.id,
+                })	
+       
+        # for rec in self:
+        #     entries = []
+			
+        #     for views in rec.subject_view_ids:
+		# 		# Unlink previous views
+        #         entries.append([3, views.id])
+
+        #     for study in rec.study_ids:
+        #         # Creating new views				
+        #         entries.append([0, 0, {
+        #             "level": rec.level,
+        #             "code": rec.code,
+        #             "acronym": rec.acronym,
+        #             "name": rec.name,
+        #             "study_id": study.id,
+        #             "subject_id": rec.id,
+        #         }])	
+        #     self.write({"subject_view_ids": entries})               
+       
 
     @api.onchange("subject_id")
     def _onchange_subject_id(self):
@@ -77,43 +111,21 @@ class ims_subject(models.Model):
     #     self._create_subject_views()
     #     return super(ims_subject, self).write(vals)
     
-    @api.onchange("study_ids")
-    def _create_subject_views(self):			
-        self.env['ims.subject_view'].search([('subject_id', '=', self.id)]).unlink()
-        for rec in self:			           
-            for study in rec.study_ids:                
-                rec.subject_view_ids.create({
-                    "level": rec.level,
-                    "code": rec.code,
-                    "acronym": rec.acronym,
-                    "name": rec.name,
-                    "study_id": study.id,
-                    "subject_id": rec.id,
-                })	
-
     # @api.onchange("study_ids")
-    # def _onchange_study_ids(self):
-    # #def _compute_subject_views(self):			
-    #     #self.env['ims.subject_view'].search([('subject_id', '=', self.id)]).unlink()
-    #     for rec in self:
-    #         entries = []
-			
-    #         for views in rec.subject_view_ids:
-	# 			# Unlink previous views
-    #             entries.append([3, views.id])
-
-    #         for study in rec.study_ids:
-    #             # Creating new views				
-    #             entries.append([0, 0, {
+    # def _create_subject_views(self):			
+    #     self.env['ims.subject_view'].search([('subject_id', '=', self.id)]).unlink()
+    #     for rec in self:			           
+    #         for study in rec.study_ids:                
+    #             rec.subject_view_ids.create({
     #                 "level": rec.level,
     #                 "code": rec.code,
     #                 "acronym": rec.acronym,
     #                 "name": rec.name,
     #                 "study_id": study.id,
     #                 "subject_id": rec.id,
-    #             }])	
-    #         self.write({"subject_view_ids": entries})               
-            
+    #             })	
+
+        
     def name_get(self):
 		#Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
 
