@@ -13,7 +13,7 @@ patch(ListRenderer.prototype, "list_renderer_customs", {
     },
 
     onClickCapture(record, ev){           
-        if(record.resModel == "ims.transient_enrollment"){
+        if(record.resModel == "ims.enrollment_view"){
             ev.preventDefault();
             ev.stopPropagation();            
 

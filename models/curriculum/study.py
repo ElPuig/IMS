@@ -14,9 +14,9 @@ class ims_study(models.Model):
     main_decree = fields.Binary(string="Main decree")
     regional_decree = fields.Binary(string="Regional decree")
     notes = fields.Text(string="Notes")
-
-    subject_ids = fields.One2many(string="Subjects", comodel_name="ims.subject", inverse_name="study_id")
+    
     follow_ids = fields.One2many(string="Follow-up", comodel_name="ims.tracking", inverse_name="study_id")
+    subject_ids = fields.Many2many(string="Subjects", comodel_name="ims.subject")
     level_id = fields.Many2one(string="Level", comodel_name="ims.level")
 
     def name_get(self):

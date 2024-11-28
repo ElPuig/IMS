@@ -9,6 +9,8 @@
             <field name="level">1</field>
             <field name="notes"></field>
             <field name="study_id" ref="ims.study_1"/>
+            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1')])]"/>             
+            <field name="subject_view_ids" />
         </record>
 
         <record id="subject_1_1" model="ims.subject">            
@@ -20,7 +22,8 @@
             <field name="external_hours">0</field>
             <field name="notes"></field>
             <field name="study_id" ref="ims.study_1"/>
-            <field name="subject_id" ref="ims.subject_1"/>
+            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1')])]"/>             
+            <field name="subject_id" ref="ims.subject_1"/>            
         </record>
 
         <record id="subject_1_2" model="ims.subject">
@@ -32,6 +35,7 @@
             <field name="external_hours">0</field>
             <field name="notes"></field>
             <field name="study_id" ref="ims.study_1"/>
+            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1')])]"/>
             <field name="subject_id" ref="ims.subject_1"/>
         </record>
 
@@ -44,6 +48,7 @@
             <field name="external_hours">0</field>
             <field name="notes"></field>
             <field name="study_id" ref="ims.study_1"/>
+            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1')])]"/>
             <field name="subject_id" ref="ims.subject_1"/>
         </record>
         
@@ -55,6 +60,7 @@
             <field name="level">1</field>
             <field name="notes"></field>
             <field name="study_id" ref="ims.study_1"/>
+            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1')])]"/>
         </record>
 
         <record id="subject_2_1" model="ims.subject">
@@ -66,6 +72,7 @@
             <field name="external_hours">0</field>
             <field name="notes"></field>
             <field name="study_id" ref="ims.study_1"/>
+            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1')])]"/>
             <field name="subject_id" ref="ims.subject_2"/>
         </record>
 
@@ -78,6 +85,7 @@
             <field name="external_hours">0</field>
             <field name="notes"></field>
             <field name="study_id" ref="ims.study_1"/>
+            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1')])]"/>
             <field name="subject_id" ref="ims.subject_2"/>
         </record>
 
@@ -90,6 +98,7 @@
             <field name="external_hours">0</field>
             <field name="notes"></field>
             <field name="study_id" ref="ims.study_1"/>
+            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1')])]"/>
             <field name="subject_id" ref="ims.subject_2"/>
         </record>
 
@@ -102,6 +111,7 @@
             <field name="external_hours">0</field>
             <field name="notes"></field>
             <field name="study_id" ref="ims.study_1"/>
+            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1')])]"/>
             <field name="subject_id" ref="ims.subject_2"/>
         </record>
 
@@ -114,6 +124,7 @@
             <field name="external_hours">0</field>
             <field name="notes"></field>
             <field name="study_id" ref="ims.study_1"/>
+            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1')])]"/>
             <field name="subject_id" ref="ims.subject_2"/>            
         </record>
 
@@ -126,6 +137,7 @@
             <field name="external_hours">0</field>
             <field name="notes"></field>
             <field name="study_id" ref="ims.study_1"/>
+            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1')])]"/>
             <field name="subject_id" ref="ims.subject_2"/>
         </record>
 
@@ -140,6 +152,7 @@
             <field name="external_hours">0</field>
             <field name="notes"></field>
             <field name="study_id" ref="ims.study_2"/>
+            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_2')])]"/>
         </record>
     </data>
 </odoo>

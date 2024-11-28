@@ -45,7 +45,7 @@
                             </page>                         
   
                              <page string="Enrolled">                                
-                                <field name="transient_enrollment_ids" widget="many2many"> 
+                                <field name="enrollment_view_ids" widget="many2many"> 
                                     <tree default_order="student_id asc">    
                                         <field name="image_1920" widget="image" />                                   
                                         <field name="student_id" class="align-middle"/>

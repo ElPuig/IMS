@@ -24,6 +24,7 @@ class ims_subject(models.Model):
     notes = fields.Text("Notes")
 
     study_id = fields.Many2one(string="Study", comodel_name="ims.study", required="true")
+    study_ids = fields.Many2many(string="Studies", comodel_name="ims.study")
     teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
 
     subject_ids = fields.One2many(string="Composite", comodel_name="ims.subject", inverse_name="subject_id", domain="[('id', '!=', id), ('level', '>', level), ('subject_id', '=', False)]")
@@ -31,6 +32,10 @@ class ims_subject(models.Model):
     
     content_ids = fields.One2many(string="Content", comodel_name="ims.content", inverse_name="subject_id")
     criteria_ids = fields.One2many(string="Criteria", comodel_name="ims.criteria", inverse_name="subject_id")
+
+    #The subject_view_ids is used as a view for the subject list
+    #TODO: _compute_subject_views should run on every save (even when creating the model from demo data, not just saving the form...)
+    subject_view_ids = fields.One2many(comodel_name="ims.subject_view", inverse_name="subject_id", compute="_compute_subject_views")
 
     @api.onchange("subject_id")
     def _onchange_subject_id(self):
@@ -60,6 +65,31 @@ class ims_subject(models.Model):
     def _compute_last(self):
         for rec in self:
             rec.last = (len(rec.subject_ids) == 0)
+
+    # @api.model
+    # def create(self, vals):
+    #     subject = super(ims_subject, self).create(vals)
+    #     subject._create_subject_views()
+    #     return subject
+
+    # @api.model
+    # def write(self, vals):
+    #     self._create_subject_views()
+    #     return super(ims_subject, self).write(vals)
+    
+    #def _create_subject_views(self):			
+    def _compute_subject_views(self):			
+        self.env['ims.subject_view'].search([('subject_id', '=', self.id)]).unlink()
+        for rec in self:			           
+            for study in rec.study_ids:                
+                rec.subject_view_ids.create({
+                    "level": rec.level,
+                    "code": rec.code,
+                    "acronym": rec.acronym,
+                    "name": rec.name,
+                    "study_id": study.id,
+                    "subject_id": rec.id,
+                })	
             
     def name_get(self):
 		#Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
@@ -90,3 +120,14 @@ class ims_subject(models.Model):
             'res_id': self.id,
             'target': 'new',
         }
+    
+class ims_subject_view(models.Model):
+    _name = "ims.subject_view"
+    _description = "View model for displaying subject data within studies (because a subject can be shared along different studies)."
+    
+    level = fields.Integer(string="Level")    
+    code = fields.Char(string="Code", required="true")
+    acronym = fields.Char(string="Acronym", required="true")
+    name = fields.Char(string="Name", required="true")
+    study_id = fields.Many2one(string="Study", comodel_name="ims.study", required="true")
+    subject_id = fields.Many2one(string="Subject", comodel_name="ims.subject", required="true")

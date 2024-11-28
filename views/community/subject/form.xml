@@ -13,7 +13,10 @@
                                 
                                 <!-- Needed but hidden for filtering purposes -->
                                 <field name="level" invisible="1"/>   
-                                <field name="last" invisible="1"/>                                       
+                                <field name="last" invisible="1"/>  
+                                
+                                <!-- Needed but hidden for computing purposes -->
+                                <field name="subject_view_ids" invisible="1" />                                     
                             </group>
                             <group>
                                 <field name="code"/>
@@ -33,12 +36,23 @@
                                     <field name="external_hours" attrs="{'invisible':[('last', '==', False), ('total_external_hours', '!=', 0)]}"/>
                                 </group>                                
                                 <group>                        
-                                    <field name="ects" attrs="{'invisible':[('subject_id', '!=', False)]}"/>
+                                    <field name="ects" attrs="{'invisible':[('subject_id', '!=', False)]}"/>                                    
                                 </group>
                             </group>                                                                                                                               
                         </group>
                         
-                        <notebook>                           
+                        <notebook>    
+                            <page string="Studies">
+                                <field name="study_ids" widget="one2many" >
+                                    <tree editable="bottom" default_order="code asc, acronym asc, name asc">
+                                        <field name="code"/>
+                                        <field name="acronym"/>
+                                        <field name="name"/>
+                                        <!-- <button class="oe_stat_button" title="Edit Subject" icon="fa-pencil-square-o" name="open_form_view_subject" type="object" /> -->
+                                    </tree>
+                                </field>
+                            </page>
+
                             <page string="Composite">
                                 <field name="subject_ids" widget="one2many" context="{'default_subject_id': id, 'default_study_id': study_id, 'default_level': level+1}">
                                     <tree editable="bottom" default_order="code asc, acronym asc, name asc">

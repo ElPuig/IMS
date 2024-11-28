@@ -20,7 +20,7 @@ class ims_group(models.Model):
 	
 	main_student_ids = fields.One2many(string="Students", comodel_name="res.partner", inverse_name="main_group_id", domain="[('contact_type', '=', 'student')]")
 	enrolled_student_ids = fields.Many2many(string="Enrolled", comodel_name="res.partner", compute="_compute_enrolled_student_ids") 	
-	transient_enrollment_ids = fields.One2many(string="Enrollment", comodel_name="ims.transient_enrollment", inverse_name="group_id", compute="_compute_enrollment_ids") # Contains the same data as enrolled_student_ids but filtered for the current group (sadly, it cannot be filtered on view...)
+	enrollment_view_ids = fields.One2many(string="Enrollment", comodel_name="ims.enrollment_view", inverse_name="group_id", compute="_compute_enrollment_ids") # Contains the same data as enrolled_student_ids but filtered for the current group (sadly, it cannot be filtered on view...)
 
 	@api.depends("study_id.acronym", "course", "acronym")
 	def _compute_name(self):
@@ -33,7 +33,7 @@ class ims_group(models.Model):
 			rec.enrolled_student_ids = self.env["ims.enrollment"].search([("group_id", "=", rec.id)]).mapped("student_id") or False
 
 	def _compute_enrollment_ids(self):					
-		self.env['ims.transient_enrollment'].search([('group_id', '=', self.id)]).unlink()
+		self.env['ims.enrollment_view'].search([('group_id', '=', self.id)]).unlink()
 		for rec in self:				
 			#Sources: 
 			# 	https://www.odoo.com/documentation/16.0/developer/reference/backend/orm.html?highlight=read_group#search-read
@@ -43,15 +43,15 @@ class ims_group(models.Model):
 				subs = self.env["ims.enrollment"].search([("group_id", "=", rec.id), ('student_id', '=', sid)]).mapped("subject_id")
 				
 				# Source: https://www.odoo.com/fi_FI/forum/apua-1/how-to-insert-value-to-a-one2many-field-in-table-with-create-method-28714
-				rec.transient_enrollment_ids.create({
+				rec.enrollment_view_ids.create({
 					"group_id": rec.id,
 					"student_id": sid,
 					"subject_ids": subs,					
 				})				
 
-class ims_transient_enrollment(models.TransientModel):
-	_name = "ims.transient_enrollment"
-	_description = "Transitient model for displaying enrollment data within groups but filtered (allows ims.group.transient_enrollment_ids to work: contains the same data as enrolled_student_ids but filtered for the current group because it cannot be filtered on view...)."
+class ims_enrollment_view(models.TransientModel):
+	_name = "ims.enrollment_view"
+	_description = "Transitient model for displaying enrollment data within groups but filtered (allows ims.group.enrollment_view_ids to work: contains the same data as enrolled_student_ids but filtered for the current group because it cannot be filtered on view...)."
 	
 	group_id = fields.Many2one(comodel_name="ims.group")
 	student_id = fields.Many2one(comodel_name="res.partner")
