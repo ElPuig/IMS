@@ -23,7 +23,6 @@ class ims_subject(models.Model):
     
     notes = fields.Text("Notes")
 
-    study_id = fields.Many2one(string="Study", comodel_name="ims.study", required="true")
     study_ids = fields.Many2many(string="Studies", comodel_name="ims.study")
     teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
 
@@ -79,7 +78,7 @@ class ims_subject(models.Model):
     def _compute_last(self):
         for rec in self:
             rec.last = (len(rec.subject_ids) == 0)
-        
+
     def name_get(self):
 		#Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
         result = []	    
@@ -93,7 +92,7 @@ class ims_subject(models.Model):
                 acronyms.append(parent.acronym)
                 parent = parent.subject_id     
 
-            result.append((rec.id, "%s %s: %s" % (rec.study_id.acronym, " ".join(list(reversed(acronyms))), rec.name)))
+            result.append((rec.id, "%s: %s" % (" ".join(list(reversed(acronyms))), rec.name)))
             
         return result
     
@@ -119,3 +118,20 @@ class ims_subject_view(models.Model):
     name = fields.Char(string="Name", required="true")
     study_id = fields.Many2one(string="Study", comodel_name="ims.study", required="true")
     subject_id = fields.Many2one(string="Subject", comodel_name="ims.subject", required="true")
+
+    def name_get(self):
+		#Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
+        result = []	    
+        acronyms = []    
+        for rec in self:
+            acronyms.clear()
+            acronyms.append(rec.acronym)
+
+            parent = rec.subject_id
+            while(parent):
+                acronyms.append(parent.acronym)
+                parent = parent.subject_id     
+
+            result.append((rec.id, "%s %s: %s" % (rec.study_id.acronym, " ".join(list(reversed(acronyms))), rec.name)))
+            
+        return result

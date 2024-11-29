@@ -7,7 +7,6 @@
             <field name="name">Sistemes informàtics</field>
             <field name="level">1</field>
             <field name="notes"></field>
-            <field name="study_id" ref="ims.study_1"/>
             <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1'), ref('ims.study_2')])]"/>             
         </record>
 
@@ -19,7 +18,6 @@
             <field name="internal_hours">49</field>
             <field name="external_hours">0</field>
             <field name="notes"></field>
-            <field name="study_id" ref="ims.study_1"/>
             <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1'), ref('ims.study_2')])]"/>             
             <field name="subject_id" ref="ims.subject_1"/>            
         </record>
@@ -32,7 +30,6 @@
             <field name="internal_hours">69</field>
             <field name="external_hours">0</field>
             <field name="notes"></field>
-            <field name="study_id" ref="ims.study_1"/>
             <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1'), ref('ims.study_2')])]"/>             
             <field name="subject_id" ref="ims.subject_1"/>
         </record>
@@ -45,7 +42,6 @@
             <field name="internal_hours">14</field>
             <field name="external_hours">0</field>
             <field name="notes"></field>
-            <field name="study_id" ref="ims.study_1"/>
             <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1'), ref('ims.study_2')])]"/>             
             <field name="subject_id" ref="ims.subject_1"/>
         </record>
@@ -57,7 +53,6 @@
             <field name="name">Programació</field>
             <field name="level">1</field>
             <field name="notes"></field>
-            <field name="study_id" ref="ims.study_1"/>
             <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1'), ref('ims.study_2')])]"/>             
         </record>
 
@@ -69,7 +64,6 @@
             <field name="internal_hours">85</field>
             <field name="external_hours">0</field>
             <field name="notes"></field>
-            <field name="study_id" ref="ims.study_1"/>
             <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1'), ref('ims.study_2')])]"/>             
             <field name="subject_id" ref="ims.subject_2"/>
         </record>
@@ -82,7 +76,6 @@
             <field name="internal_hours">50</field>
             <field name="external_hours">0</field>
             <field name="notes"></field>
-            <field name="study_id" ref="ims.study_1"/>
             <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1'), ref('ims.study_2')])]"/>             
             <field name="subject_id" ref="ims.subject_2"/>
         </record>
@@ -95,7 +88,6 @@
             <field name="internal_hours">30</field>
             <field name="external_hours">0</field>
             <field name="notes"></field>
-            <field name="study_id" ref="ims.study_1"/>
             <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1'), ref('ims.study_2')])]"/>             
             <field name="subject_id" ref="ims.subject_2"/>
         </record>
@@ -108,7 +100,6 @@
             <field name="internal_hours">24</field>
             <field name="external_hours">0</field>
             <field name="notes"></field>
-            <field name="study_id" ref="ims.study_1"/>
             <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1'), ref('ims.study_2')])]"/>             
             <field name="subject_id" ref="ims.subject_2"/>
         </record>
@@ -121,7 +112,6 @@
             <field name="internal_hours">24</field>
             <field name="external_hours">0</field>
             <field name="notes"></field>
-            <field name="study_id" ref="ims.study_1"/>
             <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1'), ref('ims.study_2')])]"/>             
             <field name="subject_id" ref="ims.subject_2"/>            
         </record>
@@ -134,7 +124,6 @@
             <field name="internal_hours">18</field>
             <field name="external_hours">0</field>
             <field name="notes"></field>
-            <field name="study_id" ref="ims.study_1"/>
             <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1'), ref('ims.study_2')])]"/>             
             <field name="subject_id" ref="ims.subject_2"/>
         </record>
@@ -148,7 +137,6 @@
             <field name="internal_hours">264</field>
             <field name="external_hours">0</field>
             <field name="notes"></field>
-            <field name="study_id" ref="ims.study_2"/>
             <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1'), ref('ims.study_2')])]"/>             
         </record>
     </data>

@@ -8,7 +8,6 @@
                     <sheet>                        
                         <group string="Main data" col="4">
                             <group colspan="4">
-                                <field name="study_id" attrs="{'invisible':[('level', '>', 1)]}"/>
                                 <field name="subject_id" attrs="{'invisible':[('level', '==', 1)]}"/>
                                 
                                 <!-- Needed but hidden for filtering purposes -->
@@ -39,19 +38,19 @@
                         </group>
                         
                         <notebook>    
-                            <page string="Studies">
+                            <page string="Studies" attrs="{'invisible':[('level', '>', 1)]}">
                                 <field name="study_ids" widget="one2many" >
                                     <tree editable="bottom" default_order="code asc, acronym asc, name asc">
                                         <field name="code"/>
                                         <field name="acronym"/>
                                         <field name="name"/>
-                                        <!-- <button class="oe_stat_button" title="Edit Subject" icon="fa-pencil-square-o" name="open_form_view_subject" type="object" /> -->
+                                        <button class="oe_stat_button" title="Edit Study" icon="fa-pencil-square-o" name="open_form_view_study" type="object" />
                                     </tree>
                                 </field>
                             </page>
 
                             <page string="Composite">
-                                <field name="subject_ids" widget="one2many" context="{'default_subject_id': id, 'default_study_id': study_id, 'default_level': level+1}">
+                                <field name="subject_ids" widget="one2many" context="{'default_subject_id': id, 'default_study_ids': study_ids, 'default_level': level+1}">
                                     <tree editable="bottom" default_order="code asc, acronym asc, name asc">
                                         <field name="code"/>
                                         <field name="acronym"/>
@@ -59,9 +58,9 @@
                                         <button class="oe_stat_button" title="Edit Subject" icon="fa-pencil-square-o" name="open_form_view_subject" type="object" />
 
                                         <!-- Needed but hidden for filtering purposes -->
-                                        <field name="subject_id" invisible="1"/>                                        
+                                        <field name="subject_id" invisible="1"/>
                                         <field name="level"  invisible="1"/>
-                                        <field name="study_id" invisible="1"/>
+                                        <field name="study_ids" invisible="1"/>
                                     </tree>
                                 </field>
                             </page>

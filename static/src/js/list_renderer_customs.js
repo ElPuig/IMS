@@ -50,6 +50,7 @@ patch(ListRenderer.prototype, "list_renderer_customs", {
 
     autofocusForRadioCells(){                
         var self = this;
+        // TODO: should be reloaded on session change...
 
         // NOTE: This is fired by onMounted and all the DOM is ready and $(".o_field_cell.o_radio_cell").length != 0 BUT when saving, must be
         // fired again and $(".o_field_cell.o_radio_cell").length == 0 so, a timer is needed. 
