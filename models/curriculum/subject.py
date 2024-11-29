@@ -49,27 +49,7 @@ class ims_subject(models.Model):
                     "name": rec.name,
                     "study_id": study.id,
                     "subject_id": rec.id,
-                })	
-       
-        # for rec in self:
-        #     entries = []
-			
-        #     for views in rec.subject_view_ids:
-		# 		# Unlink previous views
-        #         entries.append([3, views.id])
-
-        #     for study in rec.study_ids:
-        #         # Creating new views				
-        #         entries.append([0, 0, {
-        #             "level": rec.level,
-        #             "code": rec.code,
-        #             "acronym": rec.acronym,
-        #             "name": rec.name,
-        #             "study_id": study.id,
-        #             "subject_id": rec.id,
-        #         }])	
-        #     self.write({"subject_view_ids": entries})               
-       
+                })	                               
 
     @api.onchange("subject_id")
     def _onchange_subject_id(self):
@@ -99,36 +79,9 @@ class ims_subject(models.Model):
     def _compute_last(self):
         for rec in self:
             rec.last = (len(rec.subject_ids) == 0)
-
-    # @api.model_create_multi
-    # def create(self, vals):           
-    #     subject = super(ims_subject, self).create(vals)
-    #     self._create_subject_views(subject)                
-    #     return subject
-
-    # @api.model
-    # def write(self, vals):
-    #     self._create_subject_views()
-    #     return super(ims_subject, self).write(vals)
-    
-    # @api.onchange("study_ids")
-    # def _create_subject_views(self):			
-    #     self.env['ims.subject_view'].search([('subject_id', '=', self.id)]).unlink()
-    #     for rec in self:			           
-    #         for study in rec.study_ids:                
-    #             rec.subject_view_ids.create({
-    #                 "level": rec.level,
-    #                 "code": rec.code,
-    #                 "acronym": rec.acronym,
-    #                 "name": rec.name,
-    #                 "study_id": study.id,
-    #                 "subject_id": rec.id,
-    #             })	
-
         
     def name_get(self):
 		#Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
-
         result = []	    
         acronyms = []    
         for rec in self:

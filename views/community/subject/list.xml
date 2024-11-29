@@ -10,10 +10,10 @@
                     <field name="code"/>
                     <field name="acronym"/>
                     <field name="name" class="w-75"/>
+                    <!-- Hidden but needed to filter or display properly -->
                     <field name="study_id" invisible="1"/>  
                     <field name="level" invisible="1"/>
-                    <!-- <field name="subject_ids" widget="many2many_tags" /> -->
-                    <!-- TODO: keep bf and muted, and play with padding-left: (level-1)em on muted. -->
+                    <field name="subject_id" invisible="1"/>  
                 </tree>              
             </field>
         </record>   
