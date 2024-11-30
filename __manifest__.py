@@ -117,6 +117,8 @@
             'views/documentation/minutes/menu.xml',       
             'views/documentation/minutes/list.xml',       
             'views/documentation/minutes/form.xml',   
+
+        'data/cat/ims.level.csv'
         
     ],
     'license': 'AGPL-3',
