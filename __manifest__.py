@@ -118,7 +118,8 @@
             'views/documentation/minutes/list.xml',       
             'views/documentation/minutes/form.xml',   
 
-        'data/cat/ims.level.csv'
+        'data/cat/ims.level.csv',
+        'data/cat/ims.study.csv',
         
     ],
     'license': 'AGPL-3',
