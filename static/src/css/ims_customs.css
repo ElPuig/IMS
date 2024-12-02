@@ -12,3 +12,8 @@ th.o_list_button{
     width:32px !important; 
     max-width:32px !important;
 }
+
+div[name="attachment_ids"] th.o_list_button{
+    width: 64px !important;
+    max-width: 64px !important;
+}

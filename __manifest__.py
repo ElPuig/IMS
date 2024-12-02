@@ -118,6 +118,9 @@
             'views/documentation/minutes/list.xml',       
             'views/documentation/minutes/form.xml',   
 
+        'views/shared/attachment/form.xml',   
+        
+        'data/cat/ims.attachment.csv',
         'data/cat/ims.level.csv',
         'data/cat/ims.study.csv',
         
@@ -129,6 +132,8 @@
     # only loaded in demonstration mode (only loaded when installed, ignored when updated)
     'demo': [
         # this order is needed due dependencies
+        'demo/shared/attachment.xml',
+
         'demo/curriculum/level.xml',
         'demo/curriculum/study.xml',
         'demo/curriculum/subject.xml',
