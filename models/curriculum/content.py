@@ -14,7 +14,7 @@ class ims_content(models.Model):
 
 	notes = fields.Text(string="Notes")
 
-	def open_form_view_content(self):
+	def open_form_content(self):
 		return {
             'name': 'Content Edit',
             'domain': [],

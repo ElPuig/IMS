@@ -10,7 +10,7 @@ class ims_attachment(models.Model):
 	file = fields.Binary(string="File", required="true")
 	domain = fields.Char(string="Domain") # Used to filter the atachment by model, empty means "for all"
 
-	def open_form_view_attachment(self):
+	def open_form_attachment(self):
 		return {
 			'name': 'Attachment Edit',
 			'domain': [],

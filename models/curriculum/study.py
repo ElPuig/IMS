@@ -28,7 +28,7 @@ class ims_study(models.Model):
             
         return result
     
-    def open_form_view_study(self):
+    def open_form_study(self):
         return {
             'name': 'Study Edit',
             'domain': [],

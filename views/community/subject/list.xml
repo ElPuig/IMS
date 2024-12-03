@@ -18,6 +18,23 @@
             </field>
         </record>   
 
+        <record model="ir.ui.view" id="view_subject_list_customs">
+            <field name="name">ims.subject.list.customs</field>
+            <field name="model">ims.subject_view</field>
+            <field name="inherit_id" ref="ims.view_subject_list"/>
+            <field name="arch" type="xml">
+            <!-- TODO: https://www.cybrosys.com/blog/how-to-add-a-create-button-near-tree-and-kanban-view-in-odoo-16 -->
+            <!-- Does not work... inherit from t-inherit="web.ListView.Buttons"?-->
+               <xpath expr="//*[@class='btn btn-primary o_list_button_add']" position="after">
+                    <!-- <attribute name="t-on-click">open_form_subject</attribute> -->
+                    <!-- <attribute name="name">open_form_subject</attribute> -->
+                     <button type="button" class="btn btn-primary" style="margin-left: 10px;" name="open_form_subject">
+                        Open Wizard
+                    </button>
+                </xpath> 
+            </field>
+        </record>
+        
         <record model="ir.ui.view" id="subject_search">
             <field name="name">ims subject search</field>
             <field name="model">ims.subject_view</field>            

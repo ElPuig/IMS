@@ -14,7 +14,7 @@ class ims_criteria(models.Model):
 
 	notes = fields.Text(string="Notes")
 	
-	def open_form_view_criteria(self):
+	def open_form_criteria(self):
 		return {
             'name': 'Criteria Edit',
             'domain': [],
