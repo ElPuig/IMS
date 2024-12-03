@@ -18,17 +18,12 @@ patch(ListRenderer.prototype, "list_renderer_customs", {
 
         if(ev.target.type == "checkbox"){            
             switch(record.resModel){
-                case "ims.subject_view":
-                    var subject_id = record.data.subject_id[0];                    
-
+                case "ims.subject_view":                     
+                    var subject_id = record.data.subject_id[0];                                        
                     this.props.list.groups.forEach(function(group){
-                        group.list.records.forEach(function(record){                                           
-                            if(subject_id == record.data.subject_id[0]){                   
-                                var tr = $("tr[data-id=" + record.id + "]");
-                                var checkbox = $(tr.find("input[type=checkbox]")[0]);                                
-                                checkbox.prop("checked", true);
-                                // TODO: this is not working when fired from here... timeout needed?
-                                //$("#checkbox-comp-3").prop("checked", true);
+                        group.list.records.forEach(function(row){                                           
+                            if(row.id != record.id && subject_id == row.data.subject_id[0]){   
+                                row.selected = !record.selected;
                             }                                
                         });
                     });
