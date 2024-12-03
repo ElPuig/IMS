@@ -17,7 +17,22 @@ patch(ListRenderer.prototype, "list_renderer_customs", {
         //https://www.odoo.com/ro_RO/forum/suport-1/refresh-tree-view-after-closing-export-dialog-101044
 
         if(ev.target.type == "checkbox"){
-            debugger;
+            debugger;            
+            //Firs loop:
+            //  groups = this.props.list.groups
+            //Second loop:
+            //  records = groups[i].list.records
+            //Third loop:
+            //  data = records[i].data
+            //      id --> datapoint_x --> tr[data-id="datapoint_x"] --> input[type="checkbox"] --> enable check
+
+            //OLD:
+            //  table = $(event.target).parent().parent().parent().parent()
+            //  row = table.children(".o_data_row")[0]
+            //  input = $(row).children(".o_list_record_selector")[0]
+            //  input = $(input).children(".o-checkbox")[0]
+            //  input = $(input).children(".form-check-input")[0]
+            //  $(input).prop('checked', true);
         }
 
         if(ev.target.type != "checkbox"){           
