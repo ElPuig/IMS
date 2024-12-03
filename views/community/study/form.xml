@@ -44,7 +44,7 @@
                             </page>
 
                              <page string="Attached files">
-                                <field name="attachment_ids" widget="many2many" context="{'default_domain': 'ims.study'}">
+                                <field name="attachment_ids" widget="many2many" default_order="name asc" context="{'default_domain': 'ims.study'}">
                                      <tree editable="bottom" expand="1" default_order="name asc">
                                         <field name="name" />
                                         <button class="btn btn-secondary fa fa-pencil" title="Edit File" name="open_form_view_attachment" type="object" />
