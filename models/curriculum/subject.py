@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, MissingError
 
 class ims_subject(models.Model):
     _name = "ims.subject"
@@ -130,8 +130,12 @@ class ims_subject_view(models.Model):
             # The call comes from "subject"
             return super(ims_subject_view, self).unlink()
         else:
-            # The call comes from "subject_view"            
-            return self.subject_id.unlink()                                
+            # The call comes from "subject_view"
+            try:            
+                return self.subject_id.unlink()                                
+            except MissingError:
+                # Maybe, the subject has been already removed (multiple view entries points to the same subject)...
+                return True   
     
     def name_get(self):
 		#Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
