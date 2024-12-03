@@ -12,40 +12,42 @@ patch(ListRenderer.prototype, "list_renderer_customs", {
         owl.onMounted(this.autofocusForRadioCells);           
     },
 
-    onClickCapture(record, ev){           
-        switch(record.resModel){
-            case "ims.enrollment_view":
-                ev.preventDefault();
-                ev.stopPropagation();            
+    onClickCapture(record, ev){
+        if(ev.target.type != "checkbox"){           
+            switch(record.resModel){
+                case "ims.enrollment_view":
+                    ev.preventDefault();
+                    ev.stopPropagation();            
 
-                var am = ActionService.start(this.env);                    
-                am.doAction({
-                    name: 'Open: Students', //to fit with the other regular student's tab
-                    type: 'ir.actions.act_window',
-                    res_model: 'res.partner',                
-                    res_id: record.data.student_id[0],
-                    views: [[false, "form"]],                                
-                    target: 'new', //with 'current' the form opens in fullscreen (not modal).
-                    context: {},
-                });
-                break;
+                    var am = ActionService.start(this.env);                    
+                    am.doAction({
+                        name: 'Open: Students', //to fit with the other regular student's tab
+                        type: 'ir.actions.act_window',
+                        res_model: 'res.partner',                
+                        res_id: record.data.student_id[0],
+                        views: [[false, "form"]],                                
+                        target: 'new', //with 'current' the form opens in fullscreen (not modal).
+                        context: {},
+                    });
+                    break;
 
-            case "ims.subject_view":
-                ev.preventDefault();
-                ev.stopPropagation();            
-
-                var am = ActionService.start(this.env);                    
-                am.doAction({
-                    //name: 'Open: Students', //to fit with the other regular student's tab
-                    type: 'ir.actions.act_window',
-                    res_model: 'ims.subject',                
-                    res_id: record.data.subject_id[0],
-                    views: [[false, "form"]],                                
-                    target: 'current', //with 'new' the form opens as a modal window.
-                    context: {},
-                });
-                break;
-        }        
+                case "ims.subject_view":
+                    ev.preventDefault();
+                    ev.stopPropagation();            
+                    
+                    var am = ActionService.start(this.env);                    
+                    am.doAction({
+                        //name: 'Open: Students', //to fit with the other regular student's tab
+                        type: 'ir.actions.act_window',
+                        res_model: 'ims.subject',                
+                        res_id: record.data.subject_id[0],
+                        views: [[false, "form"]],                                
+                        target: 'current', //with 'new' the form opens as a modal window.
+                        context: {},
+                    });
+                    break;
+            }    
+        }    
     },       
 
     autofocusForRadioCells(){                

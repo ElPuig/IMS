@@ -79,6 +79,10 @@ class ims_subject(models.Model):
         for rec in self:
             rec.last = (len(rec.subject_ids) == 0)
 
+    def unlink(self):        
+        self.env['ims.subject_view'].search([('subject_id', '=', self.id)]).unlink()
+        return super(ims_subject, self).unlink()
+
     def name_get(self):
 		#Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
         result = []	    
