@@ -16,26 +16,26 @@ patch(ListRenderer.prototype, "list_renderer_customs", {
         // TODO: for subject_view list --> Select all checkboxes with same subject_id or reload the list after removing
         //https://www.odoo.com/ro_RO/forum/suport-1/refresh-tree-view-after-closing-export-dialog-101044
 
-        if(ev.target.type == "checkbox"){
-            debugger;            
-            //Firs loop:
-            //  groups = this.props.list.groups
-            //Second loop:
-            //  records = groups[i].list.records
-            //Third loop:
-            //  data = records[i].data
-            //      id --> datapoint_x --> tr[data-id="datapoint_x"] --> input[type="checkbox"] --> enable check
+        if(ev.target.type == "checkbox"){            
+            switch(record.resModel){
+                case "ims.subject_view":
+                    var subject_id = record.data.subject_id[0];                    
 
-            //OLD:
-            //  table = $(event.target).parent().parent().parent().parent()
-            //  row = table.children(".o_data_row")[0]
-            //  input = $(row).children(".o_list_record_selector")[0]
-            //  input = $(input).children(".o-checkbox")[0]
-            //  input = $(input).children(".form-check-input")[0]
-            //  $(input).prop('checked', true);
+                    this.props.list.groups.forEach(function(group){
+                        group.list.records.forEach(function(record){                                           
+                            if(subject_id == record.data.subject_id[0]){                   
+                                var tr = $("tr[data-id=" + record.id + "]");
+                                var checkbox = $(tr.find("input[type=checkbox]")[0]);                                
+                                checkbox.prop("checked", true);
+                                // TODO: this is not working when fired from here... timeout needed?
+                                //$("#checkbox-comp-3").prop("checked", true);
+                            }                                
+                        });
+                    });
+                    break;
+            }   
         }
-
-        if(ev.target.type != "checkbox"){           
+        else{
             switch(record.resModel){
                 case "ims.enrollment_view":
                     ev.preventDefault();
