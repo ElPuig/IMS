@@ -13,6 +13,13 @@ patch(ListRenderer.prototype, "list_renderer_customs", {
     },
 
     onClickCapture(record, ev){
+        // TODO: for subject_view list --> Select all checkboxes with same subject_id or reload the list after removing
+        //https://www.odoo.com/ro_RO/forum/suport-1/refresh-tree-view-after-closing-export-dialog-101044
+
+        if(ev.target.type == "checkbox"){
+            debugger;
+        }
+
         if(ev.target.type != "checkbox"){           
             switch(record.resModel){
                 case "ims.enrollment_view":

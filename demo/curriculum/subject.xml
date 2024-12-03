@@ -6,7 +6,7 @@
             <field name="name">Subject 1</field>
             <field name="level">1</field>
             <field name="notes"></field>
-            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1'), ref('ims.study_2')])]"/>             
+            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_41'), ref('ims.study_42')])]"/>             
         </record>
 
         <record id="subject_1_1" model="ims.subject">            
@@ -17,7 +17,7 @@
             <field name="internal_hours">66</field>
             <field name="external_hours">33</field>
             <field name="notes"></field>
-            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1'), ref('ims.study_2')])]"/>             
+            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_41'), ref('ims.study_42')])]"/>             
             <field name="subject_id" ref="ims.subject_1"/>            
         </record>
 
@@ -29,7 +29,7 @@
             <field name="internal_hours">33</field>
             <field name="external_hours">33</field>
             <field name="notes"></field>
-            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1'), ref('ims.study_2')])]"/>             
+            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_41'), ref('ims.study_42')])]"/>             
             <field name="subject_id" ref="ims.subject_1"/>
         </record>
 
@@ -41,7 +41,7 @@
             <field name="internal_hours">66</field>
             <field name="external_hours">33</field>
             <field name="notes"></field>
-            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1'), ref('ims.study_2')])]"/>             
+            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_41'), ref('ims.study_42')])]"/>             
             <field name="subject_id" ref="ims.subject_1"/>
         </record>
         
@@ -51,7 +51,7 @@
             <field name="name">Subject 2</field>
             <field name="level">1</field>
             <field name="notes"></field>
-            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1'), ref('ims.study_2')])]"/>             
+            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_41'), ref('ims.study_42')])]"/>             
         </record>
 
         <record id="subject_2_1" model="ims.subject">
@@ -62,7 +62,7 @@
             <field name="internal_hours">99</field>
             <field name="external_hours">33</field>
             <field name="notes"></field>
-            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1'), ref('ims.study_2')])]"/>             
+            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_41'), ref('ims.study_42')])]"/>             
             <field name="subject_id" ref="ims.subject_2"/>
         </record>
 
@@ -74,7 +74,7 @@
             <field name="internal_hours">66</field>
             <field name="external_hours">33</field>
             <field name="notes"></field>
-            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1'), ref('ims.study_2')])]"/>             
+            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_41'), ref('ims.study_42')])]"/>             
             <field name="subject_id" ref="ims.subject_2"/>
         </record>
 
@@ -86,7 +86,7 @@
             <field name="internal_hours">33</field>
             <field name="external_hours">0</field>
             <field name="notes"></field>
-            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1'), ref('ims.study_2')])]"/>             
+            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_41'), ref('ims.study_42')])]"/>             
             <field name="subject_id" ref="ims.subject_2"/>
         </record>
 
@@ -98,7 +98,7 @@
             <field name="internal_hours">66</field>
             <field name="external_hours">33</field>
             <field name="notes"></field>
-            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1'), ref('ims.study_2')])]"/>             
+            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_41'), ref('ims.study_42')])]"/>             
             <field name="subject_id" ref="ims.subject_2"/>
         </record>
 
@@ -110,7 +110,7 @@
             <field name="internal_hours">33</field>
             <field name="external_hours">0</field>
             <field name="notes"></field>
-            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1'), ref('ims.study_2')])]"/>             
+            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_41'), ref('ims.study_42')])]"/>             
             <field name="subject_id" ref="ims.subject_2"/>            
         </record>
 
@@ -122,8 +122,17 @@
             <field name="internal_hours">66</field>
             <field name="external_hours">33</field>
             <field name="notes"></field>
-            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_1'), ref('ims.study_2')])]"/>             
+            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_41'), ref('ims.study_42')])]"/>             
             <field name="subject_id" ref="ims.subject_2"/>
+        </record>
+
+        <record id="subject_3" model="ims.subject">
+            <field name="code">103</field>
+            <field name="acronym">S03</field>
+            <field name="name">Subject 3</field>
+            <field name="level">1</field>
+            <field name="notes"></field>
+            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_41'), ref('ims.study_42')])]"/>             
         </record>
     </data>
 </odoo>

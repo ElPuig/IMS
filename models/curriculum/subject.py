@@ -80,7 +80,7 @@ class ims_subject(models.Model):
             rec.last = (len(rec.subject_ids) == 0)
 
     def unlink(self):        
-        self.env['ims.subject_view'].search([('subject_id', '=', self.id)]).unlink()
+        self.env['ims.subject_view'].search([('subject_id', '=', self.id)]).unlink(True)
         return super(ims_subject, self).unlink()
 
     def name_get(self):
@@ -122,7 +122,17 @@ class ims_subject_view(models.Model):
     name = fields.Char(string="Name", required="true")
     study_id = fields.Many2one(string="Study", comodel_name="ims.study", required="true")
     subject_id = fields.Many2one(string="Subject", comodel_name="ims.subject", required="true")
-
+    
+    def unlink(self, avoidCircular=False): 
+        # WARNING: circular calls, because the subject should be deleted, which will call also to delete all its view entries.               
+        # TODO: removing multiple items can fail for the user, should be just ignored
+        if avoidCircular:
+            # The call comes from "subject"
+            return super(ims_subject_view, self).unlink()
+        else:
+            # The call comes from "subject_view"            
+            return self.subject_id.unlink()                                
+    
     def name_get(self):
 		#Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
         result = []	    
