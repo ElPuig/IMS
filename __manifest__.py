@@ -137,6 +137,7 @@
         'demo/curriculum/level.xml',
         'demo/curriculum/study.xml',
         'demo/curriculum/subject.xml',
+        'demo/curriculum/content.xml',
 
         'demo/facilities/space_type.xml',         
         'demo/facilities/space.xml',         
@@ -158,10 +159,10 @@
         'demo/contacts/provider.xml',
         'demo/contacts/enrollment.xml',
 
-        'demo/attendance/attendance_template.xml',
-        'demo/attendance/attendance_schedule.xml',
-        'demo/attendance/attendance_session.xml',
-        'demo/attendance/attendance_status.xml',
+        #'demo/attendance/attendance_template.xml',
+        #'demo/attendance/attendance_schedule.xml',
+        #'demo/attendance/attendance_session.xml',
+        #'demo/attendance/attendance_status.xml',
     ],   
     'assets': {       
         'web.assets_backend': [
