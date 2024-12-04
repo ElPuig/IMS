@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<templates id="template" xml:space="preserve">
+<templates>
 <!-- I guess it's because the 't-if' sentences, but inheriting and replacing using xpath has not working properly, so all the template has been copy/pasted and adapted... -->
     <t t-name="hr_org_chart.hr_org_chart_employee_content" owl="1">
         <div class="o_media_left position-relative">

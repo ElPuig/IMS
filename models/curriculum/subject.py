@@ -53,7 +53,7 @@ class ims_subject(models.Model):
     @api.onchange("subject_id")
     def _onchange_subject_id(self):
         for rec in self:
-            rec.study_id = rec.subject_id.study_id
+            rec.study_ids = rec.subject_id.study_ids
             rec.level = rec.subject_id.level + 1    
    
     @api.depends("subject_ids.internal_hours")

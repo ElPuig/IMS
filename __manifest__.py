@@ -70,7 +70,7 @@
 
             'views/community/subject/list.xml',
             'views/community/subject/form.xml',
-            'views/community/subject/menu.xml',
+            'views/community/subject/menu.xml',            
 
             'views/community/study/list.xml',
             'views/community/study/form.xml',     
@@ -165,7 +165,7 @@
     ],   
     'assets': {       
         'web.assets_backend': [
-            'ims/static/src/fields/*',
+            'ims/static/src/xml/**/*',
             'ims/static/src/css/**/*',
         ],       
         'web.assets_common': [
