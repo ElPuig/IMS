@@ -10,7 +10,7 @@ class ims_subject(models.Model):
     code = fields.Char(string="Code", required="true")
     acronym = fields.Char(string="Acronym", required="true")
     name = fields.Char(string="Name", required="true")
-    level = fields.Integer(string="Level")  # Note: this field is computed, but marking as compute needs Store=true for filtering and then is not beeing updated :(
+    level = fields.Integer(string="Level", default=1)
     ects = fields.Integer(string="ECTS Credits") 
     internal_hours = fields.Integer(string="Internal hours") 
     external_hours = fields.Integer(string="External hours")   
@@ -33,7 +33,6 @@ class ims_subject(models.Model):
     criteria_ids = fields.One2many(string="Criteria", comodel_name="ims.criteria", inverse_name="subject_id")
 
     #The subject_view_ids is used as a view for the subject list
-    #TODO: _compute_subject_views should run on every save (even when creating the model from demo data, not just saving the form...)
     subject_view_ids = fields.One2many(comodel_name="ims.subject_view", inverse_name="subject_id", compute="_compute_subject_views", store=True)
 
     @api.depends("study_ids")

@@ -80,13 +80,16 @@
 
                             <page string="Content" attrs="{'invisible':[('level', '!=', 1)]}">
                                 <field name="content_ids" widget="one2many" context="{'default_subject_id': id}">
-                                    <tree editable="bottom" default_order="acronym asc, name asc">
+                                <!-- TODO: parent needed to order properly, or something similar... -->
+                                    <tree editable="bottom" default_order="acronym asc, name asc, level asc" 
+                                        decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
                                         <field name="acronym"/>
-                                        <field name="name"/>       
+                                        <field name="name"/>    
+                                        <field name="level"/>    
                                         <button class="oe_stat_button" title="Edit Content" icon="fa-pencil-square-o" name="open_form_content" type="object" />                                 
 
                                         <!-- Needed but hidden for filtering purposes -->
-                                        <field name="subject_id" invisible="1"/>                                                                                
+                                        <field name="subject_id" invisible="0"/>                                                                                
                                     </tree>
                                 </field>
                             </page>
