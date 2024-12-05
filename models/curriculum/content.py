@@ -18,12 +18,12 @@ class ims_content(models.Model):
 	@api.depends("content_id")
 	def _compute_level(self):	        
 		for rec in self:
-			rec.level = rec.content_id.level + 1 
+			if rec.content_id.id != False: rec.level = rec.content_id.level + 1 
 
 	@api.depends("content_id")
-	def _compute_subject(self):	        
+	def _compute_subject(self):	  		      
 		for rec in self:
-			rec.subject_id = rec.content_id.subject_id
+			if rec.content_id.id != False: rec.subject_id = rec.content_id.subject_id
 
 	def open_form_content(self):
 		return {
