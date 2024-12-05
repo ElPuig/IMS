@@ -79,7 +79,7 @@
                             </page>
 
                             <page string="Content" attrs="{'invisible':[('level', '!=', 1)]}">
-                                <field name="content_ids" widget="one2many" context="{'default_subject_id': id}">                                
+                                <field name="content_ids" widget="one2many" context="{'default_subject_id': id, 'default_code': code}">                                
                                     <tree editable="bottom" default_order="code asc, level asc, acronym asc"
                                         decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
                                         <field name="code"/>

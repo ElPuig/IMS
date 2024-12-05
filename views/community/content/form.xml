@@ -6,21 +6,22 @@
             <field name="arch" type="xml">				
                 <form string="content">                   
                     <sheet>                        
+                        <field name="content_id" invisible="1"/>
                         <group string="Main data" col="6">                            
+                            <group>
+                                <field name="code"/>
+                            </group>
                             <group>
                                 <field name="acronym"/>
                             </group>
                             <group colspan="4">							
-                                <field name="name"/>
-                                <field name="content_id" invisible="0"/>
-                                <field name="subject_id" invisible="0"/>
-                                <field name="level" invisible="0"/>
+                                <field name="name"/>                                                                
                             </group>                            
                         </group>
                         
                         <notebook>                           
                             <page string="Composite">
-                                <field name="content_ids" widget="one2many" context="{'default_content_id': content_id}">
+                                <field name="content_ids" widget="one2many" context="{'default_content_id': content_id, 'default_code': code}">
                                     <tree editable="bottom" default_order="code asc, level asc, acronym asc"
                                         decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
                                         <field name="code"/>

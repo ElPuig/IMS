@@ -6,8 +6,11 @@ from odoo.exceptions import ValidationError, MissingError
 class ims_subject(models.Model):
     _name = "ims.subject"
     _description = "Subject: The main item for a student's subject."
-
-    #TODO: Maybe, if content_id is not null (descendant), check that the code starts by parent code. Otherwise, nested items wont be displayed properly in treeeview.
+    _order = "code asc"
+    _sql_constraints = [
+        ('unique_subject_code', 'unique (code)', 'duplicated code!')
+    ]
+    
     code = fields.Char(string="Code", required="true")
     acronym = fields.Char(string="Acronym", required="true")
     name = fields.Char(string="Name", required="true")
@@ -73,12 +76,18 @@ class ims_subject(models.Model):
             th = rec.total_internal_hours + rec.total_external_hours            
             rec.total_hours = rec.internal_hours + rec.external_hours if rec.last or th == 0 else th
 
-
     @api.depends("subject_ids")
     def _compute_last(self):
         for rec in self:
             rec.last = (len(rec.subject_ids) == 0)
 
+    @api.constrains('code')
+    def check_code(self):
+        for rec in self:
+            if rec.subject_id.id != False: 
+                if not rec.code.startswith(rec.subject_id.code):
+                    raise ValidationError("The code must start as the parent's code.")
+        
     def unlink(self):        
         self.env['ims.subject_view'].search([('subject_id', '=', self.id)]).unlink(True)
         return super(ims_subject, self).unlink()
@@ -111,6 +120,7 @@ class ims_subject(models.Model):
             'res_id': self.id,
             'target': 'new',
         }
+        
     
 class ims_subject_view(models.Model):
     _name = "ims.subject_view"
