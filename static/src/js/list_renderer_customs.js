@@ -12,20 +12,28 @@ patch(ListRenderer.prototype, "list_renderer_customs", {
         owl.onMounted(this.autofocusForRadioCells);           
     },
 
-    onClickCapture(record, ev){        
-        debugger;
+    syncCheckBoxes(record, subject_id, list){
+        list.forEach(function(row){                                           
+            if(row.id != record.id && subject_id == row.data.subject_id[0]){   
+                row.selected = !record.selected;
+            }                                
+        });
+    },
 
+    onClickCapture(record, ev){        
         if(ev.target.type == "checkbox"){            
             switch(record.resModel){
                 case "ims.subject_view":                     
-                    var subject_id = record.data.subject_id[0];                                        
-                    this.props.list.groups.forEach(function(group){
-                        group.list.records.forEach(function(row){                                           
-                            if(row.id != record.id && subject_id == row.data.subject_id[0]){   
-                                row.selected = !record.selected;
-                            }                                
+                    var subject_id = record.data.subject_id[0];                     
+                    if(this.props.list.groups == undefined){                        
+                        this.syncCheckBoxes(record, subject_id, this.props.list.records);
+                    }
+                    else{     
+                        var self = this;                                                  
+                        this.props.list.groups.forEach(function(group){
+                            self.syncCheckBoxes(record, subject_id, group.list.records);
                         });
-                    });
+                    }
                     break;
             }   
         }
