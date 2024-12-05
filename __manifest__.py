@@ -120,7 +120,9 @@
 
         'views/shared/attachment/form.xml',   
         
+        ### Data entries (do not alter the order) ###
         'data/cat/ims.attachment.csv',
+        'data/cat/ims.subject.csv',
         'data/cat/ims.level.csv',
         'data/cat/ims.study.csv',
         

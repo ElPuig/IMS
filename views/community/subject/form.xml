@@ -38,7 +38,7 @@
                         </group>
                         
                         <notebook>    
-                            <page string="Studies" attrs="{'invisible':[('level', '>', 1)]}">
+                            <page string="Studies" > <!--attrs="{'invisible':[('level', '>', 1)]}">-->
                                 <field name="study_ids" widget="one2many" >
                                     <tree editable="bottom" default_order="code asc, acronym asc, name asc">
                                         <field name="code"/>
@@ -50,7 +50,7 @@
                             </page>
 
                             <page string="Composite">
-                                <field name="subject_ids" widget="one2many" context="{'default_subject_id': id, 'default_study_ids': study_ids, 'default_level': level+1}">
+                                <field name="subject_ids" widget="one2many" context="{'default_subject_id': id, 'default_study_ids': study_ids, 'default_code': code}">
                                     <tree editable="bottom" default_order="code asc, acronym asc, name asc">
                                         <field name="code"/>
                                         <field name="acronym"/>

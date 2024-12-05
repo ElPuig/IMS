@@ -23,7 +23,7 @@ class ims_content(models.Model):
 	level = fields.Integer(string="Level", default=1, compute="_compute_level", store=True)			
 	
 	@api.depends("content_id")
-	def _compute_level(self):	        
+	def _compute_level(self):
 		for rec in self:
 			if rec.content_id.id != False: rec.level = rec.content_id.level + 1 
 

@@ -14,7 +14,6 @@ class ims_subject(models.Model):
     code = fields.Char(string="Code", required="true")
     acronym = fields.Char(string="Acronym", required="true")
     name = fields.Char(string="Name", required="true")
-    level = fields.Integer(string="Level", default=1)
     ects = fields.Integer(string="ECTS Credits") 
     internal_hours = fields.Integer(string="Internal hours") 
     external_hours = fields.Integer(string="External hours")   
@@ -27,7 +26,7 @@ class ims_subject(models.Model):
     
     notes = fields.Text("Notes")
 
-    study_ids = fields.Many2many(string="Studies", comodel_name="ims.study")
+    study_ids = fields.Many2many(string="Studies", comodel_name="ims.study")		
     teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
 
     subject_ids = fields.One2many(string="Composite", comodel_name="ims.subject", inverse_name="subject_id", domain="[('id', '!=', id), ('level', '>', level), ('subject_id', '=', False)]")
@@ -39,25 +38,62 @@ class ims_subject(models.Model):
     #The subject_view_ids is used as a view for the subject list
     subject_view_ids = fields.One2many(comodel_name="ims.subject_view", inverse_name="subject_id", compute="_compute_subject_views", store=True)
 
+    # The following fields are computed and used to display the data correctly within the treeview
+    level = fields.Integer(string="Level", default=1, compute="_compute_level", store=True)			
+	    
     @api.depends("study_ids")
     def _compute_subject_views(self):	        
         for rec in self:
-            self.env['ims.subject_view'].search([('subject_id', '=', rec.id)]).unlink()
-            for study in rec.study_ids:                
+            self.env['ims.subject_view'].search([('subject_id', '=', rec.id)]).unlink(True)
+            if len(rec.study_ids) == 0:
                 rec.subject_view_ids.create({
                     "level": rec.level,
                     "code": rec.code,
                     "acronym": rec.acronym,
                     "name": rec.name,
-                    "study_id": study.id,
                     "subject_id": rec.id,
-                })	                               
+                })                
+            else:
+                for study in rec.study_ids:                
+                    rec.subject_view_ids.create({
+                        "level": rec.level,
+                        "code": rec.code,
+                        "acronym": rec.acronym,
+                        "name": rec.name,                        
+                        "subject_id": rec.id,
+                        "study_id": study.id,
+                    })
+
+    @api.depends("study_ids")
+    def _populate_study_ids(self):
+        for rec in self:                       
+            for child in rec.subject_ids:
+                studies = []
+                for study in rec.study_ids:                
+                    studies.append(study.id)
+                
+                child.write({'subject_ids' : [(6, 0, studies)]})
+
+    @api.depends("subject_id")
+    def _compute_level(self):	        
+        for rec in self:
+            if rec.subject_id.id != False: rec.level = rec.subject_id.level + 1 
 
     @api.onchange("subject_id")
     def _onchange_subject_id(self):
         for rec in self:
-            rec.study_ids = rec.subject_id.study_ids
-            rec.level = rec.subject_id.level + 1    
+            rec.study_ids = rec.subject_id.study_ids    
+                    
+    # @api.onchange("study_ids")
+    # def _onchange_study_ids(self):
+    #     for rec in self:
+    #         for child in rec.subject_ids:  
+    #             studies = []
+    #             for study in rec.study_ids:                
+    #                 studies.append(study.id)
+
+    #             # This line changes the current values for the new ones (https://stackoverflow.com/a/65089711)
+    #             child.study_ids = [(6, 0, studies)]
    
     @api.depends("subject_ids.internal_hours")
     def _compute_total_internal_hours(self):
@@ -130,12 +166,12 @@ class ims_subject_view(models.Model):
     code = fields.Char(string="Code", required="true")
     acronym = fields.Char(string="Acronym", required="true")
     name = fields.Char(string="Name", required="true")
-    study_id = fields.Many2one(string="Study", comodel_name="ims.study", required="true")
+    study_id = fields.Many2one(string="Study", comodel_name="ims.study")
     subject_id = fields.Many2one(string="Subject", comodel_name="ims.subject", required="true")
     
     def unlink(self, avoidCircular=False): 
-        # WARNING: circular calls, because the subject should be deleted, which will call also to delete all its view entries.               
-        # TODO: removing multiple items can fail for the user, should be just ignored
+        # This can be called from the list view, which means the user wants to remove a subject, so both subject_view and subject must be removed.
+        # But, this can also be called from subject's internal code, like when computing the subject_view entires, which means that the subject shall NOT be removed.         
         if avoidCircular:
             # The call comes from "subject"
             return super(ims_subject_view, self).unlink()
