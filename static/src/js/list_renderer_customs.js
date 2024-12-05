@@ -51,7 +51,7 @@ patch(ListRenderer.prototype, "list_renderer_customs", {
                         res_id: record.data.student_id[0],
                         views: [[false, "form"]],                                
                         target: 'new', //with 'current' the form opens in fullscreen (not modal).
-                        context: {},
+                        context: record.context,
                     });
                     break;
 
@@ -60,14 +60,13 @@ patch(ListRenderer.prototype, "list_renderer_customs", {
                     ev.stopPropagation();            
                     
                     var am = ActionService.start(this.env);                    
-                    am.doAction({
-                        //name: 'Open: Students', //to fit with the other regular student's tab
+                    am.doAction({                        
                         type: 'ir.actions.act_window',
                         res_model: 'ims.subject',                
                         res_id: record.data.subject_id[0],
                         views: [[false, "form"]],                                
                         target: 'current', //with 'new' the form opens as a modal window.
-                        context: {},
+                        context: record.context,
                     });
                     break;
             }    
