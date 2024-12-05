@@ -7,6 +7,7 @@ class ims_subject(models.Model):
     _name = "ims.subject"
     _description = "Subject: The main item for a student's subject."
 
+    #TODO: Maybe, if content_id is not null (descendant), check that the code starts by parent code. Otherwise, nested items wont be displayed properly in treeeview.
     code = fields.Char(string="Code", required="true")
     acronym = fields.Char(string="Acronym", required="true")
     name = fields.Char(string="Name", required="true")

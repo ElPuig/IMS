@@ -1,3 +1,4 @@
+th.o_column_sortable[data-name="code"],
 th.o_column_sortable[data-name="acronym"]{ 
     width:125px !important; 
     max-width:125px !important;
