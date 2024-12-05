@@ -11,6 +11,7 @@ patch(ControlPanel.prototype, "control_panel_customs", {
             if (this.env.config.viewType == "form" && this.env.searchModel.resModel == "ims.subject") {                
                 var br = $(this.root.el).find("ol.breadcrumb");
                 // TODO: maybe history.back() can be changed to the correct URL (check this.env or whatever).
+                // TODO: this is missing when entering another form, maybe can be added to the this.breadcrumb object?
                 $(br).prepend('<li class="breadcrumb-item o_back_button" data-hotkey="b" style="position: relative;"><a href="javascript:history.back();">Subjects</a></li>')
             }
         });
