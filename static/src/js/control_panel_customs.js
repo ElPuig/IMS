@@ -11,6 +11,8 @@ patch(ControlPanel.prototype, "control_panel_customs", {
         this._super.apply(this, arguments);    
         
         owl.onMounted(() => {                 
+            //TODO: the "Subject" breadcrum dissapears when jumping to another models, so its needed to 
+            //know why it's not appearing. Maybe is because there's no native subject list? It's because the redirection from "subject_view" list to "subject" form?
             if (this.env.config.viewType == "form" && this.env.searchModel.resModel == "ims.subject") {
                 if(this.breadcrumbs.length == 1){
                     if(this.env.searchModel.context["subject_view_controller"] != null && this.breadcrumbs[0].jsId != this.env.searchModel.context["subject_view_controller"].jsId){

@@ -38,5 +38,5 @@ class ims_study(models.Model):
             'view_type': 'form',
             'res_id': self.id,
             'context': self._context,
-            'target': 'new',
+            'target': 'current',
         }
