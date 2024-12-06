@@ -7,9 +7,10 @@ import { actionService } from "@web/webclient/actions/action_service";
 var ActionService = actionService;
 
 patch(ListRenderer.prototype, "list_renderer_customs", {
-    setup() {        
+    setup() {
+        //debugger;       
         this._super.apply(this, arguments);        
-        owl.onMounted(this.autofocusForRadioCells);           
+        owl.onMounted(this.autofocusForRadioCells);                   
     },
 
     syncCheckBoxes(record, subject_id, list){
@@ -57,16 +58,23 @@ patch(ListRenderer.prototype, "list_renderer_customs", {
 
                 case "ims.subject_view":
                     ev.preventDefault();
-                    ev.stopPropagation();            
+                    ev.stopPropagation();                                
+
+                    var controller = this.env.services.action.currentController;
+                    var am = ActionService.start(this.env);                     
                     
-                    var am = ActionService.start(this.env);                    
                     am.doAction({                        
                         type: 'ir.actions.act_window',
                         res_model: 'ims.subject',                
                         res_id: record.data.subject_id[0],
                         views: [[false, "form"]],                                
                         target: 'current', //with 'new' the form opens as a modal window.
-                        context: record.context,
+                        context: {
+                            'subject_view_controller' : {
+                                'jsId' : controller.jsId,
+                                'name' : controller.displayName,
+                            }
+                        },
                     });
                     break;
             }    

@@ -154,7 +154,9 @@ class ims_subject(models.Model):
             'view_mode': 'form',
             'view_type': 'form',
             'res_id': self.id,
-            'target': 'new',
+            'context': self._context,
+            #'target': 'new',
+            'target': 'current',
         }
         
     
@@ -209,5 +211,6 @@ class ims_subject_view(models.Model):
             'view_mode': 'form',
             'view_type': 'form',
             'res_id': (0 if self == False else self.subject_id.id),
+            'context': self._context,
             'target': 'new',
         }

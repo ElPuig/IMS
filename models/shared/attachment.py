@@ -19,6 +19,7 @@ class ims_attachment(models.Model):
 			'view_mode': 'form',
 			'view_type': 'form',
 			'res_id': self.id,
+			'context': self._context,
 			'target': 'new',
 		}
 
