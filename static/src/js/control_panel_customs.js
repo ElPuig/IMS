@@ -9,7 +9,7 @@ var ActionService = actionService;
 patch(ControlPanel.prototype, "control_panel_customs", {
     setup() {        
         this._super.apply(this, arguments);            
-        owl.onRendered(() => {                 
+        owl.onMounted(() => {                 
             //The "Subject" breadcrum dissapears when jumping to another models, just like when refreshig and jumped from model to model using a button...
             //TODO: try to avoid missing the breadcrums on refreshing after pushing a button (through python action).    
             var model = this.env.searchModel.resModel;        
@@ -17,13 +17,13 @@ patch(ControlPanel.prototype, "control_panel_customs", {
                 //Workaroung to add the missing level-1 breadcrum, should be properly fixed.                                 
                 var br = $(this.root.el).find("ol.breadcrumb");
                 var am = ActionService.start(this.env);                
-                console.log(this.env.searchModel.context);
-
-                if($(br).children("li").length == 1){                                                        
+                                
+                if($(br).children("li").length == 1){                                                                           
                     this.prependToBreadcrums(am, model, br);                           
                 }
                 else if (this.env.searchModel.context["subject_view_list"] == true){
-                    //TODO: i'm not sure if worths it...    
+                    //TODO: onMounted only fires once, so the breadcrums is updated becasue the form is changing, but not the entire document (SPA).
+                    // It's worthy to workaround this? I think is better to upgrade to Odoo 18 and try to change something else...
                 }
             }            
         });
