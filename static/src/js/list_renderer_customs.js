@@ -37,8 +37,7 @@ patch(ListRenderer.prototype, "list_renderer_customs", {
                     break;
             }   
         }
-        else{
-            console.log(record.resModel);
+        else{            
             switch(record.resModel){
                 case "ims.enrollment_view":
                     ev.preventDefault();
@@ -68,14 +67,10 @@ patch(ListRenderer.prototype, "list_renderer_customs", {
                         res_model: 'ims.subject',                
                         res_id: record.data.subject_id[0],
                         views: [[false, "form"]],
-                        target: 'current', //with 'new' the form opens as a modal window.
-                        context: record.context,
-                        // context: {
-                        //     'subject_view_controller' : {
-                        //         'jsId' : controller.jsId,
-                        //         'name' : controller.displayName,
-                        //     }
-                        // },
+                        target: 'current', //with 'new' the form opens as a modal window.                       
+                        context: {
+                            'subject_view_list' : true
+                        },
                     });
                     break;
             }    

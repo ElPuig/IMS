@@ -30,7 +30,6 @@ class ims_study(models.Model):
     
     def open_form_study(self):
         return {
-            'name': 'Study Edit',
             'type': 'ir.actions.act_window',
             'target': 'current',            
             'res_model': 'ims.study',

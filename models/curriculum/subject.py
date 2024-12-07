@@ -147,16 +147,14 @@ class ims_subject(models.Model):
     
     def open_form_subject(self):
         return {
-            'name': 'Subject Edit',
-            'domain': [],
-            'res_model': 'ims.subject',
             'type': 'ir.actions.act_window',
-            'view_mode': 'form',
-            'view_type': 'form',
+            'target': 'current',            
+            'res_model': 'ims.subject',
             'res_id': self.id,
             'context': self._context,
-            #'target': 'new',
-            'target': 'current',
+            'view_mode': 'form',
+            'view_type': 'form',
+            'nodestroy': True,
         }
         
     
