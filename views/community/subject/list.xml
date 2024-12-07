@@ -1,10 +1,10 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_subject_list">
-            <field name="name">ims.subject.list</field>
+        <record model="ir.ui.view" id="view_subject_view_list">
+            <field name="name">ims.subject_view.list</field>
             <field name="model">ims.subject_view</field>
             <field name="arch" type="xml">
-                <tree expand="1" default_order="study_id desc, code asc, level asc, acronym asc"
+                <tree expand="1" default_order="study_id desc, code asc, level asc, acronym asc" js_class="subjectview_create_button"
                     decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
                     <!--https://www.cybrosys.com/blog/tree-view-decoration-attributes-in-odoo-15 -->                    
                     <field name="code"/>
@@ -16,21 +16,10 @@
                     <field name="subject_id" invisible="1"/>  
                 </tree>              
             </field>
-        </record>   
-
-        <record model="ir.ui.view" id="view_subject_list_customs">
-            <field name="name">ims.subject.list.customs</field>
-            <field name="model">ims.subject_view</field>
-            <field name="inherit_id" ref="ims.view_subject_list"/>
-            <field name="arch" type="xml">
-                <xpath expr="//tree" position="attributes">
-                    <attribute name="js_class">subjectview_create_button</attribute>
-                </xpath>
-            </field>
-        </record>
+        </record>         
         
-        <record model="ir.ui.view" id="subject_search">
-            <field name="name">ims subject search</field>
+        <record model="ir.ui.view" id="subject_view_search">
+            <field name="name">ims.subject_view.search</field>
             <field name="model">ims.subject_view</field>            
             <field name="arch" type="xml">
                 <search string="Study">
@@ -39,7 +28,6 @@
                     </group>
                 </search>
             </field>
-        </record>  
-        
+        </record>             
     </data>
 </odoo>

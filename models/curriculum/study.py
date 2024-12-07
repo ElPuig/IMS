@@ -31,12 +31,12 @@ class ims_study(models.Model):
     def open_form_study(self):
         return {
             'name': 'Study Edit',
-            'domain': [],
-            'res_model': 'ims.study',
             'type': 'ir.actions.act_window',
-            'view_mode': 'form',
-            'view_type': 'form',
+            'target': 'current',            
+            'res_model': 'ims.study',
             'res_id': self.id,
             'context': self._context,
-            'target': 'current',
+            'view_mode': 'form',
+            'view_type': 'form',
+            'nodestroy': True,
         }

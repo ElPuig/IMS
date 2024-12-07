@@ -8,7 +8,6 @@ var ActionService = actionService;
 
 patch(ListRenderer.prototype, "list_renderer_customs", {
     setup() {
-        //debugger;       
         this._super.apply(this, arguments);        
         owl.onMounted(this.autofocusForRadioCells);                   
     },
@@ -39,6 +38,7 @@ patch(ListRenderer.prototype, "list_renderer_customs", {
             }   
         }
         else{
+            console.log(record.resModel);
             switch(record.resModel){
                 case "ims.enrollment_view":
                     ev.preventDefault();
@@ -67,14 +67,15 @@ patch(ListRenderer.prototype, "list_renderer_customs", {
                         type: 'ir.actions.act_window',
                         res_model: 'ims.subject',                
                         res_id: record.data.subject_id[0],
-                        views: [[false, "form"]],                                
+                        views: [[false, "form"]],
                         target: 'current', //with 'new' the form opens as a modal window.
-                        context: {
-                            'subject_view_controller' : {
-                                'jsId' : controller.jsId,
-                                'name' : controller.displayName,
-                            }
-                        },
+                        context: record.context,
+                        // context: {
+                        //     'subject_view_controller' : {
+                        //         'jsId' : controller.jsId,
+                        //         'name' : controller.displayName,
+                        //     }
+                        // },
                     });
                     break;
             }    
