@@ -42,7 +42,7 @@
                         <group cols="2">
                             <separator name="group" string="Group Data"/>
                             <group>
-                                <field name="level_id" />
+                                <field name="level_id" readonly="False" />
                                 <field name="main_group_id" readonly="study_id == False" domain="[('study_id','=', study_id)]" />
                             </group>
                             <group>
