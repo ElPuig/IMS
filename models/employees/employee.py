@@ -8,12 +8,15 @@ employee_types = [
     ("teacher", "Teacher")
 ]
 
-class ims_employee(models.AbstractModel):
+class ims_employee_base(models.AbstractModel):
     _inherit = ["hr.employee.base"]
     
     notes = fields.Text(string="Notes")
-        
-    employee_type = fields.Selection(string="Employee Type", selection="_get_new_employee_type", compute="_compute_question_type", readonly=False, store=True)
+    
+    #TODO: selection_add fails, like if employee_type wasn't a selection field... WHY?
+    employee_type = fields.Selection(string="Employee Type", selection="_get_new_employee_type")
+    #employee_type = fields.Selection(string="Employee Type", selection = employee_types)
+
     contract_type_id = fields.Many2one(string="Contract Type", comodel_name="hr.contract.type")
     job_id = fields.Many2one(string="Job Position", comodel_name="hr.job", domain="[('employee_type', '=', employee_type)]")
     teaching_ids = fields.One2many(string="Teaching", comodel_name="ims.teaching", inverse_name="teacher_id")	
@@ -26,9 +29,9 @@ class ims_employee(models.AbstractModel):
     roles = fields.Char(string="Role names", compute="_compute_roles_str", store=True)	
     tutorships = fields.Char(string="Tutorship names", compute="_compute_tutorships_str", store=True)	
 
-    @api.model
-    def _get_new_employee_type(self):            
-        return employee_types
+    # @api.model
+    # def _get_new_employee_type(self):            
+    #     return employee_types
     
     @api.constrains("role_ids")
     def check_limit(self):
@@ -52,3 +55,11 @@ class ims_employee(models.AbstractModel):
             for tutorship in rec.tutorship_ids:
                 rec.tutorships = "%s, %s" % (rec.tutorships, tutorship.name) 			
             rec.tutorships = rec.tutorships.lstrip(", ")
+
+class ims_employee(models.AbstractModel):
+    _inherit = ["hr.employee"]
+
+    employee_type = fields.Selection(string="Employee Type", selection_add = employee_types, ondelete={
+        'asp': 'set default',
+        'teacher': 'set default'
+    })
