@@ -4,13 +4,13 @@
             <field name="name">ims.minute.list</field>
             <field name="model">ims.minute</field>
             <field name="arch" type="xml">
-                <tree expand="1" >
+                <list expand="1" >
                     <field name="date"/>
                     <field name="type"/>
                     <field name="members"/>
                     <field name="nature"/>
                     <field name="abstract" />  
-                </tree>
+                </list>
             </field>
         </record>   
     </data>

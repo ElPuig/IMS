@@ -6,20 +6,20 @@
             <field name="arch" type="xml">
                 <form string="Session">
                     <field name="_display_warning" invisible="1"/>                   
-                    <div class="alert alert-warning" role="alert" name="test_warning" attrs="{'invisible': [('_display_warning', '=', False)]}">
+                    <div class="alert alert-warning" role="alert" name="test_warning" invisible="_display_warning == False">
                         <!-- TODO: this should be translated (localization) -->
                         Unable to load the current session, maybe none has been scheduled for the current date and time?. Please, choose one manually or activate the "guard mode" if needed.
                     </div>
                     <sheet>                   
                         <group string="Main data" col="6" >
                             <group colspan="3">      
-                                <field name="attendance_schedule_id" attrs="{'readonly': [('id', '!=', False)]}"/>
+                                <field name="attendance_schedule_id" readonly="id != False"/>
                             </group>    
                             <group colspan="1">
-                                <field name="date" attrs="{'readonly': [('id', '!=', False)]}"/>
+                                <field name="date" readonly="id != False"/>
                             </group>   
                             <group colspan="2">
-                                <field name="guard_mode" attrs="{'readonly': [('id', '!=', False)]}"/>
+                                <field name="guard_mode" readonly="id != False"/>
                             </group>     
 
                             <group colspan="2">
@@ -47,12 +47,12 @@
                             <page string="Statuses">
                                 <field name="attendance_status_ids" widget="one2many_list" context="{'show_attribute': False}"  mouseover="_onMouseOver">
                                     <!-- TODO: custom CSS needed in order to fit aligns and other stuff -->
-                                    <tree editable="bottom" default_order="student_id asc">                                       
+                                    <list editable="bottom" default_order="student_id asc">                                       
                                         <field name="image_1920" widget="image" />
                                         <field name="student_id" width="175px"  /> <!-- class="align-middle" -->
                                         <field name="status" widget="radio" options="{'horizontal': true}" />
                                         <field name="notes" width="350px"/>                                       
-                                    </tree>
+                                    </list>
                                 </field>
                             </page>     
                             <page string="Notes">

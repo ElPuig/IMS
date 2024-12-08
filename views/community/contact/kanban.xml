@@ -11,12 +11,13 @@
                     <field name="tutor"/>
                 </xpath>
 
-                <xpath expr="//div[hasclass('oe_kanban_partner_categories')]/following-sibling::ul" position="after">
+                <!-- Odoo 16 -->
+                <!-- <xpath expr="//div[hasclass('oe_kanban_partner_categories')]/following-sibling::ul" position="after">
                     <field name="main_group_id" invisible="context.get('default_contact_type') != 'student'" />
                     <span t-if="record.tutor.value != ''">
                         (<t t-esc="record.tutor.value"/>)
                     </span>    
-                </xpath>
+                </xpath> -->
             </field>
         </record>
     </data>

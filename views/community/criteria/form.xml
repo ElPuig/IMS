@@ -18,14 +18,14 @@
                         <notebook>                           
                             <page string="Composite">
                                 <field name="criteria_ids" widget="one2many">
-                                    <tree editable="bottom" default_order="acronym asc, name asc">
+                                    <list editable="bottom" default_order="acronym asc, name asc">
                                         <field name="acronym"/>
                                         <field name="name"/>                                               
                                         <button class="oe_stat_button" title="Edit Criteria" icon="fa-pencil-square-o" name="open_form_criteria" type="object" />
 
                                         <!-- Needed but hidden for filtering purposes -->
                                         <field name="subject_id" invisible="1"/>                                                                                
-                                    </tree>
+                                    </list>
                                 </field>
                             </page>
                             

@@ -4,12 +4,12 @@
             <field name="name">ims.study.list</field>
             <field name="model">ims.study</field>
             <field name="arch" type="xml">
-                <tree expand="1" default_order="level_id asc, code asc">                    
+                <list expand="1" default_order="level_id asc, code asc">                    
                     <field name="code"/>
                     <field name="acronym"/>
                     <field name="name" class="w-75"/>
                     <field name="level_id" invisible="1"/>                                
-                </tree>
+                </list>
             </field>
         </record>   
 

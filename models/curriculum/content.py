@@ -11,9 +11,9 @@ class ims_content(models.Model):
 		('unique_content_code', 'unique (subject_id, code)', 'duplicated code!')
     ]
 	
-	code = fields.Char(string="Code", required="true")
-	acronym = fields.Char(string="Acronym", required="true")
-	name = fields.Char(string="Name", required="true")	
+	code = fields.Char(string="Code", required=True)
+	acronym = fields.Char(string="Acronym", required=True)
+	name = fields.Char(string="Name", required=True)	
 	content_ids = fields.One2many(string="Composite", comodel_name="ims.content", inverse_name="content_id")
 	content_id = fields.Many2one(string="Parent", comodel_name="ims.content")
 	subject_id = fields.Many2one(string="Subject", comodel_name="ims.subject", compute="_compute_subject", store=True)

@@ -35,22 +35,24 @@
                         <notebook> 
                             <page string="Students">
                                  <field name="main_student_ids" widget="many2many" context="{'show_attribute': False}">
-                                    <tree default_order="name asc">                                       
+                                    <list default_order="name asc">    
+                                        <!-- Odoo 16 -->                                   
                                         <field name="image_1920" widget="image" />
                                         <field name="name" class="align-middle"/>
                                         <field name="email" class="align-middle"/>
                                         <field name="phone" class="align-middle"/>
-                                    </tree>
+                                    </list>
                                 </field>
                             </page>                         
   
                              <page string="Enrolled">                                
                                 <field name="enrollment_view_ids" widget="many2many"> 
-                                    <tree default_order="student_id asc">    
+                                    <list default_order="student_id asc"> 
+                                        <!-- Odoo 16 -->   
                                         <field name="image_1920" widget="image" />                                   
                                         <field name="student_id" class="align-middle"/>
                                         <field name="subject_ids" widget="many2many_tags"/>
-                                    </tree>
+                                    </list>
                                 </field>
                             </page>
                            

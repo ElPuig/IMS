@@ -6,8 +6,8 @@ class ims_attachment(models.Model):
 	_name = "ims.attachment"
 	_description = "Attachment file."
 	
-	name = fields.Char(string="Name", required="true")
-	file = fields.Binary(string="File", required="true")
+	name = fields.Char(string="Name", required=True)
+	file = fields.Binary(string="File", required=True)
 	domain = fields.Char(string="Domain") # Used to filter the atachment by model, empty means "for all"
 
 	def open_form_attachment(self):

@@ -4,10 +4,10 @@
             <field name="name">ims.workgroup.list</field>
             <field name="model">ims.workgroup</field>
             <field name="arch" type="xml">
-                <tree expand="1" default_order="name asc">      
+                <list expand="1" default_order="name asc">      
                     <field name="name" class="w-25"/>
                     <field name="employee_ids" widget="many2many_tags"/>
-                </tree>
+                </list>
             </field>
         </record>   
     </data>

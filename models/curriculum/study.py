@@ -6,11 +6,11 @@ class ims_study(models.Model):
     _name = "ims.study"
     _description = "Study: The concrete type of stidy (kind of bachelor, concrete univeristy grade, etc.)"
     
-    code = fields.Char(string="Code", required="true")
-    acronym = fields.Char(string="Acronym", required="true")
-    name = fields.Char(string="Name", required="true")
-    date = fields.Date(string="Release Date", required="true")
-    deprecated = fields.Boolean(string="Deprecated", required="true")    
+    code = fields.Char(string="Code", required=True)
+    acronym = fields.Char(string="Acronym", required=True)
+    name = fields.Char(string="Name", required=True)
+    date = fields.Date(string="Release Date", required=True)
+    deprecated = fields.Boolean(string="Deprecated", required=True)    
     notes = fields.Text(string="Notes")
     
     follow_ids = fields.One2many(string="Follow-up", comodel_name="ims.tracking", inverse_name="study_id")

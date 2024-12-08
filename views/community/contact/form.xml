@@ -6,6 +6,8 @@
             <field name="inherit_id" ref="base.view_partner_form"/> 
             <field name="arch" type="xml">                       
                 <field name="company_type" position="replace" />
+                <!-- Odoo 16 -->
+                <!-- 
                 <field name="vat" position="after">                    
                     <field name="contact_type"/>
                     <field name="company_type" attrs="{'invisible': [('contact_type', '!=', 'provider')]}"/>
@@ -32,14 +34,14 @@
 
                             <separator name="enrollment" string="Enrollment Data"/>
                             <field name="enrollment_ids" string="">
-                                <tree editable="bottom">
+                                <list editable="bottom">
                                     <field name="subject_id"/>
                                     <field name="group_id"/>
-                                </tree>
+                                </list>
                             </field>
                         </group>
                     </page>
-                </xpath>                                                
+                </xpath>                                                 -->
             </field>		      
         </record>   
     </data>

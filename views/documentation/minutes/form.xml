@@ -14,8 +14,8 @@
                                 <field name="type"/>
                             </group>
                             <group colspan="2">
-                                <field name="department_id" attrs="{'invisible': [('type', '=', 'workgroup')]}" />
-                                <field name="workgroup_id" attrs="{'invisible': [('type', '!=', 'workgroup')]}" />
+                                <field name="department_id" invisible="type == 'workgroup'" />
+                                <field name="workgroup_id" invisible="type != 'workgroup'" />
                             </group>                                                                                                    
                             <group>
                                 <field name="nature"/>
@@ -46,11 +46,11 @@
                         <notebook>
                             <page string="Studies">
                                 <field name="study_ids" widget="many2many">
-                                    <tree>
+                                    <list>
                                         <field name="code"/>
                                         <field name="acronym"/>
                                         <field name="name"/>
-                                    </tree>
+                                    </list>
                                 </field>
                             </page>
                             

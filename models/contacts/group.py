@@ -7,12 +7,12 @@ class ims_group(models.Model):
 	_name = "ims.group"
 	_description = "Groups: Where the students are assigned to."	
 	
-	course = fields.Integer(string="Course", required="true")
-	acronym = fields.Char(string="Acronym", required="true")
+	course = fields.Integer(string="Course", required=True)
+	acronym = fields.Char(string="Acronym", required=True)
 	name = fields.Char(string="Name", compute="_compute_name", store=True) #should not be edited manually
 	notes = fields.Text(string="Notes")
 
-	study_id = fields.Many2one(string="Study", comodel_name="ims.study", required="true")
+	study_id = fields.Many2one(string="Study", comodel_name="ims.study", required=True)
 	tutor_id = fields.Many2one(string="Tutor", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
 	
 	delegate_id = fields.Many2one(string="Delegate", comodel_name="res.partner", domain="[('contact_type', '=', 'student'), ('main_group_id', '=', id)]")	

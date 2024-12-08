@@ -4,7 +4,7 @@
             <field name="name">ims.subject_view.list</field>
             <field name="model">ims.subject_view</field>
             <field name="arch" type="xml">
-                <tree expand="1" default_order="study_id desc, code asc, level asc, acronym asc" js_class="subjectview_create_button"
+                <list expand="1" default_order="study_id desc, code asc, level asc, acronym asc" js_class="subjectview_create_button"
                     decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
                     <!--https://www.cybrosys.com/blog/tree-view-decoration-attributes-in-odoo-15 -->                    
                     <field name="code"/>
@@ -14,7 +14,7 @@
                     <field name="study_id" invisible="1"/>  
                     <field name="level" invisible="1"/>
                     <field name="subject_id" invisible="1"/>  
-                </tree>              
+                </list>              
             </field>
         </record>         
         

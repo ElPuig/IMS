@@ -11,9 +11,9 @@ class ims_subject(models.Model):
         ('unique_subject_code', 'unique (code)', 'duplicated code!')
     ]
     
-    code = fields.Char(string="Code", required="true")
-    acronym = fields.Char(string="Acronym", required="true")
-    name = fields.Char(string="Name", required="true")
+    code = fields.Char(string="Code", required=True)
+    acronym = fields.Char(string="Acronym", required=True)
+    name = fields.Char(string="Name", required=True)
     ects = fields.Integer(string="ECTS Credits") 
     internal_hours = fields.Integer(string="Internal hours") 
     external_hours = fields.Integer(string="External hours")   
@@ -163,11 +163,11 @@ class ims_subject_view(models.Model):
     _description = "View model for displaying subject data within studies (because a subject can be shared along different studies)."
     
     level = fields.Integer(string="Level")    
-    code = fields.Char(string="Code", required="true")
-    acronym = fields.Char(string="Acronym", required="true")
-    name = fields.Char(string="Name", required="true")
+    code = fields.Char(string="Code", required=True)
+    acronym = fields.Char(string="Acronym", required=True)
+    name = fields.Char(string="Name", required=True)
     study_id = fields.Many2one(string="Study", comodel_name="ims.study")
-    subject_id = fields.Many2one(string="Subject", comodel_name="ims.subject", required="true")
+    subject_id = fields.Many2one(string="Subject", comodel_name="ims.subject", required=True)
     
     def unlink(self, avoidCircular=False): 
         # This can be called from the list view, which means the user wants to remove a subject, so both subject_view and subject must be removed.

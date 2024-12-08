@@ -4,7 +4,7 @@
             <field name="name">ims.attendance_template.list</field>
             <field name="model">ims.attendance_template</field>
             <field name="arch" type="xml">
-                 <tree expand="1" >
+                 <list expand="1" >
                     <field name="teacher_id"/>
                     <field name="level_id"/>
                     <field name="study_id"/>                    
@@ -12,7 +12,7 @@
                     <field name="group_id"/>
                     <field name="space_id"/>                    
                     <field name="color" widget="color_picker"/>                
-                </tree>
+                </list>
             </field>
         </record>   
     </data>

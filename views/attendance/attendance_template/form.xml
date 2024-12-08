@@ -41,7 +41,7 @@
                         <notebook>
                             <page string="Sessions">
                                 <field name="attendance_schedule_ids" string="" context="{'default_space_id' : space_id}">
-                                    <tree editable="bottom" default_order="weekday asc, start_time asc">
+                                    <list editable="bottom" default_order="weekday asc, start_time asc">
                                         <field name="weekday" width="175px" />
                                         <field name="space_id" />
                                         <field name="start_time" widget="float_time" width="120px" />
@@ -49,7 +49,7 @@
                                         <!-- The following fields are needed for internal compute. -->
                                         <field name="start_date" widget="timepicker" width="120px" invisible="1" /> 
                                         <field name="end_date" widget="timepicker" width="120px" invisible="1" />  
-                                    </tree>
+                                    </list>
                                 </field>
                             </page>
 

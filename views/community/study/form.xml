@@ -32,24 +32,24 @@
                         <notebook>      
                             <page string="Subjects">
                                 <field name="subject_ids" widget="one2many">
-                                     <tree editable="bottom" expand="1" default_order="code asc, level asc, acronym asc"
+                                     <list editable="bottom" expand="1" default_order="code asc, level asc, acronym asc"
                                            decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
                                         <field name="level" invisible="1"/>
                                         <field name="code"/>
                                         <field name="acronym"/>
                                         <field name="name"/>
                                         <button class="oe_stat_button" title="Edit Subject" icon="fa-pencil-square-o" name="open_form_subject" type="object" />
-                                    </tree>
+                                    </list>
                                 </field>
                             </page>
 
                              <page string="Attached files">
                                 <field name="attachment_ids" widget="many2many" default_order="name asc" context="{'default_domain': 'ims.study'}">
-                                     <tree editable="bottom" expand="1" default_order="name asc">
+                                     <list editable="bottom" expand="1" default_order="name asc">
                                         <field name="name" />
                                         <button class="btn btn-secondary fa fa-pencil" title="Edit File" name="open_form_attachment" type="object" />
                                         <button class="btn btn-secondary fa fa-download" title="Download File" name="download" type="object" />
-                                    </tree>
+                                    </list>
                                 </field>
                             </page>
 

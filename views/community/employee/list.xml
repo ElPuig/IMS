@@ -1,15 +1,16 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_employee_list">
+        <!-- Odoo 16 -->
+        <!-- <record model="ir.ui.view" id="view_employee_list">
             <field name="name">ims.employee.list</field>
             <field name="model">hr.employee</field>            
             <field name="inherit_id" ref="hr.view_employee_tree"/> 
             <field name="arch" type="xml">        
-                <xpath expr="//tree" position="inside">                     
+                <xpath expr="//tree" position="inside">                      -->
                     <!-- This field must be loaded in order to filter properly the job_id -->
-                    <field name="employee_type" invisible="1" />
+                    <!-- <field name="employee_type" invisible="1" />
                 </xpath>                               
             </field>		      
-        </record>   
+        </record>    -->
     </data>
 </odoo>

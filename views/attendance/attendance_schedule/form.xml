@@ -26,20 +26,20 @@
                             <page string="Templates">
                                 <field name="attendance_templates" string="" context="{'show_attribute': False}">
                                     TODO: this sould be automatically filled when selecting the group.
-                                    <tree editable="bottom">
+                                    <list editable="bottom">
                                         <field name="student" />
-                                    </tree>
+                                    </list>
                                 </field>
                             </page>
                             <page string="Sessions">
                                 <field name="attendance_sessions" widget="one2many_list" context="{'show_attribute': False}">
-                                    <tree default_order="date desc">                                  
+                                    <list default_order="date desc">                                  
                                         <field name="weekday"/>
                                         <field name="date" widget="date"/>
                                         <field name="start_time"/>
                                         <field name="end_time"/>
                                         <field name="notes"/>
-                                    </tree>
+                                    </list>
                                 </field>
                             </page>                                                        
                         </notebook>
