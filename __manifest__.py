@@ -170,9 +170,10 @@
         'web.assets_backend': [
             # 'ims/static/src/xml/**/*',
             'ims/static/src/css/**/*',
+            'ims/static/src/js/**/*', 
         ],       
-        # 'web.assets_common': [
-        #     'ims/static/src/js/**/*',            
-        # ],
+        'web.assets_common': [
+            # 'ims/static/src/js/**/*',            
+        ],
     },
 }

@@ -25,7 +25,7 @@
                                     Opt 1: Copy the many2one_avatar_employee widget and modify it: https://www.cybrosys.com/blog/how-to-create-a-field-widget-in-the-odoo-16
                                     Opt 2: Extends the many2one_avatar_employee to add the new field: https://www.cybrosys.com/blog/how-to-extend-field-widget-in-odoo-16
                                 -->
-                                <field name="delegate_id" /> 
+                                <field name="delegate_id" widget="many2one_avatar" />
                             </group>
                             <group>
                                 <field name="space_id" />
@@ -36,7 +36,6 @@
                             <page string="Students">
                                  <field name="main_student_ids" widget="many2many" context="{'show_attribute': False}">
                                     <list default_order="name asc">    
-                                        <!-- Odoo 16 -->                                   
                                         <field name="image_1920" widget="image" />
                                         <field name="name" class="align-middle"/>
                                         <field name="email" class="align-middle"/>
@@ -48,7 +47,6 @@
                              <page string="Enrolled">                                
                                 <field name="enrollment_view_ids" widget="many2many"> 
                                     <list default_order="student_id asc"> 
-                                        <!-- Odoo 16 -->   
                                         <field name="image_1920" widget="image" />                                   
                                         <field name="student_id" class="align-middle"/>
                                         <field name="subject_ids" widget="many2many_tags"/>

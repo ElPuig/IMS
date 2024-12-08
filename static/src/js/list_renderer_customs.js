@@ -6,44 +6,45 @@ import { actionService } from "@web/webclient/actions/action_service";
 
 var ActionService = actionService;
 
-patch(ListRenderer.prototype, "list_renderer_customs", {
+patch(ListRenderer.prototype, {
     setup() {
-        this._super.apply(this, arguments);        
-        owl.onMounted(this.autofocusForRadioCells);                   
+        super.setup();
+        //owl.onMounted(this.autofocusForRadioCells);                   
     },
 
-    syncCheckBoxes(record, subject_id, list){
-        list.forEach(function(row){                                           
-            if(row.id != record.id && subject_id == row.data.subject_id[0]){   
-                row.selected = !record.selected;
-            }                                
-        });
-    },
+    // syncCheckBoxes(record, subject_id, list){
+    //     list.forEach(function(row){                                           
+    //         if(row.id != record.id && subject_id == row.data.subject_id[0]){   
+    //             row.selected = !record.selected;
+    //         }                                
+    //     });
+    // },
 
-    onClickCapture(record, ev){        
+    onClickCapture(record, ev){ 
+        var am = ActionService.start(this.env);
+
         if(ev.target.type == "checkbox"){            
-            switch(record.resModel){
-                case "ims.subject_view":                     
-                    var subject_id = record.data.subject_id[0];                     
-                    if(this.props.list.groups == undefined){                        
-                        this.syncCheckBoxes(record, subject_id, this.props.list.records);
-                    }
-                    else{     
-                        var self = this;                                                  
-                        this.props.list.groups.forEach(function(group){
-                            self.syncCheckBoxes(record, subject_id, group.list.records);
-                        });
-                    }
-                    break;
-            }   
+            // switch(record.resModel){
+            //     case "ims.subject_view":                     
+            //         var subject_id = record.data.subject_id[0];                     
+            //         if(this.props.list.groups == undefined){                        
+            //             this.syncCheckBoxes(record, subject_id, this.props.list.records);
+            //         }
+            //         else{     
+            //             var self = this;                                                  
+            //             this.props.list.groups.forEach(function(group){
+            //                 self.syncCheckBoxes(record, subject_id, group.list.records);
+            //             });
+            //         }
+            //         break;
+            // }   
         }
-        else{            
+        else{             
             switch(record.resModel){
                 case "ims.enrollment_view":
                     ev.preventDefault();
                     ev.stopPropagation();            
-
-                    var am = ActionService.start(this.env);                    
+                 
                     am.doAction({
                         name: 'Open: Students', //to fit with the other regular student's tab
                         type: 'ir.actions.act_window',
@@ -58,47 +59,45 @@ patch(ListRenderer.prototype, "list_renderer_customs", {
                 case "ims.subject_view":
                     ev.preventDefault();
                     ev.stopPropagation();                                
-
-                    var controller = this.env.services.action.currentController;
-                    var am = ActionService.start(this.env);                     
-                    
+                                    
                     am.doAction({                        
                         type: 'ir.actions.act_window',
                         res_model: 'ims.subject',                
                         res_id: record.data.subject_id[0],
                         views: [[false, "form"]],
-                        target: 'current', //with 'new' the form opens as a modal window.                       
-                        context: {
-                            'subject_view_list' : true
-                        },
+                        target: 'current', //with 'new' the form opens as a modal window.   
+                        context: record.context,                    
+                        // context: {
+                        //     'subject_view_list' : true
+                        // },
                     });
                     break;
             }    
         }    
     },       
 
-    autofocusForRadioCells(){                
-        var self = this;
-        // TODO: should be reloaded on session change...
+    // autofocusForRadioCells(){                
+    //     var self = this;
+    //     // TODO: should be reloaded on session change...
 
-        // NOTE: This is fired by onMounted and all the DOM is ready and $(".o_field_cell.o_radio_cell").length != 0 BUT when saving, must be
-        // fired again and $(".o_field_cell.o_radio_cell").length == 0 so, a timer is needed. 
-        var intervalID = setInterval(function(){
-            if($(".o_field_cell.o_radio_cell").length != 0){                                
-                clearInterval(intervalID);                
+    //     // NOTE: This is fired by onMounted and all the DOM is ready and $(".o_field_cell.o_radio_cell").length != 0 BUT when saving, must be
+    //     // fired again and $(".o_field_cell.o_radio_cell").length == 0 so, a timer is needed. 
+    //     var intervalID = setInterval(function(){
+    //         if($(".o_field_cell.o_radio_cell").length != 0){                                
+    //             clearInterval(intervalID);                
                 
-                $(".o_form_button_save").off('click').on("click", self.autofocusForRadioCells);
+    //             $(".o_form_button_save").off('click').on("click", self.autofocusForRadioCells);
 
-                $(".o_field_cell.o_radio_cell").off('mouseover').on("mouseover", function(){
-                    $(this).mouseover(function() {                                    
-                        $(this).click();
-                    });
+    //             $(".o_field_cell.o_radio_cell").off('mouseover').on("mouseover", function(){
+    //                 $(this).mouseover(function() {                                    
+    //                     $(this).click();
+    //                 });
         
-                    $(this).mouseout(function() {
-                        $(".o_horizontal_separator").first().click();
-                    });
-                }); 
-            } 
-        }, 100);                               
-    },
+    //                 $(this).mouseout(function() {
+    //                     $(".o_horizontal_separator").first().click();
+    //                 });
+    //             }); 
+    //         } 
+    //     }, 100);                               
+    // },
 });
