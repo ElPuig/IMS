@@ -6,18 +6,24 @@
             <field name="inherit_id" ref="base.res_partner_kanban_view"/> 
             <field name="arch" type="xml">  
                 <xpath expr="//kanban" position="inside">
-                    <!-- WARNING: All the Kanban fields must be included also as "fields" within the view. -->
                     <field name="main_group_id"/>
                     <field name="tutor"/>
                 </xpath>
-
-                <!-- Odoo 16 -->
-                <!-- <xpath expr="//div[hasclass('oe_kanban_partner_categories')]/following-sibling::ul" position="after">
-                    <field name="main_group_id" invisible="context.get('default_contact_type') != 'student'" />
-                    <span t-if="record.tutor.value != ''">
-                        (<t t-esc="record.tutor.value"/>)
+                
+                <xpath expr="//kanban//main/footer" position="before">
+                    <span class="text-truncate" t-if="record.tutor.value != ''">
+                        <div class="ims-kanban-label">
+                            Group: <field name="main_group_id" />
+                        </div> 
                     </span>    
-                </xpath> -->
+                    
+                    <!-- <field name="main_group_id" invisible="context.get('default_contact_type') != 'student'" /> -->
+                    <span class="text-truncate" t-if="record.tutor.value != ''">
+                        <div class="ims-kanban-label">
+                            Tutor: <span><t t-esc="record.tutor.value"/></span>
+                        </div> 
+                    </span>    
+                </xpath>
             </field>
         </record>
     </data>

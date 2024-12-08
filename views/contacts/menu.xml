@@ -4,7 +4,7 @@
         <record model="ir.actions.act_window" id="action_contact_kanban">
             <field name="name">Contacts</field>
             <field name="res_model">res.partner</field>
-            <field name="view_mode">kanban,tree,form</field>                            
+            <field name="view_mode">kanban,list,form</field>                            
             <field name="domain"> ['|', ('contact_type', '=', 'student'), ('contact_type', '=', 'provider')] </field>
         </record>
         

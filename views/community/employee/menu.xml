@@ -4,7 +4,7 @@
         <record model="ir.actions.act_window" id="action_employee_kanban">
             <field name="name">Teachers</field>
             <field name="res_model">hr.employee</field>
-            <field name="view_mode">kanban,tree,form</field>                            
+            <field name="view_mode">kanban,list,form</field>                            
             <field name="domain"> [('employee_type', '=', 'teacher')] </field>
             <field name="context"> {'default_employee_type': 'teacher'} </field>
         </record>   
@@ -12,7 +12,7 @@
         <record model="ir.actions.act_window" id="action_asp_kanban">
             <field name="name">Administration and Services Personnel</field>
             <field name="res_model">hr.employee</field>
-            <field name="view_mode">kanban,tree,form</field>                            
+            <field name="view_mode">kanban,list,form</field>                            
             <field name="domain"> [('employee_type', '=', 'asp')] </field>
             <field name="context"> {'default_employee_type': 'asp'} </field>
         </record>

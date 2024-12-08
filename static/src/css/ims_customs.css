@@ -18,3 +18,7 @@ div[name="attachment_ids"] th.o_list_button{
     width: 64px !important;
     max-width: 64px !important;
 }
+
+div.ims-kanban-label > span {
+    font-style: italic;
+}
