@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <data>   
-        <record model="ir.actions.act_window" id="action_community_kanban">
-            <field name="name">Students</field>
-            <field name="res_model">res.partner</field>
-            <field name="view_mode">kanban,list,form</field>                            
-            <field name="domain"> [('contact_type', '=', 'student')] </field>
-            <field name="context"> {'default_contact_type': 'student'} </field>
-        </record>
-        
+    <data>                  
         <!-- Root menu items only -->
-        <menuitem name="Educational Community" id="menu_community" action="action_community_kanban"/> 
+        <menuitem name="Educational Community" id="menu_community" action="action_student_kanban"/> 
     </data>
 </odoo>

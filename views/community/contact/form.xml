@@ -4,44 +4,62 @@
             <field name="name">ims.contact.form</field>
             <field name="model">res.partner</field>            
             <field name="inherit_id" ref="base.view_partner_form"/> 
-            <field name="arch" type="xml">                       
-                <field name="company_type" position="replace" />
-                <!-- Odoo 16 -->
-                <!-- 
-                <field name="vat" position="after">                    
-                    <field name="contact_type"/>
-                    <field name="company_type" attrs="{'invisible': [('contact_type', '!=', 'provider')]}"/>
+            <field name="arch" type="xml">                                      
+                <field name="company_type" position="attributes">
+                    <attribute name="invisible">contact_type != 'provider'</attribute>
+                </field>
+
+                <field name="parent_id" position="attributes">
+                    <attribute name="invisible">contact_type != 'provider' or (((is_company and not parent_id) or company_name) and company_name != '')</attribute>
+                </field>
+
+                <field name="function" position="attributes">     
+                     <attribute name="invisible">contact_type != 'provider'</attribute>
+                </field>
+
+                <field name="website" position="attributes">     
+                     <attribute name="invisible">contact_type != 'provider'</attribute>
+                </field>
+
+                <field name="category_id" position="attributes">     
+                     <attribute name="invisible">contact_type != 'provider'</attribute>
+                </field>
+
+                <field name="vat" position="attributes">                    
+                    <attribute name="invisible">contact_type != 'provider'</attribute>            
                 </field>
                 
-                <field name="parent_id" position="attributes">
-                    <attribute name="attrs">{'invisible': ['|', ('contact_type', '!=', 'provider'), '|', '&amp;', ('is_company','=', True),('parent_id', '=', False),('company_name', '!=', False),('company_name', '!=', '')]}</attribute>
+                <field name="vat" position="after">     
+                    <field name="contact_type" invisible="True" />
                 </field>
 
                 <xpath expr="//page[@name='sales_purchases']" position="attributes">                     
-                    <attribute name="attrs">{'invisible': [('contact_type', '!=', 'provider')]}</attribute>
+                    <attribute name="invisible">contact_type != 'provider'</attribute>
                 </xpath>     
-
+         
                 <xpath expr="//page[@name='sales_purchases']" position="after">                     
-                    <page name="studies" string="Studies" attrs="{'invisible': [('contact_type', '!=', 'student')]}">
+                    <page name="studies" string="Studies" invisible="contact_type != 'student'">
                         <group cols="2">
                             <separator name="group" string="Group Data"/>
                             <group>
-                                <field name="main_group_id" />
+                                <field name="level_id" />
+                                <field name="main_group_id" readonly="study_id == False" domain="[('study_id','=', study_id)]" />
                             </group>
                             <group>
-                                <field name="tutor" readonly="1" />
+                                <field name="study_id" readonly="level_id == False" domain="[('level_id','=', level_id)]" />
+                                <field name="tutor" readonly="True" />
                             </group>
 
                             <separator name="enrollment" string="Enrollment Data"/>
-                            <field name="enrollment_ids" string="">
+                            <field name="enrollment_ids" string="" context="{'default_group_id': main_group_id}" readonly="main_group_id == False">
                                 <list editable="bottom">
                                     <field name="subject_id"/>
-                                    <field name="group_id"/>
+                                    <field name="group_id" domain="[('study_id','=', parent.study_id)]"/>
                                 </list>
                             </field>
                         </group>
                     </page>
-                </xpath>                                                 -->
+                </xpath>                                                 
             </field>		      
         </record>   
     </data>
