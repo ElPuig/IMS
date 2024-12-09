@@ -17,35 +17,83 @@ class ims_contact(models.Model):
     enrollment_ids = fields.One2many(string='Enrollment', comodel_name='ims.enrollment', inverse_name='student_id')
     contact_type = fields.Selection(string='Contact Type', selection=[('provider', 'Provider'), ('student', 'Student')])   
     
+    # WARNING: This behaviour is wanted to speed-up form manipulations BUT it's not appropiate when importing CSV/XML data 
+    # (otherwise, the record would be enrolled to all its descendants and maybe its not the desired behaviour).
     @api.onchange('enrollment_ids')
     def _onchange_enrollment_ids(self):	
         # The idea is to populate the enrollment data in both directions:
         #	Up:   if the subject has a parent, create it if missing.
         #	Down: if the subject has children, create them if missing.		
 
-        # TODO: must know if added, removed or updated!
         for rec in self:	
-            current_enrollment = rec.enrollment_ids[-1]                   
-            parent_subject = current_enrollment.subject_id .subject_id
-            children_subject = current_enrollment.subject_id .subject_ids
-            if parent_subject:
-                # Has a parent                
-                enrollment = self.enrollment_ids.search([("student_id", "=", rec.id), ("subject_id", "=", parent_subject.id)]) or False                
-                # if not enrollment:
-                #     # Create the parent entry
-                #     rec.enrollment_ids.create({
-                #         "student_id": rec.id,
-                #         "group_id": current_enrollment.group_id,
-                #         "subject_id": parent_subject.id,                        
-                #     })
+            if len(rec.enrollment_ids) < len(rec._origin.enrollment_ids):                
+                # row removed
+                original_ids = list(map(lambda x: x.id, rec._origin.enrollment_ids))
+                current_ids = list(map(lambda x: x.id.origin, rec.enrollment_ids))  
+                for e in current_ids:
+                    if e not in original_ids:
+                        # remove also the children
+                        # TODO
+                        break
+
+            if len(rec.enrollment_ids) > len(rec._origin.enrollment_ids):
+                # row added (updates will be ignored)
+                # TODO: should be recursive BUT:
+                #   Adding a child adds all its childs.
+                #   Adding a parent adds all the ascendants. Adding an ascendant MUST NOT add a descendant.                
+                for e in rec.enrollment_ids:
+                    if not e.id.origin:
+                        # add parent or child
+                        current_ids = list(map(lambda x: x.subject_id.id, rec._origin.enrollment_ids)) 
+                        if e.subject_id.subject_id:
+                            #has parent                             
+                            if e.subject_id.subject_id.id not in current_ids: 
+                                rec.write({
+                                    'enrollment_ids': [(0, 0, {
+                                        "student_id": e.student_id.id, 
+                                        "group_id": e.group_id.id,
+                                        "subject_id": e.subject_id.subject_id.id,      
+                                    })]
+                                })                                 
+                        
+                        elif e.subject_id.subject_ids:
+                            #has children
+                            for s in e.subject_id.subject_ids:
+                                if s.id not in current_ids:
+                                    # must be added
+                                    rec.write({
+                                        'enrollment_ids': [(0, 0, {
+                                            "student_id": e.student_id.id, 
+                                            "group_id": e.group_id.id,
+                                            "subject_id": s.id,      
+                                        })]
+                                    })
+                        break
             
-            if children_subject:
-                # Has children
-                for children in children_subject:
-                    enrollment = self.enrollment_ids.search([("subject_id", "=", children.subject_id.id)]) or False
-                    raise UserWarning(len(enrollment))
-                    if len(enrollment) == 0:
-                        raise UserWarning("CHILDREN")
+            # current_ids = list(map(lambda x: x.id.origin, rec.enrollment_ids))
+            # original_ids = list(map(lambda x: x.id, rec._origin.enrollment_ids))
+
+            # current_enrollment = rec.enrollment_ids[-1]                   
+            # parent_subject = current_enrollment.subject_id .subject_id
+            # children_subject = current_enrollment.subject_id .subject_ids
+            # if parent_subject:
+            #     # Has a parent                
+            #     enrollment = self.enrollment_ids.search([("student_id", "=", rec.id), ("subject_id", "=", parent_subject.id)]) or False                
+            #     # if not enrollment:
+            #     #     # Create the parent entry
+            #     #     rec.enrollment_ids.create({
+            #     #         "student_id": rec.id,
+            #     #         "group_id": current_enrollment.group_id,
+            #     #         "subject_id": parent_subject.id,                        
+            #     #     })
+            
+            # if children_subject:
+            #     # Has children
+            #     for children in children_subject:
+            #         enrollment = self.enrollment_ids.search([("subject_id", "=", children.subject_id.id)]) or False
+            #         raise UserWarning(len(enrollment))
+            #         if len(enrollment) == 0:
+            #             raise UserWarning("CHILDREN")
 
     @api.onchange('level_id')
     def _onchange_level_id(self):	

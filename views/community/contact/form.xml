@@ -52,9 +52,11 @@
 
                             <separator name="enrollment" string="Enrollment Data"/>
                             <field name="enrollment_ids" string="" context="{'default_group_id': main_group_id}" readonly="main_group_id == False">
-                                <list editable="bottom">
+                                <list editable="bottom" default_order="subject_id asc, group_id asc"
+                                    decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
                                     <field name="subject_id"/>
                                     <field name="group_id" domain="[('study_id','=', parent.study_id)]"/>
+                                    <field name="level" invisible="True"/>
                                 </list>
                             </field>
                         </group>
