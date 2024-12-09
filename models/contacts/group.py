@@ -12,6 +12,7 @@ class ims_group(models.Model):
 	name = fields.Char(string="Name", compute="_compute_name", store=True) #should not be edited manually
 	notes = fields.Text(string="Notes")
 
+	level_id = fields.Many2one(string='Level', comodel_name='ims.level', required=True)
 	study_id = fields.Many2one(string="Study", comodel_name="ims.study", required=True)
 	tutor_id = fields.Many2one(string="Tutor", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
 	

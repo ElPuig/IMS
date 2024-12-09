@@ -6,21 +6,22 @@
             <field name="inherit_id" ref="base.res_partner_kanban_view"/> 
             <field name="arch" type="xml">  
                 <xpath expr="//kanban" position="inside">
+                    <!-- Required fields, must be loaded in order to use them. -->
                     <field name="main_group_id"/>
-                    <field name="tutor"/>
+                    <field name="tutor_id"/>
                 </xpath>
                 
                 <xpath expr="//kanban//main/footer" position="before">
-                    <span class="text-truncate" t-if="record.tutor.value != ''">
+                    <span class="text-truncate" t-if="record.main_group_id.raw_value > 0">
                         <div class="ims-kanban-label">
-                            Group: <field name="main_group_id" />
+                            Group: <span><field name="main_group_id"/></span>
                         </div> 
                     </span>    
                     
                     <!-- <field name="main_group_id" invisible="context.get('default_contact_type') != 'student'" /> -->
-                    <span class="text-truncate" t-if="record.tutor.value != ''">
+                    <span class="text-truncate" t-if="record.tutor_id.raw_value > 0">
                         <div class="ims-kanban-label">
-                            Tutor: <span><t t-esc="record.tutor.value"/></span>
+                            Tutor: <span><field name="tutor_id"/></span>
                         </div> 
                     </span>    
                 </xpath>
