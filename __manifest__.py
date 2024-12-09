@@ -34,6 +34,7 @@
         'views/settings/form.xml',
         'views/settings/menu.xml',                                    
         
+        'views/community/contact/search.xml', # Should be loaded prior to menu
         'views/community/menu.xml',  
             'views/community/configuration/menu.xml',            
 
@@ -47,8 +48,7 @@
             'views/community/workgroup/menu.xml',  
             
             'views/community/contact/list.xml',
-            'views/community/contact/form.xml',
-            'views/community/contact/search.xml',
+            'views/community/contact/form.xml',            
             'views/community/contact/kanban.xml',
             'views/community/contact/menu.xml',
 

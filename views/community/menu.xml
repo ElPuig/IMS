@@ -2,7 +2,7 @@
 <odoo>
     <data>                  
         <!-- Root menu items only -->
-         <record model="ir.actions.act_window" id="action_student_kanban">
+        <record model="ir.actions.act_window" id="action_student_kanban">
             <field name="name">Students</field>
             <field name="res_model">res.partner</field>
             <field name="view_mode">kanban,list,form</field>                 

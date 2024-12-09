@@ -1,0 +1,61 @@
+{
+	"version": "0.2.0",    
+	"configurations": [
+		{
+			"name": "Odoo (install with demo data)",
+			"type":"debugpy",
+			"request":"launch",
+			"stopOnEntry": false,
+			"python":"${command:python.interpreterPath}",
+			"console":"integratedTerminal",
+			"program":"/usr/bin/odoo",
+			"args": [               
+				"--database=ims",
+				"--init=ims",				
+				"--config=/etc/odoo/odoo.conf",  
+				"--dev=all'",				
+			],            
+			"cwd":"${workspaceRoot}",            
+			"env": {},            
+			"envFile":"${workspaceRoot}/.env"    
+		},
+		{
+			"name": "Odoo (install without demo data)",
+			"type":"debugpy",
+			"request":"launch",
+			"stopOnEntry": false,
+			"python":"${command:python.interpreterPath}",
+			"console":"integratedTerminal",
+			"program":"/usr/bin/odoo",
+			"args": [               
+				"--database=ims",
+				"--init=ims",
+				"--without-demo=WITHOUT_DEMO",				
+				"--config=/etc/odoo/odoo.conf",  
+				"--dev=all'",				
+			],            
+			"cwd":"${workspaceRoot}",            
+			"env": {},            
+			"envFile":"${workspaceRoot}/.env"    
+		}
+		,
+		{
+			"name": "Odoo (update)",
+			"type":"debugpy",
+			"request":"launch",
+			"stopOnEntry": false,
+			"python":"${command:python.interpreterPath}",
+			"console":"integratedTerminal",
+			"program":"/usr/bin/odoo",
+			"args": [               
+				"--database=ims",
+				"--update=ims",				
+				"--config=/etc/odoo/odoo.conf",  
+				"--dev=all'",				
+			],            
+			"cwd":"${workspaceRoot}",            
+			"env": {},            
+			"envFile":"${workspaceRoot}/.env"    
+		}
+	]
+}
