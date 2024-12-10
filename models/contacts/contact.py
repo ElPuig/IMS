@@ -33,14 +33,9 @@ class ims_contact(models.Model):
                 for eid in old_enroll_ids:
                     if eid not in new_enroll_ids:
                         # remove also the children
-                        removed_subject = rec.enrollment_ids.search([("id", "=", eid)]) or False  
-                        removed_subject_child_ids = list(map(lambda x: x.id, removed_subject.subject_id.subject_ids))
-                        for en in rec.enrollment_ids:                            
-                            if en.subject_id.id in removed_subject_child_ids:
-                                # must be removed
-                                rec.write({
-                                    'enrollment_ids': [(2, en.id)]
-                                })  
+                        # TODO: test
+                        removed = rec.enrollment_ids.search([("id", "=", eid)]) or False  
+                        self._enrollment_populate_descendant(rec, removed)                        
                         break
 
             elif len(rec.enrollment_ids) > len(rec._origin.enrollment_ids):
@@ -80,13 +75,12 @@ class ims_contact(models.Model):
     def _enrollment_populate_ascendants(self):
         return
 
-    def _enrollment_populate_descendant(self):
-        #TODO:
-        removed_subject = rec.enrollment_ids.search([("id", "=", eid)]) or False  
-        removed_subject_child_ids = list(map(lambda x: x.id, removed_subject.subject_id.subject_ids))
-        for en in rec.enrollment_ids:                            
-            if en.subject_id.id in removed_subject_child_ids:
-                # must be removed
+    def _enrollment_populate_descendant(self, rec, removed):
+        # TODO: test
+        removed_sub_child_ids = list(map(lambda x: x.id, removed.subject_id.subject_ids))
+        for en in rec.enrollment_ids:
+            if en.subject_id.id in removed_sub_child_ids:
+                self._enrollment_populate_descendant(rec, en)
                 rec.write({
                     'enrollment_ids': [(2, en.id)]
                 })  
