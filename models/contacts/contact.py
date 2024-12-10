@@ -33,7 +33,15 @@ class ims_contact(models.Model):
                 for e in current_ids:
                     if e not in original_ids:
                         # remove also the children
-                        # TODO
+                        for s in e.subject_id.subject_ids:
+                            # must be added
+                            rec.write({
+                                'enrollment_ids': [(6, 0, {
+                                    "student_id": e.student_id.id, 
+                                    "group_id": e.group_id.id,
+                                    "subject_id": s.id,      
+                                })]
+                            })
                         break
 
             if len(rec.enrollment_ids) > len(rec._origin.enrollment_ids):
