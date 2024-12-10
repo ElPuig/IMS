@@ -76,6 +76,21 @@ class ims_contact(models.Model):
                                         })]
                                     })
                         break                    
+    
+    def _enrollment_populate_ascendants(self):
+        return
+
+    def _enrollment_populate_descendant(self):
+        #TODO:
+        removed_subject = rec.enrollment_ids.search([("id", "=", eid)]) or False  
+        removed_subject_child_ids = list(map(lambda x: x.id, removed_subject.subject_id.subject_ids))
+        for en in rec.enrollment_ids:                            
+            if en.subject_id.id in removed_subject_child_ids:
+                # must be removed
+                rec.write({
+                    'enrollment_ids': [(2, en.id)]
+                })  
+        return
 
     @api.onchange('level_id')
     def _onchange_level_id(self):	
