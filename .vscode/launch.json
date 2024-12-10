@@ -1,62 +1,35 @@
 {
 	"version": "0.2.0",    
-	"configurations": [
+	"configurations": [		
 		{
 			"name": "Odoo (install with demo data)",
 			"type":"debugpy",
-			"request":"launch",
-			"stopOnEntry": false,
-			"python":"${command:python.interpreterPath}",
-			"console":"integratedTerminal",
-			"program":"/usr/bin/odoo",
-			"args": [               
-				"--database=ims",
-				"--init=ims",				
-				"--config=/etc/odoo/odoo.conf",  
-				"--dev=all'",				
-			],            
-			"cwd":"${workspaceRoot}",            
-			"env": {},            
-			"envFile":"${workspaceRoot}/.env"    
-		},
+			"preLaunchTask": "install-demo",
+			"request": "attach",
+			"connect": {
+				"host": "localhost", // replace this with remote machine name
+				"port": 5678
+			} 
+		},	
 		{
 			"name": "Odoo (install without demo data)",
 			"type":"debugpy",
-			"request":"launch",
-			"stopOnEntry": false,
-			"python":"${command:python.interpreterPath}",
-			"console":"integratedTerminal",
-			"program":"/usr/bin/odoo",
-			"args": [               
-				"--database=ims",
-				"--init=ims",
-				"--without-demo=WITHOUT_DEMO",				
-				"--config=/etc/odoo/odoo.conf",  
-				"--dev=all",				
-			],            
-			"cwd":"${workspaceRoot}",            
-			"env": {},            
-			"envFile":"${workspaceRoot}/.env"    
-		}
-		,
+			"preLaunchTask": "install-no-demo",
+			"request": "attach",
+			"connect": {
+				"host": "localhost", // replace this with remote machine name
+				"port": 5678
+			} 
+		},		
 		{
 			"name": "Odoo (update)",
 			"type":"debugpy",
-			"request":"launch",
-			"stopOnEntry": false,
-			"python":"${command:python.interpreterPath}",
-			"console":"integratedTerminal",
-			"program":"/usr/bin/bash",
-			"args": [               
-				"--database=ims",
-				"--init=ims",
-				"--without-demo=WITHOUT_DEMO",				
-				"--config=/etc/odoo/odoo.conf",  
-				"--dev=all",				
-			],    
-			"cwd":"${workspaceRoot}",            
-			"env": {},            
-			"envFile":"${workspaceRoot}/.env"    
-		}
+			"preLaunchTask": "update",
+			"request": "attach",
+			"connect": {
+				"host": "localhost", // replace this with remote machine name
+				"port": 5678
+			} 
+		},						
 	]
 }
