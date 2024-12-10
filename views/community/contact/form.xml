@@ -56,7 +56,7 @@
                                     decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
                                     <field name="subject_id"/>
                                     <field name="group_id" domain="[('study_id','=', parent.study_id)]"/>
-                                    <field name="level" invisible="True"/>
+                                    <field name="level" column_invisible="True"/>
                                 </list>
                             </field>
                         </group>

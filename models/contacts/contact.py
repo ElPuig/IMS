@@ -22,7 +22,7 @@ class ims_contact(models.Model):
     @api.onchange('enrollment_ids')
     def _onchange_enrollment_ids(self):	
         # The idea is to populate the enrollment data in both directions:
-        #	Up:   if the subject has a parent, create it if missing.
+        #	Up:   if the subjecenrollment_idst has a parent, create it if missing.
         #	Down: if the subject has children, create them if missing.		
 
         for rec in self:	
@@ -30,29 +30,30 @@ class ims_contact(models.Model):
                 # row removed
                 original_ids = list(map(lambda x: x.id, rec._origin.enrollment_ids))
                 current_ids = list(map(lambda x: x.id.origin, rec.enrollment_ids))  
-                for e in current_ids:
-                    if e not in original_ids:
+                for e in original_ids:
+                    if e not in current_ids:
                         # remove also the children
-                        for s in e.subject_id.subject_ids:
+                        subject = self.env["ims.subject"].search([("id", "=", e.id)]) or False                 
+                        for child in subject.subject_ids:
                             # must be added
                             rec.write({
                                 'enrollment_ids': [(6, 0, {
-                                    "student_id": e.student_id.id, 
-                                    "group_id": e.group_id.id,
-                                    "subject_id": s.id,      
+                                    'student_id': child.student_id.id, 
+                                    'group_id': child.group_id.id,
+                                    'subject_id': child.id,      
                                 })]
                             })
                         break
 
-            if len(rec.enrollment_ids) > len(rec._origin.enrollment_ids):
+            elif len(rec.enrollment_ids) > len(rec._origin.enrollment_ids):
                 # row added (updates will be ignored)
                 # TODO: should be recursive BUT:
                 #   Adding a child adds all its childs.
                 #   Adding a parent adds all the ascendants. Adding an ascendant MUST NOT add a descendant.                
+                current_ids = list(map(lambda x: x.subject_id.id, rec._origin.enrollment_ids)) 
                 for e in rec.enrollment_ids:
                     if not e.id.origin:
-                        # add parent or child
-                        current_ids = list(map(lambda x: x.subject_id.id, rec._origin.enrollment_ids)) 
+                        # add parent or child                        
                         if e.subject_id.subject_id:
                             #has parent                             
                             if e.subject_id.subject_id.id not in current_ids: 
