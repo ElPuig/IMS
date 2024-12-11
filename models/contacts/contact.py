@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
+from odoo.http import request
 from odoo.exceptions import ValidationError
 
 class ims_contact(models.Model):
@@ -16,61 +17,79 @@ class ims_contact(models.Model):
     main_group_id = fields.Many2one(string='Main Group', comodel_name='ims.group')            
     enrollment_ids = fields.One2many(string='Enrollment', comodel_name='ims.enrollment', inverse_name='student_id')
     contact_type = fields.Selection(string='Contact Type', selection=[('provider', 'Provider'), ('student', 'Student')])   
-    
-    # WARNING: This behaviour is wanted to speed-up form manipulations BUT it's not appropiate when importing CSV/XML data 
-    # (otherwise, the record would be enrolled to all its descendants and maybe its not the desired behaviour).
-    # TODO: problems when chaining actions
+        
     @api.onchange('enrollment_ids')
     def _onchange_enrollment_ids(self):	
         # The idea is to populate the enrollment data in both directions:
         #	Up:   if the subjecenrollment_idst has a parent, create it if missing.
         #	Down: if the subject has children, create them if missing.		
-        for rec in self:	            
-            if len(rec.enrollment_ids) < len(rec._origin.enrollment_ids):                
-                # row removed
-                old_enroll_ids = list(map(lambda x: x.id, rec._origin.enrollment_ids))
-                new_enroll_ids = list(map(lambda x: x.id.origin, rec.enrollment_ids))  
-                for eid in old_enroll_ids:
-                    if eid not in new_enroll_ids:
-                        # remove also the children
-                        # TODO: test
-                        removed = rec.enrollment_ids.search([("id", "=", eid)]) or False  
-                        self._enrollment_populate_descendant(rec, removed)                        
-                        break
+        #
+        # Warning: the added or removed row is not retreived, and there's only access to the original field's data and the current's field, so
+        # if more than one action is done, the entire list will be checked again... This is ugly but I could'nt find a better way to achieve it :(
+        # Behaviour:
+        #   Get added IDs (comparing which current IDs are not within old IDs)
+        #       Recursive:
+        #           If an added ID has a parent:
+        #               Add the parent if does not exist.
+        #           If an added ID has childs:
+        #               Must add all its childs but only if there's no child added (otherwise, removed ones would be added again)
+        #
+        #   Get removed IDs (comparing which old IDs are not within current IDs)
+        #       Recursive:
+        #           If a removed ID has children:
+        #               Must remove all its children. 
 
-            elif len(rec.enrollment_ids) > len(rec._origin.enrollment_ids):
-                # row added (updates will be ignored)
-                # TODO: should be recursive BUT:
-                #   Adding a child adds all its childs.
-                #   Adding a parent adds all the ascendants. Adding an ascendant MUST NOT add a descendant.                
-                new_enroll_ids = list(map(lambda x: x.subject_id.id, rec._origin.enrollment_ids)) 
-                for en in rec.enrollment_ids:
-                    if not en.id.origin:
-                        # add parent or child                        
-                        if en.subject_id.subject_id:
-                            #has parent                             
-                            if en.subject_id.subject_id.id not in new_enroll_ids: 
-                                rec.write({
-                                    'enrollment_ids': [(0, 0, {
-                                        "student_id": en.student_id.id, 
-                                        "group_id": en.group_id.id,
-                                        "subject_id": en.subject_id.subject_id.id,      
-                                    })]
-                                })                                 
+        # TODO: develop. 
+        for rec in self:	   
+            old_enroll_ids = list(map(lambda x: x.id, rec._origin.enrollment_ids))
+            new_enroll_ids = list(map(lambda x: x.id.origin, rec.enrollment_ids))  
+            fake = 0
+        
+            # if len(rec.enrollment_ids) < len(rec._origin.enrollment_ids):                
+            #     # row removed
+            #     old_enroll_ids = list(map(lambda x: x.id, rec._origin.enrollment_ids))
+            #     new_enroll_ids = list(map(lambda x: x.id.origin, rec.enrollment_ids))  
+            #     for eid in old_enroll_ids:
+            #         if eid not in new_enroll_ids:
+            #             # remove also the children
+            #             # TODO: test
+            #             removed = rec.enrollment_ids.search([("id", "=", eid)]) or False  
+            #             self._enrollment_populate_descendant(rec, removed)                        
+            #             break
+
+            # elif len(rec.enrollment_ids) > len(rec._origin.enrollment_ids):
+            #     # row added (updates will be ignored)
+            #     # TODO: should be recursive BUT:
+            #     #   Adding a child adds all its childs.
+            #     #   Adding a parent adds all the ascendants. Adding an ascendant MUST NOT add a descendant.                
+            #     new_enroll_ids = list(map(lambda x: x.subject_id.id, rec._origin.enrollment_ids)) 
+            #     for en in rec.enrollment_ids:
+            #         if not en.id.origin:
+            #             # add parent or child                        
+            #             if en.subject_id.subject_id:
+            #                 #has parent                             
+            #                 if en.subject_id.subject_id.id not in new_enroll_ids: 
+            #                     rec.write({
+            #                         'enrollment_ids': [(0, 0, {
+            #                             "student_id": en.student_id.id, 
+            #                             "group_id": en.group_id.id,
+            #                             "subject_id": en.subject_id.subject_id.id,      
+            #                         })]
+            #                     })                                 
                         
-                        elif en.subject_id.subject_ids:
-                            #has children
-                            for sub in en.subject_id.subject_ids:
-                                if sub.id not in new_enroll_ids:
-                                    # must be added
-                                    rec.write({
-                                        'enrollment_ids': [(0, 0, {
-                                            "student_id": en.student_id.id, 
-                                            "group_id": en.group_id.id,
-                                            "subject_id": sub.id,      
-                                        })]
-                                    })
-                        break                    
+            #             elif en.subject_id.subject_ids:
+            #                 #has children
+            #                 for sub in en.subject_id.subject_ids:
+            #                     if sub.id not in new_enroll_ids:
+            #                         # must be added
+            #                         rec.write({
+            #                             'enrollment_ids': [(0, 0, {
+            #                                 "student_id": en.student_id.id, 
+            #                                 "group_id": en.group_id.id,
+            #                                 "subject_id": sub.id,      
+            #                             })]
+            #                         })
+            #             break                    
     
     def _enrollment_populate_ascendants(self):
         return
