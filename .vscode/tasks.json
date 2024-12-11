@@ -17,6 +17,11 @@
         "label": "update",
          "type": "shell",
          "command": "./update.sh && echo && ./wait_for_debugger.sh",        
+       },
+       {
+        "label": "attach",
+         "type": "shell",
+         "command": "./wait_for_debugger.sh",        
        }
     ]
   }
