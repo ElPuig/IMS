@@ -26,13 +26,16 @@ class ims_contact(models.Model):
         #
         # Warning: the added or removed row is not retreived, and there's only access to the original field's data and the current's field, so
         # if more than one action is done, the entire list will be checked again... This is ugly but I could'nt find a better way to achieve it :(
+        #
         # Behaviour:
         #   Get added IDs (comparing which current IDs are not within old IDs)
         #       Recursive:
         #           If an added ID has a parent:
-        #               Add the parent if does not exist.
+        #               Add the parent if not present.
         #           If an added ID has childs:
-        #               Must add all its childs but only if there's no child added (otherwise, removed ones would be added again)
+        #               Must add all its childs but only if never added before (there's no 
+        #               childs already added, otherwise could be deleted previously, and shall 
+        #               not be added again)
         #
         #   Get removed IDs (comparing which old IDs are not within current IDs)
         #       Recursive:
@@ -41,10 +44,53 @@ class ims_contact(models.Model):
 
         # TODO: develop. 
         for rec in self:	   
-            old_enroll_ids = list(map(lambda x: x.id, rec._origin.enrollment_ids))
-            new_enroll_ids = list(map(lambda x: x.id.origin, rec.enrollment_ids))  
-            fake = 0
-        
+            old_ids = list(map(lambda x: x.subject_id, rec._origin.enrollment_ids))
+            new_ids = list(map(lambda x: x.subject_id.origin, rec.enrollment_ids))  
+            
+            added = []
+            for sub in new_ids:
+                if sub not in old_ids:
+                    added.append(sub)
+            
+            removed = []
+            for sub in old_ids:
+                if sub not in new_ids:
+                    removed.append(sub)
+
+            ignore = []
+            for sub in added:
+                if sub.subject_id in added:
+                    # The current one and also its parents should be ignored.                    
+                    while sub:
+                        if not sub in ignore: ignore.append(sub)
+                        sub = sub.subject_id
+
+            for sub in added:
+                # For every added enrollment: 
+                # If has parent, it must be added (recursive) if not present.
+                # If has childs, they must be added (recursive) if no other childs are present.
+                if sub not in ignore:
+                    if sub.subject_id:
+                        #TODO: recursion!
+                        rec.write({
+                            'enrollment_ids': [(0, 0, {
+                                "student_id": rec.id, 
+                                "group_id": rec.main_group_id, # TODO: same as current
+                                "subject_id": sub.subject_id.id,      
+                            })]
+                        })                                                                                 
+
+                    for ch in sub.subject_ids:
+                        #TODO: recursion!
+                        rec.write({
+                            'enrollment_ids': [(0, 0, {
+                                "student_id": rec.id, 
+                                "group_id": rec.main_group_id, # TODO: same as current
+                                "subject_id": ch.id,      
+                            })]
+                        })   
+                        
+
             # if len(rec.enrollment_ids) < len(rec._origin.enrollment_ids):                
             #     # row removed
             #     old_enroll_ids = list(map(lambda x: x.id, rec._origin.enrollment_ids))
