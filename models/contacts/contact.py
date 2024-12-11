@@ -19,13 +19,13 @@ class ims_contact(models.Model):
     
     # WARNING: This behaviour is wanted to speed-up form manipulations BUT it's not appropiate when importing CSV/XML data 
     # (otherwise, the record would be enrolled to all its descendants and maybe its not the desired behaviour).
+    # TODO: problems when chaining actions
     @api.onchange('enrollment_ids')
     def _onchange_enrollment_ids(self):	
         # The idea is to populate the enrollment data in both directions:
         #	Up:   if the subjecenrollment_idst has a parent, create it if missing.
         #	Down: if the subject has children, create them if missing.		
-
-        for rec in self:	
+        for rec in self:	            
             if len(rec.enrollment_ids) < len(rec._origin.enrollment_ids):                
                 # row removed
                 old_enroll_ids = list(map(lambda x: x.id, rec._origin.enrollment_ids))
