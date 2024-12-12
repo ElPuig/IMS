@@ -25,9 +25,18 @@ class ims_contact(models.Model):
         #	Down: if the subject has children, create them if missing.		
         #
         # Warning: the added or removed row is not retreived, and there's only access to the original field's data and the current's field, so
-        # if more than one action is done, the entire list will be checked again... This is ugly but I could'nt find a better way to achieve it :(
+        # if more than one action is done, all the changes comes in the same list (as the current snapshot of the data).
         #
         # Behaviour:
+        #   Get removed IDs (must be the first!):
+        #       Via 1: Comparing which old IDs are not within current IDs. 
+        #       Via 2: If added and then removed, no changes will come from _origin, all will be in the current one. 
+        #              Every subject  TODO
+        #       
+        # (comparing which old IDs are not within current IDs)
+        #       Recursive:
+        #           If a removed ID has children:
+        #               Must remove all its children. 
         #   Get added IDs (comparing which current IDs are not within old IDs)
         #       Recursive:
         #           If an added ID has a parent:
@@ -37,20 +46,22 @@ class ims_contact(models.Model):
         #               childs already added, otherwise could be deleted previously, and shall 
         #               not be added again)
         #
-        #   Get removed IDs (comparing which old IDs are not within current IDs)
-        #       Recursive:
-        #           If a removed ID has children:
-        #               Must remove all its children. 
+       
 
         # TODO: develop. 
         for rec in self:	               
-            #new_sub = list(map(lambda x: x.subject_id, rec.enrollment_ids))                          
-            enrollments = {}
+            #new_sub = list(map(lambda x: x.subject_id, rec.enrollment_ids))                                      
+            new_sub = []
+            enrollments = {}            
             for item in rec.enrollment_ids:
-                enrollments[item.subject_id] = item
-
-            new_sub = list(enrollments.keys())
-            old_sub = list(map(lambda x: x.subject_id, rec._origin.enrollment_ids))
+                new_sub.append(item.subject_id)
+                enrollments[item.subject_id] = item                
+            
+            old_sub = []
+            for item in rec._origin.enrollment_ids:
+                old_sub.append(item.subject_id)
+                if item.subject_id not in enrollments:
+                    enrollments[item.subject_id] = item                                    
 
             added = []
             for sub in new_sub:
@@ -90,57 +101,18 @@ class ims_contact(models.Model):
                         rec.write({
                             'enrollment_ids': [(0, 0, {
                                 "student_id": rec.id, 
-                                "group_id": enrollments.get(sub).group_id,
+                                "group_id": enrollments[sub].group_id,
                                 "subject_id": ch.id,      
                             })]
-                        })   
-                        
+                        }) 
 
-            # if len(rec.enrollment_ids) < len(rec._origin.enrollment_ids):                
-            #     # row removed
-            #     old_enroll_ids = list(map(lambda x: x.id, rec._origin.enrollment_ids))
-            #     new_enroll_ids = list(map(lambda x: x.id.origin, rec.enrollment_ids))  
-            #     for eid in old_enroll_ids:
-            #         if eid not in new_enroll_ids:
-            #             # remove also the children
-            #             # TODO: test
-            #             removed = rec.enrollment_ids.search([("id", "=", eid)]) or False  
-            #             self._enrollment_populate_descendant(rec, removed)                        
-            #             break
-
-            # elif len(rec.enrollment_ids) > len(rec._origin.enrollment_ids):
-            #     # row added (updates will be ignored)
-            #     # TODO: should be recursive BUT:
-            #     #   Adding a child adds all its childs.
-            #     #   Adding a parent adds all the ascendants. Adding an ascendant MUST NOT add a descendant.                
-            #     new_enroll_ids = list(map(lambda x: x.subject_id.id, rec._origin.enrollment_ids)) 
-            #     for en in rec.enrollment_ids:
-            #         if not en.id.origin:
-            #             # add parent or child                        
-            #             if en.subject_id.subject_id:
-            #                 #has parent                             
-            #                 if en.subject_id.subject_id.id not in new_enroll_ids: 
-            #                     rec.write({
-            #                         'enrollment_ids': [(0, 0, {
-            #                             "student_id": en.student_id.id, 
-            #                             "group_id": en.group_id.id,
-            #                             "subject_id": en.subject_id.subject_id.id,      
-            #                         })]
-            #                     })                                 
-                        
-            #             elif en.subject_id.subject_ids:
-            #                 #has children
-            #                 for sub in en.subject_id.subject_ids:
-            #                     if sub.id not in new_enroll_ids:
-            #                         # must be added
-            #                         rec.write({
-            #                             'enrollment_ids': [(0, 0, {
-            #                                 "student_id": en.student_id.id, 
-            #                                 "group_id": en.group_id.id,
-            #                                 "subject_id": sub.id,      
-            #                             })]
-            #                         })
-            #             break                    
+            for sub in removed:  
+                # Must remove its children (if exists)
+                for ch in sub.subject_ids:
+                    if ch in enrollments:
+                        rec.write({
+                            'enrollment_ids': [(2, enrollments[ch].id)]
+                        })                          
     
     def _enrollment_populate_ascendants(self):
         return
