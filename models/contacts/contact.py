@@ -17,6 +17,7 @@ class ims_contact(models.Model):
     main_group_id = fields.Many2one(string='Main Group', comodel_name='ims.group')            
     enrollment_ids = fields.One2many(string='Enrollment', comodel_name='ims.enrollment', inverse_name='student_id')
     contact_type = fields.Selection(string='Contact Type', selection=[('provider', 'Provider'), ('student', 'Student')])   
+    _test = fields.Boolean(default=False)	
         
     @api.onchange('enrollment_ids')
     def _onchange_enrollment_ids(self):	
@@ -48,8 +49,14 @@ class ims_contact(models.Model):
         #
        
 
-        # TODO: develop. 
-        for rec in self:	               
+        # TODO: impossible to do as planned because must compare the current with the previous one, not with the original one...
+        for rec in self:
+            # Not working
+            #   rec._test = True
+            # Also not working
+            # rec.write({
+            #     '_test': True
+            # })  
             #new_sub = list(map(lambda x: x.subject_id, rec.enrollment_ids))                                      
             new_sub = []
             enrollments = {}            
