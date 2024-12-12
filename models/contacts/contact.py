@@ -43,18 +43,23 @@ class ims_contact(models.Model):
         #               Must remove all its children. 
 
         # TODO: develop. 
-        for rec in self:	   
-            old_ids = list(map(lambda x: x.subject_id, rec._origin.enrollment_ids))
-            new_ids = list(map(lambda x: x.subject_id.origin, rec.enrollment_ids))  
-            
+        for rec in self:	               
+            #new_sub = list(map(lambda x: x.subject_id, rec.enrollment_ids))                          
+            enrollments = {}
+            for item in rec.enrollment_ids:
+                enrollments[item.subject_id] = item
+
+            new_sub = list(enrollments.keys())
+            old_sub = list(map(lambda x: x.subject_id, rec._origin.enrollment_ids))
+
             added = []
-            for sub in new_ids:
-                if sub not in old_ids:
+            for sub in new_sub:
+                if sub not in old_sub:
                     added.append(sub)
             
             removed = []
-            for sub in old_ids:
-                if sub not in new_ids:
+            for sub in old_sub:
+                if sub not in new_sub:
                     removed.append(sub)
 
             ignore = []
@@ -75,7 +80,7 @@ class ims_contact(models.Model):
                         rec.write({
                             'enrollment_ids': [(0, 0, {
                                 "student_id": rec.id, 
-                                "group_id": rec.main_group_id, # TODO: same as current
+                                "group_id": enrollments[sub].group_id,
                                 "subject_id": sub.subject_id.id,      
                             })]
                         })                                                                                 
@@ -85,7 +90,7 @@ class ims_contact(models.Model):
                         rec.write({
                             'enrollment_ids': [(0, 0, {
                                 "student_id": rec.id, 
-                                "group_id": rec.main_group_id, # TODO: same as current
+                                "group_id": enrollments.get(sub).group_id,
                                 "subject_id": ch.id,      
                             })]
                         })   
