@@ -17,73 +17,41 @@ class ims_contact(models.Model):
     main_group_id = fields.Many2one(string='Main Group', comodel_name='ims.group')            
     enrollment_ids = fields.One2many(string='Enrollment', comodel_name='ims.enrollment', inverse_name='student_id')
     contact_type = fields.Selection(string='Contact Type', selection=[('provider', 'Provider'), ('student', 'Student')])   
-    _test = fields.Boolean(default=False)	
         
     @api.onchange('enrollment_ids')
     def _onchange_enrollment_ids(self):	
         # The idea is to populate the enrollment data in both directions:
-        #	Up:   if the subjecenrollment_idst has a parent, create it if missing.
+        #	Up:   if the subjece has a parent, create it if missing.
         #	Down: if the subject has children, create them if missing.		
         #
-        # Warning: the added or removed row is not retreived, and there's only access to the original field's data and the current's field, so
-        # if more than one action is done, all the changes comes in the same list (as the current snapshot of the data).
-        #
-        # Behaviour:
-        #   Get removed IDs (must be the first!):
-        #       Via 1: Comparing which old IDs are not within current IDs. 
-        #       Via 2: If added and then removed, no changes will come from _origin, all will be in the current one. 
-        #              Every subject  TODO
-        #       
-        # (comparing which old IDs are not within current IDs)
-        #       Recursive:
-        #           If a removed ID has children:
-        #               Must remove all its children. 
-        #   Get added IDs (comparing which current IDs are not within old IDs)
-        #       Recursive:
-        #           If an added ID has a parent:
-        #               Add the parent if not present.
-        #           If an added ID has childs:
-        #               Must add all its childs but only if never added before (there's no 
-        #               childs already added, otherwise could be deleted previously, and shall 
-        #               not be added again)
-        #
-       
+        # Warning: the added or removed row is not retreived, and there's only access to the original field's data and the 
+        # current one, so if more than one action is done (add and remove), it's not possible to know which parent or child 
+        # rows must be added or removed. Example: added a child subject, so auto-added its main; the main subject is removed 
+        # BUT in the curren't data there's only information about the two childrens... the idea was to remove also all its 
+        # children, but it's not possible to know if the main was removed or the children was added! 
+        # 
+        # So, it's not possible to remove all the children when a parent is removed...
+        # TODO: Maybe this limitation can be overcomed by inheriting the listview and customizing some clic methods or events?
 
-        # TODO: impossible to do as planned because must compare the current with the previous one, not with the original one...
-        for rec in self:
-            # Not working
-            #   rec._test = True
-            # Also not working
-            # rec.write({
-            #     '_test': True
-            # })  
-            #new_sub = list(map(lambda x: x.subject_id, rec.enrollment_ids))                                      
-            new_sub = []
-            enrollments = {}            
-            for item in rec.enrollment_ids:
-                new_sub.append(item.subject_id)
-                enrollments[item.subject_id] = item                
-            
+        for rec in self:   
             old_sub = []
+            enrollments = {}  
             for item in rec._origin.enrollment_ids:
                 old_sub.append(item.subject_id)
-                if item.subject_id not in enrollments:
-                    enrollments[item.subject_id] = item                                    
+                enrollments[item.subject_id] = item        
 
-            added = []
-            for sub in new_sub:
-                if sub not in old_sub:
-                    added.append(sub)
-            
-            removed = []
-            for sub in old_sub:
-                if sub not in new_sub:
-                    removed.append(sub)
+            added = []                      
+            for item in rec.enrollment_ids:
+                if item.subject_id not in old_sub:
+                    added.append(item.subject_id)
+                if item.subject_id not in enrollments:
+                    enrollments[item.subject_id] = item                                                         
 
             ignore = []
             for sub in added:
                 if sub.subject_id in added:
-                    # The current one and also its parents should be ignored.                    
+                    # The current one and also its parents should be ignored, to avoid adding already removed childs.                    
+                    ignore.append(sub)
                     while sub:
                         if not sub in ignore: ignore.append(sub)
                         sub = sub.subject_id
@@ -111,15 +79,7 @@ class ims_contact(models.Model):
                                 "group_id": enrollments[sub].group_id,
                                 "subject_id": ch.id,      
                             })]
-                        }) 
-
-            for sub in removed:  
-                # Must remove its children (if exists)
-                for ch in sub.subject_ids:
-                    if ch in enrollments:
-                        rec.write({
-                            'enrollment_ids': [(2, enrollments[ch].id)]
-                        })                          
+                        })                                  
     
     def _enrollment_populate_ascendants(self):
         return
