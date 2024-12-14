@@ -173,7 +173,7 @@
     ],   
     'assets': {       
         'web.assets_backend': [
-            # 'ims/static/src/xml/**/*',
+            'ims/static/src/xml/**/*',
             'ims/static/src/css/**/*',
             'ims/static/src/js/**/*', 
         ],       

@@ -8,33 +8,46 @@
                 <xpath expr="//form" position="attributes">
                     <attribute name="groups">hr.group_hr_user</attribute>
                 </xpath>           
-
-                <!-- Odoo 16 -->
-                <!-- <field name="name" position="replace"> -->
+                
+                <field name="name" position="replace">
                     <!-- NOTE: I could'nt find a way to setup the placeholders as a computed field using the 'employee_type'... -->                    
-                    <!-- <field name="name" placeholder="Teacher's Name" attrs="{'invisible': [('employee_type', '!=', 'teacher')]}"/>
-                    <field name="name" placeholder="ASP's Name"     attrs="{'invisible': [('employee_type', '!=', 'asp')]}"/>
-                </field> -->
+                    <field name="name" placeholder="Teacher's Name" invisible="employee_type != 'teacher'"/>
+                    <field name="name" placeholder="ASP's Name"     invisible="employee_type != 'asp'"/>
+                </field>
+                
+                <xpath expr="//page[@name='skills_resume']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>  
+                
+                <xpath expr="//field[@name='bank_account_id']" position="attributes">
+                    <!-- No name or ID for the group :( -->
+                    <attribute name="invisible">True</attribute>
+                </xpath>
 
-                <!-- Odoo 16 -->
-                <!-- <xpath expr="//group[@name='payroll_group']" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>     -->
+                <xpath expr="//label[@for='distance_home_work']" position="attributes">
+                    <!-- No name or ID for the group :( -->
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+
+                <xpath expr="//div[@name='div_km_home_work']" position="attributes">
+                    <!-- No name or ID for the group :( -->
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+
+                <xpath expr="//page[@name='personal_information']/group/group[2]" position="attributes">
+                    <!-- No name or ID for the group :( -->
+                    <attribute name="invisible">True</attribute>
+                </xpath>  
 
                 <xpath expr="//page[@name='personal_information']/group/group[3]" position="attributes">
                     <!-- No name or ID for the group :( -->
-                    <attribute name="invisible">1</attribute>
+                    <attribute name="invisible">True</attribute>
                 </xpath>   
 
-                <!-- Odoo 16 -->
-                <!-- <xpath expr="//separator[@name='emergency']" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>   -->
-
-                <!-- Odoo 16 -->
-                <!-- <xpath expr="//separator[@name='emergency']/following-sibling::field" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>  -->
+                <xpath expr="//page[@name='personal_information']/group/group[4]" position="attributes">
+                    <!-- No name or ID for the group :( -->
+                    <attribute name="invisible">True</attribute>
+                </xpath>               
 
                 <xpath expr="//page[@name='personal_information']/group" position="inside">
                     <group string="Emergency">
@@ -52,7 +65,7 @@
                 </field>        
 
                 <field name="coach_id" position="attributes">
-                   <attribute name="invisible">1</attribute>
+                   <attribute name="invisible">True</attribute>
                 </field>                          
 
                 <field name="employee_type" position="after">
@@ -61,7 +74,11 @@
 
                 <xpath expr="//page[@name='hr_settings']" position="attributes">
                     <attribute name="string">Human Resources</attribute>
-                </xpath>         
+                </xpath>    
+
+                <xpath expr="//group[@name='identification_group']" position="attributes">
+                    <attribute name="string">Attendance</attribute>
+                </xpath>       
 
                 <!-- Odoo 16 -->
                 <!-- <xpath expr="//notebook" position="inside">

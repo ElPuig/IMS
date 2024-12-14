@@ -1,48 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates>
-<!-- I guess it's because the 't-if' sentences, but inheriting and replacing using xpath has not working properly, so all the template has been copy/pasted and adapted... -->
-    <t t-name="hr_org_chart.hr_org_chart_employee_content" owl="1">
-        <div class="o_media_left position-relative">
-            <!-- NOTE: Since by the default on not squared images odoo add white borders,
-                use bg-images to get a clean and centred images -->
-            <a t-if="! is_self"
-                class="o_media_object d-block rounded-circle o_employee_redirect"
-                t-att-style="'background-image:url(\'/web/image/hr.employee.public/' + employee.id + '/avatar_1024/\')'"
-                t-att-alt="employee.name"
-                t-att-data-employee-id="employee.id"
-                t-att-href="employee.link"
-                t-on-click.prevent="() => this._onEmployeeRedirect(employee.id)"/>
-            <div t-if="is_self"
-                class="o_media_object d-block rounded-circle border border-info"
-                t-att-style="'background-image:url(\'/web/image/hr.employee.public/' + employee.id + '/avatar_1024/\')'"/>
-        </div>
+    <t t-name="ims.hr_org_chart" t-inherit="hr_org_chart.hr_org_chart" t-inherit-mode="extension" owl="1">
+        <!-- Unnecessary if no manager is disabled (as should be) -->
+        <xpath expr="(//t[@t-call='hr_org_chart.hr_org_chart_employee'])[1]" position="replace">
+            <t t-if="employee.active" t-call="hr_org_chart.hr_org_chart_employee">
+                <t t-set="employee_type" t-value="'manager'"/>
+            </t>
+        </xpath>  
+    </t>  
 
-        <div class="d-flex flex-grow-1 align-items-center justify-content-between position-relative px-3">
-            <a t-if="!is_self" t-att-href="employee.link" class="o_employee_redirect d-flex flex-column" t-att-data-employee-id="employee.id" t-on-click.prevent="() => this._onEmployeeRedirect(employee.id)">
-                <b class="o_media_heading m-0 fs-6" t-esc="employee.name"/>
-                <small class="text-muted fw-bold" t-esc="employee.roles"/>
-            </a>
-            <div t-if="is_self" class="d-flex flex-column">
-                <h5 class="o_media_heading m-0" t-esc="employee.name"/>
-                <small class="text-muted fw-bold" t-esc="employee.roles"/>
-            </div>
-            <button t-if="employee.indirect_sub_count &gt; 0"
-                    class="btn p-0 fs-3"
-                    tabindex="0"
-                    t-att-data-emp-name="employee.name"
-                    t-att-data-emp-id="employee.id"
-                    t-att-data-emp-dir-subs="employee.direct_sub_count"
-                    t-att-data-emp-ind-subs="employee.indirect_sub_count"
-                    data-bs-trigger="focus"
-                    data-bs-toggle="popover"
-                    t-on-click="(event) => this._onOpenPopover(event, employee)">
-                <a href="#"
-                    t-attf-class="badge rounded-pill bg-white border {{employee.indirect_sub_count &lt; 10 ? 'px-2' : 'px-1' }}"
-                    t-esc="employee.indirect_sub_count"
-                    />
-            </button>
-
-        </div>
+    <t t-name="ims.hr_org_chart_employee_content" t-inherit="hr_org_chart.hr_org_chart_employee_content" t-inherit-mode="extension" owl="1">  
+        <xpath expr="//a[hasclass('o_employee_redirect')]/small" position="replace">
+            <small class="text-muted fw-bold" t-esc="employee.roles"/>
+        </xpath>        
     </t>
-
 </templates>
