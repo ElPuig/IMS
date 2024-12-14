@@ -18,34 +18,32 @@
                 <xpath expr="//page[@name='skills_resume']" position="attributes">
                     <attribute name="invisible">True</attribute>
                 </xpath>  
+
+                <xpath expr="//page[@name='received_badges']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>  
                 
                 <xpath expr="//field[@name='bank_account_id']" position="attributes">
-                    <!-- No name or ID for the group :( -->
                     <attribute name="invisible">True</attribute>
                 </xpath>
 
                 <xpath expr="//label[@for='distance_home_work']" position="attributes">
-                    <!-- No name or ID for the group :( -->
                     <attribute name="invisible">True</attribute>
                 </xpath>
 
                 <xpath expr="//div[@name='div_km_home_work']" position="attributes">
-                    <!-- No name or ID for the group :( -->
                     <attribute name="invisible">True</attribute>
                 </xpath>
 
                 <xpath expr="//page[@name='personal_information']/group/group[2]" position="attributes">
-                    <!-- No name or ID for the group :( -->
                     <attribute name="invisible">True</attribute>
                 </xpath>  
 
                 <xpath expr="//page[@name='personal_information']/group/group[3]" position="attributes">
-                    <!-- No name or ID for the group :( -->
                     <attribute name="invisible">True</attribute>
                 </xpath>   
 
                 <xpath expr="//page[@name='personal_information']/group/group[4]" position="attributes">
-                    <!-- No name or ID for the group :( -->
                     <attribute name="invisible">True</attribute>
                 </xpath>               
 

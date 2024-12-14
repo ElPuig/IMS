@@ -31,7 +31,6 @@
 
                 <field name="job_title" position="after">
                     <span t-if="record.tutorships.value != ''">
-                        <br />
                         <!-- TODO: this text should be translated, check how to do it -->
                         Tutorship: <t t-esc="record.tutorships.value"/>
                     </span>                   
