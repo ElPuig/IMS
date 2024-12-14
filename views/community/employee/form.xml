@@ -77,11 +77,11 @@
                 <xpath expr="//group[@name='identification_group']" position="attributes">
                     <attribute name="string">Attendance</attribute>
                 </xpath>       
-
-                <!-- Odoo 16 -->
-                <!-- <xpath expr="//notebook" position="inside">
-                    <page string="Teaching" attrs="{'invisible': [('employee_type', '=', 'asp')]}">
+                
+               <xpath expr="//notebook" position="inside">
+                    <page string="Teaching" invisible="employee_type == 'asp'">
                         <field name="teaching_ids">
+                            <!-- TODO: auto-add children as enrollment does -->
                             <list editable="bottom">
                                 <field name="subject_id"/>
                                 <field name="group_id"/>
@@ -89,15 +89,16 @@
                         </field>
                     </page>    
 
-                    <page string="Tutorships" attrs="{'invisible': [('employee_type', '=', 'asp')]}">
+                    <page string="Tutorships" invisible="employee_type == 'asp'">
                         <field name="tutorship_ids" widget="many2many">
+                            <!-- TODO: inline -->
                             <list>
                                 <field name="name" string="Group"/>
                                 <field name="space_id"/>
                             </list>
                         </field>
                     </page>                    
-                </xpath>              -->
+                </xpath>              
             </field>		      
         </record>   
     </data>
