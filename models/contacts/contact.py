@@ -33,11 +33,13 @@ class ims_contact(models.Model):
         # So, it's not possible to remove all the children when a parent is removed...
         # TODO: Maybe this limitation can be overcomed by inheriting the listview and customizing some clic methods or events?
 
-        for rec in self:   
+        for rec in self:
+            ignore = []   
             old_sub = []
             enrollments = {}  
             for item in rec._origin.enrollment_ids:
                 old_sub.append(item.subject_id)
+                ignore.append(item.subject_id)
                 enrollments[item.subject_id] = item        
 
             added = []                      
@@ -46,54 +48,45 @@ class ims_contact(models.Model):
                     added.append(item.subject_id)
                 if item.subject_id not in enrollments:
                     enrollments[item.subject_id] = item                                                         
-
-            ignore = []
+            
             for sub in added:
                 if sub.subject_id in added:
                     # The current one and also its parents should be ignored, to avoid adding already removed childs.                    
                     ignore.append(sub)
                     while sub:
-                        if not sub in ignore: ignore.append(sub)
+                        if sub not in ignore: ignore.append(sub)
                         sub = sub.subject_id
 
             for sub in added:
                 # For every added enrollment: 
-                # If has parent, it must be added (recursive) if not present.
-                # If has childs, they must be added (recursive) if no other childs are present.
+                # If has parent, it must be added (recursive) if not present.                
                 if sub not in ignore:
-                    if sub.subject_id:
-                        #TODO: recursion!
-                        rec.write({
-                            'enrollment_ids': [(0, 0, {
-                                "student_id": rec.id, 
-                                "group_id": enrollments[sub].group_id,
-                                "subject_id": sub.subject_id.id,      
-                            })]
-                        })                                                                                 
+                    parent = sub.subject_id
+                    while parent:          
+                        if parent not in ignore:
+                            ignore.append(parent.id)                                                       
+                            rec.write({
+                                'enrollment_ids': [(0, 0, {
+                                    "student_id": rec.id, 
+                                    "group_id": enrollments[sub].group_id,
+                                    "subject_id": parent.id,      
+                                })]
+                            })   
+                        parent = parent.subject_id                                                                              
 
-                    for ch in sub.subject_ids:
-                        #TODO: recursion!
-                        rec.write({
-                            'enrollment_ids': [(0, 0, {
-                                "student_id": rec.id, 
-                                "group_id": enrollments[sub].group_id,
-                                "subject_id": ch.id,      
-                            })]
-                        })                                  
+                    # If has childs, they must be added (recursive) if no other childs are present.
+                    self._enrollment_populate_descendant(rec, sub, enrollments)                     
     
-    def _enrollment_populate_ascendants(self):
-        return
-
-    def _enrollment_populate_descendant(self, rec, removed):
-        # TODO: test
-        removed_sub_child_ids = list(map(lambda x: x.id, removed.subject_id.subject_ids))
-        for en in rec.enrollment_ids:
-            if en.subject_id.id in removed_sub_child_ids:
-                self._enrollment_populate_descendant(rec, en)
-                rec.write({
-                    'enrollment_ids': [(2, en.id)]
-                })  
-        return
+    def _enrollment_populate_descendant(self, rec, sub, enrollments):
+        for ch in sub.subject_ids:
+            rec.write({
+                'enrollment_ids': [(0, 0, {
+                    "student_id": rec.id, 
+                    "group_id": enrollments[sub].group_id,
+                    "subject_id": ch.id,      
+                })]
+            }) 
+            self._enrollment_populate_descendant(rec, ch, enrollments) 
 
     @api.onchange('level_id')
     def _onchange_level_id(self):	
