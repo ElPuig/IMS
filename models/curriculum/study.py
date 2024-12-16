@@ -18,15 +18,11 @@ class ims_study(models.Model):
     level_id = fields.Many2one(string="Level", comodel_name="ims.level")
 
     attachment_ids = fields.Many2many(string="Attached files", comodel_name="ims.attachment", domain="['|',('domain', '=', 'ims.study'),('domain', '=', '')]") # Attachment for this model or for all the models (empty domain). TODO: allow multiple values (if needed).
-
-    def name_get(self):
-        #Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
-        result = []	
-
+    
+    @api.depends('acronym', 'name')
+    def _compute_display_name(self):              
         for rec in self:
-            result.append((rec.id, "%s: %s" % (rec.acronym, rec.name)))			
-            
-        return result
+            rec.display_name = "%s: %s" % (rec.acronym, rec.name)
     
     def open_form_study(self):
         return {

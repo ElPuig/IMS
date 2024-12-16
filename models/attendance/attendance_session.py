@@ -134,13 +134,10 @@ class ims_attendance_session(models.Model):
 				}])	
 			self.write({"attendance_status_ids": students})
 
-	def name_get(self):
-        #Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
-		result = []	
+	@api.depends('attendance_schedule_id', 'date')
+	def _compute_display_name(self):              
 		for rec in self:
-			result.append((rec.id, "%s | %s" % (rec.attendance_schedule_id.name_get()[0][1], rec.date)))			
-		return result
-
+			rec.display_name = "%s | %s" % (rec.attendance_schedule_id.display_name, rec.date)
 
 	def convert_to_utc_date(self, local_date):
 		user_time_zone = self.env.context["tz"] # can be fetched form logged in user if it is set 

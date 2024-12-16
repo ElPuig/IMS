@@ -5,7 +5,8 @@
             <field name="model">ims.subject_view</field>
             <field name="arch" type="xml">
                 <list expand="1" default_order="study_id desc, code asc, level asc, acronym asc" 
-                    decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
+                    decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3"
+                    js_class="subjectview_create_button" create="false"> <!-- custom 'new' button -->
                     <!--https://www.cybrosys.com/blog/tree-view-decoration-attributes-in-odoo-15 -->                    
                     <field name="code"/>
                     <field name="acronym"/>
@@ -28,6 +29,23 @@
                     </group>
                 </search>
             </field>
-        </record>             
+        </record>  
+
+        <!-- This one is used on search ('search more' button) -->
+        <record model="ir.ui.view" id="view_subject_list">
+            <field name="name">ims.subject.list</field>
+            <field name="model">ims.subject</field>
+            <field name="arch" type="xml">
+                <list expand="1" default_order="code asc, level asc, acronym asc" 
+                    decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
+                    <!--https://www.cybrosys.com/blog/tree-view-decoration-attributes-in-odoo-15 -->                    
+                    <field name="code"/>
+                    <field name="acronym"/>
+                    <field name="name" class="w-75"/>
+                    <!-- Hidden but needed to filter or display properly -->
+                    <field name="level" invisible="1"/>
+                </list>              
+            </field>
+        </record>               
     </data>
 </odoo>

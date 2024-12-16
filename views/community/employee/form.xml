@@ -80,26 +80,21 @@
                 
                <xpath expr="//notebook" position="inside">
                     <page string="Teaching" invisible="employee_type == 'asp'">
-                        <field name="teaching_ids">
-                            <!-- TODO: avoid repeated -->
-                             <list editable="bottom" default_order="subject_id asc, group_id asc"
-                                decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
-                                <field name="subject_id"/>
-                                <field name="group_id"/>
-                                <field name="level" column_invisible="True"/>
-                            </list>
-                        </field>
-                    </page>    
+                        <group string="Tutorships">
+                            <field name="tutorship_ids" widget="many2many_tags" nolabel="1" />
+                        </group>
 
-                    <page string="Tutorships" invisible="employee_type == 'asp'">
-                        <!-- TODO: maybe tags in the same page, and rename teaching for other word... -->
-                        <field name="tutorship_ids" widget="many2many">
-                            <list editable="bottom"  default_order="name asc">
-                                <field name="name" string="Group"/>
-                                <field name="space_id" readonly="True" />
-                            </list>
-                        </field>
-                    </page>                    
+                        <group string="Subjects">
+                            <field name="teaching_ids" nolabel="1">
+                                <list editable="bottom" default_order="subject_id asc, group_id asc"
+                                    decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
+                                    <field name="subject_id" />
+                                    <field name="group_id" />                                
+                                    <field name="level" column_invisible="True"/>                                
+                                </list>
+                            </field>
+                        </group>
+                    </page>                     
                 </xpath>              
             </field>		      
         </record>   

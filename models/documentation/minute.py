@@ -23,14 +23,10 @@ class minute(models.Model):
 	members = fields.Char(string="Memebers", compute='_compute_members')
 	abstract = fields.Char(string="Abstract or main topic", size=255, required=True)
 	
-	def name_get(self):
-		#Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
-        
-		result = []	    
-		for rec in self:           
-			result.append((rec.id, "%s: %s (%s)" % (dict(rec._fields['type'].selection).get(rec.type), rec.workgroup_id.name if type == "workgroup" else rec.department_id.name, dict(rec._fields['nature'].selection).get(rec.nature))))
-            
-		return result
+	@api.depends('type', 'workgroup_id', 'department_id', 'nature')
+	def _compute_display_name(self):              
+		for rec in self:
+			rec.display_name = "%s: %s (%s)" % (dict(rec._fields['type'].selection).get(rec.type), rec.workgroup_id.name if type == "workgroup" else rec.department_id.name, dict(rec._fields['nature'].selection).get(rec.nature))
 
 	@api.depends("type")
 	def _compute_members(self):

@@ -128,36 +128,22 @@ class ims_subject(models.Model):
         self.env['ims.subject_view'].search([('subject_id', '=', self.id)]).unlink(True)
         return super(ims_subject, self).unlink()
 
-    # def name_get(self):
-	# 	#Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
-    #     result = []	    
-    #     acronyms = []    
-    #     for rec in self:
-    #         acronyms.clear()
-    #         acronyms.append(rec.acronym)
-
-    #         parent = rec.subject_id
-    #         while(parent):
-    #             acronyms.append(parent.acronym)
-    #             parent = parent.subject_id     
-
-    #         result.append((rec.id, "%s: %s" % (" ".join(list(reversed(acronyms))), rec.name)))
-            
-    #     return result
-
-    @api.depends('acronym', 'name')
-    def _compute_display_name(self):              
-        acronyms = []    
+    @api.depends('acronym', 'subject_id', 'name')
+    def _compute_display_name(self):       
+        acronyms = []           
         for rec in self:
             acronyms.clear()
-            acronyms.append(rec.acronym)
-
-            parent = rec.subject_id
-            while(parent):
-                acronyms.append(parent.acronym)
-                parent = parent.subject_id     
-            
-            rec.display_name = "%s: %s" % (" ".join(list(reversed(acronyms))), rec.name)
+            if rec.acronym:
+                acronyms.append(rec.acronym)
+                
+                parent = rec.subject_id
+                while(parent):
+                    acronyms.append(parent.acronym)
+                    parent = parent.subject_id  
+                
+                rec.display_name = "%s: %s" % (" ".join(list(reversed(acronyms))), rec.name)
+            else:
+                rec.display_name = ''
     
     def open_form_subject(self):
         return {
@@ -197,36 +183,22 @@ class ims_subject_view(models.Model):
                 # Maybe, the subject has been already removed (multiple view entries points to the same subject)...
                 return True   
     
-    # def name_get(self):
-	# 	#Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
-    #     result = []	    
-    #     acronyms = []    
-    #     for rec in self:
-    #         acronyms.clear()
-    #         acronyms.append(rec.acronym)
-
-    #         parent = rec.subject_id
-    #         while(parent):
-    #             acronyms.append(parent.acronym)
-    #             parent = parent.subject_id     
-
-    #         result.append((rec.id, "%s %s: %s" % (rec.study_id.acronym, " ".join(list(reversed(acronyms))), rec.name)))
-            
-    #     return result
-    
-    @api.depends('study_id', 'acronym', 'name')
-    def _compute_display_name(self):              
-        acronyms = []    
+    @api.depends('subject_id', 'study_id', 'name', 'acronym')
+    def _compute_display_name(self):       
+        acronyms = []           
         for rec in self:
             acronyms.clear()
-            acronyms.append(rec.acronym)
+            if rec.acronym:
+                acronyms.append(rec.acronym)
+                
+                parent = rec.subject_id
+                while(parent):
+                    acronyms.append(parent.acronym)
+                    parent = parent.subject_id  
 
-            parent = rec.subject_id
-            while(parent):
-                acronyms.append(parent.acronym)
-                parent = parent.subject_id     
-            
-            rec.display_name = "%s %s: %s" % (rec.study_id.acronym, " ".join(list(reversed(acronyms))), rec.name)
+                rec.display_name = "%s %s: %s" % (rec.study_id.acronym, " ".join(list(reversed(acronyms))), rec.name)              
+            else:
+                rec.display_name = ''
 
     def open_form_subject(self):
         return {
