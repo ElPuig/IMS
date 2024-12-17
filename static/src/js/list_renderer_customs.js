@@ -2,33 +2,25 @@
 
 import { patch } from "@web/core/utils/patch";
 import { ListRenderer } from "@web/views/list/list_renderer";
-import { actionService } from "@web/webclient/actions/action_service";
-// import { jsonrpc } from "@web/core/network/rpc_service";
-
-var ActionService = actionService;
+import { useService } from "@web/core/utils/hooks";
 
 patch(ListRenderer.prototype, {
     setup() {
+        this.orm = useService("orm");
+        this.action = useService("action");
         super.setup();
         //owl.onMounted(this.autofocusForRadioCells);                   
     },
 
-    // getModelId(model, xml_id){
-    //     debugger;
-    //     jsonrpc.query({
-    //         model: model,
-    //         method: 'search_read',                        
-    //         args: [[], ['xml_id', 'name']],
-    //         //TODO: domain not working, try to get the main model in order to avoid looping in the result!
-    //         //args: [['xml_id', '=', 'ims.action_subject_tree'], ['xml_id', 'name', 'context']],                         
-    //     }).then(function (data) { 
-    //         data = data.filter(function(item){
-    //             return item.xml_id == xml_id;
-    //         });
-    //         debugger;
-    //     }); 
-    // },
-
+    async getViewData(xml_id){
+        const data = await this.orm.searchRead("ir.ui.view", [["xml_id", "=", xml_id]], ["id", "xml_id", "name"]);
+        var view = data.filter(function(item){
+            //TODO: the domain is not working in the orm searchRead method... WHY?
+            return item.xml_id == xml_id;
+        })[0];
+        return view;
+    },
+   
     // syncCheckBoxes(record, subject_id, list){
     //     list.forEach(function(row){                                           
     //         if(row.id != record.id && subject_id == row.data.subject_id[0]){   
@@ -38,8 +30,6 @@ patch(ListRenderer.prototype, {
     // },
 
     onClickCapture(record, ev){ 
-        var am = ActionService.start(this.env);
-
         if(ev.target.type == "checkbox"){               
             // switch(record.resModel){
             //     case "ims.subject_view":                     
@@ -57,43 +47,49 @@ patch(ListRenderer.prototype, {
             // }   
         }
         else{             
-            switch(record.resModel){                
+            switch(record.resModel){
+                case "res.partner":
+                    if (record.data.id != undefined){
+                        ev.preventDefault();
+                        ev.stopPropagation();            
+
+                        this.action.doAction({
+                            type: "ir.actions.act_window",
+                            res_model: "res.partner",
+                            res_id: record.data.id,
+                            views: [[this.getViewData("view_contact_form").name, "form"]],   
+                            view_mode: "form",
+                            target: "current", //with 'new' the form opens as a modal window.   
+                        });  
+                    }
+                    break;
+
                 case "ims.enrollment_view":
                     ev.preventDefault();
                     ev.stopPropagation();            
-                 
-                //     am.doAction({
-                //         name: 'Open: Students', //to fit with the other regular student's tab
-                //         type: 'ir.actions.act_window',
-                //         res_model: 'res.partner',                
-                //         res_id: record.data.student_id[0],
-                //         views: [[false, "form"]],                                
-                //         target: 'new', //with 'current' the form opens in fullscreen (not modal).
-                //         context: record.context,
-                //     });
-                    debugger;
-                    //this.env.searchModel.orm.call("ims.enrollment_view", "open_form_student", []);
-                    // TODO: try to call a server method to get the corrent view ID or to call the form:
-                    //  https://www.odoo.com/documentation/18.0/es/developer/reference/frontend/javascript_reference.html#talking-to-the-server
-                    this.env.model.orm.call("ims.enrollment_view", "open_form_student", []);
-                    //this.getModelId("ir.ui.view", "base.view_partner_form");        
+                                
+                    this.action.doAction({
+                        type: "ir.actions.act_window",
+                        res_model: "res.partner",
+                        res_id: record.data.student_id[0],
+                        views: [[this.getViewData("view_contact_form").name, "form"]],   
+                        view_mode: "form",
+                        target: "current", //with 'new' the form opens as a modal window.   
+                    });  
                     break;
 
                 case "ims.subject_view":
                     ev.preventDefault();
                     ev.stopPropagation();                                
                                     
-                    am.doAction({                        
-                        type: 'ir.actions.act_window',
-                        res_model: 'ims.subject',                
+                    this.action.doAction({
+                        type: "ir.actions.act_window",
+                        res_model: "ims.subject",
                         res_id: record.data.subject_id[0],
-                        views: [[false, "form"]],
-                        target: 'current', //with 'new' the form opens as a modal window.   
-                        context: record.context,                    
-                        // context: {
-                        //     'subject_view_list' : true
-                        // },
-                    });
+                        views: [[this.getViewData("view_subject_form").name, "form"]],   
+                        view_mode: "form",
+                        target: "current", //with 'new' the form opens as a modal window.   
+                    });  
                     break;
             }    
         }    

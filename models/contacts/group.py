@@ -60,11 +60,11 @@ class ims_enrollment_view(models.TransientModel):
 	subject_ids = fields.Many2many(comodel_name="ims.subject")	
 	image_1920 = fields.Binary(string="Image", related='student_id.image_1920')
 
-	def open_form_student(self):
-		return {
-			'type': 'ir.actions.act_window',
-			'res_model': 'res.partner',
-			'res_id': self.student_id.id,						
-			'view_id': self.env.ref('base.view_partner_form').id,
-			'view_mode': 'form',
-		}		
+	# def open_form_student(self):
+	# 	return {
+	# 		'type': 'ir.actions.act_window',
+	# 		'res_model': 'res.partner',
+	# 		'res_id': self.student_id.id,						
+	# 		'view_id': self.env.ref('base.view_partner_form').id,
+	# 		'view_mode': 'form',
+	# 	}		

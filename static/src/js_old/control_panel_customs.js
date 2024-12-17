@@ -1,4 +1,5 @@
 /** @odoo-module **/
+// This wont be needed in Odoo 18 :D
 import { patch } from "@web/core/utils/patch";
 import { ControlPanel } from "@web/search/control_panel/control_panel";
 import { actionService } from "@web/webclient/actions/action_service";

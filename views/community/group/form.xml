@@ -47,6 +47,8 @@
                                         <field name="name" class="align-middle"/>
                                         <field name="email" class="align-middle"/>
                                         <field name="phone" class="align-middle"/>
+                                        <!-- Needed to open as fullscreen form -->
+                                        <field name="id" column_invisible="True"/>
                                     </list>
                                 </field>
                             </page>                         
@@ -56,9 +58,7 @@
                                     <list default_order="student_id asc"> 
                                         <field name="image_1920" widget="image" />                                   
                                         <field name="student_id" class="align-middle"/>
-                                        <field name="subject_ids" widget="many2many_tags"/>
-                                        <!-- <button type="action" name="ims.action_student_form" icon="fa-edit" title="" context="{'res_id': 57}" /> -->
-                                        <button type="object" title="Edit student" icon="fa-edit" name="open_form_student" />
+                                        <field name="subject_ids" widget="many2many_tags"/>                                        
                                     </list>
                                 </field>
                             </page>
