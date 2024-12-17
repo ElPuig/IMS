@@ -126,6 +126,15 @@ class ims_contact(models.Model):
             study = self.env["ims.study"].search([("id", "=", values.get('study_id'))]) or False            
             values["level_id"] = study.level_id.id
 
+    def open_form_student(self):
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'res.partner',
+            'res_id': self.id,						
+            'view_id': self.env.ref('ims.view_contact_form').id,
+            'view_mode': 'form',
+        }
+
     #def _compute_enrollment_data(self, contact):
 		# The idea is to populate the enrollment data in both directions:
 		#	Up:   if the subject has a parent, create it if missing.
