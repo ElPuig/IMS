@@ -1,6 +1,6 @@
 /** @odoo-module **/
-import { ControlPanel } from "@web/search/control_panel/control_panel";
 import { patch } from "@web/core/utils/patch";
+import { ControlPanel } from "@web/search/control_panel/control_panel";
 import { actionService } from "@web/webclient/actions/action_service";
 
 var rpc = require("web.rpc");

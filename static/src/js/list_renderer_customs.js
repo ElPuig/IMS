@@ -3,6 +3,7 @@
 import { patch } from "@web/core/utils/patch";
 import { ListRenderer } from "@web/views/list/list_renderer";
 import { actionService } from "@web/webclient/actions/action_service";
+// import { jsonrpc } from "@web/core/network/rpc_service";
 
 var ActionService = actionService;
 
@@ -11,6 +12,22 @@ patch(ListRenderer.prototype, {
         super.setup();
         //owl.onMounted(this.autofocusForRadioCells);                   
     },
+
+    // getModelId(model, xml_id){
+    //     debugger;
+    //     jsonrpc.query({
+    //         model: model,
+    //         method: 'search_read',                        
+    //         args: [[], ['xml_id', 'name']],
+    //         //TODO: domain not working, try to get the main model in order to avoid looping in the result!
+    //         //args: [['xml_id', '=', 'ims.action_subject_tree'], ['xml_id', 'name', 'context']],                         
+    //     }).then(function (data) { 
+    //         data = data.filter(function(item){
+    //             return item.xml_id == xml_id;
+    //         });
+    //         debugger;
+    //     }); 
+    // },
 
     // syncCheckBoxes(record, subject_id, list){
     //     list.forEach(function(row){                                           
@@ -23,7 +40,7 @@ patch(ListRenderer.prototype, {
     onClickCapture(record, ev){ 
         var am = ActionService.start(this.env);
 
-        if(ev.target.type == "checkbox"){            
+        if(ev.target.type == "checkbox"){               
             // switch(record.resModel){
             //     case "ims.subject_view":                     
             //         var subject_id = record.data.subject_id[0];                     
@@ -40,20 +57,26 @@ patch(ListRenderer.prototype, {
             // }   
         }
         else{             
-            switch(record.resModel){
+            switch(record.resModel){                
                 case "ims.enrollment_view":
                     ev.preventDefault();
                     ev.stopPropagation();            
                  
-                    am.doAction({
-                        name: 'Open: Students', //to fit with the other regular student's tab
-                        type: 'ir.actions.act_window',
-                        res_model: 'res.partner',                
-                        res_id: record.data.student_id[0],
-                        views: [[false, "form"]],                                
-                        target: 'new', //with 'current' the form opens in fullscreen (not modal).
-                        context: record.context,
-                    });
+                //     am.doAction({
+                //         name: 'Open: Students', //to fit with the other regular student's tab
+                //         type: 'ir.actions.act_window',
+                //         res_model: 'res.partner',                
+                //         res_id: record.data.student_id[0],
+                //         views: [[false, "form"]],                                
+                //         target: 'new', //with 'current' the form opens in fullscreen (not modal).
+                //         context: record.context,
+                //     });
+                    debugger;
+                    //this.env.searchModel.orm.call("ims.enrollment_view", "open_form_student", []);
+                    // TODO: try to call a server method to get the corrent view ID or to call the form:
+                    //  https://www.odoo.com/documentation/18.0/es/developer/reference/frontend/javascript_reference.html#talking-to-the-server
+                    this.env.model.orm.call("ims.enrollment_view", "open_form_student", []);
+                    //this.getModelId("ir.ui.view", "base.view_partner_form");        
                     break;
 
                 case "ims.subject_view":

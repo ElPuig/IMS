@@ -1,5 +1,12 @@
 <odoo>
     <data>
+        <record model="ir.actions.act_window" id="action_student_form">
+            <field name="name">Students</field>
+            <field name="res_model">res.partner</field>
+            <field name="res_id">57</field>    
+            <field name="view_mode">form</field>    
+        </record>  
+
         <record model="ir.ui.view" id="view_group_form">
             <field name="name">ims.group.form</field>
             <field name="model">ims.group</field>
@@ -34,8 +41,8 @@
                         
                         <notebook> 
                             <page string="Students">
-                                 <field name="main_student_ids" widget="many2many" context="{'show_attribute': False}">
-                                    <list default_order="name asc">    
+                                 <field name="main_student_ids" widget="many2many">
+                                    <list default_order="name asc" >
                                         <field name="image_1920" widget="image" />
                                         <field name="name" class="align-middle"/>
                                         <field name="email" class="align-middle"/>
@@ -50,6 +57,8 @@
                                         <field name="image_1920" widget="image" />                                   
                                         <field name="student_id" class="align-middle"/>
                                         <field name="subject_ids" widget="many2many_tags"/>
+                                        <!-- <button type="action" name="ims.action_student_form" icon="fa-edit" title="" context="{'res_id': 57}" /> -->
+                                        <button type="object" title="Edit student" icon="fa-edit" name="open_form_student" />
                                     </list>
                                 </field>
                             </page>
@@ -61,6 +70,6 @@
                     </sheet>	
                 </form>
             </field>			
-        </record>
+        </record>       
     </data>
 </odoo>
