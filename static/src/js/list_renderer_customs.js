@@ -69,7 +69,7 @@ patch(ListRenderer.prototype, {
                     ev.stopPropagation();            
                                 
                     this.action.doAction({
-                        name: "Open: Student",
+                        name: "Open: Students",
                         type: "ir.actions.act_window",
                         res_model: "res.partner",
                         res_id: record.data.student_id[0],
