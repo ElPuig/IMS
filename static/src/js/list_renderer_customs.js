@@ -48,33 +48,34 @@ patch(ListRenderer.prototype, {
         }
         else{             
             switch(record.resModel){
-                case "res.partner":
-                    if (record.data.id != undefined){
-                        ev.preventDefault();
-                        ev.stopPropagation();            
+                // case "res.partner":
+                //     if (record.data.id != undefined){
+                //         ev.preventDefault();
+                //         ev.stopPropagation();            
 
-                        this.action.doAction({
-                            type: "ir.actions.act_window",
-                            res_model: "res.partner",
-                            res_id: record.data.id,
-                            views: [[this.getViewData("view_contact_form").name, "form"]],   
-                            view_mode: "form",
-                            target: "current", //with 'new' the form opens as a modal window.   
-                        });  
-                    }
-                    break;
+                //         this.action.doAction({
+                //             type: "ir.actions.act_window",
+                //             res_model: "res.partner",
+                //             res_id: record.data.id,
+                //             views: [[this.getViewData("view_contact_form").name, "form"]],   
+                //             view_mode: "form",
+                //             target: "current", //with 'new' the form opens as a modal window.   
+                //         });  
+                //     }
+                //     break;
 
                 case "ims.enrollment_view":
                     ev.preventDefault();
                     ev.stopPropagation();            
                                 
                     this.action.doAction({
+                        name: "Open: Student",
                         type: "ir.actions.act_window",
                         res_model: "res.partner",
                         res_id: record.data.student_id[0],
                         views: [[this.getViewData("view_contact_form").name, "form"]],   
                         view_mode: "form",
-                        target: "current", //with 'new' the form opens as a modal window.   
+                        target: "new",
                     });  
                     break;
 
@@ -88,7 +89,7 @@ patch(ListRenderer.prototype, {
                         res_id: record.data.subject_id[0],
                         views: [[this.getViewData("view_subject_form").name, "form"]],   
                         view_mode: "form",
-                        target: "current", //with 'new' the form opens as a modal window.   
+                        //target: "current", //with 'new' the form opens as a modal window.   
                     });  
                     break;
             }    

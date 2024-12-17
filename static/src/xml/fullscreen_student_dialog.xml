@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+   <t t-name="ims.web.DialogWidget" t-inherit="web.ActionDialog.header" t-inherit-mode="extension" owl="1">  
+        <!-- When opening the student dialog from enrollments, no expand button is displayed (why!?)  -->
+        <!-- <xpath expr="//header[hasclass('modal-header')]" position="after"> -->
+        <!-- <xpath expr="//button[hasclass('btn-close')]" position="after"> -->
+        <xpath expr="//h4" position="after">
+           <p>HOLA</p>
+       </xpath>
+   </t>  
+</templates>
