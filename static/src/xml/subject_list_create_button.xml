@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <templates>
-   <t t-name="subjectview_create_button.ListView.Buttons" t-inherit="web.ListView.Buttons">
+   <t t-name="ims.web.ListView.Buttons" t-inherit="web.ListView.Buttons">
    <!-- <t t-name="subjectview_create_button.ListView.Buttons" t-inherit="web.ListView"> -->
        <!-- <xpath expr="//button[hasclass('o_list_button_add')]" position="attributes"> -->
            <!-- <attribute name="style">display: none</attribute> -->

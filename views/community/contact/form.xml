@@ -4,7 +4,11 @@
             <field name="name">ims.contact.form</field>
             <field name="model">res.partner</field>            
             <field name="inherit_id" ref="base.view_partner_form"/> 
-            <field name="arch" type="xml">                                      
+            <field name="arch" type="xml">  
+                <xpath expr="//form" position="attributes">                      
+                    <attribute name="js_class">studentpopup_expand_button</attribute>
+                </xpath>     
+
                 <field name="company_type" position="attributes">
                     <attribute name="invisible">contact_type != 'provider'</attribute>
                 </field>
