@@ -34,7 +34,7 @@
                                 <field name="subject_ids" widget="one2many">
                                      <list editable="bottom" expand="1" default_order="code asc, level asc, acronym asc"
                                            decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
-                                        <field name="level" invisible="1"/>
+                                        <field name="level" column_invisible="True"/>
                                         <field name="code"/>
                                         <field name="acronym"/>
                                         <field name="name"/>

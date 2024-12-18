@@ -4,10 +4,10 @@
             <field name="name">ims.contact.list</field>
             <field name="model">res.partner</field>            
             <field name="inherit_id" ref="base.view_partner_tree"/> 
-            <field name="arch" type="xml">                        
-                <xpath expr="//list" position="inside">                     
-                    <field name="contact_type" invisible="1" />
-                </xpath>                               
+            <field name="arch" type="xml">                                       
+                <xpath expr="//field[@name='user_id']" position="attributes">
+                    <attribute name="column_invisible">True</attribute>
+                </xpath>                                       
             </field>		      
         </record>   
     </data>

@@ -30,8 +30,8 @@
                                         <button class="oe_stat_button" title="Edit Content" icon="fa-pencil-square-o" name="open_form_content" type="object" />                                 
 
                                         <!-- Needed but hidden for filtering purposes -->
-                                        <field name="subject_id" invisible="1"/>
-                                        <field name="level" invisible="1"/>
+                                        <field name="subject_id" column_invisible="True"/>
+                                        <field name="level" column_invisible="True"/>
                                     </list>
                                 </field>
                             </page>

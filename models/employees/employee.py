@@ -25,6 +25,9 @@ class ims_employee_base(models.AbstractModel):
     roles = fields.Char(string="Role names", compute="_compute_roles_str", store=True)	
     tutorships = fields.Char(string="Tutorship names", compute="_compute_tutorships_str", store=True)	
 
+    def _get_new_employee_type(self):
+        return employee_types
+
     @api.onchange('teaching_ids')
     def _onchange_teaching_ids(self):	
         # Same as contact's _onchange_enrollment_ids
@@ -109,7 +112,8 @@ class ims_employee_base(models.AbstractModel):
 class ims_employee(models.AbstractModel):
     _inherit = ["hr.employee"]
 
-    employee_type = fields.Selection(string="Employee Type", selection_add = employee_types, ondelete={
+    # Info: groups is needed to avoid warnings
+    employee_type = fields.Selection(string="Employee Type", selection_add = employee_types, groups="base.group_system,hr.group_hr_user", ondelete={
         'asp': 'set default',
         'teacher': 'set default'
     })

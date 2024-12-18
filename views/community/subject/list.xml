@@ -12,9 +12,9 @@
                     <field name="acronym"/>
                     <field name="name" class="w-75"/>
                     <!-- Hidden but needed to filter or display properly -->
-                    <field name="study_id" invisible="1"/>  
-                    <field name="level" invisible="1"/>
-                    <field name="subject_id" invisible="1"/>  
+                    <field name="study_id" column_invisible="True"/>  
+                    <field name="level" column_invisible="True"/>
+                    <field name="subject_id" column_invisible="True"/>  
                 </list>              
             </field>
         </record>         
@@ -43,7 +43,7 @@
                     <field name="acronym"/>
                     <field name="name" class="w-75"/>
                     <!-- Hidden but needed to filter or display properly -->
-                    <field name="level" invisible="1"/>
+                    <field name="level" column_invisible="True"/>
                 </list>              
             </field>
         </record>               
