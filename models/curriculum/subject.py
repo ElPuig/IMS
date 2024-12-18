@@ -62,17 +62,14 @@ class ims_subject(models.Model):
                         "name": rec.name,                        
                         "subject_id": rec.id,
                         "study_id": study.id,
-                    })
-
-    @api.depends("study_ids")
-    def _populate_study_ids(self):
-        for rec in self:                       
+                    })  
+                     
             for child in rec.subject_ids:
                 studies = []
                 for study in rec.study_ids:                
                     studies.append(study.id)
                 
-                child.write({'subject_ids' : [(6, 0, studies)]})
+                child.write({'study_ids' : [(6, 0, studies)]})
 
     @api.depends("subject_id")
     def _compute_level(self):	        
@@ -82,18 +79,7 @@ class ims_subject(models.Model):
     @api.onchange("subject_id")
     def _onchange_subject_id(self):
         for rec in self:
-            rec.study_ids = rec.subject_id.study_ids    
-                    
-    # @api.onchange("study_ids")
-    # def _onchange_study_ids(self):
-    #     for rec in self:
-    #         for child in rec.subject_ids:  
-    #             studies = []
-    #             for study in rec.study_ids:                
-    #                 studies.append(study.id)
-
-    #             # This line changes the current values for the new ones (https://stackoverflow.com/a/65089711)
-    #             child.study_ids = [(6, 0, studies)]
+            rec.study_ids = rec.subject_id.study_ids                    
    
     @api.depends("subject_ids.internal_hours")
     def _compute_total_internal_hours(self):
