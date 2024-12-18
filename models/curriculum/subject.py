@@ -145,17 +145,17 @@ class ims_subject(models.Model):
             else:
                 rec.display_name = ''
     
-    def open_form_subject(self):
-        return {
-            'type': 'ir.actions.act_window',
-            'target': 'current',            
-            'res_model': 'ims.subject',
-            'res_id': self.id,
-            'context': self._context,
-            'view_mode': 'form',
-            'view_type': 'form',
-            'nodestroy': True,
-        }
+    # def open_form_subject(self):
+    #     return {
+    #         'type': 'ir.actions.act_window',
+    #         'target': 'current',            
+    #         'res_model': 'ims.subject',
+    #         'res_id': self.id,
+    #         'context': self._context,
+    #         'view_mode': 'form',
+    #         'view_type': 'form',
+    #         'nodestroy': True,
+    #     }
         
     
 class ims_subject_view(models.Model):

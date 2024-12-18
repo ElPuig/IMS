@@ -10,18 +10,18 @@ class ims_attachment(models.Model):
 	file = fields.Binary(string="File", required=True)
 	domain = fields.Char(string="Domain") # Used to filter the atachment by model, empty means "for all"
 
-	def open_form_attachment(self):
-		return {
-			'name': 'Attachment Edit',
-			'domain': [],
-			'res_model': 'ims.attachment',
-			'type': 'ir.actions.act_window',
-			'view_mode': 'form',
-			'view_type': 'form',
-			'res_id': self.id,
-			'context': self._context,
-			'target': 'new',
-		}
+	# def open_form_attachment(self):
+	# 	return {
+	# 		'name': 'Attachment Edit',
+	# 		'domain': [],
+	# 		'res_model': 'ims.attachment',
+	# 		'type': 'ir.actions.act_window',
+	# 		'view_mode': 'form',
+	# 		'view_type': 'form',
+	# 		'res_id': self.id,
+	# 		'context': self._context,
+	# 		'target': 'new',
+	# 	}
 
 	def download(self):        
 		return {

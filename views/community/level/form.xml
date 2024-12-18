@@ -18,11 +18,10 @@
                         <notebook>
                             <page string="Studies">
                                 <field name="study_ids" widget="many2many">
-                                    <list editable="bottom" default_order="code asc, acronym asc, name asc">
+                                    <list default_order="code asc, acronym asc, name asc">
                                         <field name="code"/>
                                         <field name="acronym"/>
                                         <field name="name"/>
-                                        <button class="oe_stat_button" title="Edit Study" icon="fa-pencil-square-o" name="open_form_study" type="object" />
                                     </list>
                                 </field>
                             </page>

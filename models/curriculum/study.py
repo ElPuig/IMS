@@ -24,14 +24,14 @@ class ims_study(models.Model):
         for rec in self:
             rec.display_name = "%s: %s" % (rec.acronym, rec.name)
     
-    def open_form_study(self):
-        return {
-            'type': 'ir.actions.act_window',
-            'target': 'current',            
-            'res_model': 'ims.study',
-            'res_id': self.id,
-            'context': self._context,
-            'view_mode': 'form',
-            'view_type': 'form',
-            'nodestroy': True,
-        }
+    # def open_form_study(self):
+    #     return {
+    #         'type': 'ir.actions.act_window',
+    #         'target': 'current',            
+    #         'res_model': 'ims.study',
+    #         'res_id': self.id,
+    #         'context': self._context,
+    #         'view_mode': 'form',
+    #         'view_type': 'form',
+    #         'nodestroy': True,
+    #     }

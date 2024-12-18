@@ -39,23 +39,21 @@
                         
                         <notebook>    
                             <page string="Studies" invisible="level > 1">
-                                <field name="study_ids" widget="one2many" >
-                                    <list editable="bottom" default_order="code asc, acronym asc, name asc">
+                                <field name="study_ids">
+                                    <list default_order="code asc, acronym asc, name asc">
                                         <field name="code"/>
                                         <field name="acronym"/>
                                         <field name="name"/>
-                                        <button class="oe_stat_button" title="Edit Study" icon="fa-pencil-square-o" name="open_form_study" type="object" />
                                     </list>
                                 </field>
                             </page>
 
                             <page string="Composite">
-                                <field name="subject_ids" widget="one2many" context="{'default_subject_id': id, 'default_study_ids': study_ids, 'default_code': code}">
-                                    <list editable="bottom" default_order="code asc, acronym asc, name asc">
+                                <field name="subject_ids" widget="many2many" context="{'default_subject_id': id, 'default_study_ids': study_ids, 'default_code': code}">
+                                    <list default_order="code asc, acronym asc, name asc">
                                         <field name="code"/>
                                         <field name="acronym"/>
                                         <field name="name"/>
-                                        <button class="oe_stat_button" title="Edit Subject" icon="fa-pencil-square-o" name="open_form_subject" type="object" />
 
                                         <!-- Needed but hidden for filtering purposes -->
                                         <field name="subject_id" column_invisible="True"/>
