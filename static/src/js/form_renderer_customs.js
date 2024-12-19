@@ -14,9 +14,8 @@ patch(FormRenderer.prototype, {
         owl.onMounted(function(){
             var model = self.props.record.model.config.resModel;
             var id = self.props.record.model.config.resId;
-            
-            //TODO: test if works correctly for every mode, otherwise enable again the conditional.
-            // if(model == "ims.content"){
+
+            if(model == "ims.content"){
                 const items = document.getElementsByClassName("o_expand_button");            
                 if(items.length > 0){                
                     items[0].onclick = function() { 
@@ -29,7 +28,7 @@ patch(FormRenderer.prototype, {
                         });
                     };                 
                 }  
-            // }          
+            }          
         });     
     }       
 });
