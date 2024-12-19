@@ -14,7 +14,7 @@ class ims_study(models.Model):
     notes = fields.Text(string="Notes")
     
     follow_ids = fields.One2many(string="Follow-up", comodel_name="ims.tracking", inverse_name="study_id")
-    subject_ids = fields.Many2many(string="Subjects", comodel_name="ims.subject")
+    subject_ids = fields.Many2many(string="Subjects", comodel_name="ims.subject", compute="_compute_subject_ids")
     level_id = fields.Many2one(string="Level", comodel_name="ims.level")
 
     attachment_ids = fields.Many2many(string="Attached files", comodel_name="ims.attachment", domain="['|',('domain', '=', 'ims.study'),('domain', '=', '')]") # Attachment for this model or for all the models (empty domain). TODO: allow multiple values (if needed).
@@ -24,6 +24,13 @@ class ims_study(models.Model):
         for rec in self:
             rec.display_name = "%s: %s" % (rec.acronym, rec.name)
     
+    @api.depends("subject_ids")
+    def _compute_subject_ids(self):
+        for rec in self:
+            for sub in rec.subject_ids:
+                rec.write({'subject_ids' : [(4, sub.id)]})
+            
+
     # def open_form_study(self):
     #     return {
     #         'type': 'ir.actions.act_window',

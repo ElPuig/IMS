@@ -12,12 +12,12 @@ export class StudentPopupFormController extends FormController {
         
         var self = this;
         owl.onMounted(function(){    
-            const items = document.getElementsByClassName("o_expand_button");
-            if(items.length > 0){
+            const items = document.getElementsByClassName("o_expand_button");            
+            if(items.length > 0){                
                 items[0].onclick = function() { 
                     self.action.doAction({
                         type: 'ir.actions.act_window',
-                        res_model: 'res.partner',                
+                        res_model: 'res.partner',    //self.props.record.model.config.resModel            
                         res_id: self.props.resId,
                         views: [[false, "form"]],                               
                         target: 'current', //with 'new' the form opens as a modal window.

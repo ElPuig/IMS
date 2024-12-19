@@ -31,6 +31,7 @@ class ims_content(models.Model):
 	def _compute_subject(self):	  		      
 		for rec in self:
 			if rec.content_id.id != False: rec.subject_id = rec.content_id.subject_id
+			if rec.content_id.id != False: rec.level = rec.content_id.level + 1 
 
 	@api.constrains('code')
 	def check_code(self):
@@ -38,16 +39,19 @@ class ims_content(models.Model):
 			if rec.content_id.id != False: 
 				if not rec.code.startswith(rec.content_id.code):
 					raise ValidationError("The code must start as the parent's code.")
-		
+	
+	@api.depends('acronym', 'name')
+	def _compute_display_name(self):              
+		for rec in self:
+			rec.display_name = "%s: %s" % (rec.acronym, rec.name)
+
 	def open_form_content(self):
 		return {
-            'name': 'Content Edit',
-            'domain': [],
+            'name': 'Content Edit',     
+			'type': 'ir.actions.act_window',
             'res_model': 'ims.content',
-            'type': 'ir.actions.act_window',
+            'res_id': self.id,						
+            'view_id': self.env.ref('ims.view_content_form').id,
             'view_mode': 'form',
-            'view_type': 'form',
-            'res_id': self.id,
-			'context': self._context,
-            'target': 'new'
-        }
+			'target': 'new'
+        }	

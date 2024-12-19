@@ -130,6 +130,7 @@
         'data/cat/ims.subject.csv',
         'data/cat/ims.level.csv',
         'data/cat/ims.study.csv',
+        'data/cat/ims.content.csv',
         
     ],
     'license': 'AGPL-3',

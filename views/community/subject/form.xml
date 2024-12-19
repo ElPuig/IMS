@@ -21,7 +21,7 @@
                             <group>							
                                 <field name="acronym"/>
                                 <field string="Internal hours" name="total_internal_hours" invisible="last == True or total_internal_hours == 0"/>
-                                <field name="internal_hours" invisible="last == False or total_internal_hours != 0"/>
+                                <field name="internal_hours" invisible="last == False and total_internal_hours != 0"/>
                             </group>  
                             <group colspan="2">
                                 <group colspan="2">
@@ -29,7 +29,7 @@
                                 </group>    
                                  <group>			
                                     <field string="External hours" name="total_external_hours" invisible="last == True or total_external_hours == 0"/>
-                                    <field name="external_hours" invisible="last ==  False or total_external_hours != 0"/>
+                                    <field name="external_hours" invisible="last == False and total_external_hours != 0"/>
                                 </group>                                
                                 <group>                        
                                     <field name="ects" invisible="subject_id != False"/>                                    
