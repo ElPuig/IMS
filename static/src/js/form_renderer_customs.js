@@ -14,8 +14,9 @@ patch(FormRenderer.prototype, {
         owl.onMounted(function(){
             var model = self.props.record.model.config.resModel;
             var id = self.props.record.model.config.resId;
+            var allowed = ["ims.content", "ims.outcome", "ims.subject"]
 
-            if(model == "ims.content"){
+            if(allowed.includes(model)){
                 const items = document.getElementsByClassName("o_expand_button");            
                 if(items.length > 0){                
                     items[0].onclick = function() { 

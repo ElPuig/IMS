@@ -29,16 +29,6 @@ class ims_study(models.Model):
         for rec in self:
             for sub in rec.subject_ids:
                 rec.write({'subject_ids' : [(4, sub.id)]})
-            
 
-    # def open_form_study(self):
-    #     return {
-    #         'type': 'ir.actions.act_window',
-    #         'target': 'current',            
-    #         'res_model': 'ims.study',
-    #         'res_id': self.id,
-    #         'context': self._context,
-    #         'view_mode': 'form',
-    #         'view_type': 'form',
-    #         'nodestroy': True,
-    #     }
+
+            

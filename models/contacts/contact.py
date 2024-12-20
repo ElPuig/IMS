@@ -126,7 +126,7 @@ class ims_contact(models.Model):
             study = self.env["ims.study"].search([("id", "=", values.get('study_id'))]) or False            
             values["level_id"] = study.level_id.id
 
-    def open_form_student(self):
+    def open_form(self):
         return {
             'type': 'ir.actions.act_window',
             'res_model': 'res.partner',

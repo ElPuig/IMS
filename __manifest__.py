@@ -97,6 +97,7 @@
 
             'views/community/content/form.xml', 
             'views/community/criteria/form.xml',
+            'views/community/outcome/form.xml',
 
         # 'views/community/tracking/list.xml',
         # 'views/community/tracking/form.xml',  
@@ -131,6 +132,7 @@
         'data/cat/ims.level.csv',
         'data/cat/ims.study.csv',
         'data/cat/ims.content.csv',
+        'data/cat/ims.outcome.csv',        
         
     ],
     'license': 'AGPL-3',

@@ -8,7 +8,7 @@ class ims_subject(models.Model):
     _description = "Subject: The main item for a student's subject."
     _order = "code asc"
     _sql_constraints = [
-        ('unique_subject_code', 'unique (code)', 'duplicated code!')
+        ('unique_code', 'unique (code)', 'duplicated code!')
     ]
     
     code = fields.Char(string="Code", required=True)
@@ -32,8 +32,10 @@ class ims_subject(models.Model):
     subject_ids = fields.One2many(string="Composite", comodel_name="ims.subject", inverse_name="subject_id", domain="[('id', '!=', id), ('level', '>', level), ('subject_id', '=', False)]")
     subject_id = fields.Many2one(string="Main subject", comodel_name="ims.subject")
     
-    content_ids = fields.One2many(string="Content", comodel_name="ims.content", inverse_name="subject_id")
-    criteria_ids = fields.One2many(string="Criteria", comodel_name="ims.criteria", inverse_name="subject_id")
+    outcome_ids = fields.One2many(string="Learning Outcome", comodel_name="ims.outcome", inverse_name="subject_id")
+    content_ids = fields.One2many(string="Content", comodel_name="ims.content", inverse_name="subject_id")    
+
+    #criteria_ids = fields.One2many(string="Criteria", comodel_name="ims.criteria", inverse_name="subject_id")
 
     #The subject_view_ids is used as a view for the subject list
     subject_view_ids = fields.One2many(comodel_name="ims.subject_view", inverse_name="subject_id", compute="_compute_subject_views", store=True)
@@ -104,7 +106,7 @@ class ims_subject(models.Model):
             rec.last = (len(rec.subject_ids) == 0)
 
     @api.constrains('code')
-    def check_code(self):
+    def _check_code(self):
         for rec in self:
             if rec.subject_id.id != False: 
                 if not rec.code.startswith(rec.subject_id.code):
@@ -131,18 +133,16 @@ class ims_subject(models.Model):
             else:
                 rec.display_name = ''
     
-    # def open_form_subject(self):
-    #     return {
-    #         'type': 'ir.actions.act_window',
-    #         'target': 'current',            
-    #         'res_model': 'ims.subject',
-    #         'res_id': self.id,
-    #         'context': self._context,
-    #         'view_mode': 'form',
-    #         'view_type': 'form',
-    #         'nodestroy': True,
-    #     }
-        
+    def open_form(self):
+        return {
+            'name': '%s Edit' % self._description.split(':')[0],
+            'type': 'ir.actions.act_window',
+            'res_model': self._name,
+            'res_id': self.id,						
+            'view_id': self.env.ref('ims.view_%s_form' % (self._name.split('.')[1])).id,
+            'view_mode': 'form',
+            'target': 'new'
+        }
     
 class ims_subject_view(models.Model):
     _name = "ims.subject_view"
@@ -186,15 +186,16 @@ class ims_subject_view(models.Model):
             else:
                 rec.display_name = ''
 
-    def open_form_subject(self):
-        return {
-            'name': 'Subject Edit',
-            'domain': [],
-            'res_model': 'ims.subject',
-            'type': 'ir.actions.act_window',
-            'view_mode': 'form',
-            'view_type': 'form',
-            'res_id': (0 if self == False else self.subject_id.id),
-            'context': self._context,
-            'target': 'new',
-        }
+    def open_form(self):
+        return self.subject_id.open_form()
+        # return {
+        #     'name': 'Subject Edit',
+        #     'domain': [],
+        #     'res_model': 'ims.subject',
+        #     'type': 'ir.actions.act_window',
+        #     'view_mode': 'form',
+        #     'view_type': 'form',
+        #     'res_id': (0 if self == False else self.subject_id.id),
+        #     'context': self._context,
+        #     'target': 'new',
+        # }

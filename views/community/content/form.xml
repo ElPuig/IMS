@@ -29,7 +29,7 @@
                                         <field name="code"/>
                                         <field name="acronym"/>
                                         <field name="name"/>                                               
-                                        <button class="oe_stat_button" title="Edit Content" icon="fa-pencil-square-o" name="open_form_content" type="object" />                                 
+                                        <button class="oe_stat_button" title="Edit Content" icon="fa-pencil-square-o" name="open_form" type="object" />                                 
 
                                         <!-- Needed but hidden for filtering purposes -->
                                         <field name="subject_id" column_invisible="True"/>

@@ -1,10 +1,10 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_criteria_form">
-            <field name="name">ims.criteria.form</field>
-            <field name="model">ims.criteria</field>
+        <record model="ir.ui.view" id="view_outcome_form">
+            <field name="name">ims.outcome.form</field>
+            <field name="model">ims.outcome</field>
             <field name="arch" type="xml">				
-                <form string="criteria">                   
+                <form string="outcome">                   
                     <sheet>                        
                         <group string="Main data" col="6">                            
                             <group>
@@ -17,14 +17,14 @@
                         
                         <notebook>                           
                             <page string="Composite">
-                                <field name="criteria_ids" widget="one2many" context="{'default_criteria_id': id}">
+                                <field name="outcome_ids" widget="one2many" context="{'default_outcome_id': id}">
                                     <list editable="bottom" default_order="acronym asc, name asc">
                                         <field name="acronym"/>
                                         <field name="name"/>                                               
-                                        <button class="oe_stat_button" title="Edit Criteria" icon="fa-pencil-square-o" name="open_form" type="object" />
+                                        <button class="oe_stat_button" title="Edit outcome" icon="fa-pencil-square-o" name="open_form" type="object" />
 
                                         <!-- Needed but hidden for filtering purposes -->
-                                        <field name="criteria_id" column_invisible="True"/>                                                                                
+                                        <field name="outcome_id" column_invisible="True"/>                                                                                
                                     </list>
                                 </field>
                             </page>
