@@ -1,0 +1,5 @@
+id,name,parent_id:id,active
+"hr.dep_administration","Administration","",True
+"hr.department_vet","VET","",True
+"hr.department_cs","Computer Science","hr.department_vet",True
+"hr.department_administration","Administration and finances","hr.department_vet",True

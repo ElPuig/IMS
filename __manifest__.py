@@ -127,12 +127,17 @@
         'views/shared/attachment/form.xml',   
         
         ### Data entries (do not alter the order) ###
+        'data/main/ims.space_type.csv',    
+
         'data/cat/ims.attachment.csv',
         'data/cat/ims.subject.csv',
         'data/cat/ims.level.csv',
         'data/cat/ims.study.csv',
         'data/cat/ims.content.csv',
-        'data/cat/ims.outcome.csv',        
+        'data/cat/ims.outcome.csv',    
+
+        'data/elpuig/ims.space.csv',    
+        'data/elpuig/hr.department.csv',    
         
     ],
     'license': 'AGPL-3',
@@ -142,32 +147,32 @@
     # only loaded in demonstration mode (only loaded when installed, ignored when updated)
     'demo': [
         # this order is needed due dependencies
-        'demo/shared/attachment.xml',
+        #'demo/shared/attachment.xml',
 
-        'demo/curriculum/level.xml',
-        'demo/curriculum/study.xml',
-        'demo/curriculum/subject.xml',
-        'demo/curriculum/content.xml',
+        #'demo/curriculum/level.xml',
+        #'demo/curriculum/study.xml',
+        #'demo/curriculum/subject.xml',
+        #'demo/curriculum/content.xml',
 
-        'demo/facilities/space_type.xml',         
-        'demo/facilities/space.xml',         
+        #'demo/facilities/space_type.xml',         
+        #'demo/facilities/space.xml',         
 
-        'demo/contacts/group.xml',        
-        'demo/contacts/company.xml',        
+        # 'demo/contacts/group.xml',        
+        # 'demo/contacts/company.xml',        
         
-        'demo/employees/teaching.xml',   
-        'demo/employees/job.xml',
-        'demo/employees/department.xml',
-        'demo/employees/work_location.xml',
-        'demo/employees/teacher.xml',
-        'demo/employees/pas.xml',
-        'demo/employees/role.xml', 
-        'demo/employees/employee.xml',  
-        'demo/employees/workgroup.xml',   
+        #'demo/employees/teaching.xml',   
+        # 'demo/employees/job.xml',
+        # 'demo/employees/department.xml',
+        # 'demo/employees/work_location.xml',
+        #'demo/employees/teacher.xml',
+        #'demo/employees/pas.xml',
+        #'demo/employees/role.xml', 
+        #'demo/employees/employee.xml',  
+        #'demo/employees/workgroup.xml',   
 
-        'demo/contacts/student.xml',
-        'demo/contacts/provider.xml',
-        'demo/contacts/enrollment.xml',
+        #'demo/contacts/student.xml',
+        #'demo/contacts/provider.xml',
+        #'demo/contacts/enrollment.xml',
 
         #'demo/attendance/attendance_template.xml',
         #'demo/attendance/attendance_schedule.xml',
