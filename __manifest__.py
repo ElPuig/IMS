@@ -70,6 +70,7 @@
             'views/community/role/menu.xml',
                 
             'views/community/department/menu.xml',
+            'views/community/department/list.xml',
             'views/community/worklocation/menu.xml',
             'views/community/employmenttypes/menu.xml',
 
