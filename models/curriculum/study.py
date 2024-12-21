@@ -14,7 +14,7 @@ class ims_study(models.Model):
     notes = fields.Text(string="Notes")
     
     follow_ids = fields.One2many(string="Follow-up", comodel_name="ims.tracking", inverse_name="study_id")
-    subject_ids = fields.Many2many(string="Subjects", comodel_name="ims.subject", compute="_compute_subject_ids")
+    subject_ids = fields.Many2many(string="Subjects", comodel_name="ims.subject") 
     level_id = fields.Many2one(string="Level", comodel_name="ims.level")
 
     attachment_ids = fields.Many2many(string="Attached files", comodel_name="ims.attachment", domain="['|',('domain', '=', 'ims.study'),('domain', '=', '')]") # Attachment for this model or for all the models (empty domain). TODO: allow multiple values (if needed).

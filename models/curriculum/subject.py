@@ -26,7 +26,7 @@ class ims_subject(models.Model):
     
     notes = fields.Text("Notes")
 
-    study_ids = fields.Many2many(string="Studies", comodel_name="ims.study")		
+    study_ids = fields.Many2many(string="Studies", comodel_name="ims.study")
     teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
 
     subject_ids = fields.One2many(string="Composite", comodel_name="ims.subject", inverse_name="subject_id", domain="[('id', '!=', id), ('level', '>', level), ('subject_id', '=', False)]")
@@ -41,7 +41,7 @@ class ims_subject(models.Model):
     subject_view_ids = fields.One2many(comodel_name="ims.subject_view", inverse_name="subject_id", compute="_compute_subject_views", store=True)
 
     # The following fields are computed and used to display the data correctly within the treeview
-    level = fields.Integer(string="Level", default=1, compute="_compute_level", store=True)			
+    level = fields.Integer(string="Level", default=1)
 	    
     @api.depends("study_ids")
     def _compute_subject_views(self):	        

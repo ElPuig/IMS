@@ -21,7 +21,7 @@ class ims_criteria(models.Model):
 
 	# The following fields are computed and used to display the data correctly within the treeview
 	#level = fields.Integer(string="Level", default=1, compute="_compute_level", store=True)		
-	level = fields.Integer(string="Level", default=1, store=True)	
+	level = fields.Integer(string="Level", default=1)	
 	
 	# @api.depends("criteria_id")
 	# def _compute_level(self):
