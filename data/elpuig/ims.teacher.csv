@@ -1,0 +1,2 @@
+id,name,work_phone,work_email,department_id:id,job_id:id,parent_id:id,roles_id:id
+"hr.employee_50001122A","Fernando Porrino Serrano","600600600","porrino.fernando@elpuig.xeill.net","hr.department_cs","ims.job_internal","","ims.role_quality"

@@ -138,6 +138,7 @@
         'data/cat/ims.outcome.csv',    
         'data/cat/ims.role.csv',    
         'data/cat/ims.workgroup.csv',    
+        'data/cat/hr.job.csv',
 
         'data/elpuig/ims.space.csv',    
         'data/elpuig/hr.department.csv',    
@@ -161,13 +162,13 @@
         #'demo/facilities/space_type.xml',         
         #'demo/facilities/space.xml',         
 
-        # 'demo/contacts/group.xml',        
-        # 'demo/contacts/company.xml',        
+        #'demo/contacts/group.xml',        
+        #'demo/contacts/company.xml',        
         
         #'demo/employees/teaching.xml',   
-        # 'demo/employees/job.xml',
-        # 'demo/employees/department.xml',
-        # 'demo/employees/work_location.xml',
+        #'demo/employees/job.xml',
+        #'demo/employees/department.xml',
+        #'demo/employees/work_location.xml',
         #'demo/employees/teacher.xml',
         #'demo/employees/pas.xml',
         #'demo/employees/role.xml', 
