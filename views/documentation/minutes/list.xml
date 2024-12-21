@@ -4,7 +4,7 @@
             <field name="name">ims.minute.list</field>
             <field name="model">ims.minute</field>
             <field name="arch" type="xml">
-                <list expand="1" >
+                <list expand="True" >
                     <field name="date"/>
                     <field name="type"/>
                     <field name="members"/>

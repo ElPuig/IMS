@@ -4,7 +4,7 @@
             <field name="name">ims.space.list</field>
             <field name="model">ims.space</field>
             <field name="arch" type="xml">
-                <list expand="1" default_order="code asc">                           
+                <list expand="True" default_order="code asc">                           
                     <field name="code"/>
                     <field name="space_type_id" width="100px"/>
                     <field name="name"/>                    

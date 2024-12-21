@@ -4,7 +4,7 @@
             <field name="name">ims.study.list</field>
             <field name="model">ims.study</field>
             <field name="arch" type="xml">
-                <list expand="1" default_order="level_id asc, code asc">                    
+                <list expand="True" default_order="level_id asc, code asc">                    
                     <field name="code"/>
                     <field name="acronym"/>
                     <field name="name" class="w-75"/>
@@ -18,7 +18,7 @@
             <field name="model">ims.study</field>            
             <field name="arch" type="xml">
                 <search string="Level">
-                    <group expand="1" string="Order By">
+                    <group expand="True" string="Order By">
                         <filter string="Level" name="group_by_level" context="{'group_by':'level_id'}" />
                     </group>
                 </search>
