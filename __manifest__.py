@@ -140,8 +140,9 @@
         'data/cat/ims.workgroup.csv',    
         'data/cat/hr.job.csv',
 
+        'data/elpuig/res.company.csv',    
         'data/elpuig/ims.space.csv',    
-        'data/elpuig/hr.department.csv',    
+        'data/elpuig/hr.department.csv',            
 
         
     ],
