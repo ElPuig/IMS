@@ -136,9 +136,12 @@
         'data/cat/ims.study.csv',
         'data/cat/ims.content.csv',
         'data/cat/ims.outcome.csv',    
+        'data/cat/ims.role.csv',    
+        'data/cat/ims.workgroup.csv',    
 
         'data/elpuig/ims.space.csv',    
         'data/elpuig/hr.department.csv',    
+
         
     ],
     'license': 'AGPL-3',
