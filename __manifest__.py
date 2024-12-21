@@ -129,6 +129,7 @@
         
         ### Data entries (do not alter the order) ###
         'data/main/ims.space_type.csv',    
+        'data/main/hr.work.location.csv',    
 
         'data/cat/ims.attachment.csv',
         'data/cat/ims.subject.csv',
@@ -142,7 +143,9 @@
 
         'data/elpuig/res.company.csv',    
         'data/elpuig/ims.space.csv',    
-        'data/elpuig/hr.department.csv',            
+        'data/elpuig/hr.department.csv',   
+        'data/elpuig/hr.department.csv',   
+        'data/elpuig/hr.employee.csv',
 
         
     ],

@@ -5,5 +5,6 @@ id,name,color,employee_type
 "ims.role_quality","Quality coordinator",4,teacher
 "ims.role_coexistence","Coexistence coordinator",10,teacher
 "ims.role_orc","Occupational risk coordinator",11,teacher
+"ims.role_dchieff_cs","Department Chieff (Computer Science)",11,teacher
 "ims.role_schieff","Secretary Chieff",1,asp
-"ims.role_cschieff","Concierje Chieff",2,asp
+"ims.role_cchieff","Concierje Chieff",2,asp
