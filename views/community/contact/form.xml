@@ -34,7 +34,7 @@
                 </field> -->
                 
                 <field name="title" position="replace">
-                    <field name="student_email" invisible="contact_type != 'provider'"  widget="email" />
+                    <field name="student_email" invisible="contact_type != 'student'"  widget="email" />
                 </field>
 
                 <field name="vat" position="attributes">                    
