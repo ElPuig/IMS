@@ -28,6 +28,14 @@
                 <field name="category_id" position="attributes">     
                      <attribute name="invisible">contact_type != 'provider'</attribute>
                 </field>
+                              
+                <!-- <field name="title" position="attributes">     
+                     <attribute name="invisible">True</attribute>
+                </field> -->
+                
+                <field name="title" position="replace">
+                    <field name="student_email" invisible="contact_type != 'provider'"  widget="email" />
+                </field>
 
                 <field name="vat" position="attributes">                    
                     <attribute name="invisible">contact_type != 'provider'</attribute>            

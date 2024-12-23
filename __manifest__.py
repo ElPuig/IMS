@@ -144,8 +144,8 @@
         'data/elpuig/res.company.csv',    
         'data/elpuig/ims.space.csv',    
         'data/elpuig/hr.department.csv',   
-        'data/elpuig/hr.department.csv',   
         'data/elpuig/hr.employee.csv',
+        #'data/elpuig/res.partner.csv',
 
         
     ],
@@ -179,7 +179,7 @@
         #'demo/employees/employee.xml',  
         #'demo/employees/workgroup.xml',   
 
-        #'demo/contacts/student.xml',
+        'demo/contacts/student.xml',
         #'demo/contacts/provider.xml',
         #'demo/contacts/enrollment.xml',
 

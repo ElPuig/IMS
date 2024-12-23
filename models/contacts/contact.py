@@ -17,7 +17,8 @@ class ims_contact(models.Model):
     main_group_id = fields.Many2one(string='Main Group', comodel_name='ims.group')            
     enrollment_ids = fields.One2many(string='Enrollment', comodel_name='ims.enrollment', inverse_name='student_id')
     contact_type = fields.Selection(string='Contact Type', selection=[('provider', 'Provider'), ('student', 'Student')])   
-        
+    student_email = fields.Char(string="Student email")	
+
     @api.onchange('enrollment_ids')
     def _onchange_enrollment_ids(self):	
         # The idea is to populate the enrollment data in both directions:
