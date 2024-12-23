@@ -29,13 +29,9 @@
                      <attribute name="invisible">contact_type != 'provider'</attribute>
                 </field>
                               
-                <!-- <field name="title" position="attributes">     
-                     <attribute name="invisible">True</attribute>
-                </field> -->
-                
-                <field name="title" position="replace">
-                    <field name="student_email" invisible="contact_type != 'student'"  widget="email" />
-                </field>
+                <field name="title" position="attributes">     
+                     <attribute name="invisible">contact_type != 'provider'</attribute>
+                </field>                               
 
                 <field name="vat" position="attributes">                    
                     <attribute name="invisible">contact_type != 'provider'</attribute>            
@@ -47,9 +43,41 @@
 
                 <xpath expr="//page[@name='sales_purchases']" position="attributes">                     
                     <attribute name="invisible">contact_type != 'provider'</attribute>
-                </xpath>     
-         
-                <xpath expr="//page[@name='sales_purchases']" position="after">                     
+                </xpath>
+
+                <xpath expr="//page[@name='contact_addresses']" position="attributes">
+                    <attribute name="autofocus">contact_type != 'student</attribute>
+                </xpath>
+
+                <xpath expr="//page[@name='contact_addresses']" position="before">
+                    <page name="student" string="Student data" invisible="contact_type != 'student'" autofocus="contact_type == 'student">
+                        <group cols="2">
+                            <separator name="data" string="Main Data"/>
+                            <group>
+                                <field name="student_id" />
+                                <field name="birth_date" />                            
+                                <field name="student_email" invisible="contact_type != 'student'"  widget="email" />
+                                <field name="car_plate" />
+                            </group>
+                            <group>
+                                <field name="medical_id" />
+                                <field name="birth_country_id" />    
+                                <field name="citizenship_id" />
+                            </group>                            
+
+                            <separator name="data" string="Authorizations"/>
+                            <group>
+                                <field name="auth_image" />
+                                <field name="auth_trip" />
+                            </group>    
+                            <group>                                
+                                <field name="auth_healt" />
+                            </group>  
+                        </group>                        
+                    </page>
+                </xpath>
+
+                <xpath expr="//page[@name='sales_purchases']" position="after">                                         
                     <page name="studies" string="Studies" invisible="contact_type != 'student'">
                         <group cols="2">
                             <separator name="group" string="Group Data"/>

@@ -145,7 +145,7 @@
         'data/elpuig/ims.space.csv',    
         'data/elpuig/hr.department.csv',   
         'data/elpuig/hr.employee.csv',
-        #'data/elpuig/res.partner.csv',
+        'data/elpuig/res.partner.csv',
 
         
     ],

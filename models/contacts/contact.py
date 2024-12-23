@@ -14,10 +14,19 @@ class ims_contact(models.Model):
     tutor_id = fields.Many2one(string='Tutor', related="main_group_id.tutor_id") # Related field: auto-computed and auto-refreshed within the form.
     
     # model-data fields:
-    main_group_id = fields.Many2one(string='Main Group', comodel_name='ims.group')            
+    main_group_id = fields.Many2one(string='Main Group', comodel_name='ims.group')     
     enrollment_ids = fields.One2many(string='Enrollment', comodel_name='ims.enrollment', inverse_name='student_id')
     contact_type = fields.Selection(string='Contact Type', selection=[('provider', 'Provider'), ('student', 'Student')])   
     student_email = fields.Char(string="Student email")	
+    student_id = fields.Char(string="Student ID")
+    medical_id = fields.Char(string="Medical ID")
+    birth_date = fields.Date(string="Birth Date")
+    birth_country_id = fields.Many2one(string="Birth Country", comodel_name='res.country')
+    citizenship_id =  fields.Many2one(string="Citizenship", comodel_name='res.country')
+    auth_image = fields.Boolean(string="Image Rights")
+    auth_trip = fields.Boolean(string="Scholar Trips")
+    auth_healt = fields.Boolean(string="Health Data")
+    car_plate = fields.Char(string="Car Plate")
 
     @api.onchange('enrollment_ids')
     def _onchange_enrollment_ids(self):	

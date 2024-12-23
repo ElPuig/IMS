@@ -9,8 +9,14 @@
                     <!-- Required fields, must be loaded in order to use them. -->
                     <field name="main_group_id"/>
                     <field name="tutor_id"/>
+                    <field name="student_email"/>
                 </xpath>
                 
+                <xpath expr="//field[@name='email']" position="replace">
+                    <field t-if="record.student_email.raw_value" name="student_email" class="text-truncate" />
+                    <field t-else="" name="email" class="text-truncate" />
+                </xpath>
+
                 <xpath expr="//kanban//main/footer" position="before">
                     <span class="text-truncate" t-if="record.main_group_id.raw_value > 0">
                         <div class="ims-kanban-label">
