@@ -45,8 +45,9 @@
                                     <list default_order="name asc" >
                                         <field name="image_1920" widget="image" />
                                         <field name="name" class="align-middle"/>
-                                        <field name="email" class="align-middle"/>
-                                        <field name="phone" class="align-middle"/>
+                                        <field name="student_email" class="align-middle"/>
+                                        <field name="email" string="Personal Email" class="align-middle"/>
+                                        <field name="mobile" class="align-middle"/>
                                         <!-- Needed to open as fullscreen form -->
                                         <field name="id" column_invisible="True"/>
                                     </list>

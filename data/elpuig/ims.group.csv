@@ -1,0 +1,2 @@
+id,course,acronym,level_id:id,study_id:id,tutor_id:id,space_id:id,delegate_id:id,main_student_ids:id
+"ims.group_dam1a",1,"A","ims.level_cfgs","ims.study_dam_2024","ims.teacher_50004422C","ims.space_018","ims.student_41112265C","ims.student_41112265C,ims.student_32221123B"
