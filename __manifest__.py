@@ -148,6 +148,7 @@
         'data/elpuig/res.partner.csv',
         'data/elpuig/ims.group.csv',
         'data/elpuig/ims.enrollment.csv',
+        'data/elpuig/ims.teaching.csv',
 
         
     ],
