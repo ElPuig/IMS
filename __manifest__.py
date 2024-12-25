@@ -147,6 +147,7 @@
         'data/elpuig/hr.employee.csv',
         'data/elpuig/res.partner.csv',
         'data/elpuig/ims.group.csv',
+        'data/elpuig/ims.enrollment.csv',
 
         
     ],
