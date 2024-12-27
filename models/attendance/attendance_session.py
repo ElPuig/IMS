@@ -119,7 +119,8 @@ class ims_attendance_session(models.Model):
 		for rec in self:
 			students = []
 			
-			# TODO: unlink like "self.env['ims.enrollment_view'].search([('group_id', '=', rec.id)]).unlink()"
+			# TODO: rec.write({'attendance_status_ids' : [(6, 0, students)]}) --> '6' means unlink previous and link the new ones.
+
 			for attendance_status in rec.attendance_status_ids:
 				# Unlink previous students
 				students.append([3, attendance_status.id])

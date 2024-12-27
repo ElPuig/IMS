@@ -32,19 +32,16 @@ class ims_attendance_template(models.Model):
 		for rec in self:
 			rec.space_id = rec.group_id.space_id
 
-	@api.onchange("subject_id")	
-	def _onchange_subject_id(self):		
+	@api.onchange("subject_id", "group_id")	
+	def _fill_students(self):		
 		for rec in self:			
-			rec.student_ids.unlink()			
-			students = []
+			#rec.student_ids.unlink()			
+			#students = []
 			# for student in rec.student_ids:
 			# 	# Unlink previous students
 			# 	students.append([3, student.id])
-			
+			students = []
 			for student in self.env['ims.enrollment'].search([('group_id', '=', rec.group_id.id), ('subject_id', '=', rec.subject_id.id)]).mapped('student_id'):
-				students.append([0, 0, {
-					"student_id": student
-				}])	
+				students.append(student.id)
 
-			# TODO: add to many2many, this only works form one2many
-			rec.write({"student_ids": students})
+			rec.write({'student_ids' : [(6, 0, students)]})
