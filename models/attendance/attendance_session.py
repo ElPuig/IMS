@@ -119,6 +119,7 @@ class ims_attendance_session(models.Model):
 		for rec in self:
 			students = []
 			
+			# TODO: unlink like "self.env['ims.enrollment_view'].search([('group_id', '=', rec.id)]).unlink()"
 			for attendance_status in rec.attendance_status_ids:
 				# Unlink previous students
 				students.append([3, attendance_status.id])
@@ -132,7 +133,8 @@ class ims_attendance_session(models.Model):
 				students.append([0, 0, {
 					"student_id": student
 				}])	
-			self.write({"attendance_status_ids": students})
+			#self.write({"attendance_status_ids": students})
+			rec.write({"attendance_status_ids": students})
 
 	@api.depends('attendance_schedule_id', 'date')
 	def _compute_display_name(self):              
