@@ -39,6 +39,20 @@
                         </group>
                                             
                         <notebook>
+                            <page string="Students">
+                                <field name="student_ids" widget="many2many">
+                                    <list default_order="name asc" >
+                                        <field name="image_1920" widget="image" />
+                                        <field name="name" class="align-middle"/>
+                                        <field name="student_email" class="align-middle"/>
+                                        <field name="main_group_id" class="align-middle"/>
+                                        <field name="tutor_id" class="align-middle"/>
+                                        <!-- Needed to open as fullscreen form -->
+                                        <field name="id" column_invisible="True"/>
+                                    </list>
+                                </field>                          
+                            </page>
+
                             <page string="Sessions">
                                 <field name="attendance_schedule_ids" string="" context="{'default_space_id' : space_id}">
                                     <list editable="bottom" default_order="weekday asc, start_time asc">
@@ -51,11 +65,7 @@
                                         <field name="end_date" widget="timepicker" width="120px" column_invisible="True" />  
                                     </list>
                                 </field>
-                            </page>
-
-                            <page string="Students">
-                                <field name="student_ids" mode="kanban" />                               
-                            </page>
+                            </page>                           
                         </notebook> 
                     </sheet>	
                 </form>
