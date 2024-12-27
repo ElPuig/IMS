@@ -34,12 +34,7 @@ class ims_attendance_template(models.Model):
 
 	@api.onchange("subject_id", "group_id")	
 	def _fill_students(self):		
-		for rec in self:			
-			#rec.student_ids.unlink()			
-			#students = []
-			# for student in rec.student_ids:
-			# 	# Unlink previous students
-			# 	students.append([3, student.id])
+		for rec in self:						
 			students = []
 			for student in self.env['ims.enrollment'].search([('group_id', '=', rec.group_id.id), ('subject_id', '=', rec.subject_id.id)]).mapped('student_id'):
 				students.append(student.id)
