@@ -22,3 +22,7 @@ div[name="attachment_ids"] th.o_list_button{
 div.ims-kanban-label > span {
     font-style: italic;
 }
+
+td.o_radio_cell:has(div.o_field_radio.align-middle){
+    vertical-align: middle;
+}
