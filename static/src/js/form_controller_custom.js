@@ -12,7 +12,7 @@ export class StudentPopupFormController extends FormController {
         
         var self = this;
         owl.onMounted(function(){    
-            const items = document.getElementsByClassName("o_expand_button");            
+            const items = document.getElementsByClassName("o_expand_button");
             if(items.length > 0){                
                 items[0].onclick = function() { 
                     self.action.doAction({
