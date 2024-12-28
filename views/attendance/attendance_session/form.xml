@@ -49,7 +49,7 @@
                                     <!-- TODO: custom CSS needed in order to fit aligns and other stuff -->
                                     <list editable="bottom" default_order="student_id asc">                                       
                                         <field name="image_1920" widget="image" />
-                                        <field name="student_id" width="175px"  /> <!-- class="align-middle" -->
+                                        <field name="student_id" width="175px" domain="[('contact_type', '=', 'student'), ('id','not in', inuse_student_ids)]"/>
                                         <field name="status" widget="radio" options="{'horizontal': true}" />
                                         <field name="notes" width="350px"/>                                       
                                     </list>

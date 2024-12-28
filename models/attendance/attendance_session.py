@@ -31,8 +31,8 @@ class ims_attendance_session(models.Model):
 	notes = fields.Text("Notes")
 	
 	attendance_status_ids = fields.One2many(string="Statuses", comodel_name="ims.attendance_status", inverse_name="attendance_session_id")	
-	attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ims.attendance_schedule", default=lambda self: self._default_attendance_schedule(), required=True)
-	
+	attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ims.attendance_schedule", default=lambda self: self._default_attendance_schedule(), required=True)	
+
 	@api.depends("attendance_schedule_id")
 	def _compute_weekday(self):
 		for rec in self:
