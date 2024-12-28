@@ -13,6 +13,7 @@
                     <sheet>                   
                         <group string="Main data" col="6" >
                             <group colspan="3">      
+                                <!-- TODO: readonly form when clicked -->
                                 <field name="attendance_schedule_id" readonly="id != False"/>
                             </group>    
                             <group colspan="1">
@@ -45,8 +46,7 @@
 
                         <notebook>
                             <page string="Statuses">
-                                <field name="attendance_status_ids" widget="one2many_list" context="{'show_attribute': False}"  mouseover="_onMouseOver">
-                                    <!-- TODO: custom CSS needed in order to fit aligns and other stuff -->
+                                <field name="attendance_status_ids" widget="one2many_list" context="{'show_attribute': False}"  mouseover="_onMouseOver">                                    
                                     <list editable="bottom" default_order="student_id asc">                                       
                                         <field name="image_1920" widget="image" />
                                         <field name="student_id" width="175px" class="align-middle" domain="[('contact_type', '=', 'student'), ('id','not in', inuse_student_ids)]"/>
