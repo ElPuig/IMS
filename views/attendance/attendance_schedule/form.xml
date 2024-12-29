@@ -1,64 +1,44 @@
 <odoo>
     <data>    
-        <!-- TODO: accessible from session form, everything should be readonly (or disable the link)  -->
-        <!-- <record model="ir.ui.view" id="view_attendance_group_form">
-            <field name="name">ims.attendance.group.form</field>
-            <field name="model">ims.attendance_group</field>
+        <record model="ir.ui.view" id="view_attendance_schedule_form">
+            <field name="name">ims.attendance_schedule.form</field>
+            <field name="model">ims.attendance_schedule</field>
             <field name="arch" type="xml">
-                <form string="Template group">
+                <form string="Schedule">
                     <sheet>                        
-                        <group string="Basic data">
-                            <field name="end_date"/>
-                            <field name="duration"/>
-                            <field name="teacher"/>
-                            <field name="student"/>
-                            <field name="study"/>
-                            <field name="subject"/>
-                            <field name="space"/>
-                            <field name="weekday"/>
-                            <field name="start_time" widget="float_time" />
-                            <field name="end_time" widget="float_time" />
-                            <field name="color" widget="color_picker" />
-                            <field name="group"/>
-                            <field name="has_templates" invisible="1"/>                                                                              
+                        <group string="Main data" col="6">
+                            <group colspan="2">      
+                                <field name="attendance_template_id" readonly="True"/>
+                            </group> 
+                            <group colspan="2">                                      
+                                <field name="start_date" readonly="True"/>
+                            </group>    
+                            <group colspan="2">
+                                <field name="end_date" readonly="True"/>
+                            </group>  
+
+                            <group colspan="2">
+                                <field name="weekday" readonly="True"/>
+                            </group>   
+                            <group colspan="2">
+                                <field name="space_id" readonly="True"/>
+                            </group>
+                            <group>
+                                <field name="start_time" readonly="True"/>
+                            </group>     
+                            <group>
+                                <field name="end_time" readonly="True"/>
+                            </group>                                                                  
                         </group>
+                        
                         <notebook>
-                            <page string="Templates">
-                                <field name="attendance_templates" string="" context="{'show_attribute': False}">
-                                    TODO: this sould be automatically filled when selecting the group.
-                                    <list editable="bottom">
-                                        <field name="student" />
-                                    </list>
-                                </field>
-                            </page>
                             <page string="Sessions">
-                                <field name="attendance_sessions" widget="one2many_list" context="{'show_attribute': False}">
-                                    <list default_order="date desc">                                  
-                                        <field name="weekday"/>
-                                        <field name="date" widget="date"/>
-                                        <field name="start_time"/>
-                                        <field name="end_time"/>
-                                        <field name="notes"/>
-                                    </list>
-                                </field>
-                            </page>                                                        
-                        </notebook>
-                        <button name="generate_templates_by_student" 
-                            string="Generate Templates" 
-                            type="object"
-                            class="oe_highlight"
-                            attrs="{'invisible': [('has_templates', '=', True)]}"
-                            context="{'active_id': active_id, 'active_model': active_model}"
-                        />
-                        <button name="generate_next_session" 
-                            string="Generate Next Session" 
-                            type="object"
-                            class="oe_highlight"                            
-                            context="{'active_id': active_id, 'active_model': active_model}"
-                        />                    
+                                <field name="attendance_session_ids" string="" readonly="True"/>
+                            </page>                            
+                        </notebook>                        
                     </sheet>	
                 </form>
             </field>			
-        </record> -->
+        </record> 
     </data>
 </odoo>

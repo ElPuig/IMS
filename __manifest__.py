@@ -119,6 +119,7 @@
             'views/attendance/attendance_status/list.xml',
             'views/attendance/attendance_status/form.xml',
             'views/attendance/attendance_status/menu.xml',       
+            'views/attendance/attendance_schedule/form.xml',
             
         'views/documentation/menu.xml',       
             'views/documentation/minutes/menu.xml',       
