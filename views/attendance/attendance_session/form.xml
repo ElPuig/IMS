@@ -13,7 +13,6 @@
                     <sheet>                   
                         <group string="Main data" col="6" >
                             <group colspan="3">      
-                                <!-- TODO: readonly form when clicked -->
                                 <field name="attendance_schedule_id" readonly="id != False"/>
                             </group>    
                             <group colspan="1">
@@ -39,7 +38,7 @@
                             <group colspan="2">
                                 <field name="group_id"/>
                             </group>
-                            <group colspan="1">
+                            <group colspan="2">
                                 <field name="space_id"/>
                             </group>                        
                         </group>
