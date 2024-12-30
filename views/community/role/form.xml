@@ -18,7 +18,7 @@
 
                         <notebook>         
                             <page string="Assigned to">
-                                <field name="employee_ids" mode="kanban" />                                
+                                <field name="employee_ids" mode="kanban"  />                                
                             </page>     
 
                             <page string="Notes">

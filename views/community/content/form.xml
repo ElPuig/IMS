@@ -5,8 +5,10 @@
             <field name="model">ims.content</field>
             <field name="arch" type="xml">				
                 <form string="content">                   
-                    <sheet>                        
-                        <field name="content_id" invisible="1"/>
+                    <sheet>      
+                        <group string="Parent content" col="6" invisible="content_id == False">   
+                            <field nolabel="1" name="content_id" readonly="True"/>
+                        </group>                                                
                         <group string="Main data" col="6">                            
                             <group>
                                 <field name="code"/>
@@ -22,17 +24,17 @@
                         <notebook>                           
                             <page string="Composite">
                                 <field name="content_ids" widget="one2many" context="{'default_content_id': content_id, 'default_code': code}">
-                                    <tree editable="bottom" default_order="code asc, level asc, acronym asc"
+                                    <list editable="bottom" default_order="code asc, level asc, acronym asc"
                                         decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
                                         <field name="code"/>
                                         <field name="acronym"/>
                                         <field name="name"/>                                               
-                                        <button class="oe_stat_button" title="Edit Content" icon="fa-pencil-square-o" name="open_form_content" type="object" />                                 
+                                        <button class="oe_stat_button" title="Edit Content" icon="fa-pencil-square-o" name="open_form" type="object" />                                 
 
                                         <!-- Needed but hidden for filtering purposes -->
-                                        <field name="subject_id" invisible="1"/>
-                                        <field name="level" invisible="1"/>
-                                    </tree>
+                                        <field name="subject_id" column_invisible="True"/>
+                                        <field name="level" column_invisible="True"/>
+                                    </list>
                                 </field>
                             </page>
                             

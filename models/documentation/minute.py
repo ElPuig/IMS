@@ -7,30 +7,26 @@ class minute(models.Model):
 	_name = "ims.minute"
 	_description = "Minute: Defines a meeting minute (department meeting, workgroup meeting, evaluation meeting...)."
 	
-	date = fields.Datetime(string="Date", default=datetime.today(), required="true")
-	type = fields.Selection(string="Type", default="department", selection=[("department", "Department meeting"), ("workgroup", "Workgroup meeting"), ("evaluation", "Evaluation meeting")], required="true") #TODO: more types?	
-	nature = fields.Selection(string="Nature", default="ordinary", selection=[("ordinary", "Ordinary"), ("extraordinary", "Extraordinary")], required="true")
-	modality = fields.Selection(string="Modality", default="in-person", selection=[("in-person", "In-person"), ("online", "Online"), ("hybrid", "Hybrid")], required="true")	
+	date = fields.Datetime(string="Date", default=datetime.today(), required=True)
+	type = fields.Selection(string="Type", default="department", selection=[("department", "Department meeting"), ("workgroup", "Workgroup meeting"), ("evaluation", "Evaluation meeting")], required=True) #TODO: more types?	
+	nature = fields.Selection(string="Nature", default="ordinary", selection=[("ordinary", "Ordinary"), ("extraordinary", "Extraordinary")], required=True)
+	modality = fields.Selection(string="Modality", default="in-person", selection=[("in-person", "In-person"), ("online", "Online"), ("hybrid", "Hybrid")], required=True)	
 
-	space_id = fields.Many2one(string="Space", comodel_name="ims.space", required="true")
+	space_id = fields.Many2one(string="Space", comodel_name="ims.space", required=True)
 	department_id = fields.Many2one(string="Department", comodel_name="hr.department")
 	workgroup_id = fields.Many2one(string="Workgroup", comodel_name="ims.workgroup")	
 
 	#Note: foreign to the same table should be declared manually
-	assistant_ids = fields.Many2many(string="Assistants", comodel_name="res.partner", relation="ims_minute_assistant_rel", column1="ims_minute_id", column2="res_partner_id", domain="[('type','=','contact')]", required="true") 
+	assistant_ids = fields.Many2many(string="Assistants", comodel_name="res.partner", relation="ims_minute_assistant_rel", column1="ims_minute_id", column2="res_partner_id", domain="[('type','=','contact')]", required=True) 
 	abstent_ids = fields.Many2many(string="Abstents", comodel_name="res.partner", relation="ims_minute_absetnt_rel", column1="ims_minute_id", column2="res_partner_id", domain="[('type','=','contact')]") 
 	
 	members = fields.Char(string="Memebers", compute='_compute_members')
-	abstract = fields.Char(string="Abstract or main topic", size=255, required="true")
+	abstract = fields.Char(string="Abstract or main topic", size=255, required=True)
 	
-	def name_get(self):
-		#Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
-        
-		result = []	    
-		for rec in self:           
-			result.append((rec.id, "%s: %s (%s)" % (dict(rec._fields['type'].selection).get(rec.type), rec.workgroup_id.name if type == "workgroup" else rec.department_id.name, dict(rec._fields['nature'].selection).get(rec.nature))))
-            
-		return result
+	@api.depends('type', 'workgroup_id', 'department_id', 'nature')
+	def _compute_display_name(self):              
+		for rec in self:
+			rec.display_name = "%s: %s (%s)" % (dict(rec._fields['type'].selection).get(rec.type), rec.workgroup_id.name if type == "workgroup" else rec.department_id.name, dict(rec._fields['nature'].selection).get(rec.nature))
 
 	@api.depends("type")
 	def _compute_members(self):

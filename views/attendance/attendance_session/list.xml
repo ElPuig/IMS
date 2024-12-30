@@ -4,7 +4,7 @@
             <field name="name">ims.attendance_session.list</field>
             <field name="model">ims.attendance_session</field>
             <field name="arch" type="xml">
-                <tree>                    
+                <list>                    
                     <field name="date" width="125px"/>                    
                     <field name="session_teacher_id" width="250px"/>
                     <field name="group_id" width="125px"/>
@@ -12,7 +12,7 @@
                     <field name="weekday" width="125px"/>
                     <field name="start_time" widget="float_time" width="125px"/>
                     <field name="end_time" widget="float_time" width="125px"/>
-                </tree>
+                </list>
             </field>
         </record>   
     </data>

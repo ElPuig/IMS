@@ -2,16 +2,25 @@
 
 import { patch } from "@web/core/utils/patch";
 import { ListRenderer } from "@web/views/list/list_renderer";
-import { actionService } from "@web/webclient/actions/action_service";
+import { useService } from "@web/core/utils/hooks";
 
-var ActionService = actionService;
-
-patch(ListRenderer.prototype, "list_renderer_customs", {
+patch(ListRenderer.prototype, {
     setup() {
-        this._super.apply(this, arguments);        
+        this.orm = useService("orm");
+        this.action = useService("action");
+        super.setup();
         owl.onMounted(this.autofocusForRadioCells);                   
     },
 
+    async getViewData(xml_id){
+        const data = await this.orm.searchRead("ir.ui.view", [["xml_id", "=", xml_id]], ["id", "xml_id", "name"]);
+        var view = data.filter(function(item){
+            //TODO: the domain is not working in the orm searchRead method... WHY?
+            return item.xml_id == xml_id;
+        })[0];
+        return view;
+    },
+   
     syncCheckBoxes(record, subject_id, list){
         list.forEach(function(row){                                           
             if(row.id != record.id && subject_id == row.data.subject_id[0]){   
@@ -20,8 +29,8 @@ patch(ListRenderer.prototype, "list_renderer_customs", {
         });
     },
 
-    onClickCapture(record, ev){        
-        if(ev.target.type == "checkbox"){            
+    onClickCapture(record, ev){ 
+        if(ev.target.type == "checkbox"){               
             switch(record.resModel){
                 case "ims.subject_view":                     
                     var subject_id = record.data.subject_id[0];                     
@@ -37,68 +46,64 @@ patch(ListRenderer.prototype, "list_renderer_customs", {
                     break;
             }   
         }
-        else{            
-            switch(record.resModel){
+        else{             
+            switch(record.resModel){                
                 case "ims.enrollment_view":
                     ev.preventDefault();
                     ev.stopPropagation();            
-
-                    var am = ActionService.start(this.env);                    
-                    am.doAction({
-                        name: 'Open: Students', //to fit with the other regular student's tab
-                        type: 'ir.actions.act_window',
-                        res_model: 'res.partner',                
+                                
+                    this.action.doAction({
+                        name: "Open: Students",
+                        type: "ir.actions.act_window",
+                        res_model: "res.partner",
                         res_id: record.data.student_id[0],
-                        views: [[false, "form"]],                                
-                        target: 'new', //with 'current' the form opens in fullscreen (not modal).
-                        context: record.context,
-                    });
+                        views: [[this.getViewData("view_contact_form").name, "form"]],   
+                        view_mode: "form",
+                        target: "new",
+                    });  
                     break;
 
                 case "ims.subject_view":
                     ev.preventDefault();
                     ev.stopPropagation();                                
-
-                    var controller = this.env.services.action.currentController;
-                    var am = ActionService.start(this.env);                     
-                    
-                    am.doAction({                        
-                        type: 'ir.actions.act_window',
-                        res_model: 'ims.subject',                
+                                    
+                    this.action.doAction({
+                        type: "ir.actions.act_window",
+                        res_model: "ims.subject",
                         res_id: record.data.subject_id[0],
-                        views: [[false, "form"]],
-                        target: 'current', //with 'new' the form opens as a modal window.                       
-                        context: {
-                            'subject_view_list' : true
-                        },
-                    });
+                        views: [[this.getViewData("view_subject_form").name, "form"]],   
+                        view_mode: "form",
+                    });  
                     break;
             }    
         }    
     },       
 
-    autofocusForRadioCells(){                
+    autofocusForRadioCells(){          
         var self = this;
         // TODO: should be reloaded on session change...
 
         // NOTE: This is fired by onMounted and all the DOM is ready and $(".o_field_cell.o_radio_cell").length != 0 BUT when saving, must be
         // fired again and $(".o_field_cell.o_radio_cell").length == 0 so, a timer is needed. 
-        var intervalID = setInterval(function(){
-            if($(".o_field_cell.o_radio_cell").length != 0){                                
-                clearInterval(intervalID);                
-                
-                $(".o_form_button_save").off('click').on("click", self.autofocusForRadioCells);
+        var intervalID = setInterval(function(){               
+            const cells = document.getElementsByClassName("o_radio_cell");            
+            if(cells.length != 0){
+                clearInterval(intervalID);
 
-                $(".o_field_cell.o_radio_cell").off('mouseover').on("mouseover", function(){
-                    $(this).mouseover(function() {                                    
-                        $(this).click();
-                    });
-        
-                    $(this).mouseout(function() {
-                        $(".o_horizontal_separator").first().click();
-                    });
-                }); 
-            } 
+                document.getElementsByClassName("o_form_button_save")[0].onclick = function(){
+                    self.autofocusForRadioCells();
+                };
+                
+                Array.from(document.getElementsByClassName("o_field_cell o_radio_cell")).forEach(function(element){
+                    element.onmouseover = function(){
+                        element.click();
+                    };
+
+                    element.onmouseout = function(){                        
+                        document.getElementsByClassName("o_horizontal_separator")[0].click();
+                    };
+                });
+            }           
         }, 100);                               
     },
 });

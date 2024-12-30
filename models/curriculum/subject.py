@@ -8,12 +8,12 @@ class ims_subject(models.Model):
     _description = "Subject: The main item for a student's subject."
     _order = "code asc"
     _sql_constraints = [
-        ('unique_subject_code', 'unique (code)', 'duplicated code!')
+        ('unique_code', 'unique (code)', 'duplicated code!')
     ]
     
-    code = fields.Char(string="Code", required="true")
-    acronym = fields.Char(string="Acronym", required="true")
-    name = fields.Char(string="Name", required="true")
+    code = fields.Char(string="Code", required=True)
+    acronym = fields.Char(string="Acronym", required=True)
+    name = fields.Char(string="Name", required=True)
     ects = fields.Integer(string="ECTS Credits") 
     internal_hours = fields.Integer(string="Internal hours") 
     external_hours = fields.Integer(string="External hours")   
@@ -26,20 +26,22 @@ class ims_subject(models.Model):
     
     notes = fields.Text("Notes")
 
-    study_ids = fields.Many2many(string="Studies", comodel_name="ims.study")		
+    study_ids = fields.Many2many(string="Studies", comodel_name="ims.study")
     teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
 
     subject_ids = fields.One2many(string="Composite", comodel_name="ims.subject", inverse_name="subject_id", domain="[('id', '!=', id), ('level', '>', level), ('subject_id', '=', False)]")
     subject_id = fields.Many2one(string="Main subject", comodel_name="ims.subject")
     
-    content_ids = fields.One2many(string="Content", comodel_name="ims.content", inverse_name="subject_id")
-    criteria_ids = fields.One2many(string="Criteria", comodel_name="ims.criteria", inverse_name="subject_id")
+    outcome_ids = fields.One2many(string="Learning Outcome", comodel_name="ims.outcome", inverse_name="subject_id")
+    content_ids = fields.One2many(string="Content", comodel_name="ims.content", inverse_name="subject_id")    
+
+    #criteria_ids = fields.One2many(string="Criteria", comodel_name="ims.criteria", inverse_name="subject_id")
 
     #The subject_view_ids is used as a view for the subject list
     subject_view_ids = fields.One2many(comodel_name="ims.subject_view", inverse_name="subject_id", compute="_compute_subject_views", store=True)
 
     # The following fields are computed and used to display the data correctly within the treeview
-    level = fields.Integer(string="Level", default=1, compute="_compute_level", store=True)			
+    level = fields.Integer(string="Level", default=1)
 	    
     @api.depends("study_ids")
     def _compute_subject_views(self):	        
@@ -62,17 +64,14 @@ class ims_subject(models.Model):
                         "name": rec.name,                        
                         "subject_id": rec.id,
                         "study_id": study.id,
-                    })
-
-    @api.depends("study_ids")
-    def _populate_study_ids(self):
-        for rec in self:                       
+                    })  
+                     
             for child in rec.subject_ids:
                 studies = []
                 for study in rec.study_ids:                
                     studies.append(study.id)
                 
-                child.write({'subject_ids' : [(6, 0, studies)]})
+                child.write({'study_ids' : [(6, 0, studies)]})
 
     @api.depends("subject_id")
     def _compute_level(self):	        
@@ -82,18 +81,7 @@ class ims_subject(models.Model):
     @api.onchange("subject_id")
     def _onchange_subject_id(self):
         for rec in self:
-            rec.study_ids = rec.subject_id.study_ids    
-                    
-    # @api.onchange("study_ids")
-    # def _onchange_study_ids(self):
-    #     for rec in self:
-    #         for child in rec.subject_ids:  
-    #             studies = []
-    #             for study in rec.study_ids:                
-    #                 studies.append(study.id)
-
-    #             # This line changes the current values for the new ones (https://stackoverflow.com/a/65089711)
-    #             child.study_ids = [(6, 0, studies)]
+            rec.study_ids = rec.subject_id.study_ids                    
    
     @api.depends("subject_ids.internal_hours")
     def _compute_total_internal_hours(self):
@@ -118,7 +106,7 @@ class ims_subject(models.Model):
             rec.last = (len(rec.subject_ids) == 0)
 
     @api.constrains('code')
-    def check_code(self):
+    def _check_code(self):
         for rec in self:
             if rec.subject_id.id != False: 
                 if not rec.code.startswith(rec.subject_id.code):
@@ -128,46 +116,44 @@ class ims_subject(models.Model):
         self.env['ims.subject_view'].search([('subject_id', '=', self.id)]).unlink(True)
         return super(ims_subject, self).unlink()
 
-    def name_get(self):
-		#Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
-        result = []	    
-        acronyms = []    
+    @api.depends('acronym', 'subject_id', 'name')
+    def _compute_display_name(self):       
+        acronyms = []           
         for rec in self:
             acronyms.clear()
-            acronyms.append(rec.acronym)
-
-            parent = rec.subject_id
-            while(parent):
-                acronyms.append(parent.acronym)
-                parent = parent.subject_id     
-
-            result.append((rec.id, "%s: %s" % (" ".join(list(reversed(acronyms))), rec.name)))
-            
-        return result
+            if rec.acronym:
+                acronyms.append(rec.acronym)
+                
+                parent = rec.subject_id
+                while(parent):
+                    acronyms.append(parent.acronym)
+                    parent = parent.subject_id  
+                
+                rec.display_name = "%s: %s" % (" ".join(list(reversed(acronyms))), rec.name)
+            else:
+                rec.display_name = ''
     
-    def open_form_subject(self):
+    def open_form(self):
         return {
+            'name': '%s Edit' % self._description.split(':')[0],
             'type': 'ir.actions.act_window',
-            'target': 'current',            
-            'res_model': 'ims.subject',
-            'res_id': self.id,
-            'context': self._context,
+            'res_model': self._name,
+            'res_id': self.id,						
+            'view_id': self.env.ref('ims.view_%s_form' % (self._name.split('.')[1])).id,
             'view_mode': 'form',
-            'view_type': 'form',
-            'nodestroy': True,
+            'target': 'new'
         }
-        
     
 class ims_subject_view(models.Model):
     _name = "ims.subject_view"
     _description = "View model for displaying subject data within studies (because a subject can be shared along different studies)."
     
     level = fields.Integer(string="Level")    
-    code = fields.Char(string="Code", required="true")
-    acronym = fields.Char(string="Acronym", required="true")
-    name = fields.Char(string="Name", required="true")
+    code = fields.Char(string="Code", required=True)
+    acronym = fields.Char(string="Acronym", required=True)
+    name = fields.Char(string="Name", required=True)
     study_id = fields.Many2one(string="Study", comodel_name="ims.study")
-    subject_id = fields.Many2one(string="Subject", comodel_name="ims.subject", required="true")
+    subject_id = fields.Many2one(string="Subject", comodel_name="ims.subject", required=True)
     
     def unlink(self, avoidCircular=False): 
         # This can be called from the list view, which means the user wants to remove a subject, so both subject_view and subject must be removed.
@@ -183,32 +169,33 @@ class ims_subject_view(models.Model):
                 # Maybe, the subject has been already removed (multiple view entries points to the same subject)...
                 return True   
     
-    def name_get(self):
-		#Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
-        result = []	    
-        acronyms = []    
+    @api.depends('subject_id', 'study_id', 'name', 'acronym')
+    def _compute_display_name(self):       
+        acronyms = []           
         for rec in self:
             acronyms.clear()
-            acronyms.append(rec.acronym)
+            if rec.acronym:
+                acronyms.append(rec.acronym)
+                
+                parent = rec.subject_id
+                while(parent):
+                    acronyms.append(parent.acronym)
+                    parent = parent.subject_id  
 
-            parent = rec.subject_id
-            while(parent):
-                acronyms.append(parent.acronym)
-                parent = parent.subject_id     
+                rec.display_name = "%s %s: %s" % (rec.study_id.acronym, " ".join(list(reversed(acronyms))), rec.name)              
+            else:
+                rec.display_name = ''
 
-            result.append((rec.id, "%s %s: %s" % (rec.study_id.acronym, " ".join(list(reversed(acronyms))), rec.name)))
-            
-        return result
-
-    def open_form_subject(self):
-        return {
-            'name': 'Subject Edit',
-            'domain': [],
-            'res_model': 'ims.subject',
-            'type': 'ir.actions.act_window',
-            'view_mode': 'form',
-            'view_type': 'form',
-            'res_id': (0 if self == False else self.subject_id.id),
-            'context': self._context,
-            'target': 'new',
-        }
+    def open_form(self):
+        return self.subject_id.open_form()
+        # return {
+        #     'name': 'Subject Edit',
+        #     'domain': [],
+        #     'res_model': 'ims.subject',
+        #     'type': 'ir.actions.act_window',
+        #     'view_mode': 'form',
+        #     'view_type': 'form',
+        #     'res_id': (0 if self == False else self.subject_id.id),
+        #     'context': self._context,
+        #     'target': 'new',
+        # }

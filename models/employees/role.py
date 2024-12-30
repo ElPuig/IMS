@@ -8,7 +8,7 @@ class ims_role(models.Model):
 	_name = "ims.role"
 	_description = "Roles: The coordination position held by the employees."
 
-	name = fields.Char(string="Name", required="true")	
+	name = fields.Char(string="Name", required=True)	
 	color = fields.Integer(string="Color")
 	notes = fields.Text(string="Notes")
 	

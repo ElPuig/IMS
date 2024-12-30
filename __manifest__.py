@@ -18,12 +18,17 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '0.17.0',
+    'version': '0.18.0',
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
     'depends': ['base_setup', 'hr', 'hr_org_chart', 'auth_oauth', 'contacts', 'project', 'mass_mailing', 'survey'],
-
+    
+    # just for debugging
+    'external_dependencies': {
+        'python': ['debugpy'],
+    },
+    
     # always loaded
    'data': [
         'security/groups.xml',        
@@ -34,6 +39,7 @@
         'views/settings/form.xml',
         'views/settings/menu.xml',                                    
         
+        'views/community/contact/search.xml', # Should be loaded prior to menu
         'views/community/menu.xml',  
             'views/community/configuration/menu.xml',            
 
@@ -47,8 +53,7 @@
             'views/community/workgroup/menu.xml',  
             
             'views/community/contact/list.xml',
-            'views/community/contact/form.xml',
-            'views/community/contact/search.xml',
+            'views/community/contact/form.xml',            
             'views/community/contact/kanban.xml',
             'views/community/contact/menu.xml',
 
@@ -65,6 +70,7 @@
             'views/community/role/menu.xml',
                 
             'views/community/department/menu.xml',
+            'views/community/department/list.xml',
             'views/community/worklocation/menu.xml',
             'views/community/employmenttypes/menu.xml',
 
@@ -92,6 +98,7 @@
 
             'views/community/content/form.xml', 
             'views/community/criteria/form.xml',
+            'views/community/outcome/form.xml',
 
         # 'views/community/tracking/list.xml',
         # 'views/community/tracking/form.xml',  
@@ -112,6 +119,7 @@
             'views/attendance/attendance_status/list.xml',
             'views/attendance/attendance_status/form.xml',
             'views/attendance/attendance_status/menu.xml',       
+            'views/attendance/attendance_schedule/form.xml',
             
         'views/documentation/menu.xml',       
             'views/documentation/minutes/menu.xml',       
@@ -121,10 +129,28 @@
         'views/shared/attachment/form.xml',   
         
         ### Data entries (do not alter the order) ###
+        'data/main/ims.space_type.csv',    
+        'data/main/hr.work.location.csv',    
+
         'data/cat/ims.attachment.csv',
         'data/cat/ims.subject.csv',
         'data/cat/ims.level.csv',
         'data/cat/ims.study.csv',
+        'data/cat/ims.content.csv',
+        'data/cat/ims.outcome.csv',    
+        'data/cat/ims.role.csv',    
+        'data/cat/ims.workgroup.csv',    
+        'data/cat/hr.job.csv',
+
+        'data/elpuig/res.company.csv',    
+        'data/elpuig/ims.space.csv',    
+        'data/elpuig/hr.department.csv',   
+        'data/elpuig/hr.employee.csv',
+        'data/elpuig/res.partner.csv',
+        'data/elpuig/ims.group.csv',
+        'data/elpuig/ims.enrollment.csv',
+        'data/elpuig/ims.teaching.csv',
+
         
     ],
     'license': 'AGPL-3',
@@ -134,32 +160,32 @@
     # only loaded in demonstration mode (only loaded when installed, ignored when updated)
     'demo': [
         # this order is needed due dependencies
-        'demo/shared/attachment.xml',
+        #'demo/shared/attachment.xml',
 
-        'demo/curriculum/level.xml',
-        'demo/curriculum/study.xml',
-        'demo/curriculum/subject.xml',
-        'demo/curriculum/content.xml',
+        #'demo/curriculum/level.xml',
+        #'demo/curriculum/study.xml',
+        #'demo/curriculum/subject.xml',
+        #'demo/curriculum/content.xml',
 
-        'demo/facilities/space_type.xml',         
-        'demo/facilities/space.xml',         
+        #'demo/facilities/space_type.xml',         
+        #'demo/facilities/space.xml',         
 
-        'demo/contacts/group.xml',        
-        'demo/contacts/company.xml',        
+        #'demo/contacts/group.xml',        
+        #'demo/contacts/company.xml',        
         
-        'demo/employees/teaching.xml',   
-        'demo/employees/job.xml',
-        'demo/employees/department.xml',
-        'demo/employees/work_location.xml',
-        'demo/employees/teacher.xml',
-        'demo/employees/pas.xml',
-        'demo/employees/role.xml', 
-        'demo/employees/employee.xml',  
-        'demo/employees/workgroup.xml',   
+        #'demo/employees/teaching.xml',   
+        #'demo/employees/job.xml',
+        #'demo/employees/department.xml',
+        #'demo/employees/work_location.xml',
+        #'demo/employees/teacher.xml',
+        #'demo/employees/pas.xml',
+        #'demo/employees/role.xml', 
+        #'demo/employees/employee.xml',  
+        #'demo/employees/workgroup.xml',   
 
         'demo/contacts/student.xml',
-        'demo/contacts/provider.xml',
-        'demo/contacts/enrollment.xml',
+        #'demo/contacts/provider.xml',
+        #'demo/contacts/enrollment.xml',
 
         #'demo/attendance/attendance_template.xml',
         #'demo/attendance/attendance_schedule.xml',
@@ -170,9 +196,10 @@
         'web.assets_backend': [
             'ims/static/src/xml/**/*',
             'ims/static/src/css/**/*',
+            'ims/static/src/js/**/*', 
         ],       
         'web.assets_common': [
-            'ims/static/src/js/**/*',            
+            # 'ims/static/src/js/**/*',            
         ],
     },
 }

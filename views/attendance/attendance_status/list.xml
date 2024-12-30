@@ -4,12 +4,12 @@
             <field name="name">ims.attendance_status.list</field>
             <field name="model">ims.attendance_status</field>
             <field name="arch" type="xml">
-                <tree>                    
+                <list>                    
                     <field name="student"/>
                     <field name="status"/>
                     <field name="notes"/>
                     <field name="status"/>                    
-                </tree>
+                </list>
             </field>
         </record>    -->
     </data>

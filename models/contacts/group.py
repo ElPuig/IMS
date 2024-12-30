@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+from odoo import models, fields, api, http
 from odoo.exceptions import UserError
+from odoo.http import request
 
 class ims_group(models.Model):
 	_name = "ims.group"
 	_description = "Groups: Where the students are assigned to."	
 	
-	course = fields.Integer(string="Course", required="true")
-	acronym = fields.Char(string="Acronym", required="true")
+	course = fields.Integer(string="Course", required=True)
+	acronym = fields.Char(string="Acronym", required=True)
 	name = fields.Char(string="Name", compute="_compute_name", store=True) #should not be edited manually
 	notes = fields.Text(string="Notes")
 
-	study_id = fields.Many2one(string="Study", comodel_name="ims.study", required="true")
+	level_id = fields.Many2one(string='Level', comodel_name='ims.level', required=True)
+	study_id = fields.Many2one(string="Study", comodel_name="ims.study", required=True)
 	tutor_id = fields.Many2one(string="Tutor", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
 	
 	delegate_id = fields.Many2one(string="Delegate", comodel_name="res.partner", domain="[('contact_type', '=', 'student'), ('main_group_id', '=', id)]")	
@@ -33,8 +35,9 @@ class ims_group(models.Model):
 			rec.enrolled_student_ids = self.env["ims.enrollment"].search([("group_id", "=", rec.id)]).mapped("student_id") or False
 
 	def _compute_enrollment_ids(self):							
-		for rec in self:				
+		for rec in self:							
 			self.env['ims.enrollment_view'].search([('group_id', '=', rec.id)]).unlink()
+			rec.enrollment_view_ids = False
 			#Sources: 
 			# 	https://www.odoo.com/documentation/16.0/developer/reference/backend/orm.html?highlight=read_group#search-read
 			#	https://www.cybrosys.com/odoo/odoo-books/odoo-15-development/ch15/grouped-data/	
@@ -58,3 +61,11 @@ class ims_enrollment_view(models.TransientModel):
 	subject_ids = fields.Many2many(comodel_name="ims.subject")	
 	image_1920 = fields.Binary(string="Image", related='student_id.image_1920')
 
+	# def open_form(self):
+	# 	return {
+	# 		'type': 'ir.actions.act_window',
+	# 		'res_model': 'res.partner',
+	# 		'res_id': self.student_id.id,						
+	# 		'view_id': self.env.ref('base.view_partner_form').id,
+	# 		'view_mode': 'form',
+	# 	}		

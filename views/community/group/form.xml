@@ -1,5 +1,12 @@
 <odoo>
     <data>
+        <record model="ir.actions.act_window" id="action_student_form">
+            <field name="name">Students</field>
+            <field name="res_model">res.partner</field>
+            <field name="res_id">57</field>    
+            <field name="view_mode">form</field>    
+        </record>  
+
         <record model="ir.ui.view" id="view_group_form">
             <field name="name">ims.group.form</field>
             <field name="model">ims.group</field>
@@ -25,7 +32,7 @@
                                     Opt 1: Copy the many2one_avatar_employee widget and modify it: https://www.cybrosys.com/blog/how-to-create-a-field-widget-in-the-odoo-16
                                     Opt 2: Extends the many2one_avatar_employee to add the new field: https://www.cybrosys.com/blog/how-to-extend-field-widget-in-odoo-16
                                 -->
-                                <field name="delegate_id" /> 
+                                <field name="delegate_id" widget="many2one_avatar" />
                             </group>
                             <group>
                                 <field name="space_id" />
@@ -34,23 +41,26 @@
                         
                         <notebook> 
                             <page string="Students">
-                                 <field name="main_student_ids" widget="many2many" context="{'show_attribute': False}">
-                                    <tree default_order="name asc">                                       
+                                 <field name="main_student_ids" widget="many2many">
+                                    <list default_order="name asc" >
                                         <field name="image_1920" widget="image" />
                                         <field name="name" class="align-middle"/>
-                                        <field name="email" class="align-middle"/>
-                                        <field name="phone" class="align-middle"/>
-                                    </tree>
+                                        <field name="student_email" class="align-middle"/>
+                                        <field name="email" string="Personal Email" class="align-middle"/>
+                                        <field name="mobile" class="align-middle"/>
+                                        <!-- Needed to open as fullscreen form -->
+                                        <field name="id" column_invisible="True"/>
+                                    </list>
                                 </field>
                             </page>                         
   
                              <page string="Enrolled">                                
                                 <field name="enrollment_view_ids" widget="many2many"> 
-                                    <tree default_order="student_id asc">    
+                                    <list default_order="student_id asc"> 
                                         <field name="image_1920" widget="image" />                                   
                                         <field name="student_id" class="align-middle"/>
-                                        <field name="subject_ids" widget="many2many_tags"/>
-                                    </tree>
+                                        <field name="subject_ids" widget="many2many_tags"/>                                        
+                                    </list>
                                 </field>
                             </page>
                            
@@ -61,6 +71,6 @@
                     </sheet>	
                 </form>
             </field>			
-        </record>
+        </record>       
     </data>
 </odoo>

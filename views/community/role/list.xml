@@ -4,11 +4,12 @@
             <field name="name">ims.role.list</field>
             <field name="model">ims.role</field>
             <field name="arch" type="xml">
-                <tree expand="1" default_order="name asc">      
-                    <field name="name" string="Role" class="w-25"/>
+                <list expand="True" default_order="name asc">      
+                    <field name="color" width="50px" widget="color_picker"/>
+                    <field name="name" string="Role" class="w-25"/>                    
                     <field name="employee_ids" string="Assigned to" widget="many2many_tags"/>
-                    <field name="employee_type" invisible="1"/>
-                </tree>
+                    <field name="employee_type" column_invisible="True"/>
+                </list>
             </field>
         </record>   
     </data>

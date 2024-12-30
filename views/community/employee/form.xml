@@ -8,29 +8,44 @@
                 <xpath expr="//form" position="attributes">
                     <attribute name="groups">hr.group_hr_user</attribute>
                 </xpath>           
-
+                
                 <field name="name" position="replace">
                     <!-- NOTE: I could'nt find a way to setup the placeholders as a computed field using the 'employee_type'... -->                    
-                    <field name="name" placeholder="Teacher's Name" attrs="{'invisible': [('employee_type', '!=', 'teacher')]}"/>
-                    <field name="name" placeholder="ASP's Name"     attrs="{'invisible': [('employee_type', '!=', 'asp')]}"/>
+                    <field name="name" placeholder="Teacher's Name" invisible="employee_type != 'teacher'"/>
+                    <field name="name" placeholder="ASP's Name"     invisible="employee_type != 'asp'"/>
                 </field>
-
-                <xpath expr="//group[@name='payroll_group']" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>    
-
-                <xpath expr="//page[@name='personal_information']/group/group[3]" position="attributes">
-                    <!-- No name or ID for the group :( -->
-                    <attribute name="invisible">1</attribute>
-                </xpath>   
-
-                <xpath expr="//separator[@name='emergency']" position="attributes">
-                    <attribute name="invisible">1</attribute>
+                
+                <xpath expr="//page[@name='skills_resume']" position="attributes">
+                    <attribute name="invisible">True</attribute>
                 </xpath>  
 
-                <xpath expr="//separator[@name='emergency']/following-sibling::field" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath> 
+                <xpath expr="//page[@name='received_badges']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>  
+                
+                <xpath expr="//field[@name='bank_account_id']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+
+                <xpath expr="//label[@for='distance_home_work']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+
+                <xpath expr="//div[@name='div_km_home_work']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+
+                <xpath expr="//page[@name='personal_information']/group/group[2]" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>  
+
+                <xpath expr="//page[@name='personal_information']/group/group[3]" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>   
+
+                <xpath expr="//page[@name='personal_information']/group/group[4]" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>               
 
                 <xpath expr="//page[@name='personal_information']/group" position="inside">
                     <group string="Emergency">
@@ -48,7 +63,7 @@
                 </field>        
 
                 <field name="coach_id" position="attributes">
-                   <attribute name="invisible">1</attribute>
+                   <attribute name="invisible">True</attribute>
                 </field>                          
 
                 <field name="employee_type" position="after">
@@ -57,27 +72,30 @@
 
                 <xpath expr="//page[@name='hr_settings']" position="attributes">
                     <attribute name="string">Human Resources</attribute>
-                </xpath>         
+                </xpath>    
 
-                <xpath expr="//notebook" position="inside">
-                    <page string="Teaching" attrs="{'invisible': [('employee_type', '=', 'asp')]}">
-                        <field name="teaching_ids">
-                            <tree editable="bottom">
-                                <field name="subject_id"/>
-                                <field name="group_id"/>
-                            </tree>
-                        </field>
-                    </page>    
+                <xpath expr="//group[@name='identification_group']" position="attributes">
+                    <attribute name="string">Attendance</attribute>
+                </xpath>       
+                
+               <xpath expr="//notebook" position="inside">
+                    <page string="Teaching" invisible="employee_type == 'asp'">
+                        <group string="Tutorships">
+                            <field name="tutorship_ids" widget="many2many_tags" nolabel="1" />
+                        </group>
 
-                    <page string="Tutorships" attrs="{'invisible': [('employee_type', '=', 'asp')]}">
-                        <field name="tutorship_ids" widget="many2many">
-                            <tree>
-                                <field name="name" string="Group"/>
-                                <field name="space_id"/>
-                            </tree>
-                        </field>
-                    </page>                    
-                </xpath>             
+                        <group string="Subjects">
+                            <field name="teaching_ids" nolabel="1">
+                                <list editable="bottom" default_order="subject_id asc, group_id asc"
+                                    decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
+                                    <field name="subject_id" />
+                                    <field name="group_id" />                                
+                                    <field name="level" column_invisible="True"/>                                
+                                </list>
+                            </field>
+                        </group>
+                    </page>                     
+                </xpath>              
             </field>		      
         </record>   
     </data>

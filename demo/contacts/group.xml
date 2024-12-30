@@ -3,6 +3,7 @@
        <record id="group_1" model="ims.group">
             <field name="course">2</field>
             <field name="acronym">A</field>
+            <field name="level_id" ref="level_4"/>
             <field name="study_id" ref="study_41"/>
             <field name="tutor_id" ref="hr.employee_hne"/>
             <field name="space_id" ref="space_2"/>            
@@ -12,6 +13,7 @@
         <record id="group_2" model="ims.group">
             <field name="course">2</field>
             <field name="acronym">B</field>
+            <field name="level_id" ref="level_4"/>
             <field name="study_id" ref="study_41"/>
             <field name="tutor_id" ref="hr.employee_hne"/>
             <field name="space_id" ref="space_5"/>            
@@ -21,7 +23,8 @@
          <record id="group_3" model="ims.group">
             <field name="course">1</field>
             <field name="acronym">A</field>
-            <field name="study_id" ref="study_41"/>
+            <field name="level_id" ref="level_4"/>
+            <field name="study_id" ref="study_42"/>
             <field name="tutor_id" ref="hr.employee_mit"/>
             <field name="space_id" ref="space_3"/>            
             <field name="notes"></field>

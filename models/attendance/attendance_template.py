@@ -22,15 +22,21 @@ class ims_attendance_template(models.Model):
 	
 	student_ids = fields.Many2many(string="Students", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]") # TODO: autofill by group + subject | allow changes
 
-	def name_get(self):
-        #Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
-		result = []	
+	@api.depends('subject_id', 'group_id')
+	def _compute_display_name(self):              
 		for rec in self:
-			result.append((rec.id, "%s (%s)" % (rec.subject_id.name_get()[0][1], rec.group_id.name)))			
-			
-		return result
+			rec.display_name = "%s (%s)" % (rec.subject_id.display_name, rec.group_id.name)
 
 	@api.onchange("group_id")	
 	def _onchange_group_id(self):		
 		for rec in self:
 			rec.space_id = rec.group_id.space_id
+
+	@api.onchange("subject_id", "group_id")	
+	def _fill_students(self):		
+		for rec in self:						
+			students = []
+			for student in self.env['ims.enrollment'].search([('group_id', '=', rec.group_id.id), ('subject_id', '=', rec.subject_id.id)]).mapped('student_id'):
+				students.append(student.id)
+
+			rec.write({'student_ids' : [(6, 0, students)]})
