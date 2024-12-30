@@ -1,6 +1,7 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_job_list">
+        <!-- Odoo 16 -->
+        <!-- <record model="ir.ui.view" id="view_job_list">
             <field name="name">ims.job.list</field>
             <field name="model">hr.job</field>            
             <field name="inherit_id" ref="hr.view_hr_job_tree"/> 
@@ -13,6 +14,6 @@
                     <attribute name="invisible">1</attribute>                  
                 </field>
             </field>		      
-        </record>   
+        </record>    -->
     </data>
 </odoo>

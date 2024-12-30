@@ -6,21 +6,19 @@
             <field name="arch" type="xml">
                 <form string="role">
                     <sheet>
-                        <group string="Main data" col="4">
-                            <group>
+                        <group string="Main data" col="3">
+                            <group colspan="2">
                                 <field name="name"/>                                
                             </group>
                             <group>
                                 <field name="color" widget="color_picker"/>                                
-                            </group>
-                            <group>
-                                <field string="Assignable to" name="employee_type"/>                                
+                                <field name="employee_type" invisible="1"/>
                             </group>
                         </group>  
 
                         <notebook>         
                             <page string="Assigned to">
-                                <field name="employee_ids" mode="kanban" />                                
+                                <field name="employee_ids" mode="kanban"  />                                
                             </page>     
 
                             <page string="Notes">

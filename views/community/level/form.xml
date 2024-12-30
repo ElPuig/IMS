@@ -18,11 +18,11 @@
                         <notebook>
                             <page string="Studies">
                                 <field name="study_ids" widget="many2many">
-                                    <tree>
+                                    <list default_order="code asc, acronym asc, name asc">
                                         <field name="code"/>
                                         <field name="acronym"/>
                                         <field name="name"/>
-                                    </tree>
+                                    </list>
                                 </field>
                             </page>
                             

@@ -1,6 +1,13 @@
 <odoo>
     <data>
-         <record model="ir.ui.view" id="view_group_form">
+        <record model="ir.actions.act_window" id="action_student_form">
+            <field name="name">Students</field>
+            <field name="res_model">res.partner</field>
+            <field name="res_id">57</field>    
+            <field name="view_mode">form</field>    
+        </record>  
+
+        <record model="ir.ui.view" id="view_group_form">
             <field name="name">ims.group.form</field>
             <field name="model">ims.group</field>
             <field name="arch" type="xml">
@@ -17,10 +24,15 @@
                                 <field name="acronym" />
                             </group>
                             <group colspan="2">
-                                <field name="tutor_id" />
+                                <field name="tutor_id" widget="many2one_avatar_employee" />
                             </group>
                             <group>
-                                <field name="delegate_id" />
+                                <!-- 
+                                    TODO: many2one_avatar_employee does not work, maybe could be extended for res.partner? 
+                                    Opt 1: Copy the many2one_avatar_employee widget and modify it: https://www.cybrosys.com/blog/how-to-create-a-field-widget-in-the-odoo-16
+                                    Opt 2: Extends the many2one_avatar_employee to add the new field: https://www.cybrosys.com/blog/how-to-extend-field-widget-in-odoo-16
+                                -->
+                                <field name="delegate_id" widget="many2one_avatar" />
                             </group>
                             <group>
                                 <field name="space_id" />
@@ -28,18 +40,30 @@
                         </group>                       
                         
                         <notebook> 
-                            <!-- <page string="Students"> -->
-                                <!-- TODO: read only, unable to create from here -->
-                                <!-- <field name="student_ids" mode="kanban" /> -->
-                            <!-- </page>         -->
-                            <page string="Students (main group)">
-                                <field name="main_student_ids" mode="kanban" />
+                            <page string="Students">
+                                 <field name="main_student_ids" widget="many2many">
+                                    <list default_order="name asc" >
+                                        <field name="image_1920" widget="image" />
+                                        <field name="name" class="align-middle"/>
+                                        <field name="student_email" class="align-middle"/>
+                                        <field name="email" string="Personal Email" class="align-middle"/>
+                                        <field name="mobile" class="align-middle"/>
+                                        <!-- Needed to open as fullscreen form -->
+                                        <field name="id" column_invisible="True"/>
+                                    </list>
+                                </field>
+                            </page>                         
+  
+                             <page string="Enrolled">                                
+                                <field name="enrollment_view_ids" widget="many2many"> 
+                                    <list default_order="student_id asc"> 
+                                        <field name="image_1920" widget="image" />                                   
+                                        <field name="student_id" class="align-middle"/>
+                                        <field name="subject_ids" widget="many2many_tags"/>                                        
+                                    </list>
+                                </field>
                             </page>
-
-                            <page string="Students (enrolled)">
-                                <field name="enrolled_student_ids" mode="kanban" />
-                            </page>
-
+                           
                             <page string="Notes">
                                 <field name="notes" placeholder="Write down here your notes..."/>
                             </page>
@@ -47,75 +71,6 @@
                     </sheet>	
                 </form>
             </field>			
-        </record>
-
-        <!-- <record id="view_group_form" model="ir.ui.view">
-            <field name="name">group form</field>
-            <field name="model">ims.group</field>
-            <field name="type">form</field>
-            <field name="arch" type="xml">
-                <form string="Groups">
-                    <sheet>                        
-                        <group class="o_group" string="Basic data">
-                            <field name="acronym"/>
-                            <field name="name"/>
-                            <field name="email"/>
-                        </group>                        
-                        <notebook>
-                            <page string="Students">
-                                <field name="students" widget="one2many_list" context="{'show_attribute': False}">
-                                    <tree>
-                                        <field name="name"/>
-                                        <field name="surname"/>
-                                        <field name="email"/>                                        
-                                    </tree>
-                                </field>
-                            </page>                                                                             
-                            <page string="Notes">
-                                <field name="notes" placeholder="Write down here your notes..."/>
-                            </page>
-                            <page string="Audit">
-                                <group string="Audit">
-                                    <field name="create_date"/>
-                                    <field name="create_uid"/>
-                                    <field name="write_date"/>
-                                    <field name="write_uid"/>
-                                </group>
-                            </page>
-                        </notebook>                
-                    </sheet>	
-                </form>
-            </field>			
-        </record> -->
-        <!-- <record id="view_group_form_2" model="ir.ui.view">
-            <field name="name">group form</field>
-            <field name="model">ims.group</field>
-            <field name="type">form</field>
-            <field name="arch" type="xml">
-                <form string="Group">
-                    <sheet>                        
-                        <group class="o_group" string="Basic data">
-                            <field name="acronym"/>
-                            <field name="name"/>
-                            <field name="email"/>
-                        </group>                        
-                        <notebook>
-                            <page string="Students">
-                                <field name="students" widget="one2many_list" context="{'show_attribute': False}">
-                                    <tree>
-                                        <field name="name"/>
-                                        <field name="surname"/>
-                                        <field name="email"/>
-                                    </tree>
-                                </field>
-                            </page>                                                                             
-                            <page string="Notes">
-                                <field name="notes" placeholder="Write down here your notes..."/>
-                            </page>
-                        </notebook>
-                    </sheet>	
-                </form>
-            </field>			
-        </record> -->
+        </record>       
     </data>
 </odoo>

@@ -1,0 +1,24 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_attachment_form">
+            <field name="name">ims.attachment.form</field>
+            <field name="model">ims.attachment</field>
+            <field name="arch" type="xml">     
+                <form string="Attachment">
+                    <sheet>                        
+                        <group>
+                            <field name="name"/>
+                        </group>
+                        <group>
+                            <field name="file"/>
+                        </group>
+                        <group>
+                            <!-- Setup from the origin treeview (like in study's form). -->
+                            <field name="domain" invisible="1"/>
+                        </group>
+                    </sheet>     
+                </form>
+            </field>		      
+        </record>   
+    </data>
+</odoo>

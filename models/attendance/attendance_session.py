@@ -31,8 +31,8 @@ class ims_attendance_session(models.Model):
 	notes = fields.Text("Notes")
 	
 	attendance_status_ids = fields.One2many(string="Statuses", comodel_name="ims.attendance_status", inverse_name="attendance_session_id")	
-	attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ims.attendance_schedule", default=lambda self: self._default_attendance_schedule(), required=True)
-	
+	attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ims.attendance_schedule", default=lambda self: self._default_attendance_schedule(), required=True)	
+
 	@api.depends("attendance_schedule_id")
 	def _compute_weekday(self):
 		for rec in self:
@@ -119,6 +119,8 @@ class ims_attendance_session(models.Model):
 		for rec in self:
 			students = []
 			
+			# TODO: rec.write({'attendance_status_ids' : [(6, 0, students)]}) --> '6' means unlink previous and link the new ones.
+
 			for attendance_status in rec.attendance_status_ids:
 				# Unlink previous students
 				students.append([3, attendance_status.id])
@@ -132,15 +134,13 @@ class ims_attendance_session(models.Model):
 				students.append([0, 0, {
 					"student_id": student
 				}])	
-			self.write({"attendance_status_ids": students})
+			#self.write({"attendance_status_ids": students})
+			rec.write({"attendance_status_ids": students})
 
-	def name_get(self):
-        #Allows displaying a custom name: https://www.odoo.com/documentation/16.0/es/developer/reference/backend/orm.html#odoo.models.Model.name_get
-		result = []	
+	@api.depends('attendance_schedule_id', 'date')
+	def _compute_display_name(self):              
 		for rec in self:
-			result.append((rec.id, "%s | %s" % (rec.attendance_schedule_id.name_get()[0][1], rec.date)))			
-		return result
-
+			rec.display_name = "%s | %s" % (rec.attendance_schedule_id.display_name, rec.date)
 
 	def convert_to_utc_date(self, local_date):
 		user_time_zone = self.env.context["tz"] # can be fetched form logged in user if it is set 

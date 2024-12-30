@@ -1,19 +1,27 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_contact_search">
-            <field name="name">ims.contact.search</field>
+        <record model="ir.ui.view" id="view_student_search">
+            <field name="name">ims.student.search</field>
             <field name="model">res.partner</field>            
-            <field name="inherit_id" ref="base.view_res_partner_filter"/> 
             <field name="arch" type="xml">                                         
-                <xpath expr="//group[@name='group_by']" position="after">                     
-                     <searchpanel>
-                        <field name="company_id" groups="base.group_multi_company" icon="fa-building" enable_counters="1"/>
-                        <field name="contact_type"                           icon="fa-users" enable_counters="1" invisible="context.get('default_contact_type', False)"/>
-                        <field name="main_group_id" string="Student group"   icon="fa-users" enable_counters="1" invisible="context.get('default_contact_type') != 'student'"/>
-                        <field name="commercial_partner_id" string="Company" icon="fa-users" enable_counters="1" invisible="context.get('default_contact_type') != 'provider'"/>
+                <search>                    
+                    <searchpanel>       
+                        <field name="main_group_id" string="Student group" icon="fa-users" enable_counters="1" />
                     </searchpanel>
-                </xpath>                               
+                </search>
             </field>		      
         </record>   
+
+        <record model="ir.ui.view" id="view_provider_search">
+            <field name="name">ims.provider.search</field>
+            <field name="model">res.partner</field>            
+            <field name="arch" type="xml">                                     
+                <search>                    
+                    <searchpanel>       
+                        <field name="commercial_partner_id" string="Company" icon="fa-building" enable_counters="1" />      
+                    </searchpanel>
+                </search>            
+            </field>		      
+        </record>  
     </data>
 </odoo>

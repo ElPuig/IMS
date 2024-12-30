@@ -6,7 +6,7 @@ class record(models.Model):
 	_name = "ims.record"
 	_description = "Record: Defines a record (meeting, evaluacion, etc.)."
 	
-	date = fields.Datetime(string="Date", required="true")
+	date = fields.Datetime(string="Date", required=True)
 	nature = fields.Selection(string="Nature", selection=[("Ordinary", "ordinary"), ("Extraordinary", "extraordinary")])
 	modality = fields.Selection(string="Modality", selection=[("In person", "in person"), ("Online", "online"), ("Hybrid", "hybrid")])
 	space_id = fields.Many2one(string="Space", comodel_name="ims.space")

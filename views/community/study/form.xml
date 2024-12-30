@@ -26,25 +26,28 @@
                             </group>                           
                             <group>
                                 <field name="deprecated"/>                                
-                            </group>
-                            <group colspan="2">
-                                <field name="main_decree"/>                                
-                            </group>
-                            <group colspan="2">
-                                <field name="regional_decree"/>                                
-                            </group>                                                      
+                            </group>                                                                         
                         </group>
                         
                         <notebook>      
                             <page string="Subjects">
-                                <field name="subject_ids" widget="many2many">
-                                     <tree expand="1" default_order="code asc, level asc, acronym asc"
+                                <field name="subject_ids">
+                                     <list expand="True" default_order="code asc, level asc, acronym asc"
                                            decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
-                                        <field name="level" invisible="1"/>
+                                        <field name="level" column_invisible="True"/>
                                         <field name="code"/>
                                         <field name="acronym"/>
-                                        <field name="name"/>
-                                    </tree>
+                                        <field name="name"/>                                        
+                                    </list>
+                                </field>
+                            </page>
+
+                             <page string="Attached files">
+                                <field name="attachment_ids" default_order="name asc" context="{'default_domain': 'ims.study'}">
+                                     <list default_order="name asc">
+                                        <field name="name" />
+                                        <button class="btn btn-secondary fa fa-download" title="Download File" name="download" type="object" />
+                                    </list>
                                 </field>
                             </page>
 

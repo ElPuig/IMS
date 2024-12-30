@@ -4,11 +4,10 @@
             <field name="name">ims.employee.list</field>
             <field name="model">hr.employee</field>            
             <field name="inherit_id" ref="hr.view_employee_tree"/> 
-            <field name="arch" type="xml">        
-                <xpath expr="//tree" position="inside">                     
-                    <!-- This field must be loaded in order to filter properly the job_id -->
-                    <field name="employee_type" invisible="1" />
-                </xpath>                               
+            <field name="arch" type="xml">                        
+                <xpath expr="//field[@name='coach_id']" position="attributes">
+                    <attribute name="column_invisible">True</attribute>
+                </xpath>                                      
             </field>		      
         </record>   
     </data>

@@ -10,7 +10,7 @@
             <field name="template_teacher_id" ref="hr.employee_mit"/>
             
             <field name="level_id" ref="level_2"/>
-            <field name="study_id" ref="study_1"/>
+            <field name="study_id" ref="study_41"/>
             <field name="group_id" ref="group_1"/>
             <field name="subject_id" ref="subject_1"/>
             <field name="space_id" ref="space_5"/>   
