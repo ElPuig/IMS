@@ -50,11 +50,18 @@ echo ">> Replacing every real email with ${google_account}+<original_email, '@' 
 sudo -u odoo bash -c "psql -d ems -c \"UPDATE res_partner SET email = '${google_account}+' || replace(email, '@', '_at_') || '@${domain}' WHERE email IS NOT NULL AND email NOT LIKE '${google_account}+%';\""
 sudo -u odoo bash -c "psql -d ems -c \"UPDATE res_partner SET email_normalized = lower('${google_account}+' || replace(email_normalized, '@', '_at_') || '@${domain}') WHERE email_normalized IS NOT NULL AND email_normalized NOT LIKE '${google_account}+%';\""
 sudo -u odoo bash -c "psql -d ems -c \"UPDATE res_partner SET student_email = '${google_account}+' || replace(student_email, '@', '_at_') || '@${domain}' WHERE student_email IS NOT NULL AND student_email NOT LIKE '${google_account}+%';\""
+# Email columns that live outside res_partner and are not a stored related of it: each one holds
+# its own independent real address, so res_partner's rewrite above never reaches them and they
+# need the exact same treatment applied directly.
+sudo -u odoo bash -c "psql -d ems -c \"UPDATE ems_limesurvey_recipient SET email = '${google_account}+' || replace(email, '@', '_at_') || '@${domain}' WHERE email IS NOT NULL AND email NOT LIKE '${google_account}+%';\""
+sudo -u odoo bash -c "psql -d ems -c \"UPDATE hr_employee SET private_email = '${google_account}+' || replace(private_email, '@', '_at_') || '@${domain}' WHERE private_email IS NOT NULL AND private_email NOT LIKE '${google_account}+%';\""
+sudo -u odoo bash -c "psql -d ems -c \"UPDATE res_company SET secretariat_email = '${google_account}+' || replace(secretariat_email, '@', '_at_') || '@${domain}' WHERE secretariat_email IS NOT NULL AND secretariat_email NOT LIKE '${google_account}+%';\""
 echo "<< Email addresses replaced."
 
-echo ">> Refreshing hr.employee.work_email (a stored compute of work_contact_id.email that a raw SQL update on res_partner does not recompute):"
+echo ">> Refreshing the stored copies of res_partner.email (relateds/computes a raw SQL update on res_partner does not recompute):"
 sudo -u odoo bash -c "psql -d ems -c \"UPDATE hr_employee SET work_email = rp.email FROM res_partner rp WHERE rp.id = hr_employee.work_contact_id AND rp.email IS NOT NULL AND hr_employee.work_email IS DISTINCT FROM rp.email;\""
-echo "<< hr.employee.work_email refreshed."
+sudo -u odoo bash -c "psql -d ems -c \"UPDATE res_company SET email = rp.email FROM res_partner rp WHERE rp.id = res_company.partner_id AND rp.email IS NOT NULL AND res_company.email IS DISTINCT FROM rp.email;\""
+echo "<< hr.employee.work_email and res.company.email refreshed."
 
 echo ">> Declaring this environment as 'dev' (see CLAUDE.md's 'Development vs. production environment declaration'):"
 sudo -u odoo bash -c "psql -d ems -c \"INSERT INTO ir_config_parameter (key, value) VALUES ('ems.environment_type', 'dev') ON CONFLICT (key) DO UPDATE SET value = 'dev';\""
