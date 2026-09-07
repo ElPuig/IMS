@@ -271,6 +271,10 @@ class ems_employee_base(models.AbstractModel):
         chiefs a department themselves (Department Chief of a regular department, or Area Manager
         of a top-level one - see 'ems.department'):
 
+        - Whoever directs the company (directed_company_ids, i.e. res.company.director_id) always
+          has their own Manager cleared, unconditionally - the Director sits above the whole
+          hierarchy, regardless of whether they merely belong to a department, chief one, or head
+          a top-level one themselves. This takes priority over every other rule below.
         - Anyone who chiefs ANY department (headed_department_ids) is excluded from every OTHER
           department's own intra-cascade entirely, including their own nominal department_id if
           it differs from what they head (e.g. an employee nominally in "Computer Science" who
@@ -291,6 +295,16 @@ class ems_employee_base(models.AbstractModel):
           the Seminar Chief, or that same effective Manager if the department has no Seminar Chief.
         """
         for employee in self:
+            if employee.directed_company_ids:
+                # The Director sits above the whole hierarchy (see 'ems.department's own
+                # docstring) - unconditionally, regardless of whether they merely belong to a
+                # department, chief one, or head a top-level one themselves. Without this, a
+                # Director who is only a REGULAR member of a department (not its Chief) falls
+                # through to the generic branch below and ends up with that department's own
+                # Chief/Seminar Chief as their Manager - putting someone above the Director.
+                employee.parent_id = False
+                continue
+
             headed = employee.headed_department_ids
             if headed:
                 # Explicitly (re)assigned every time, including to an empty recordset (False) -

@@ -690,3 +690,18 @@ class TestDepartment(TransactionCase):
         self.assertNotEqual(manager.parent_id, manager)
         self.assertIn(self.role_secretary, manager.role_ids)
         self.assertIn(self.role_dchieff, manager.role_ids)
+
+    def test_manager_without_real_employee_type_cannot_be_department_chief(self):
+        # Issue #416: a technical/non-staff hr.employee (e.g. the one backing the superuser
+        # account, which has no real teacher/asp employee_type) must never be selectable as a
+        # Department Chief.
+        department = self.env['hr.department'].create({'name': 'Test Department (Non-Staff Chief)'})
+        non_staff = self.env['hr.employee'].create({'name': 'Test Non-Staff (Non-Staff Chief)'})
+        with self.assertRaises(Exception):
+            department.manager_id = non_staff.id
+
+    def test_seminar_chief_without_real_employee_type_raises(self):
+        department = self.env['hr.department'].create({'name': 'Test Department (Non-Staff Seminar)'})
+        non_staff = self.env['hr.employee'].create({'name': 'Test Non-Staff (Non-Staff Seminar)'})
+        with self.assertRaises(Exception):
+            department.seminar_chief_id = non_staff.id

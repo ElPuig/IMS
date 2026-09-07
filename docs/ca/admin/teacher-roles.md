@@ -82,7 +82,7 @@ Es revoca el grup de seguretat corresponent (i qualsevol accés que només aquel
 A diferència dels altres rols, **Cap de departament** i **Cap de seminari** no s'estableixen des de la fitxa del professor — s'estableixen des del departament:
 
 1. Navegueu a **Empleats → Departaments** i obriu el departament.
-2. Establiu el **Cap de departament** (el camp `Manager` del departament) i, opcionalment, el **Cap de seminari**.
+2. Establiu el **Cap de departament** (el camp `Manager` del departament) i, opcionalment, el **Cap de seminari**. Aquest camp només mostra docents i personal PAS — un compte tècnic o del sistema mai és una opció vàlida.
 3. Feu clic a **Desar**.
 
 Això té un efecte immediat i automàtic sobre tots els professors d'aquell departament:
@@ -150,7 +150,8 @@ A diferència de tots els altres rols, el **Director** no s'estableix des de cap
 
 Això té un efecte més enllà del propi ajust:
 
-- El **Responsable** de qui exerceixi de Responsable d'àrea en qualsevol departament top-level (p. ex. de VET, d'ESO/BTX, d'ASP) s'estableix automàticament al **Director** — llevat que el propi Director sigui qui encapçala aquell departament top-level, cas en què el seu propi Responsable queda buit.
+- El **Responsable** de qui exerceixi de Responsable d'àrea en qualsevol departament top-level (p. ex. de VET, d'ESO/BTX, d'ASP) s'estableix automàticament al **Director**.
+- El propi **Responsable** del Director sempre queda buit — ningú no pot estar mai per sobre del Director, sigui quin sigui el departament al qual pertanyi nominalment, tant si n'és el cap com si només n'és un membre normal el cap del qual és una altra persona.
 - Reassignar el Director a una altra persona revoca automàticament el rol a qui l'ocupava abans.
 
 > **Nota sobre l'accés:** la pantalla d'Ajustes requereix l'accés d'Ajustes d'Odoo (concedit a través del grup "Administrador d'Ajustes" o root/admin) — és un permís *diferent* del que controla els formularis de departament anteriors. Algú amb accés acadèmic complet no té garantit poder entrar a Ajustes.

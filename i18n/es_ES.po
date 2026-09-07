@@ -12124,6 +12124,12 @@ msgstr "Un departamento no puede tener Responsable propio y a la vez compartir s
 
 #. module: ems
 #. odoo-python
+#: code:addons/ems/models/employees/department.py:0
+msgid "%(head)s cannot head a department: only teachers and administrative and services personnel can be a Department Chief, Seminar Chief or Area Manager."
+msgstr "%(head)s no puede encabezar un departamento: solo el profesorado y el personal de administración y servicios pueden ser Jefe de Departamento, Jefe de Seminario o Responsable de Área."
+
+#. module: ems
+#. odoo-python
 #: code:addons/ems/models/attendance/attendance_template.py:0 code:addons/ems/models/employees/department.py:0 code:addons/ems/models/employees/role.py:0
 msgid "Color must be a hexadecimal code (e.g. #3A8DDE)."
 msgstr "El color debe ser un código hexadecimal (p. ej. #3A8DDE)."

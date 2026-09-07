@@ -12,8 +12,12 @@ class ems_department(models.Model):
         string="Color", default="#3A8DDE",
         help="Free-pick display color for this department (not Odoo's native, fixed-palette "
              "'Color' field, which the kanban view still uses internally).")
+    manager_id = fields.Many2one(
+        domain="['&', '|', ('company_id', '=', False), ('company_id', 'in', allowed_company_ids), "
+               "('employee_type', 'in', ('teacher', 'asp'))]")
     seminar_chief_id = fields.Many2one(
         string="Seminar Chief", comodel_name="hr.employee",
+        domain="[('employee_type', 'in', ('teacher', 'asp'))]",
         help="Every other member of this department (the Department Chief excluded) will have "
              "their Manager set to this employee; the Seminar Chief's own Manager is set to the "
              "Department Chief.")
@@ -85,6 +89,16 @@ class ems_department(models.Model):
     @api.constrains("custom_color")
     def _check_custom_color_format(self):
         self._check_hex_color('custom_color')
+
+    @api.constrains('manager_id', 'seminar_chief_id')
+    def _check_head_employee_type(self):
+        for department in self:
+            for head in (department.manager_id, department.seminar_chief_id):
+                if head and head.employee_type not in ('teacher', 'asp'):
+                    raise ValidationError(_(
+                        "%(head)s cannot head a department: only teachers and administrative and "
+                        "services personnel can be a Department Chief, Seminar Chief or Area Manager.",
+                        head=head.name))
 
     @api.model_create_multi
     def create(self, vals_list):

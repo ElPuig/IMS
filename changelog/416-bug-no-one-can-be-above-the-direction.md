@@ -15,3 +15,23 @@
   since this is a form-level (required attribute) behavior that no backend test can catch.
 - Updated the developer reference (`docs/en/developers/employees/department.md`) and the admin
   manual (`docs/{en,es,ca}/admin/teacher-roles.md`) to reflect that Department Chief is optional.
+
+## Only real staff can head a department:
+- The technical `hr.employee` backing the superuser account (no real teacher/PAS employee type)
+  was selectable, and had actually been picked, as a Department Chief/Seminar Chief/Area Manager -
+  it isn't a real member of staff.
+- `manager_id`/`seminar_chief_id` now carry a domain restricting the dropdown to teachers and
+  administrative/services staff, plus a matching `@api.constrains` so a direct write/import/RPC
+  call can't bypass it either. Translated to Catalan and Spanish.
+
+## Nobody can rank above the Director:
+- A real Director who was simply a regular (non-heading) member of a department ended up with that
+  department's own Chief as their "Manager" - the exact same underlying data bug as the item above
+  exposed this: the Director's own Manager was the superuser's technical account. Nothing should
+  ever outrank the Director, regardless of which department they nominally belong to.
+- `hr.employee._compute_parent_id()` now clears the Director's own Manager unconditionally, before
+  any department-cascade rule is even considered; `res.company.write()` now also force-recomputes
+  this for the (old|new) Director when `director_id` changes, since that recompute doesn't
+  otherwise depend on the company's own field.
+- Existing bad data in this environment (a department manager pointing at the technical account)
+  cleared as part of verifying the fix.
