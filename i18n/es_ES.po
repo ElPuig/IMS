@@ -1086,6 +1086,8 @@ msgstr ""
 msgid ""
 "<strong>Import Process:</strong><br/>\n"
 "                                This wizard will import student data from an Excel file exported from Esfera (SAGA system).\n"
+"                                Every sheet of the file holding data is imported, and the student identifier (IDALU/RALC)\n"
+"                                is the only column that must be present.\n"
 "                                The import will:<br/>\n"
 "                                • Create new student records for students not yet in the system (identified by RALC)<br/>\n"
 "                                • Update existing student records if found by RALC identifier<br/>\n"
@@ -1093,16 +1095,24 @@ msgid ""
 "                                • Link family members to students using relationship types<br/>\n"
 "                                • Deduce family relationships from comments (mother, father, guardian, etc.)<br/>\n"
 "                                <br/>\n"
+"                                A column that comes empty in the file never erases data already held by EMS, and existing\n"
+"                                notes are always kept: each import adds its own notes on top, stamped with its date.<br/>\n"
+"                                <br/>\n"
 "                                Select an Excel file below and click \"Import students\" to proceed."
 msgstr ""
 "<strong>Proceso de importación:</strong><br/>\n"
 "                                Este asistente importará datos de alumnos desde un archivo Excel exportado desde Esfera (sistema SAGA).\n"
+"                                Se importa cada pestaña del fichero que contenga datos, y el identificador del alumno (IDALU/RALC)\n"
+"                                es la única columna que debe estar presente.\n"
 "                                La importación:<br/>\n"
 "                                • Creará nuevos registros de alumnos para aquellos que aún no están en el sistema (identificados por RALC)<br/>\n"
 "                                • Actualizará los registros existentes si se encuentran por el identificador RALC<br/>\n"
 "                                • Creará contactos familiares para tutores/responsables<br/>\n"
 "                                • Vinculará los miembros de la familia con los alumnos mediante tipos de relación<br/>\n"
 "                                • Deducirá las relaciones familiares a partir de los comentarios (madre, padre, tutor, etc.)<br/>\n"
+"                                <br/>\n"
+"                                Una columna que llega vacía en el fichero nunca borra datos que EMS ya tenga, y las notas existentes\n"
+"                                se conservan siempre: cada importación añade sus notas arriba, con su fecha.<br/>\n"
 "                                <br/>\n"
 "                                Seleccione un archivo Excel a continuación y haga clic en \"Importar alumnos\" para continuar."
 
@@ -12636,3 +12646,51 @@ msgstr "No se ha encontrado ninguna asignatura con el código '%s'."
 #: code:addons/ems/models/employees/working_schedule.py:0
 msgid "Classroom with code '%s' not found."
 msgstr "No se ha encontrado ninguna aula con el código '%s'."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__overwrite
+msgid "Overwrite existing data"
+msgstr "Sobrescribir los datos existentes"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_student_import_wizard__overwrite
+msgid ""
+"Leave it unticked to keep what EMS already holds: only fields that are "
+"currently empty get filled in, and students missing from EMS are created. "
+"Tick it to let the file's values replace EMS's ones. In both cases a column "
+"that comes empty in the file never erases an existing value, and notes are "
+"always kept."
+msgstr ""
+"Déjela desmarcada para conservar lo que EMS ya tiene: solo se rellenan los "
+"campos que ahora están vacíos, y se crean los alumnos que no están. "
+"Márquela para que los valores del fichero sustituyan a los de EMS. En ambos "
+"casos, una columna que llega vacía en el fichero nunca borra un valor "
+"existente, y las notas se conservan siempre."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_import_wizard.py:0
+msgid "A row was skipped: it carries no student identifier (%(column)s)."
+msgstr ""
+"Se ha omitido una fila: no lleva ningún identificador de alumno "
+"(%(column)s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_import_wizard.py:0
+msgid ""
+"Could not find the header row in any sheet of the file. Make sure it "
+"contains a column '%(column)s'."
+msgstr ""
+"No se ha encontrado la fila de cabecera en ninguna pestaña del fichero. "
+"Asegúrese de que contiene una columna '%(column)s'."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_import_wizard.py:0
+msgid ""
+"Student '%(ralc)s' was skipped: the row carries no name and no student with "
+"that identifier exists in EMS yet."
+msgstr ""
+"Se ha omitido el alumno '%(ralc)s': la fila no lleva ningún nombre y todavía "
+"no hay ningún alumno con ese identificador en EMS."

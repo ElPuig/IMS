@@ -1086,6 +1086,8 @@ msgstr ""
 msgid ""
 "<strong>Import Process:</strong><br/>\n"
 "                                This wizard will import student data from an Excel file exported from Esfera (SAGA system).\n"
+"                                Every sheet of the file holding data is imported, and the student identifier (IDALU/RALC)\n"
+"                                is the only column that must be present.\n"
 "                                The import will:<br/>\n"
 "                                • Create new student records for students not yet in the system (identified by RALC)<br/>\n"
 "                                • Update existing student records if found by RALC identifier<br/>\n"
@@ -1093,16 +1095,24 @@ msgid ""
 "                                • Link family members to students using relationship types<br/>\n"
 "                                • Deduce family relationships from comments (mother, father, guardian, etc.)<br/>\n"
 "                                <br/>\n"
+"                                A column that comes empty in the file never erases data already held by EMS, and existing\n"
+"                                notes are always kept: each import adds its own notes on top, stamped with its date.<br/>\n"
+"                                <br/>\n"
 "                                Select an Excel file below and click \"Import students\" to proceed."
 msgstr ""
 "<strong>Procés d'importació:</strong><br/>\n"
 "                                Aquest assistent importarà dades d'alumnes des d'un arxiu Excel exportat des d'Esfera (sistema SAGA).\n"
+"                                S'importa cada pestanya del fitxer que contingui dades, i l'identificador de l'alumne (IDALU/RALC)\n"
+"                                és l'única columna que hi ha d'haver.\n"
 "                                La importació:<br/>\n"
 "                                • Crearà nous registres d'alumnes per als que encara no estan al sistema (identificats per RALC)<br/>\n"
 "                                • Actualitzarà els registres existents si es troben per l'identificador RALC<br/>\n"
 "                                • Crearà contactes familiars per als tutors/responsables<br/>\n"
 "                                • Vincularà els membres de la família amb els alumnes mitjançant tipus de relació<br/>\n"
 "                                • Deduïrà les relacions familiars a partir dels comentaris (mare, pare, tutor, etc.)<br/>\n"
+"                                <br/>\n"
+"                                Una columna que arriba buida al fitxer mai esborra dades que l'EMS ja tingui, i les notes existents\n"
+"                                es conserven sempre: cada importació afegeix les seves notes a dalt, amb la seva data.<br/>\n"
 "                                <br/>\n"
 "                                Seleccioneu un arxiu Excel a continuació i feu clic a \"Importar alumnes\" per continuar."
 
@@ -12636,3 +12646,49 @@ msgstr "No s'ha trobat cap assignatura amb el codi '%s'."
 #: code:addons/ems/models/employees/working_schedule.py:0
 msgid "Classroom with code '%s' not found."
 msgstr "No s'ha trobat cap aula amb el codi '%s'."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__overwrite
+msgid "Overwrite existing data"
+msgstr "Sobreescriure les dades existents"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_student_import_wizard__overwrite
+msgid ""
+"Leave it unticked to keep what EMS already holds: only fields that are "
+"currently empty get filled in, and students missing from EMS are created. "
+"Tick it to let the file's values replace EMS's ones. In both cases a column "
+"that comes empty in the file never erases an existing value, and notes are "
+"always kept."
+msgstr ""
+"Deixeu-la desmarcada per conservar el que l'EMS ja té: només s'omplen els "
+"camps que ara són buits, i es creen els alumnes que no hi són. Marqueu-la "
+"perquè els valors del fitxer substitueixin els de l'EMS. En tots dos casos, "
+"una columna que arriba buida al fitxer mai esborra un valor existent, i les "
+"notes es conserven sempre."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_import_wizard.py:0
+msgid "A row was skipped: it carries no student identifier (%(column)s)."
+msgstr "S'ha omès una fila: no porta cap identificador d'alumne (%(column)s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_import_wizard.py:0
+msgid ""
+"Could not find the header row in any sheet of the file. Make sure it "
+"contains a column '%(column)s'."
+msgstr ""
+"No s'ha trobat la fila de capçalera en cap pestanya del fitxer. "
+"Assegureu-vos que conté una columna '%(column)s'."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_import_wizard.py:0
+msgid ""
+"Student '%(ralc)s' was skipped: the row carries no name and no student with "
+"that identifier exists in EMS yet."
+msgstr ""
+"S'ha omès l'alumne '%(ralc)s': la fila no porta cap nom i encara no hi ha "
+"cap alumne amb aquest identificador a l'EMS."
