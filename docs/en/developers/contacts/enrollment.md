@@ -23,7 +23,7 @@
 
 **`_sql_constraints` uniqueness on `(student_id, group_id, subject_id)` — fixed 2026-07-30.** The production database had 21 pre-existing duplicate triples (42 rows), all field-identical within their pair (only `id`/timestamps differed — no data-merge needed). Fixed with `('unique_student_group_subject', 'UNIQUE(student_id, group_id, subject_id)', ...)`. Since duplicates already existed, `migrations/18.0.0.22.0/pre-migrate.py::_dedupe_ems_enrollment` deletes the higher-id row of each duplicate pair via raw SQL **before** Odoo's schema sync tries to create the constraint — deliberately not through ORM `unlink()`, since at the time `unlink()`'s `_ems_sync_grade_session_remove` had no "is the student still enrolled via another row" guard (unlike its sibling `_ems_sync_attendance_template_remove`) and would have risked wiping the surviving duplicate's grade lines for an open session. That asymmetry is now fixed too — see [below](#createunlink--keeping-two-side-systems-in-sync). Tested in `tests/test_enrollment.py::test_duplicate_student_group_subject_raises`/`test_same_student_different_group_is_allowed`.
 
-### `default_get()` — admin-only manual creation
+### `default_get()` — admin/secretary-only manual creation
 
 ```mermaid
 flowchart TD
@@ -31,12 +31,14 @@ flowchart TD
     B -- yes (programmatic) --> Z[return defaults]
     B -- no --> C{"'user_is_admin' requested?"}
     C -- no --> Z
-    C -- yes --> D{"user_is_admin default True?"}
+    C -- yes --> D{"admin or secretary?"}
     D -- yes --> Z
     D -- no --> E["raise UserError"]
 ```
 
-Only users in `ems.group_academic_admin` may open a blank `ems.enrollment` form at all — tutors are expected to enroll a student in a subject from the **student's own form** (the embedded one2many on `res.partner`, see [`contact.md`](contact.md)), not from this model's standalone list/menu. The check happens in `default_get` rather than via `ir.model.access.csv`/`ir.rule` because the "New" button itself can't easily be hidden per-role from the standalone action (see the method's own `TODO`) — tutors do have model-level create rights (needed for the embedded one2many to work), so the guard has to fire when the blank form actually loads.
+Only users in `ems.group_academic_admin` or `ems.group_secretary` may open a blank `ems.enrollment` form at all — tutors are expected to enroll a student in a subject from the **student's own form** (the embedded one2many on `res.partner`, see [`contact.md`](contact.md)), not from this model's standalone list/menu. The check happens in `default_get` rather than via `ir.model.access.csv`/`ir.rule` because the "New" button itself can't easily be hidden per-role from the standalone action (see the method's own `TODO`) — tutors do have model-level create rights (needed for the embedded one2many to work), so the guard has to fire when the blank form actually loads.
+
+**Extended to secretary 2026-09-07 (secretary report: could delete a manually-added line from a student's form but never create one).** The guard originally only exempted `user_is_admin` (`ems.group_academic_admin`); the error message itself had always claimed a tutor could also enroll from the student's form, which was never actually true for this guard (tutors have never been exempted here — `ems.base.get_user_is_tutor()` is checked nowhere in this method). Fixed by adding `ems.base.get_user_is_secretary()` (a new companion to `get_user_is_admin()`, replacing the inline `self.env.user.has_group('ems.group_secretary')` already duplicated twice in `contact.py`) and rewording the message to no longer promise tutor access. Tutors remain unaffected — see "Deliberately excluded" note in [`contact.md`](contact.md) for why the embedded one2many is actually `readonly` for a tutor of the student being edited anyway.
 
 **The `env.su` escape hatch — added 2026-09-01, after the guard broke enrollment confirmation in production.** `create()` builds its values through `_add_missing_default_values()`, which calls `default_get()`, so a guard living there fires on **every** creation, not only on the ones a human starts from a form. That is exactly what happened once the 26-27 transition flipped the current course: from that moment `sale.order._ems_placement_is_individual()` is true for every pending enrollment, so confirming one runs `_ems_apply_destination_placement()` — which creates the subject enrollments — and the confirmation died with *"Only admins can create manual enrollments"* instead of placing the student.
 
@@ -98,11 +100,13 @@ Covered by `tests/test_enrollment.py` (`_ems_move_group` directly: repoint, unto
 
 ### `ir.model.access.csv`
 
-| Role | Create | Read | Write | Delete |
-|------|:------:|:----:|:-----:|:------:|
+| Role | Read | Write | Create | Delete |
+|------|:----:|:-----:|:------:|:------:|
 | Academic admin | ✓ | ✓ | ✓ | ✓ |
 | Teacher | ✓ | ✓ | ✓ | ✓ |
-| Secretary | ✓ | — | — | — |
+| Secretary | ✓ | ✓ | ✓ | ✓ |
+
+**Fixed 2026-09-07 (same secretary report as `default_get()` above).** Secretary used to be read-only here (`1,0,0,0`) while `rule_enrollment_secretary` below already declared unrestricted "full access" — a record rule can only ever *narrow* the model-access ceiling, never widen it, so that rule was dead weight for create/write/unlink until the ACL itself was raised to match. This alone did not fully explain the original bug report (`default_get()`'s own Python-level guard, above, blocked secretary regardless of the ACL) — both had to be fixed together.
 
 ### `security/rules/contacts.xml` record rules
 
@@ -113,7 +117,7 @@ Covered by `tests/test_enrollment.py` (`_ems_move_group` directly: repoint, unto
 | `rule_enrollment_teacher` | Teacher | `[]` (read-only) | — |
 | `rule_enrollment_tutor` | Teacher (tutor subset) | `student_id.tutor_id.user_id = user.id` | ✓ |
 
-The secretary model-access row (read/write/create/unlink all `0` except create) combined with the unrestricted `rule_enrollment_secretary` record rule looks contradictory at first glance — the model-access row is the ceiling, the record rule can only narrow it further, never widen it; secretary's practical enrollment access is therefore governed elsewhere (the sale.order-based enrollment process, not this junction model directly). Teachers get full CRUD at the model-access level, but the two combined record rules (`teacher`: read-only everywhere; `tutor`: full CRUD, same `group_teacher` group) net out to: read every enrollment, but only create/edit/delete for their own tutored students — the same OR-combination pattern documented for `res.partner` in [`contact.md`](contact.md#access-control).
+Teachers get full CRUD at the model-access level, but the two combined record rules (`teacher`: read-only everywhere; `tutor`: full CRUD, same `group_teacher` group) net out to: read every enrollment, but only create/edit/delete for their own tutored students — the same OR-combination pattern documented for `res.partner` in [`contact.md`](contact.md#access-control). Secretary now has genuinely unrestricted CRUD, matching `rule_enrollment_secretary`'s own domain and the `default_get()` fix above.
 
 ---
 

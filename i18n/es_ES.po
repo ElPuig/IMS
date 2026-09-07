@@ -5223,8 +5223,8 @@ msgstr "Solo los administradores pueden cambiar el estado de la evaluación."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/enrollment.py:0
-msgid "Only admins can create manual enrollments. If you're a group's tutor, you can enroll students using the student's form."
-msgstr "Solo los administradores pueden crear matrículas manuales. Si eres tutor de un grupo, puedes matricular alumnos desde el formulario del alumno."
+msgid "Only admins and secretary staff can create manual enrollments."
+msgstr "Solo los administradores y el personal de secretaría pueden crear matrículas manuales."
 
 #. module: ems
 #. odoo-python
@@ -12644,3 +12644,15 @@ msgstr "No se ha encontrado ninguna asignatura con el código '%s'."
 #: code:addons/ems/models/employees/working_schedule.py:0
 msgid "Classroom with code '%s' not found."
 msgstr "No se ha encontrado ninguna aula con el código '%s'."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid ""
+"The study change refreshed this student's enrollments from the "
+"%(template)s template, but the following subjects already have "
+"grades and were kept as-is:"
+msgstr ""
+"El cambio de estudio ha actualizado las matrículas de este alumno a partir "
+"de la plantilla %(template)s, pero las siguientes asignaturas ya tienen "
+"notas y se han mantenido tal cual:"

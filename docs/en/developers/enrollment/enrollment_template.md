@@ -36,6 +36,10 @@ flowchart TD
 
 `ems_study_id` and `study_year` together are what let [`ems.enrollment_proposal_wizard`](enrollment_proposal_wizard.md) auto-preselect the right template for a batch of students without the secretary picking one by hand every time — see that wizard's `_ems_templates_for`/`default_get`. A study with **no** active template for a given course simply offers none (the wizard falls back to "free mode" for secretary/admin, blocking a plain tutor — see the wizard's own doc).
 
+### `_ems_find_for(study, course)`
+
+A single-template lookup for an *already known, exact* `(study, course)` pair — `search([('ems_study_id', '=', study.id), ('study_year', '=', course)], limit=1)`, or an empty recordset if `study`/`course` is falsy. Used by [`res.partner._ems_refresh_enrollments_from_template()`](../contacts/contact.md#_ems_refresh_enrollments_from_template--regenerating-subject-enrollments-on-a-study-change) to resolve the template for a student whose course is already known (their auto-picked group's `course`), unlike `_ems_templates_for()` above, which lists *candidates* across several students/a course floor for a human to pick from in a wizard dropdown — a different shape of problem, not a case the two share a domain for. Nothing enforces a single template per study+course (see CLAUDE.md's data folder conventions); if more than one matches, the first one found is used — there is no extra signal here to disambiguate further, the same place the wizard itself ends up once nothing else narrows a course down to one candidate.
+
 ## Driving `ems.study.uses_enrollment_flow`
 
 `ems.study`'s own `uses_enrollment_flow` computed field (consumed by the "no destination" report, transition-status computation, and the transition wizard preview) is derived from whether **any** active `sale.order.template` points at that study via `ems_study_id` — this file's `ems_study_id` field is the only thing that flag actually reads. See [`ems.study`](../curriculum/study.md#uses_enrollment_flow-computation) for the full diagram.

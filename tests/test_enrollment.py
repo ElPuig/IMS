@@ -244,6 +244,36 @@ class TestEnrollment(TransactionCase):
         res = self.env['ems.enrollment'].with_user(admin_user).default_get(['user_is_admin'])
         self.assertTrue(res['user_is_admin'])
 
+    def test_default_get_allows_secretary(self):
+        secretary_user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Secretary (Enrollment)', 'login': 'test_secretary_enrollment',
+            'groups_id': [(4, self.env.ref('ems.group_secretary').id)],
+        })
+        # Must not raise UserError, unlike a plain teacher (test_default_get_blocks_non_admin).
+        self.env['ems.enrollment'].with_user(secretary_user).default_get(['user_is_admin'])
+
+    def test_default_get_blocks_non_admin_message_is_translated(self):
+        # Verifies the .po translation actually loaded and applies at runtime - a msgid
+        # existing in the .po file is necessary but not sufficient (see CLAUDE.md's i18n
+        # verification rule).
+        teacher_user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Non-Admin ES (Enrollment)', 'login': 'test_non_admin_enrollment_es',
+            'groups_id': [(4, self.env.ref('ems.group_teacher').id)],
+        })
+        with self.assertRaises(UserError) as cm:
+            self.env['ems.enrollment'].with_user(teacher_user).with_context(lang='es_ES').default_get(['user_is_admin'])
+        self.assertIn('Solo los administradores y el personal de secretaría', str(cm.exception))
+
+    def test_secretary_can_create_enrollment_manually(self):
+        secretary_user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Secretary Create (Enrollment)', 'login': 'test_secretary_create_enrollment',
+            'groups_id': [(4, self.env.ref('ems.group_secretary').id)],
+        })
+        enrollment = self.env['ems.enrollment'].with_user(secretary_user).create({
+            'student_id': self.other_student.id, 'group_id': self.group.id, 'subject_id': self.subject.id,
+        })
+        self.assertTrue(enrollment.id)
+
     # -- inuse_subject_ids --
 
     def test_inuse_subject_ids_lists_students_other_enrolled_subjects(self):

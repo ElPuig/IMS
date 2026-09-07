@@ -43,6 +43,8 @@ Removing a subject line is blocked once the student already has grades recorded 
 
 **Changing a student's main group moves their subject enrollments too.** If you change the **Main Group** field itself (Studies tab), any subject enrollment that was in the old group moves automatically to the new one — a subject already enrolled through a different group (e.g. a reinforcement group) is left as-is. This is rejected, for the same reason as above, if a subject in the old group already has grades recorded. The group tutor can do this too, for their own tutored students — see [Changing a student's group](../tutors/change-student-group.md).
 
+**Changing a student's study refreshes their subject enrollments from the new study's enrollment template.** Change the **Studies** field itself (not just the Main Group) and, on save, EMS automatically picks the first group of the new study (alphabetically) as the new Main Group and regenerates the subject enrollment lines from the enrollment template configured for that study and course — the same subjects a proposal for that study/course would offer. If the new study has no group yet, nothing is auto-enrolled until one is created; add the subject lines by hand once it is. Old subject enrollments not part of the new template are removed, except any that already have grades recorded — those are kept as-is and noted in the student's message log (chatter) for you to review by hand.
+
 ## Bonifications and exemptions
 
 A student's fee **benefits** (bonifications, which discount part of the enrollment fee, and exemptions, which waive it entirely) are registered in the **Secretary** tab of the student's record:
