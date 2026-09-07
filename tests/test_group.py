@@ -91,11 +91,14 @@ class TestGroup(TransactionCase):
         group = self.env['ems.group'].create({
             'group_type': 'reinforcement',
             'name': 'REF-MATHS',
-            'reinforcement_student_ids': [(6, 0, [student_a.id, student_b.id])],
         })
+        subject = self._enrollment_subject('REF')
+        self.env['ems.enrollment'].create({'student_id': student_a.id, 'group_id': group.id, 'subject_id': subject.id})
+        self.env['ems.enrollment'].create({'student_id': student_b.id, 'group_id': group.id, 'subject_id': subject.id})
+        group.invalidate_recordset(['enrolled_student_ids'])
         self.assertTrue(group.id)
         self.assertEqual(group.name, 'REF-MATHS')
-        self.assertEqual(group.reinforcement_student_ids, student_a | student_b)
+        self.assertEqual(group.enrolled_student_ids, student_a | student_b)
 
     def test_main_group_without_study_raises(self):
         with self.assertRaises(ValidationError):
@@ -276,8 +279,11 @@ class TestGroup(TransactionCase):
         })
         reinforcement_group = self.env['ems.group'].create({
             'group_type': 'reinforcement', 'name': 'REF-ARCHIVE-TEST',
-            'reinforcement_student_ids': [(6, 0, [student.id])],
         })
+        self.env['ems.enrollment'].create({
+            'student_id': student.id, 'group_id': reinforcement_group.id, 'subject_id': self._enrollment_subject('ARCH1').id,
+        })
+        reinforcement_group.invalidate_recordset(['enrolled_student_ids'])
         with self.assertRaises(RedirectWarning):
             reinforcement_group.write({'active': False})
         self.assertTrue(reinforcement_group.active)
@@ -288,8 +294,11 @@ class TestGroup(TransactionCase):
         })
         reinforcement_group = self.env['ems.group'].create({
             'group_type': 'reinforcement', 'name': 'REF-ARCHIVE-TEST-2',
-            'reinforcement_student_ids': [(6, 0, [student.id])],
         })
+        self.env['ems.enrollment'].create({
+            'student_id': student.id, 'group_id': reinforcement_group.id, 'subject_id': self._enrollment_subject('ARCH2').id,
+        })
+        reinforcement_group.invalidate_recordset(['enrolled_student_ids'])
         student.active = False
         reinforcement_group.write({'active': False})
         self.assertFalse(reinforcement_group.active)

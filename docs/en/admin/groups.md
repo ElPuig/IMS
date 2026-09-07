@@ -45,8 +45,8 @@ Students aren't added from here — see the **Students** tab to review who's ass
 1. Click **New**.
 2. Switch **Group Type** to **Reinforcement**. Level, Study, Tutor and Delegate disappear — they don't apply.
 3. Fill in a **Name** directly (e.g. `REF-MATHS`).
-4. In the **Students** tab, add students from any main group/study.
-5. Click **Save**.
+4. Click **Save**.
+5. Add students the same way as for any other group: from the student's own form (or the enrolment flow), enrol them in a subject with this reinforcement group set as the **Group** — they can come from any main group/study. They then show up in this group's own **Enrolled** tab.
 
 ---
 
@@ -54,7 +54,7 @@ Students aren't added from here — see the **Students** tab to review who's ass
 
 You can switch an existing group between Main and Reinforcement, but:
 - Switching **Main → Reinforcement** is blocked if the group still has students enrolled as their main group — reassign them to another group first.
-- Switching either way clears the fields that no longer apply (level/study/course/acronym/tutor/delegate, or the reinforcement student list).
+- Switching **Main → Reinforcement** clears the fields that no longer apply (level/study/course/acronym/tutor/delegate).
 
 ---
 

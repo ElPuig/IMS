@@ -31,7 +31,6 @@ class EmsGroup(models.Model):
 	space_id = fields.Many2one(string="Classroom", comodel_name="ems.space")
 
 	main_student_ids = fields.One2many(string="Students", comodel_name="res.partner", inverse_name="main_group_id", domain="[('contact_type', '=', 'student')]")
-	reinforcement_student_ids = fields.Many2many(string="Reinforcement Students", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")
 	enrolled_student_ids = fields.Many2many(string="Enrolled", comodel_name="res.partner", compute="_compute_enrolled_student_ids")
 	enrollment_view_ids = fields.One2many(string="Enrollment", comodel_name="ems.enrollment_view", inverse_name="group_id", compute="_compute_enrollment_ids") # Contains the same data as enrolled_student_ids but filtered for the current group (sadly, it cannot be filtered on view...)
 	shift = fields.Selection(selection=[('morning', 'Morning'),('afternoon', 'Afternoon'),],string="Shift",help="Morning or afternoon shift for this group.")
@@ -63,8 +62,6 @@ class EmsGroup(models.Model):
 				group.acronym = False
 				group.tutor_id = False
 				group.delegate_id = False
-			elif group.group_type == "main":
-				group.reinforcement_student_ids = [(5, 0, 0)]
 
 	@api.constrains("group_type", "level_id", "study_id", "course", "acronym", "tutor_id", "delegate_id")
 	def _check_group_type_fields(self):
@@ -125,8 +122,6 @@ class EmsGroup(models.Model):
 		if group_type == "reinforcement":
 			for field in ("level_id", "study_id", "course", "acronym", "tutor_id", "delegate_id"):
 				vals.setdefault(field, False)
-		elif group_type == "main":
-			vals.setdefault("reinforcement_student_ids", [(5, 0, 0)])
 
 	def _sync_tutor_role(self, employees):
 		"""Keep 'employees' Tutor role and security groups in sync with whether they
@@ -173,10 +168,20 @@ class EmsGroup(models.Model):
 		# its OWN dialog (proper title, "Proceed"/"Cancel" labels) instead of ever letting Odoo's
 		# generic RedirectWarning dialog ("Odoo Warning" title, no control over button styling) be
 		# what the user actually sees.
-		count = sum(
-			len(group.main_student_ids) + len(group.reinforcement_student_ids.filtered("active"))
-			for group in self
-		)
+		# 'main' groups: membership is main_group_id's inverse (main_student_ids), already
+		# active_test-filtered by default. 'reinforcement' groups have no membership field of
+		# their own since 'reinforcement_student_ids' was removed (2026-09-07, see group.md) -
+		# 'enrolled_student_ids' (derived from ems.enrollment.group_id) is what a reinforcement
+		# group's real members look like, and needs an explicit .filtered("active") since it's
+		# built via mapped() rather than an inverse search. Counting BOTH fields for every group
+		# (like a plain sum would) would double-count a 'main' group's students, who normally
+		# also show up in 'enrolled_student_ids' via their own subject enrollments.
+		count = 0
+		for group in self:
+			if group.group_type == "reinforcement":
+				count += len(group.enrolled_student_ids.filtered("active"))
+			else:
+				count += len(group.main_student_ids)
 		if not count:
 			return False
 		return "\n\n".join([

@@ -1717,7 +1717,7 @@ An `ems.group` (`models/contacts/group.py`) is one of two kinds, distinguished b
 ```mermaid
 graph TD
     G["ems.group"] -->|group_type = 'main'| M["Main: tutor_id, delegate_id, level_id, study_id, course, acronym all required. Students via main_group_id (res.partner, one per student)."]
-    G -->|group_type = 'reinforcement'| R["Reinforcement: tutor_id, delegate_id, level_id, study_id all forbidden. Students via reinforcement_student_ids (Many2many) — can mix students from different main groups/studies. name is free-form, not computed."]
+    G -->|group_type = 'reinforcement'| R["Reinforcement: tutor_id, delegate_id, level_id, study_id all forbidden. Students via ems.enrollment (group_id) — can mix students from different main groups/studies. name is free-form, not computed."]
 ```
 
 A reinforcement group still appears in a teacher's schedule exactly like a main group — it's referenced the same way by `resource.calendar.attendance.group_ids`, resolved the same way by the XML importer's exact-name lookup (`_parse_schedule_entries`), and still needs `space_id` set (checked by `_groups_without_space`, same as any group). The only differences are:
@@ -1726,7 +1726,7 @@ A reinforcement group still appears in a teacher's schedule exactly like a main 
 - `ems.attendance_template.study_ids` is **not required** (unlike most other fields on that model) precisely because a template built from a reinforcement group's slot (`_write_schedule_sync`, unioning every involved group's own `study_id`) has no study to store there. There is no `level_id` on `ems.attendance_template` at all anymore (removed 2026-08-05) — see [`attendance_template.md`](../attendance/attendance_template.md).
 - `get_schedule_hours_summary()` can't bucket a reinforcement group's teaching hours by `level_id` (there isn't one) — it buckets by the group itself instead, so those hours still show up as their own row in the "Weekly teaching hours" column.
 
-Student membership in a reinforcement group is entirely manual (`reinforcement_student_ids`) — it does not touch `res.partner.main_group_id`, which keeps pointing at the student's real group.
+Student membership in a reinforcement group is via `ems.enrollment` (`group_id` pointing at the reinforcement group, same mechanism as any other group's per-subject enrollment — see [`group.md`](../contacts/group.md)'s "`reinforcement_student_ids` removed" note) — it does not touch `res.partner.main_group_id`, which keeps pointing at the student's real group.
 
 ## Access control
 
