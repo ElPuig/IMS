@@ -691,12 +691,29 @@ class EmsAttendanceTemplate(models.Model):
 		start_date = entry_dates.get('date_from') or start_date or datetime(now.year, 9, 1)
 		end_date = entry_dates.get('date_to') or datetime(now.year + 1, 7, 1)
 
+		grouped_entries = dict()
+		for entry in entries:
+			key = "%s.%s" % (entry["subject_id"], ",".join(str(g) for g in sorted(entry["group_ids"])))
+			grouped_entries.setdefault(key, []).append(entry)
+
 		# NOTE: maps to a RECORDSET, not a single template — the same (subject, group-set, teacher-set)
 		# combination can have more than one active template (a pre-existing data-quality issue:
 		# repeated past imports created a new template instead of matching the existing one). Keying by
 		# a single template here would silently drop every duplicate but the last one seen, leaving them
 		# forever un-synced — see '_archive_stale_schedule_sync'/'_write_schedule_sync' for how
 		# duplicates get consolidated into a single survivor.
+		#
+		# NOTE: the search below matches by subject_id + teacher_ids only, not group_ids - a solo
+		# teacher who teaches this SAME subject to a DIFFERENT group (no co-teaching) has their own,
+		# unrelated template for that other group ALSO come back here, since it shares both subject_id
+		# and the exact teacher-set. Skipping any candidate whose key isn't among THIS call's own
+		# 'grouped_entries' (2026-09-07 fix) is what keeps it out of 'old_items' - without this guard,
+		# '_archive_stale_schedule_sync' would archive that unrelated template as "stale" (its key is
+		# genuinely absent from THIS plan's own entries), and '_write_schedule_sync' would then write
+		# into a stale pre-fetched reference to the sibling group's OWN template instead, silently
+		# leaving both groups' templates archived after a plain, unchanged resync - found via a real
+		# working-schedules re-import that wiped every template for several teachers matching exactly
+		# this pattern (e.g. Juan Morote, teaching both SMX1A and SMX1B solo).
 		old_items = dict()
 		candidates = self.env['ems.attendance_template'].search([
 			('subject_id', 'in', list({entry["subject_id"] for entry in entries})),
@@ -706,12 +723,9 @@ class EmsAttendanceTemplate(models.Model):
 			if set(template.teacher_ids.ids) != set(teachers.ids):
 				continue
 			key = "%s.%s" % (template.subject_id.id, ",".join(str(g) for g in sorted(template.group_ids.ids)))
+			if key not in grouped_entries:
+				continue
 			old_items[key] = old_items.get(key, self.env['ems.attendance_template']) | template
-
-		grouped_entries = dict()
-		for entry in entries:
-			key = "%s.%s" % (entry["subject_id"], ",".join(str(g) for g in sorted(entry["group_ids"])))
-			grouped_entries.setdefault(key, []).append(entry)
 
 		# NOTE: precompute the per-line breakdown for every persisting key ONCE here, so
 		# '_archive_stale_schedule_sync' and '_write_schedule_sync' both read the exact same
