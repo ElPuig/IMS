@@ -2,6 +2,8 @@
 
 from odoo import api, models
 
+from ..shared.schedule_report_mixin import HOUR_EPSILON
+
 WEEKDAYS = ('0', '1', '2', '3', '4')
 # Mirrors ems.group's own SHIFT_HOURS (models/contacts/group_schedule.py) — the guard duty board
 # needs the same morning/afternoon split, but rendered as weekday x shift tables with one column
@@ -10,6 +12,52 @@ SHIFT_HOURS = {
     'morning': (8, 15),
     'afternoon': (15, 22),
 }
+
+
+def _merge_absorbed_periods(periods):
+    """Groups 'periods' (a list of distinct (hour_from, hour_to) tuples) into
+    {period: [period, *periods absorbed into it]}, one entry per period that keeps its own row -
+    an absorbed period is never a key of the returned dict.
+
+    A period is absorbed into another one from the same list when its own hour range is fully
+    contained in the other's (found 2026-09 as issue #410: a teacher's own personal schedule can
+    end a guard-duty slot early - e.g. a shorter working day that block - while a colleague's
+    guard for the same start time runs the full period; the same thing happens for any other
+    non-teaching activity, like a 35-minute coordination duty sitting next to a 60-minute class.
+    Before this, get_guard_duty_board_lines() rendered the short period as its own row, almost or
+    entirely empty). If several periods could contain a given one, the smallest (shortest) is
+    preferred, to avoid folding into an unnecessarily wide row should several levels of
+    containment ever coexist.
+
+    Uses HOUR_EPSILON (see its own NOTE) since two periods that are conceptually "the same" can
+    still differ by a hair's-width float remainder depending on how each was computed."""
+    containers = {}
+    for period in periods:
+        candidates = [
+            other for other in periods
+            if other != period
+            and other[0] <= period[0] + HOUR_EPSILON
+            and other[1] >= period[1] - HOUR_EPSILON
+        ]
+        if candidates:
+            containers[period] = min(candidates, key=lambda other: other[1] - other[0])
+
+    def root(period):
+        # 'seen' guards against a cycle between two periods that both fall within HOUR_EPSILON of
+        # each other in both bounds (so each looks like a - vanishingly narrow - "container" of
+        # the other) - not a real containment relation, just float noise; without this a cycle
+        # would loop root() forever instead of just resolving to whichever period was reached
+        # first.
+        seen = set()
+        while period in containers and period not in seen:
+            seen.add(period)
+            period = containers[period]
+        return period
+
+    members = {}
+    for period in periods:
+        members.setdefault(root(period), []).append(period)
+    return members
 
 
 class EmsCourseGuardDutyBoard(models.Model):
@@ -67,7 +115,16 @@ class EmsCourseGuardDutyBoard(models.Model):
         teacher/group schedule PDFs do) - removed per developer feedback (2026-09-01): with every
         group already its own column and the subject spelled out as a short acronym in the cell,
         a colour-per-subject wash added visual noise without adding information a plain table
-        didn't already convey."""
+        didn't already convey.
+
+        A period whose hour range is fully absorbed by another period starting at the same time
+        (or earlier) never gets a row of its own - see _merge_absorbed_periods() - its cells/
+        guards are folded into the row of the period that contains it instead (issue #410).
+
+        A period left with no teaching cell AND no guard after that merge (e.g. a coordination
+        duty/meeting nobody's actual class or guard shift overlaps) is dropped entirely - a row
+        with nothing in it but a time range adds no information (developer follow-up on #410,
+        2026-09-07)."""
         self.ensure_one()
         shift_start, shift_end = SHIFT_HOURS[shift]
         entries = self._get_guard_duty_board_attendance_ids().filtered(
@@ -78,14 +135,18 @@ class EmsCourseGuardDutyBoard(models.Model):
 
         groups = teaching_entries.group_ids.sorted(key=lambda group: group.name)
         periods = sorted({(attendance.hour_from, attendance.hour_to) for attendance in entries})
+        period_members = _merge_absorbed_periods(periods)
 
         lines = []
         for hour_from, hour_to in periods:
+            if (hour_from, hour_to) not in period_members:
+                continue  # absorbed - already folded into its container's row below
+            member_periods = period_members[(hour_from, hour_to)]
             cells = []
             for group in groups:
                 cell_entries = teaching_entries.filtered(
-                    lambda attendance, group=group, hour_from=hour_from, hour_to=hour_to:
-                        group in attendance.group_ids and attendance.hour_from == hour_from and attendance.hour_to == hour_to
+                    lambda attendance, group=group, member_periods=member_periods:
+                        group in attendance.group_ids and (attendance.hour_from, attendance.hour_to) in member_periods
                 )
                 cells.append({
                     'group': group,
@@ -97,8 +158,10 @@ class EmsCourseGuardDutyBoard(models.Model):
                     'teachers': cell_entries.mapped('employee_id'),
                 })
             guards = guard_entries.filtered(
-                lambda attendance, hour_from=hour_from, hour_to=hour_to:
-                    attendance.hour_from == hour_from and attendance.hour_to == hour_to)
+                lambda attendance, member_periods=member_periods:
+                    (attendance.hour_from, attendance.hour_to) in member_periods)
+            if not guards and not any(cell['entries'] for cell in cells):
+                continue  # nothing scheduled anywhere in this period - no row worth showing
             lines.append({
                 'time_label': "%s-%s" % (self._format_report_time(hour_from), self._format_report_time(hour_to)),
                 'cells': cells,

@@ -288,6 +288,104 @@ class TestGuardDutyBoard(TransactionCase):
         self.assertIn(self.teacher_a.name.encode(), content)
         self.assertNotIn(self.teacher_b.name.encode(), content)
 
+    def test_get_guard_duty_board_lines_merges_a_guard_absorbed_by_a_longer_guard_period(self):
+        """Regression for issue #410: a teacher's own personal schedule can end a guard-duty slot
+        early (e.g. a shorter working day that block) while a colleague's guard for the same
+        start time runs the full period - found in production as a guard ending 13:25-14:00
+        sitting right next to another one ending 13:25-14:25. Before the fix this rendered as two
+        rows, the short one nearly empty (no cells, one guard); the short period must fold into
+        the long one's row instead of getting a row of its own."""
+        calendar_guard = self._new_calendar(self.teacher_guard, 'Test Calendar Guard (Absorbed)')
+        calendar_guard.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 9.5, 'day_period': 'morning',
+            'non_teaching': self.non_teaching_guard.id, 'name': 'Guard (short)',
+        }])
+        calendar_b = self._new_calendar(self.teacher_b, 'Test Calendar B (Absorbed)')
+        calendar_b.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'non_teaching': self.non_teaching_guard.id, 'name': 'Guard (full)',
+        }])
+
+        data = self.course.get_guard_duty_board_lines('0', 'morning')
+
+        time_labels = {line['time_label'] for line in data['lines']}
+        self.assertNotIn('09:00-09:30', time_labels)
+        matching = [line for line in data['lines'] if line['time_label'] == '09:00-10:00']
+        self.assertEqual(len(matching), 1)
+        # Not assertEqual: this dev DB's own real guards for Monday 9:00-10:00 legitimately show
+        # up here too (this board is centre-wide, not scoped to this test's fixtures - see the
+        # other tests' own NOTE) - only assert our two fixtures are included, not that they're
+        # the only ones.
+        self.assertLessEqual({self.teacher_guard, self.teacher_b}, set(matching[0]['guards'].mapped('employee_id')))
+
+    def test_get_guard_duty_board_lines_merges_a_non_guard_period_absorbed_by_a_teaching_period(self):
+        """Same containment bug, but for a non-teaching, non-guard entry (e.g. a coordination
+        duty, 'CT'/'AC' in real data) - it has neither a group (so it never becomes a
+        teaching_entries cell) nor non_teaching_is_guard (so it never becomes a guards entry
+        either), so before the fix its own short period rendered as a row with absolutely
+        nothing in it - worse than the guard case above, since it showed no guard name either.
+        Must fold into the containing teaching period's row instead of appearing at all."""
+        calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Absorbed Non-Guard)')
+        calendar_a.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 9.5, 'day_period': 'morning',
+            'non_teaching': self.non_teaching_break.id, 'name': 'Break (short)',
+        }])
+        calendar_b = self._new_calendar(self.teacher_b, 'Test Calendar B (Absorbed Non-Guard)')
+        calendar_b.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group_b.id], 'name': 'TGDBB: TGDB',
+        }])
+
+        data = self.course.get_guard_duty_board_lines('0', 'morning')
+
+        time_labels = {line['time_label'] for line in data['lines']}
+        self.assertNotIn('09:00-09:30', time_labels)
+        self.assertEqual(len([line for line in data['lines'] if line['time_label'] == '09:00-10:00']), 1)
+
+    def test_get_guard_duty_board_lines_keeps_an_uncontained_period_as_its_own_row(self):
+        """The containment merge must not eat a genuinely isolated period that doesn't fall
+        inside any larger one - regression guard against an over-eager merge swallowing
+        legitimate standalone rows. Uses a guard entry (not a plain break) so the row also
+        survives the separate "hide a period with nothing in it" rule added below - a period
+        with a guard is never content-less. Uses a deliberately unusual, wide time span
+        (08:06-09:54, wider than any real bell-schedule period and starting off the usual
+        on-the-hour/on-the-25 marks) so it can't accidentally be absorbed by this dev DB's own
+        real, unrelated schedule data - this board is centre-wide, not scoped to this test's own
+        fixtures (see the other tests' own NOTE)."""
+        calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Isolated)')
+        calendar_a.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 8.1, 'hour_to': 9.9, 'day_period': 'morning',
+            'non_teaching': self.non_teaching_guard.id, 'name': 'Guard (isolated)',
+        }])
+
+        data = self.course.get_guard_duty_board_lines('0', 'morning')
+
+        self.assertIn('08:06-09:54', {line['time_label'] for line in data['lines']})
+
+    def test_get_guard_duty_board_lines_hides_a_period_with_no_teaching_and_no_guards(self):
+        """Follow-up to issue #410 (developer request, 2026-09-07): a period where literally
+        nothing is scheduled anywhere in the centre - no group's class, no guard - adds no
+        information and must not render as a row at all. Found in production as the Wednesday
+        coordination-time slots (13:25-14:00 and 14:00-15:00): every teacher is either in a short
+        coordination duty or the coordination meeting itself, and nobody is on guard duty through
+        it. A non-teaching, non-guard entry (CT/AC/CM...) with nothing else running at the same
+        time must disappear entirely instead of showing an empty row. Reuses the exact same
+        08:06-09:54 span as the "keeps an uncontained period" test above (already confirmed there
+        not to be absorbed by any of this dev DB's own real data) so this test genuinely exercises
+        the "hide, don't merge" path instead of accidentally passing because the period got
+        silently absorbed into some unrelated real period - which is exactly what happened with an
+        earlier, narrower version of this test (08:09-08:39 turned out to sit inside a real
+        08:00-09:00 entry, making the assertion pass for the wrong reason)."""
+        calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Truly Blank)')
+        calendar_a.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 8.1, 'hour_to': 9.9, 'day_period': 'morning',
+            'non_teaching': self.non_teaching_break.id, 'name': 'CT (isolated, no guard)',
+        }])
+
+        data = self.course.get_guard_duty_board_lines('0', 'morning')
+
+        self.assertNotIn('08:06-09:54', {line['time_label'] for line in data['lines']})
+
     def test_report_guard_duty_board_scopes_to_one_shift_via_context(self):
         """Same as the weekday-scoping test above, but for 'guard_duty_shift': the PDF button
         also passes whichever shift the dropdown had selected, so printing while looking at
