@@ -82,7 +82,7 @@ Se revoca el grupo de seguridad correspondiente (y cualquier acceso que solo ese
 A diferencia de los demás roles, **Jefe de departamento** y **Jefe de seminario** no se establecen desde la ficha del profesor — se establecen desde el departamento:
 
 1. Navegar a **Empleados → Departamentos** y abrir el departamento.
-2. Establecer el **Jefe de departamento** (el campo `Manager` del departamento, obligatorio) y, opcionalmente, el **Jefe de seminario**.
+2. Establecer el **Jefe de departamento** (el campo `Manager` del departamento) y, opcionalmente, el **Jefe de seminario**.
 3. Hacer clic en **Guardar**.
 
 Esto tiene un efecto inmediato y automático sobre todos los profesores de ese departamento:
@@ -93,7 +93,7 @@ Esto tiene un efecto inmediato y automático sobre todos los profesores de ese d
 - El campo **Responsable** de la ficha de un profesor es de solo lectura — solo se puede cambiar editando el departamento, nunca directamente desde la ficha del profesor.
 - Reasignar cualquiera de los dos roles a otro profesor lo revoca automáticamente a quien lo ocupaba antes (dentro de ese departamento).
 
-> **Nota para departamentos existentes:** un departamento creado antes de activar esta funcionalidad puede no tener Jefe de departamento ni Jefe de seminario hasta que un administrador lo abra y los establezca — no se rellena nada automáticamente. **El Jefe de departamento es obligatorio** para guardar el formulario del departamento a partir de ahora.
+> **Nota para departamentos existentes:** un departamento creado antes de activar esta funcionalidad puede no tener Jefe de departamento ni Jefe de seminario hasta que un administrador lo abra y los establezca — no se rellena nada automáticamente. Un departamento también puede quedarse **sin Jefe de departamento** (por ejemplo, durante una transición de curso, tras quitar al jefe saliente y antes de asignar uno nuevo) — no es obligatorio para guardar el formulario.
 
 ---
 

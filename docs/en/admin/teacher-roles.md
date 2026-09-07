@@ -82,7 +82,7 @@ The corresponding security group (and anything only that role justified) is revo
 Unlike the other roles above, **Department chieff** and **Seminar leader** are not set from the teacher's own record — they are set from the department:
 
 1. Navigate to **Employees → Departments** and open the department.
-2. Set **Department Chief** (the department's `Manager` field, required) and, optionally, **Seminar Chief**.
+2. Set **Department Chief** (the department's `Manager` field) and, optionally, **Seminar Chief**.
 3. Click **Save**.
 
 This has an immediate, automatic effect on every teacher in that department:
@@ -93,7 +93,7 @@ This has an immediate, automatic effect on every teacher in that department:
 - The **Manager** field on a teacher's own record is read-only — it can only be changed by editing the department, never directly on the teacher's record.
 - Reassigning either role to a different teacher automatically revokes it from whoever held it before (in that department).
 
-> **Note for existing departments:** a department created before this feature was enabled may have no Department Chief and/or Seminar Chief until an admin opens it and sets them — nothing is filled in automatically. **Department Chief is required** to save the department form going forward.
+> **Note for existing departments:** a department created before this feature was enabled may have no Department Chief and/or Seminar Chief until an admin opens it and sets them — nothing is filled in automatically. A department can also be left with **no Department Chief at all** (e.g. mid course-transition, after removing the outgoing Chief and before assigning a replacement) — it isn't required to save the form.
 
 ---
 

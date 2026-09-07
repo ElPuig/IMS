@@ -82,7 +82,7 @@ Es revoca el grup de seguretat corresponent (i qualsevol accés que només aquel
 A diferència dels altres rols, **Cap de departament** i **Cap de seminari** no s'estableixen des de la fitxa del professor — s'estableixen des del departament:
 
 1. Navegueu a **Empleats → Departaments** i obriu el departament.
-2. Establiu el **Cap de departament** (el camp `Manager` del departament, obligatori) i, opcionalment, el **Cap de seminari**.
+2. Establiu el **Cap de departament** (el camp `Manager` del departament) i, opcionalment, el **Cap de seminari**.
 3. Feu clic a **Desar**.
 
 Això té un efecte immediat i automàtic sobre tots els professors d'aquell departament:
@@ -93,7 +93,7 @@ Això té un efecte immediat i automàtic sobre tots els professors d'aquell dep
 - El camp **Responsable** de la fitxa d'un professor és de només lectura — només es pot canviar editant el departament, mai directament des de la fitxa del professor.
 - Reassignar qualsevol dels dos rols a un altre professor el revoca automàticament a qui l'ocupava abans (dins d'aquell departament).
 
-> **Nota per a departaments existents:** un departament creat abans d'activar aquesta funcionalitat pot no tenir Cap de departament ni Cap de seminari fins que un administrador l'obri i els estableixi — no s'omple res automàticament. **El Cap de departament és obligatori** per desar el formulari del departament d'ara endavant.
+> **Nota per a departaments existents:** un departament creat abans d'activar aquesta funcionalitat pot no tenir Cap de departament ni Cap de seminari fins que un administrador l'obri i els estableixi — no s'omple res automàticament. Un departament també pot quedar-se **sense Cap de departament** (per exemple, durant una transició de curs, després de treure el cap sortint i abans d'assignar-ne un de nou) — no és obligatori per desar el formulari.
 
 ---
 
