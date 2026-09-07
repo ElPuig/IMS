@@ -623,6 +623,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             ('attendance_template_id.teacher_ids', 'in', self.teacher.id),
             ('attendance_template_id.subject_id', '=', self.subject.id),
         ])
+        first_schedule_id = first_schedule.id
         self.assertTrue(first_schedule.active)
 
         second_teacher = self.env['hr.employee'].create({
@@ -646,8 +647,11 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             wizard.action_continue()
         wizard.import_planner_data()
 
-        first_schedule.invalidate_recordset()
-        self.assertFalse(first_schedule.active)
+        # 'first_schedule' was this now-emptied template's only line - the template (and this
+        # line with it, via the FK cascade) gets deleted outright rather than left archived,
+        # since it never had a real session (2026-09-07, see 'ems.attendance_template.
+        # _archive_or_delete').
+        self.assertFalse(self.env['ems.attendance_schedule'].browse(first_schedule_id).exists())
         self.assertTrue(second_teacher.resource_calendar_id.attendance_ids)
 
     def test_import_prevail_left_default_archives_conflict_when_new_teacher_is_pending_code(self):
@@ -664,6 +668,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             ('attendance_template_id.teacher_ids', 'in', self.teacher.id),
             ('attendance_template_id.subject_id', '=', self.subject.id),
         ])
+        first_schedule_id = first_schedule.id
 
         wizard = self.env['ems.working_schedules_import_wizard'].create({
             'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
@@ -679,8 +684,9 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             wizard.action_continue()
         wizard.import_planner_data()
 
-        first_schedule.invalidate_recordset()
-        self.assertFalse(first_schedule.active)
+        # Same deletion (not just archival) as the sibling test above - the emptied template
+        # never had a real session, so it (and this, its only line) gets deleted outright.
+        self.assertFalse(self.env['ems.attendance_schedule'].browse(first_schedule_id).exists())
         pending_teacher = self.env['hr.employee'].search([('schedule_import_code', '=', 'PENDINGCONFLICT')])
         self.assertTrue(pending_teacher.resource_calendar_id.attendance_ids)
 
@@ -914,6 +920,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         first_template = self.env['ems.attendance_template'].search([
             ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
         ])
+        first_template_id = first_template.id
         self.assertTrue(first_template.active, "sanity check: department A's import created an active template")
 
         self._import({
@@ -925,10 +932,11 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
 
         # 'first_template' had exactly one schedule line - archiving it (the "left prevails"
-        # default) leaves the template with none, so the now-empty template is archived too (see
-        # '_continue_from_db_conflicts's own "archives/trims the template" comment).
-        first_template.invalidate_recordset()
-        self.assertFalse(first_template.active)
+        # default) leaves the template with none, so the now-empty template is
+        # archived-or-deleted too (see '_continue_from_db_conflicts's own "archives/trims the
+        # template" comment) - deleted here since it never had a real session (2026-09-07, see
+        # 'ems.attendance_template._archive_or_delete').
+        self.assertFalse(self.env['ems.attendance_template'].browse(first_template_id).exists())
         second_template = self.env['ems.attendance_template'].search([
             ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.other_subject.id),
         ])

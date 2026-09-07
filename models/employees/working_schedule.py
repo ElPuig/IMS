@@ -1494,12 +1494,14 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			if line.resolution == 'prevail_left':
 				# NOTE: "archives/trims the existing DB session's template" (the plan's own words)
 				# - archiving just this one line is enough to free the slot ("trims"), but if that
-				# was the template's only active line, the now-empty template is archived outright
-				# too ("archives") rather than left as an orphaned, lineless record.
+				# was the template's only active line, the now-empty template is
+				# archived-or-deleted outright too ("archives") rather than left as an orphaned,
+				# lineless record - deleted instead of archived when it has no real sessions
+				# (2026-09-07, see 'ems.attendance_template._archive_or_delete').
 				template = line.right_schedule_id.attendance_template_id
 				line.right_schedule_id.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
 				if not template.attendance_schedule_ids:
-					template.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
+					template._archive_or_delete()
 			elif line.resolution == 'prevail_right':
 				indices_to_remove.setdefault(line.left_item_index, set()).add(line.left_entry_index)
 			elif line.resolution == 'reassign_rooms':
