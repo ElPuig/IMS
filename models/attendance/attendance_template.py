@@ -191,10 +191,40 @@ class EmsAttendanceTemplate(models.Model):
 			sch.action_archive()
 
 	def unlink(self):
-		for sch in self.attendance_schedule_ids:
-			if len(sch.attendance_session_ids) > 0:
+		for template in self:
+			if template._has_real_sessions():
 				raise ValidationError(_("This template have been already used to check the student's attendances and cannot be deleted. Please, archive it instead."))
 		return super().unlink()
+
+	def _has_real_sessions(self):
+		"""True if ANY of this template's schedule lines — active or already archived — has a real
+		'attendance_session_ids' entry. 'with_context(active_test=False)' is deliberate: a line can be
+		archived (e.g. a room correction on a line that already had sessions, see '_write_schedule_
+		sync') while the template itself stays active, so checking only the active lines (the plain
+		O2M read's own default) would silently miss real history sitting on an archived line. Shared
+		by 'unlink()' above and '_archive_or_delete()' below so both use the exact same predicate."""
+		self.ensure_one()
+		return bool(self.with_context(active_test=False).attendance_schedule_ids.attendance_session_ids)
+
+	def _archive_or_delete(self):
+		"""Archive-or-delete dispatch for templates the sync pipeline is done with (fully superseded,
+		a duplicate being consolidated away, etc.) - added 2026-09-07 after repeated working-schedule
+		re-imports left hundreds of archived-forever templates with no real attendance behind them,
+		pure clutter with no history actually worth preserving. A template with no real session
+		anywhere in its lines (see '_has_real_sessions') is safe to delete outright instead of leaving
+		it archived; one that DOES have history is still archived exactly as before - 'unlink()' would
+		refuse it anyway. Needs 'sudo()' for the delete branch: create()/unlink() are ACL-revoked for
+		every group on this model (see docs/en/developers/attendance/attendance_template.md's "Access
+		control" section) - a template only ever comes or goes as a consequence of this sync, never a
+		direct user action, regardless of who triggered the sync that led here."""
+		if not self:
+			return
+		unused = self.filtered(lambda template: not template._has_real_sessions())
+		used = self - unused
+		if used:
+			used.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
+		if unused:
+			unused.sudo().unlink()
 
 	def sync_from_schedule(self, teacher, entries, start_date=None):
 		"""Sync a single teacher's schedule from 'entries' — the employee 'Schedule' tab's grid
@@ -234,7 +264,7 @@ class EmsAttendanceTemplate(models.Model):
 		be checked against the second group's still-active STALE line, since that second group hasn't
 		been re-synced yet at that point."""
 		merged_groups, vacated = self._reconcile_teacher_groups(teacher_entries)
-		vacated.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
+		vacated._archive_or_delete()
 		self._run_schedule_sync_plans(merged_groups, start_date=start_date)
 		self._link_calendar_attendance(merged_groups)
 
@@ -298,7 +328,7 @@ class EmsAttendanceTemplate(models.Model):
 
 		self.search([
 			('active', '=', True), ('teacher_ids', 'in', teachers.ids),
-		]).with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
+		])._archive_or_delete()
 
 		# ems.teaching is resynced for EVERY teacher in scope, not just those ending up with
 		# 'teacher_entries' below - a teacher whose calendar has gone back to zero teaching
@@ -798,16 +828,19 @@ class EmsAttendanceTemplate(models.Model):
 		'sync_from_schedule_batch' for why."""
 		for key, templates in plan['old_items'].items():
 			if key not in plan['grouped_entries']:
-				# NOTE: archive (not unlink) so past attendance-taking history is preserved. Archives
-				# every duplicate sharing this key, not just one.
-				templates.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
+				# NOTE: archived (or deleted outright if never really used, see
+				# '_archive_or_delete') - archiving alone used to be the only way to preserve past
+				# attendance-taking history; now that a template with none gets deleted instead, this
+				# comment stays as the reasoning for why the OTHER branch (real history) still archives.
+				# Covers every duplicate sharing this key, not just one.
+				templates._archive_or_delete()
 			else:
 				# NOTE: if more than one active template shares this key (duplicates from past
 				# imports), only 'templates[0]' survives (see '_write_schedule_sync') — fully
-				# archive the rest here rather than just their schedule lines.
+				# archived/deleted (not just their schedule lines) rather than left behind.
 				survivor, duplicates = templates[0], templates[1:]
 				if duplicates:
-					duplicates.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
+					duplicates._archive_or_delete()
 				line_sync = plan['line_sync'][key]
 				line_sync['stale_lines'].with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
 				# NOTE: a changed line only needs archiving here if it has real session history -
