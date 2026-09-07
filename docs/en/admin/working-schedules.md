@@ -25,6 +25,8 @@ Manage each teacher's weekly timetable from their own employee record, and set u
 - Default framework setting: **Settings → Employees → "Default schedule framework"**
 - A teacher's own schedule: **Employees → [open the teacher] → Schedule** tab
 - Batch import from a file: **Configuration → Teachers → Working schedules** → ⚙️ (cog) menu → **Import: planner data**
+- Teaching hour reduction types: **Configuration → Schedules → Teaching hour reduction types**
+- Assign a reduction to a teacher: **Employees → [open the teacher] → Human Resources** tab
 
 ---
 
@@ -72,6 +74,22 @@ The list of non-teaching reasons (Break, Guard, Coordination Meeting...) shown w
 
 ---
 
+## Manage Teaching Hour Reduction Types
+
+A teaching hour reduction is an entitlement (e.g. an age-based reduction) that adds extra hours to a teacher's weekly teaching-hours total — unlike a non-teaching type, it is never scheduled as a real block on the weekly grid.
+
+1. Go to **Configuration → Schedules → Teaching hour reduction types**.
+2. Click **New**, set a **Code**, a **Name**, and the number of **Reduction hours** it grants.
+3. Save.
+
+To grant a reduction to a teacher:
+
+1. Open the teacher's employee record and go to the **Human Resources** tab.
+2. Under **Teaching hour reductions**, add one or more types — a teacher can have several at once.
+3. Save. The reduction now shows up as an extra row (with its own hours) in the "Weekly teaching hours" column of that teacher's **Schedule** tab, added on top of their real teaching hours (see "View a Teacher's Schedule" below).
+
+---
+
 ## A New Teacher's Schedule
 
 When you create a new employee of type **Teacher**, EMS automatically:
@@ -90,10 +108,10 @@ Nothing needs to be assigned yet — open their **Schedule** tab and use **Edit*
 Each block shows its exact start–end time, the subject/group or the non-teaching reason, and the classroom (taken from the group's own default classroom). Periods that are still unassigned simply show no block — the framework's structure (breaks, meetings) is what tells you a slot is expected there.
 
 Below the grid, a small summary table shows the teacher's total weekly hours in two columns:
-- **Weekly teaching hours**: one row per level of studies (e.g. CFGS, CFGM, ESO), one row per reinforcement group taught (these don't belong to a single level), plus any non-teaching activity not listed in the other column.
+- **Weekly teaching hours**: one row per level of studies (e.g. CFGS, CFGM, ESO), one row per reinforcement group taught (these don't belong to a single level), plus any non-teaching activity not listed in the other column, plus one row per teaching hour reduction type assigned to the teacher (see "Manage Teaching Hour Reduction Types" above) — added as extra hours on top of the real teaching hours.
 - **Other fixed-schedule hours**: guard duties (any day) and coordination meetings specifically on Wednesday.
 
-The break is never counted in either column. A period that only partially overlaps an hour still counts as a full hour. Each column shows its own total, followed by the overall total (24 hours for a full-time teacher). This summary always reflects the saved schedule, so it disappears while you're editing and reappears (updated) once you save.
+The break is never counted in either column. A period that only partially overlaps an hour still counts as a full hour. Each column shows its own total, followed by the overall total (24 hours for a full-time teacher with no reduction assigned). This summary always reflects the saved schedule, so it disappears while you're editing and reappears (updated) once you save.
 
 A block for a break the teacher hasn't explicitly set up may still show, filled in automatically from the schedule framework(s) of the level(s) the teacher actually teaches — this is a visual aid only; nothing is actually saved for it until it's added as a real card in Edit mode (see below).
 

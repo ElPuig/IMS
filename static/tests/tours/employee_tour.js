@@ -44,5 +44,42 @@ registry.category("web_tour.tours").add("ems_employee_form_tabs", {
             trigger: ".o_form_view .o_field_widget[name='tutorship_ids']",
             content: "Teaching tab (Tutorships/Coordination/Subjects) rendered without crashing",
         },
+        {
+            trigger: ".o_form_view .o_notebook .nav-link:contains('Human Resources')",
+            content: "Open the Human Resources tab",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='teaching_reduction_ids'] input",
+            content: "Pick a teaching hour reduction type",
+            run: "edit Reduction",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:contains('Reduction for teachers aged 55 and over')",
+            content: "Select the seeded R55 reduction type",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='teaching_reduction_ids'] .o_tag:contains('Reduction for teachers aged 55 and over')",
+            content: "Reduction type tag added",
+        },
+        {
+            trigger: ".o_form_button_save",
+            content: "Save",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='teaching_reduction_ids'] .o_tag:contains('Reduction for teachers aged 55 and over')",
+            content: "Reduction type tag confirmed after save",
+        },
+        {
+            trigger: ".o_form_view .o_notebook .nav-link:contains('Schedule')",
+            content: "Open the Schedule tab",
+            run: "click",
+        },
+        {
+            trigger: ".o_schedule_grid_summary_column:contains('Reduction for teachers aged 55 and over')",
+            content: "Reduction type shows up in the weekly teaching hours breakdown",
+        },
     ],
 });

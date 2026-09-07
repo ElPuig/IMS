@@ -25,6 +25,8 @@ Gestiona el horario semanal de cada docente desde su propia ficha de empleado, y
 - Ajuste del marco predeterminado: **Configuración → Empleados → "Marco horario predeterminado"**
 - El horario de un docente: **Empleados → [abrir el docente] → pestaña Horario**
 - Importación de horarios desde un archivo: **Configuración → Profesorado → Horarios de trabajo** → menú ⚙️ (engranaje) → **Import: planner data**
+- Tipos de reducción lectiva: **Configuración → Horarios → Tipos de reducción lectiva**
+- Asignar una reducción a un docente: **Empleados → [abrir el docente] → pestaña Recursos Humanos**
 
 ---
 
@@ -72,6 +74,22 @@ La lista de motivos no lectivos (Patio, Guardia, Reunión de coordinación...) q
 
 ---
 
+## Gestionar los tipos de reducción lectiva
+
+Una reducción de horas lectivas es un derecho (p. ej. una reducción por edad) que añade horas extra al total de horas lectivas semanales de un docente — a diferencia de un tipo no lectivo, nunca se programa como un bloque real en la cuadrícula del horario.
+
+1. Ve a **Configuración → Horarios → Tipos de reducción lectiva**.
+2. Haz clic en **Nuevo**, establece un **Código**, un **Nombre** y el número de **Horas de reducción** que otorga.
+3. Guarda.
+
+Para conceder una reducción a un docente:
+
+1. Abre la ficha de empleado del docente y ve a la pestaña **Recursos Humanos**.
+2. En **Reducciones de horas lectivas**, añade uno o varios tipos — un docente puede tener varios a la vez.
+3. Guarda. La reducción aparece como una fila extra (con sus propias horas) en la columna "Horas lectivas semanales" de la pestaña **Horario** de ese docente, sumada a sus horas lectivas reales (ver "Ver el horario de un docente" más abajo).
+
+---
+
 ## El horario de un docente nuevo
 
 Al crear un empleado nuevo de tipo **Profesor**, EMS automáticamente:
@@ -90,10 +108,10 @@ Todavía no hace falta asignar nada — abre su pestaña **Horario** y usa **Edi
 Cada bloque muestra su hora exacta de inicio y fin, la asignatura/grupo o el motivo no lectivo, y el aula (según el aula por defecto del grupo). Las franjas todavía sin asignar simplemente no muestran ningún bloque — la estructura del marco (patios, reuniones) ya indica que se espera algo ahí.
 
 Debajo de la cuadrícula, una pequeña tabla resumen muestra el total de horas semanales del docente en dos columnas:
-- **Horas lectivas semanales**: una fila por nivel de estudios (p. ej. CFGS, CFGM, ESO), una fila por cada grupo de refuerzo impartido (estos no pertenecen a un único nivel), más cualquier actividad no lectiva que no aparezca en la otra columna.
+- **Horas lectivas semanales**: una fila por nivel de estudios (p. ej. CFGS, CFGM, ESO), una fila por cada grupo de refuerzo impartido (estos no pertenecen a un único nivel), más cualquier actividad no lectiva que no aparezca en la otra columna, más una fila por cada tipo de reducción lectiva asignado al docente (ver "Gestionar los tipos de reducción lectiva" más arriba) — se suma a las horas lectivas reales.
 - **Otras horas en horario fijo**: guardias (cualquier día) y reuniones de coordinación específicamente los miércoles.
 
-El patio nunca se cuenta en ninguna de las dos columnas. Una franja que solo se solapa parcialmente con una hora igualmente cuenta como una hora completa. Cada columna muestra su propio total, seguido del total general (24 horas para un docente a tiempo completo). Este resumen siempre refleja el horario guardado, por lo que desaparece mientras lo estás editando y vuelve a aparecer (actualizado) al guardarlo.
+El patio nunca se cuenta en ninguna de las dos columnas. Una franja que solo se solapa parcialmente con una hora igualmente cuenta como una hora completa. Cada columna muestra su propio total, seguido del total general (24 horas para un docente a tiempo completo sin ninguna reducción asignada). Este resumen siempre refleja el horario guardado, por lo que desaparece mientras lo estás editando y vuelve a aparecer (actualizado) al guardarlo.
 
 Un bloque de patio que el docente todavía no ha configurado explícitamente puede igualmente aparecer, rellenado automáticamente a partir de los marcos horarios del(los) nivel(es) que ese docente realmente imparte — es solo una ayuda visual, no se guarda nada de verdad hasta que se añade como tarjeta real en modo Edición (ver más abajo).
 

@@ -1,19 +1,17 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_non_teaching_type_form">
-            <field name="name">ems.non_teaching_type.form</field>
-            <field name="model">ems.non_teaching_type</field>
+        <record model="ir.ui.view" id="view_teaching_reduction_type_form">
+            <field name="name">ems.teaching_reduction_type.form</field>
+            <field name="model">ems.teaching_reduction_type</field>
             <field name="arch" type="xml">
-                <form string="Non-teaching type">
+                <form string="Teaching hour reduction type">
                     <sheet>
                         <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                         <field name="active" invisible="1"/>
                         <group>
                             <field name="code"/>
                             <field name="name"/>
-                            <field name="is_break"/>
-                            <field name="is_fixed"/>
-                            <field name="is_guard"/>
+                            <field name="reduction_hours"/>
                         </group>
                     </sheet>
                 </form>

@@ -101,6 +101,7 @@ class ems_employee_base(models.AbstractModel):
    
     #Note: manual relation is needed, otherwise Odoo creates two tables within the BBDD, one for 'hr.employee.public' and one for 'hr.employee.base' 
     role_ids = fields.Many2many(string="Roles", comodel_name="ems.role", relation="hr_employee_public_ems_role_rel", column1="hr_employee_public_id", column2="ems_role_id", domain="[('employee_type', '=', employee_type)]")
+    teaching_reduction_ids = fields.Many2many(string="Teaching hour reductions", comodel_name="ems.teaching_reduction_type", relation="hr_employee_public_ems_teaching_reduction_type_rel", column1="hr_employee_public_id", column2="ems_teaching_reduction_type_id")
     tutorship_ids = fields.One2many(string="Tutorships", comodel_name="ems.group", inverse_name="tutor_id")
     headed_department_ids = fields.One2many(string="Departments Headed", comodel_name="hr.department", inverse_name="manager_id")
     seminar_department_ids = fields.One2many(string="Seminars Led", comodel_name="hr.department", inverse_name="seminar_chief_id")

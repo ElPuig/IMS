@@ -25,6 +25,8 @@ Gestiona l'horari setmanal de cada docent des de la seva pròpia fitxa d'empleat
 - Ajust del marc predeterminat: **Configuració → Empleats → "Marc horari predeterminat"**
 - L'horari d'un docent: **Empleats → [obrir el docent] → pestanya Horari**
 - Importació d'horaris des d'un fitxer: **Configuració → Professorat → Horaris de treball** → menú ⚙️ (engranatge) → **Import: planner data**
+- Tipus de reducció lectiva: **Configuració → Horaris → Tipus de reducció lectiva**
+- Assignar una reducció a un docent: **Empleats → [obrir el docent] → pestanya Recursos Humans**
 
 ---
 
@@ -72,6 +74,22 @@ La llista de motius no lectius (Pati, Guàrdia, Reunió de coordinació...) que 
 
 ---
 
+## Gestionar els tipus de reducció lectiva
+
+Una reducció d'hores lectives és un dret (p. ex. una reducció per edat) que afegeix hores extra al total d'hores lectives setmanals d'un docent — a diferència d'un tipus no lectiu, mai es programa com un bloc real a la graella de l'horari.
+
+1. Vés a **Configuració → Horaris → Tipus de reducció lectiva**.
+2. Fes clic a **Nou**, estableix un **Codi**, un **Nom** i el nombre d'**Hores de reducció** que atorga.
+3. Desa.
+
+Per concedir una reducció a un docent:
+
+1. Obre la fitxa d'empleat del docent i vés a la pestanya **Recursos Humans**.
+2. A **Reduccions d'hores lectives**, afegeix un o diversos tipus — un docent pot tenir-ne diversos alhora.
+3. Desa. La reducció apareix com una fila extra (amb les seves pròpies hores) a la columna "Hores lectives setmanals" de la pestanya **Horari** d'aquest docent, sumada a les seves hores lectives reals (vegeu "Veure l'horari d'un docent" més avall).
+
+---
+
 ## L'horari d'un docent nou
 
 En crear un empleat nou de tipus **Professor**, l'EMS automàticament:
@@ -90,10 +108,10 @@ Encara no cal assignar res — obre la seva pestanya **Horari** i fes servir **E
 Cada bloc mostra la seva hora exacta d'inici i fi, l'assignatura/grup o el motiu no lectiu, i l'aula (segons l'aula per defecte del grup). Les franges encara sense assignar simplement no mostren cap bloc — l'estructura del marc (patis, reunions) ja indica que s'hi espera alguna cosa.
 
 Sota la graella, una petita taula resum mostra el total d'hores setmanals del docent en dues columnes:
-- **Hores lectives setmanals**: una fila per nivell d'estudis (p. ex. CFGS, CFGM, ESO), una fila per cada grup de reforç impartit (aquests no pertanyen a un únic nivell), més qualsevol activitat no lectiva que no aparegui a l'altra columna.
+- **Hores lectives setmanals**: una fila per nivell d'estudis (p. ex. CFGS, CFGM, ESO), una fila per cada grup de reforç impartit (aquests no pertanyen a un únic nivell), més qualsevol activitat no lectiva que no aparegui a l'altra columna, més una fila per cada tipus de reducció lectiva assignat al docent (vegeu "Gestionar els tipus de reducció lectiva" més amunt) — se suma a les hores lectives reals.
 - **Altres hores en horari fix**: guàrdies (qualsevol dia) i reunions de coordinació específicament els dimecres.
 
-El pati mai es compta a cap de les dues columnes. Una franja que només se solapa parcialment amb una hora igualment compta com una hora completa. Cada columna mostra el seu propi total, seguit del total general (24 hores per a un docent a temps complet). Aquest resum sempre reflecteix l'horari desat, per la qual cosa desapareix mentre l'estàs editant i torna a aparèixer (actualitzat) un cop el desis.
+El pati mai es compta a cap de les dues columnes. Una franja que només se solapa parcialment amb una hora igualment compta com una hora completa. Cada columna mostra el seu propi total, seguit del total general (24 hores per a un docent a temps complet sense cap reducció assignada). Aquest resum sempre reflecteix l'horari desat, per la qual cosa desapareix mentre l'estàs editant i torna a aparèixer (actualitzat) un cop el desis.
 
 Un bloc de pati que el docent encara no ha configurat explícitament pot igualment aparèixer, omplert automàticament a partir dels marcs horaris del(s) nivell(s) que aquest docent realment imparteix — és només una ajuda visual, no es desa res de debò fins que s'afegeix com a targeta real en mode Edició (vegeu més avall).
 

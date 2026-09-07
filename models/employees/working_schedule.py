@@ -240,13 +240,17 @@ class ems_working_schedule(models.Model):
 		- 'teaching': weekly teaching hours grouped by level (ems.group.level_id) — or, for reinforcement
 		  groups (no single level), grouped per group instead — plus every non-teaching activity that
 		  ISN'T a guard duty or a Wednesday coordination meeting (the break, 'BR', is dropped entirely
-		  from both columns).
+		  from both columns) — plus one row per 'ems.teaching_reduction_type' assigned to this teacher
+		  (hr.employee.teaching_reduction_ids), added as extra teaching hours rather than a real
+		  schedule block (developer's own call: a teacher with 16h of real classes and a 2h reduction
+		  shows 18h total, not 16h with the reduction merely noted).
 		- 'fixed': guard duties (any day) and coordination meetings ('CM') specifically on Wednesday —
 		  the centre's fixed non-teaching commitments.
 		Each period's duration is rounded UP to the nearest whole hour (a period that only partially
 		overlaps an hour still counts as one full hour), then summed. Not stored — cheap to compute
 		from the calendar's own attendance_ids, and reused as-is by the PDF report's own summary table
-		later. For a full-time teacher, 'total' should equal 24 (full_time_required_hours)."""
+		later. For a full-time teacher with no reduction, 'total' should equal 24 (full_time_required_
+		hours)."""
 		self.ensure_one()
 		weekday_entries = self.attendance_ids.filtered(lambda attendance: attendance.dayofweek in ('0', '1', '2', '3', '4'))
 		weekday_entries = self._dedupe_date_split_blocks(weekday_entries)
@@ -277,6 +281,9 @@ class ems_working_schedule(models.Model):
 			if key not in bucket:
 				bucket[key] = {'label': label, 'hours': 0}
 			bucket[key]['hours'] += duration
+
+		for reduction in self.get_employee().teaching_reduction_ids:
+			teaching_rows[('reduction', reduction.id)] = {'label': reduction.name, 'hours': reduction.reduction_hours}
 
 		teaching = sorted(teaching_rows.values(), key=lambda row: row['label'])
 		fixed = sorted(fixed_rows.values(), key=lambda row: row['label'])

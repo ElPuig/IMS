@@ -144,6 +144,9 @@
             'views/community/non_teaching_type/list.xml',
             'views/community/non_teaching_type/form.xml',
             'views/community/non_teaching_type/menu.xml',
+            'views/community/teaching_reduction_type/list.xml',
+            'views/community/teaching_reduction_type/form.xml',
+            'views/community/teaching_reduction_type/menu.xml',
             'views/community/employee/user_profile_form.xml',
 
             'views/community/subject/list.xml',
@@ -346,6 +349,7 @@
         'data/main/ems.strike.reason.csv',
         'data/main/ems.attendance_status.csv',
         'data/main/ems.non_teaching_type.csv',
+        'data/main/ems.teaching_reduction_type.csv',
         'data/main/ems.schedule_framework_default.xml',
 
         'data/cat/attachments/asix/ir.attachment.csv',

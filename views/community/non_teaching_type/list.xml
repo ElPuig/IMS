@@ -4,8 +4,7 @@
             <field name="name">ems.non_teaching_type.list</field>
             <field name="model">ems.non_teaching_type</field>
             <field name="arch" type="xml">
-                <list default_order="sequence, name">
-                    <field name="sequence" widget="handle"/>
+                <list default_order="name">
                     <field name="code"/>
                     <field name="name"/>
                     <field name="is_break" widget="boolean_toggle"/>
