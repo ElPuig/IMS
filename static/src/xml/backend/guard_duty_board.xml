@@ -22,6 +22,25 @@
                             <option t-att-value="shift.key" t-att-selected="shift.key === state.activeShift" t-esc="shift.label"/>
                         </t>
                     </select>
+                    <!-- Level filter (issue #390): a checkbox-per-level dropdown, not a native
+                         multi-<select> (that needs a ctrl/cmd-click, not discoverable) - empty
+                         selection means "All levels", the previous, still-default behaviour. -->
+                    <div class="dropdown o_guard_board_level_dropdown">
+                        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle o_guard_board_level_toggle"
+                                data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" t-esc="levelFilterLabel"/>
+                        <ul class="dropdown-menu o_guard_board_level_menu">
+                            <t t-foreach="state.levels" t-as="level" t-key="level.id">
+                                <li>
+                                    <label class="dropdown-item o_guard_board_level_item">
+                                        <input type="checkbox" class="form-check-input me-1"
+                                               t-att-checked="state.activeLevelIds.includes(level.id)"
+                                               t-on-change="() => this.toggleLevel(level.id)"/>
+                                        <span t-esc="level.name"/>
+                                    </label>
+                                </li>
+                            </t>
+                        </ul>
+                    </div>
                     <button type="button" class="btn btn-sm btn-secondary" t-on-click="() => this.onPdfClick()">
                         <i class="fa fa-file-pdf-o me-1"/>PDF
                     </button>
@@ -55,7 +74,10 @@
                             <tbody>
                                 <t t-foreach="state.board.lines" t-as="line" t-key="line.time_label">
                                     <tr>
-                                        <td class="o_guard_board_time" t-esc="line.time_label"/>
+                                        <td class="o_guard_board_time">
+                                            <span t-esc="line.time_label"/>
+                                            <span t-if="line.is_break" class="o_guard_board_break_label">Break</span>
+                                        </td>
                                         <t t-foreach="line.cells" t-as="cell" t-key="cell.group_id">
                                             <td>
                                                 <t t-if="cell.subject">

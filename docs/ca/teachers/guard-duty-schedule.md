@@ -28,9 +28,20 @@ La columna **Guàrdia**, a la dreta, llista tots els docents de guàrdia en aque
 
 ---
 
+## Filtrar per nivell
+
+Al costat del desplegable de torn hi ha un botó de **filtre de nivell** (mostra "All levels" fins que hi marques alguna cosa). Fes-hi clic per obrir una llista amb totes les caselles de cada nivell — ESO, Batxillerat, cada cicle formatiu, etc. — i marca els que necessitis. Per exemple, marca **ESO** i **Batxillerat** alhora per veure només aquesta meitat del centre mentre un company treballa amb els cicles formatius marcats. Deixa-ho tot desmarcat per veure tots els nivells alhora, exactament com abans.
+
+Un cop marques un o més nivells:
+- Només les columnes dels grups d'aquell(s) nivell(s) es mostren — la resta de grups desapareixen de la taula.
+- La columna **Guàrdia** només mostra un docent si aquell mateix dia també fa classe a algun dels nivells marcats — una guàrdia sense relació amb els nivells que estàs mirant queda fora, perquè la columna es mantingui centrada en la teva meitat del centre. Torna a aparèixer si tornes a "All levels".
+- Una guàrdia que coincideix amb el pati d'aquell nivell obté la seva pròpia fila amb l'etiqueta **Pati**, perquè una franja que sembla buida no es llegeixi com un forat a l'horari.
+
+---
+
 ## Exportar a PDF
 
-Fes clic a **PDF** a la barra d'eines per descarregar el dia i el torn que s'estan mostrant (no tota la setmana) com a document imprimible.
+Fes clic a **PDF** a la barra d'eines per descarregar el dia i el torn que s'estan mostrant (no tota la setmana) com a document imprimible — el filtre de nivell que tinguis marcat s'aplica també al PDF.
 
 ---
 

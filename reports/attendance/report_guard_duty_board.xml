@@ -47,6 +47,10 @@
                     <t t-set="weekdays" t-value="[requested_weekday] if requested_weekday else ['0', '1', '2', '3', '4']"/>
                     <t t-set="requested_shift" t-value="course.env.context.get('guard_duty_shift')"/>
                     <t t-set="shifts" t-value="[requested_shift] if requested_shift else ['morning', 'afternoon']"/>
+                    <!-- Issue #390's level filter: forwarded the same way as
+                         'guard_duty_weekday'/'guard_duty_shift' above - falsy/absent means "All
+                         levels", the previous, still-default behaviour. -->
+                    <t t-set="requested_level_ids" t-value="course.env.context.get('guard_duty_level_ids')"/>
                     <t t-foreach="weekdays" t-as="weekday">
                         <t t-call="web.external_layout">
                             <div class="page">
@@ -106,7 +110,7 @@
                                 </h1>
 
                                 <t t-foreach="shifts" t-as="shift">
-                                    <t t-set="data" t-value="course.get_guard_duty_board_lines(weekday, shift)"/>
+                                    <t t-set="data" t-value="course.get_guard_duty_board_lines(weekday, shift, level_ids=requested_level_ids)"/>
                                     <h2 class="gdb-shift-title">
                                         <t t-if="shift == 'morning'">Morning</t>
                                         <t t-else="">Afternoon</t>

@@ -58,15 +58,23 @@ export class GuardDutyBoard extends Component {
         this.state = useState({
             activeDay: day,
             activeShift: shift,
+            // Issue #390's level filter: empty = "All levels" (the previous, still-default
+            // behaviour) - see guard_duty_board.py's own get_guard_duty_board_lines() docstring.
+            activeLevelIds: [],
+            levels: [],
             board: null,
             loading: true,
             courseId: null,
             courseName: "",
         });
         onWillStart(async () => {
-            const course = await this.orm.call("ems.course", "get_current_course_data", []);
+            const [course, levels] = await Promise.all([
+                this.orm.call("ems.course", "get_current_course_data", []),
+                this.orm.call("ems.course", "get_guard_duty_board_levels", []),
+            ]);
             this.state.courseId = course.id;
             this.state.courseName = course.name;
+            this.state.levels = levels;
             await this.loadBoard();
         });
     }
@@ -77,6 +85,16 @@ export class GuardDutyBoard extends Component {
 
     get shifts() {
         return SHIFTS;
+    }
+
+    // Compact label for the level dropdown's own toggle button - the full checkbox list already
+    // shows every level by name, this is just what's visible before opening it.
+    get levelFilterLabel() {
+        if (!this.state.activeLevelIds.length) {
+            return _t("All levels");
+        }
+        const selected = this.state.levels.filter((level) => this.state.activeLevelIds.includes(level.id));
+        return selected.map((level) => level.name).join(", ");
     }
 
     async setActiveDay(index) {
@@ -96,25 +114,38 @@ export class GuardDutyBoard extends Component {
         await this.loadBoard();
     }
 
+    async toggleLevel(levelId) {
+        const activeLevelIds = this.state.activeLevelIds;
+        const index = activeLevelIds.indexOf(levelId);
+        if (index === -1) {
+            activeLevelIds.push(levelId);
+        } else {
+            activeLevelIds.splice(index, 1);
+        }
+        await this.loadBoard();
+    }
+
     async loadBoard() {
         this.state.loading = true;
         this.state.board = await this.orm.call(
             "ems.course",
             "get_guard_duty_board_data",
-            [String(this.state.activeDay), this.state.activeShift]
+            [String(this.state.activeDay), this.state.activeShift, this.state.activeLevelIds]
         );
         this.state.loading = false;
     }
 
     // One PDF per day AND per shift — whichever day tab / shift dropdown is currently active,
     // not the whole week or both shifts — see reports/attendance/report_guard_duty_board.xml's
-    // own use of the 'guard_duty_weekday'/'guard_duty_shift' context keys.
+    // own use of the 'guard_duty_weekday'/'guard_duty_shift' context keys. 'guard_duty_level_ids'
+    // (issue #390) forwards the same level selection, following the same pattern.
     async onPdfClick() {
         await this.actionService.doAction("ems.action_report_guard_duty_board", {
             additionalContext: {
                 active_ids: [this.state.courseId],
                 guard_duty_weekday: String(this.state.activeDay),
                 guard_duty_shift: this.state.activeShift,
+                guard_duty_level_ids: this.state.activeLevelIds,
             },
         });
     }

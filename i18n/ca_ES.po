@@ -1524,6 +1524,12 @@ msgid "Afternoon"
 msgstr "Tarda"
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "All levels"
+msgstr "Tots els nivells"
+
+#. module: ems
 #: model:ir.model,name:ems.model_res_partner_relation_all
 msgid "All (non-inverse + inverse) relations between partners"
 msgstr "Totes les relacions (directes i inverses) entre contactes"
@@ -10927,6 +10933,8 @@ msgid "Another Coordinations"
 msgstr "Altres Coordinacions"
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/guard_duty_board.xml:0
 #: model:ems.non_teaching_type,name:ems.non_teaching_br
 msgid "Break"
 msgstr "Pati"

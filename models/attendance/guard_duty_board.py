@@ -14,6 +14,15 @@ SHIFT_HOURS = {
 }
 
 
+def _period_contains(container, period):
+    """True when 'period' (hour_from, hour_to) is fully covered by 'container' - same
+    containment check '_merge_absorbed_periods' below needs inline, extracted so the level
+    filter's guard/break folding (issue #390) can reuse it against a period that isn't
+    necessarily a member of the same 'periods' list (see 'get_guard_duty_board_lines' docstring).
+    Uses HOUR_EPSILON for the same float-noise reason as '_merge_absorbed_periods'."""
+    return container[0] <= period[0] + HOUR_EPSILON and container[1] >= period[1] - HOUR_EPSILON
+
+
 def _merge_absorbed_periods(periods):
     """Groups 'periods' (a list of distinct (hour_from, hour_to) tuples) into
     {period: [period, *periods absorbed into it]}, one entry per period that keeps its own row -
@@ -35,9 +44,7 @@ def _merge_absorbed_periods(periods):
     for period in periods:
         candidates = [
             other for other in periods
-            if other != period
-            and other[0] <= period[0] + HOUR_EPSILON
-            and other[1] >= period[1] - HOUR_EPSILON
+            if other != period and _period_contains(other, period)
         ]
         if candidates:
             containers[period] = min(candidates, key=lambda other: other[1] - other[0])
@@ -105,7 +112,7 @@ class EmsCourseGuardDutyBoard(models.Model):
             ('dayofweek', 'in', WEEKDAYS),
         ])
 
-    def get_guard_duty_board_lines(self, weekday, shift):
+    def get_guard_duty_board_lines(self, weekday, shift, level_ids=None):
         """Board rows for one weekday + shift: the ordered list of group columns actually taught in
         that slot, one row per distinct time period (chronological), each with one cell per group
         (teacher(s) + room, or empty) plus the guard-duty teacher(s) for that period. A guard row
@@ -124,8 +131,36 @@ class EmsCourseGuardDutyBoard(models.Model):
         A period left with no teaching cell AND no guard after that merge (e.g. a coordination
         duty/meeting nobody's actual class or guard shift overlaps) is dropped entirely - a row
         with nothing in it but a time range adds no information (developer follow-up on #410,
-        2026-09-07)."""
+        2026-09-07).
+
+        'level_ids' (issue #390, falsy/omitted = "All levels", the previous, still-default
+        behaviour): a list of 'ems.level' ids to narrow the board down to. See "Level filter" in
+        docs/en/developers/attendance/guard_duty_board.md for the full design. When set:
+        - 'teaching_entries'/'groups'/'periods' only ever come from a group whose own 'level_id'
+          (see ems.group's own field) is in 'level_ids' - a "reinforcement" group (no level_id by
+          design) can never match. This is the only thing the filter actually controls: which
+          time blocks (rows) exist at all.
+        - A guard is shown on whichever ROW its own period overlaps, full stop - there is no way
+          to know, and no need to know, which level a guard-duty teacher "belongs" to (developer
+          feedback, 2026-09-07, after an earlier version tried deriving it from the teacher's own
+          other classes that day and got it backwards for a guard who simply doesn't teach
+          anything that day - see [[project_guard_duty_board_level_filter]] in memory): once a
+          time block is visible for this level (because some class of it runs then), every guard
+          on duty then is relevant, regardless of what they otherwise teach.
+        - A guard whose own period isn't covered by any of the rows above still gets a shot at a
+          dedicated "Patio" row if it falls inside that level's own break period - see
+          _get_guard_duty_board_break_lines(). One left over after that simply has no visible
+          block to attach to under this level and isn't shown (still visible under "All levels").
+
+        Checking every existing level in the client's own filter dropdown is normalized to the
+        same "All levels" (falsy) path below, not treated as a real filter: even with the guard
+        rule above, a level-filtered view only ever builds rows from teaching entries (never from
+        a guard-only or "reinforcement"-group period the way the unfiltered path's own 'entries'-
+        wide 'periods' does) - checking literally every level is meant to mean "show everything",
+        indistinguishable from checking none at all."""
         self.ensure_one()
+        if level_ids and set(level_ids) >= set(self.env['ems.level'].search([]).ids):
+            level_ids = None
         shift_start, shift_end = SHIFT_HOURS[shift]
         entries = self._get_guard_duty_board_attendance_ids().filtered(
             lambda attendance: attendance.dayofweek == weekday
@@ -133,11 +168,18 @@ class EmsCourseGuardDutyBoard(models.Model):
         teaching_entries = entries.filtered(lambda attendance: attendance.subject_id or attendance.group_ids)
         guard_entries = entries.filtered(lambda attendance: attendance.non_teaching_is_guard)
 
-        groups = teaching_entries.group_ids.sorted(key=lambda group: group.name)
-        periods = sorted({(attendance.hour_from, attendance.hour_to) for attendance in entries})
+        if level_ids:
+            teaching_entries = teaching_entries.filtered(
+                lambda attendance: attendance.group_ids.filtered(lambda group: group.level_id.id in level_ids))
+            groups = teaching_entries.group_ids.filtered(lambda group: group.level_id.id in level_ids).sorted(key=lambda group: group.name)
+            periods = sorted({(attendance.hour_from, attendance.hour_to) for attendance in teaching_entries})
+        else:
+            groups = teaching_entries.group_ids.sorted(key=lambda group: group.name)
+            periods = sorted({(attendance.hour_from, attendance.hour_to) for attendance in entries})
         period_members = _merge_absorbed_periods(periods)
 
-        lines = []
+        dated_lines = []
+        remaining_guards = guard_entries
         for hour_from, hour_to in periods:
             if (hour_from, hour_to) not in period_members:
                 continue  # absorbed - already folded into its container's row below
@@ -157,27 +199,89 @@ class EmsCourseGuardDutyBoard(models.Model):
                     # silently drop every name but the first one picked for display.
                     'teachers': cell_entries.mapped('employee_id'),
                 })
-            guards = guard_entries.filtered(
-                lambda attendance, member_periods=member_periods:
-                    (attendance.hour_from, attendance.hour_to) in member_periods)
+            if level_ids:
+                # A guard's own period is no longer necessarily one of 'periods' above (those now
+                # only come from teaching_entries) - fold it into whichever row's range genuinely
+                # contains it, not just an exact-tuple match.
+                guards = remaining_guards.filtered(
+                    lambda attendance, hour_from=hour_from, hour_to=hour_to:
+                        _period_contains((hour_from, hour_to), (attendance.hour_from, attendance.hour_to)))
+            else:
+                guards = guard_entries.filtered(
+                    lambda attendance, member_periods=member_periods:
+                        (attendance.hour_from, attendance.hour_to) in member_periods)
+            remaining_guards -= guards
             if not guards and not any(cell['entries'] for cell in cells):
                 continue  # nothing scheduled anywhere in this period - no row worth showing
-            lines.append({
+            dated_lines.append((hour_from, hour_to, {
                 'time_label': "%s-%s" % (self._format_report_time(hour_from), self._format_report_time(hour_to)),
                 'cells': cells,
                 'guards': guards,
-            })
-        return {'groups': groups, 'lines': lines}
+            }))
+
+        if level_ids:
+            dated_lines += self._get_guard_duty_board_break_lines(
+                level_ids, weekday, shift_start, shift_end, groups, remaining_guards)
+            dated_lines.sort(key=lambda dated_line: (dated_line[0], dated_line[1]))
+        return {'groups': groups, 'lines': [line for _hour_from, _hour_to, line in dated_lines]}
+
+    def _get_guard_duty_board_break_lines(self, level_ids, weekday, shift_start, shift_end, groups, unmatched_guards):
+        """Once a level filter is active, that level's own break ("Patio") period has no real
+        teaching entry of its own to build a row from (a teacher's own calendar spans one
+        continuous block across it - see hr.employee._get_derived_break_entries' own docstring),
+        so a guard duty scheduled specifically for a break would otherwise simply disappear once
+        'get_guard_duty_board_lines' restricts its rows to the filtered level's teaching periods
+        only. Any leftover 'unmatched_guards' entry (any guard not already folded into a row
+        above - see the caller, which no longer derives a guard's own level at all) that falls
+        inside one of that level's own framework(s)' break periods gets a dedicated row instead -
+        marked 'is_break' for the client to label distinctly. A
+        break period with no guard inside it renders nothing, same "nothing to show" rule every
+        other row already follows. Not meaningful under "All levels" - a break's own hours differ
+        per level (see docs/en/developers/attendance/guard_duty_board.md's own "Level filter"
+        section), so the caller only ever invokes this once a level filter narrows down which
+        break(s) apply."""
+        frameworks = self.env['resource.calendar'].search([
+            ('is_framework', '=', True), ('level_id', 'in', level_ids),
+        ])
+        if not frameworks:
+            return []
+        break_periods = sorted({
+            (attendance.hour_from, attendance.hour_to)
+            for attendance in self.env['resource.calendar.attendance'].search([
+                ('calendar_id', 'in', frameworks.ids),
+                ('dayofweek', '=', weekday),
+                ('non_teaching_is_break', '=', True),
+                ('hour_from', '>=', shift_start), ('hour_to', '<=', shift_end),
+            ])
+        })
+        empty_entries = self.env['resource.calendar.attendance']
+        dated_lines = []
+        for hour_from, hour_to in break_periods:
+            guards = unmatched_guards.filtered(
+                lambda attendance, hour_from=hour_from, hour_to=hour_to:
+                    _period_contains((hour_from, hour_to), (attendance.hour_from, attendance.hour_to)))
+            if not guards:
+                continue  # nothing to show for this break slot
+            unmatched_guards -= guards
+            dated_lines.append((hour_from, hour_to, {
+                'time_label': "%s-%s" % (self._format_report_time(hour_from), self._format_report_time(hour_to)),
+                'cells': [{'group': group, 'entries': empty_entries, 'teachers': empty_entries.employee_id} for group in groups],
+                'guards': guards,
+                'is_break': True,
+            }))
+        return dated_lines
 
     @api.model
-    def get_guard_duty_board_data(self, weekday, shift):
+    def get_guard_duty_board_data(self, weekday, shift, level_ids=None):
         """JSON-safe wrapper around get_guard_duty_board_lines(), for the guard duty board client
         action's own RPC call (static/src/js/backend/guard_duty_board.js). @api.model: resolves
         "the current course" itself (env.company.current_course_id), so the JS side never needs
         to know or pass a specific ems.course id — matches how the aggregation itself is scoped
-        (see _get_guard_duty_board_attendance_ids' own NOTE: not actually course-filtered)."""
+        (see _get_guard_duty_board_attendance_ids' own NOTE: not actually course-filtered).
+        'level_ids' (issue #390) is forwarded as-is - see get_guard_duty_board_lines()'s own
+        docstring."""
         course = self.env.company.get_current_course_or_raise()
-        data = course.get_guard_duty_board_lines(weekday, shift)
+        data = course.get_guard_duty_board_lines(weekday, shift, level_ids=level_ids)
         groups = [{'id': group.id, 'name': group.name} for group in data['groups']]
         lines = []
         for line in data['lines']:
@@ -197,8 +301,16 @@ class EmsCourseGuardDutyBoard(models.Model):
                 'time_label': line['time_label'],
                 'cells': cells,
                 'guards': line['guards'].mapped('employee_id.display_name'),
+                'is_break': line.get('is_break', False),
             })
         return {'groups': groups, 'lines': lines}
+
+    @api.model
+    def get_guard_duty_board_levels(self):
+        """Every 'ems.level', for the guard duty board's own level filter (issue #390) - plain
+        id/name pairs, JSON-safe like get_guard_duty_board_data(). No course scoping: a level is
+        centre-wide curriculum data, not tied to any one ems.course."""
+        return [{'id': level.id, 'name': level.name} for level in self.env['ems.level'].search([])]
 
     @api.model
     def get_current_course_data(self):

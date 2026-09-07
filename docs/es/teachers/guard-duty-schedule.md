@@ -28,9 +28,20 @@ La columna **Guardia**, a la derecha, lista todos los docentes de guardia en esa
 
 ---
 
+## Filtrar por nivel
+
+Junto al desplegable de turno hay un botón de **filtro de nivel** (muestra "All levels" hasta que marcas algo). Haz clic para abrir una lista con una casilla por cada nivel — ESO, Bachillerato, cada ciclo formativo, etc. — y marca los que necesites. Por ejemplo, marca **ESO** y **Bachillerato** a la vez para ver solo esa mitad del centro mientras un compañero trabaja con los ciclos formativos marcados. Deja todo sin marcar para ver todos los niveles a la vez, exactamente como antes.
+
+Una vez marcas uno o más niveles:
+- Solo se muestran las columnas de los grupos de ese/esos nivel(es) — el resto de grupos desaparecen de la tabla.
+- La columna **Guardia** solo muestra un docente si ese mismo día también da clase en alguno de los niveles marcados — una guardia sin relación con los niveles que estás mirando queda fuera, para que la columna se mantenga centrada en tu mitad del centro. Vuelve a aparecer si regresas a "All levels".
+- Una guardia que coincide con el patio de ese nivel obtiene su propia fila etiquetada **Patio**, para que una franja que parece vacía no se lea como un hueco en el horario.
+
+---
+
 ## Exportar a PDF
 
-Haz clic en **PDF** en la barra de herramientas para descargar el día y el turno que se están mostrando (no toda la semana) como documento imprimible.
+Haz clic en **PDF** en la barra de herramientas para descargar el día y el turno que se están mostrando (no toda la semana) como documento imprimible — el filtro de nivel que tengas marcado se aplica también al PDF.
 
 ---
 
