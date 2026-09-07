@@ -93,7 +93,15 @@
             <field name="name">Teacher</field>
             <field name="comment">Teacher's access rights.</field>
             <field name="category_id" ref="ems.category_roles"/>
-            <field name="implied_ids" eval="[(4, ref('hr_attendance.group_hr_attendance_own_reader'))]"/>
+            <!-- group_allow_export: grants CSV export on any list view the teacher can already
+                 read (e.g. the Students list) - Odoo's own export permission is all-or-nothing
+                 per user, with no per-model/per-view scoping, so this also covers other models
+                 teachers can read (attendance, grades, enrollments...), a deliberate trade-off
+                 confirmed with the developer 2026-09-07 in exchange for zero custom code. -->
+            <field name="implied_ids" eval="[
+                (4, ref('hr_attendance.group_hr_attendance_own_reader')),
+                (4, ref('base.group_allow_export')),
+            ]"/>
         </record>
 
         <record model="res.groups" id="group_tutor">
