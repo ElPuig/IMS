@@ -592,6 +592,44 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
 
         self.assertFalse(template.active)
 
+    def test_resync_preserves_both_templates_when_teacher_solo_teaches_same_subject_to_two_groups(self):
+        # Regression (2026-09-07): found via a real working-schedules re-import that wiped every
+        # ems.attendance_template for several teachers (e.g. Juan Morote) even though their
+        # calendar was correct and unchanged. Root cause: '_plan_schedule_sync' runs once per
+        # (subject, group-set, teacher-set) 'plan', and its own 'candidates' search matched by
+        # subject_id + teacher_ids only, with no group_ids filter - so a solo teacher who teaches
+        # the SAME subject to two DIFFERENT groups (no co-teaching) had each plan's search also
+        # pull in the OTHER group's template. Since that other group's key isn't in THIS plan's
+        # own 'grouped_entries', '_archive_stale_schedule_sync' archived it as "stale" - and
+        # because '_write_schedule_sync' later writes into an 'old_items' snapshot taken BEFORE
+        # that cross-archival, it silently no-ops into the now-archived record instead of the
+        # still-active one. Reproduces with a full resync of the teacher's unchanged schedule
+        # (no import_mode involved at all - this is the shared sync_from_schedule_batch path used
+        # by both the importer and a live Schedule-tab edit).
+        second_group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'TATS3', 'level_id': self.level.id, 'study_id': self.study.id,
+            'space_id': self.space.id,
+        })
+        entries = [
+            self._entry(9, 10, '0', group=self.group),
+            self._entry(9, 10, '1', group=second_group),
+        ]
+        self.env['ems.attendance_template'].sync_from_schedule(self.teacher, entries)
+        template_a = self.env['ems.attendance_template'].search([
+            ('teacher_ids', 'in', self.teacher.id), ('group_ids', 'in', self.group.id),
+        ])
+        template_b = self.env['ems.attendance_template'].search([
+            ('teacher_ids', 'in', self.teacher.id), ('group_ids', 'in', second_group.id),
+        ])
+        self.assertTrue(template_a)
+        self.assertTrue(template_b)
+
+        # Full resync of the teacher's ENTIRE current schedule, unchanged - must be a no-op.
+        self.env['ems.attendance_template'].sync_from_schedule(self.teacher, entries)
+
+        self.assertTrue(template_a.active, "the OTHER group's resync must not archive this template")
+        self.assertTrue(template_b.active, "the OTHER group's resync must not archive this template")
+
     def test_second_entry_same_key_reuses_template(self):
         # Two schedule slots for the same subject+group must land on the SAME template, not create two.
         entries = [self._entry(9, 10, '0'), self._entry(9, 10, '2')]
