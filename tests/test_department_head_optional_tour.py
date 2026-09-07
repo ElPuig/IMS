@@ -7,7 +7,9 @@ class TestDepartmentHeadOptionalTour(HttpCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.manager = cls.env['hr.employee'].create({'name': 'Department Head Optional Tour Manager'})
+        cls.manager = cls.env['hr.employee'].create({
+            'name': 'Department Head Optional Tour Manager', 'employee_type': 'teacher',
+        })
         cls.department = cls.env['hr.department'].create({
             'name': 'Department Head Optional Tour Department',
             'manager_id': cls.manager.id,
