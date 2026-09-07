@@ -80,6 +80,33 @@ addressable by a real, stable URL.
     recordset (every `non_teaching_is_guard` entry in that period). A guard slot has no
     `group_ids` of its own, so it can never occupy a group's cell — it's always reported
     through `guards` instead, never as an extra column.
+  - **A period fully contained in another period is folded into it, not given its own row**
+    (`_merge_absorbed_periods()`, module-level helper, fixed 2026-09-07 — issue #410). Found in
+    production as a guard-duty slot ending `13:25-14:00` (a teacher's own personal schedule
+    ending that block 25 minutes early) sitting right next to a colleague's `13:25-14:25` guard
+    for the same start time — before the fix, `periods` was a plain set of every distinct
+    `(hour_from, hour_to)` tuple across `entries`, so two conceptually-the-same periods with a
+    different `hour_to` rendered as two rows, the shorter one nearly (for a guard) or entirely
+    (for any other non-teaching entry — it's neither a `teaching_entries` cell nor a
+    `guard_entries` row, since it has no group and isn't `non_teaching_is_guard`) empty.
+    `_merge_absorbed_periods(periods)` groups periods into `{period: [period, *absorbed]}` —
+    one entry per period that keeps a row, mapping to every period (its own bounds plus any it
+    absorbed) whose `cells`/`guards` fold into that row. Containment uses `HOUR_EPSILON` (see
+    [shared/schedule_report_mixin.md](../shared/schedule_report_mixin.md)) for the same reason
+    `hr.employee._get_derived_break_entries` needs it — two periods meant to represent the same
+    moment can differ by a hair's-width float remainder. A period with no containing period
+    (e.g. a genuinely isolated 35-minute coordination slot with nothing else running at the same
+    time) keeps its own row exactly as before — the merge only removes a row when another,
+    larger period's range actually covers it.
+  - **A period left with no teaching cell and no guard, after the merge above, is dropped
+    entirely** (developer follow-up, 2026-09-07) — `if not guards and not any(cell['entries']
+    for cell in cells): continue`. Found on the Wednesday coordination-time slots
+    (`13:25-14:00`/`14:00-15:00`): once the merge above stopped duplicating rows, these two
+    genuinely had nothing to show (every teacher is in a coordination duty or the meeting itself,
+    nobody's on guard through it) — a bare time range with no subject and no guard name is not
+    useful information, so it no longer renders at all. A period with a guard but no teaching
+    (the normal shape of most guard slots) is unaffected — only a period with **neither** is
+    dropped.
   - Reuses `_format_report_time` from `ems.schedule_report_mixin` (still the reason this class
     mixes it in) — but deliberately **not** `_report_color_key`/`REPORT_COLOR_PALETTE`, unlike
     the teacher/group schedule PDFs. An earlier version did colour each cell by subject the same

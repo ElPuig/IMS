@@ -5,20 +5,14 @@ import base64
 from odoo import SUPERUSER_ID, models, fields, api, Command, _
 from odoo.exceptions import UserError, ValidationError
 
+from ..shared.schedule_report_mixin import HOUR_EPSILON
+
 employee_types = [
     ("asp", "Administrative and Services Personnel"),
     ("teacher", "Teacher")
 ]
 
 WEEKDAYS = ('0', '1', '2', '3', '4')
-# Two hour_from/hour_to values meant to represent the exact same moment can differ by a tiny
-# float remainder depending on how each was computed/entered (e.g. a framework's break stored as
-# the literal '11.416667' vs a real period's own hour_from computed as '11 + 25/60' ==
-# 11.416666666666666) — a strict '<' comparison would misread that hair's-width gap as a real
-# overlap. Used by '_get_derived_break_entries' for both the day-span containment check and the
-# overlap check; 1/120 hour (30s) safely absorbs that noise without being large enough to treat
-# two genuinely distinct, minutes-apart periods as touching.
-HOUR_EPSILON = 1 / 120
 
 # Classifies a real entry or a candidate break into "works mornings"/"works afternoons" for
 # '_get_derived_break_entries' - computed directly from 'hour_from' rather than trusting the

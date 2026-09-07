@@ -9,6 +9,15 @@ distinct schedule item, and a float-hour → `"HH:MM"` formatter. Consumed by
 grid where each cell needs a consistent color per subject/non-teaching activity and a
 human-readable time label.
 
+The module (not the mixin class itself — this is a plain top-level constant, not a method) also
+holds `HOUR_EPSILON` (`1/120`, 30 seconds), moved here 2026-09-07 (issue #410) from being private
+to `hr.employee` — two `hour_from`/`hour_to` floats meant to represent the exact same moment can
+differ by a hair's-width remainder depending on how each was computed, and both
+`hr.employee._get_derived_break_entries` (`models/employees/employee.py`) and
+`ems.course._merge_absorbed_periods` (`models/attendance/guard_duty_board.py`, see
+[attendance/guard_duty_board.md](../attendance/guard_duty_board.md)) need the same tolerance for
+the same kind of comparison — kept in one place instead of two copies of the same magic number.
+
 ## Methods
 
 | Method | Purpose |
