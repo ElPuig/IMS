@@ -18,8 +18,20 @@
                                         </t>
                                     </select>
                                     <t t-if="kindHasRoomPicker(group.kind)">
-                                        <small class="text-muted" t-esc="roomColumnLabels.left"/>
-                                        <small class="text-muted" t-esc="roomColumnLabels.right"/>
+                                        <div class="ems_conflict_space ems_conflict_bulk_space_left">
+                                            <AutoComplete
+                                                value="''"
+                                                sources="spaceAutocompleteSources"
+                                                onSelect="(option) => this.onBulkApplySpace(subgroup, 'left_space_id', option)"
+                                                placeholder="roomColumnLabels.left"/>
+                                        </div>
+                                        <div class="ems_conflict_space ems_conflict_bulk_space_right">
+                                            <AutoComplete
+                                                value="''"
+                                                sources="spaceAutocompleteSources"
+                                                onSelect="(option) => this.onBulkApplySpace(subgroup, 'right_space_id', option)"
+                                                placeholder="roomColumnLabels.right"/>
+                                        </div>
                                     </t>
                                 </div>
                                 <t t-foreach="subgroup.records" t-as="record" t-key="record.id">

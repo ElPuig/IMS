@@ -34,6 +34,12 @@ class EmsGroup(models.Model):
 	enrolled_student_ids = fields.Many2many(string="Enrolled", comodel_name="res.partner", compute="_compute_enrolled_student_ids")
 	enrollment_view_ids = fields.One2many(string="Enrollment", comodel_name="ems.enrollment_view", inverse_name="group_id", compute="_compute_enrollment_ids") # Contains the same data as enrolled_student_ids but filtered for the current group (sadly, it cannot be filtered on view...)
 	shift = fields.Selection(selection=[('morning', 'Morning'),('afternoon', 'Afternoon'),],string="Shift",help="Morning or afternoon shift for this group.")
+	# NOTE: issue #405 - see docs/en/developers/contacts/group.md's "Classroom change propagation"
+	# section. Counts this group's 'resource.calendar.attendance' rows still flagged
+	# 'space_pending_group_sync' (a room collision write() couldn't resolve on its own when the
+	# group's own classroom last changed) - drives a persistent banner on the form with a button
+	# opening 'ems.group_classroom_change_wizard', instead of a one-shot dialog that could be missed.
+	pending_classroom_conflict_count = fields.Integer(string="Pending classroom conflicts", compute="_compute_pending_classroom_conflict_count")
 
 	@api.depends("group_type", "study_id.acronym", "course", "acronym")
 	def _compute_name(self):
@@ -111,6 +117,14 @@ class EmsGroup(models.Model):
 					"student_id": sid,
 					"subject_ids": subs,
 				})
+
+	def _compute_pending_classroom_conflict_count(self):
+		Attendance = self.env['resource.calendar.attendance']
+		for group in self:
+			group.pending_classroom_conflict_count = Attendance.search_count([
+				('group_ids', '=', group.id),
+				('space_pending_group_sync', '=', True),
+			])
 
 	def _sanitize_group_type_vals(self, vals):
 		# NOTE: '_onchange_group_type' already does this client-side, purely so the user SEES the fields
@@ -226,6 +240,9 @@ class EmsGroup(models.Model):
 		if vals.get("active") is False:
 			self._raise_if_archiving_active_students()
 		old_tutor = self.tutor_id
+		# NOTE: captured before super().write() - need each group's OWN previous room to detect who
+		# actually changed and what to move away from (see _propagate_classroom_change below).
+		old_space_by_group = {group.id: group.space_id for group in self} if 'space_id' in vals else {}
 		name_affecting = vals.keys() & {"name", "course", "acronym", "study_id", "group_type", "external_id"}
 		with self.env.cr.savepoint():
 			res = super(EmsGroup, self).write(vals)
@@ -237,6 +254,16 @@ class EmsGroup(models.Model):
 			# NOTE: tutor_id field changes when the tutor is assigned from the teacher form, but the old tutor's role
 			# should be updated and must be done from here once changed.
 			self._sync_tutor_role(old_tutor | new_tutor)
+		if 'space_id' in vals:
+			# NOTE: best-effort, issue #405 - deliberately AFTER super().write() has already fully
+			# succeeded (see docs/en/developers/contacts/group.md's "Classroom change propagation"
+			# section for why this never raises/rolls back: an earlier design used RedirectWarning
+			# here and discarded every other field change made in the same save whenever a room
+			# collision showed up, which is not acceptable).
+			for group in self:
+				old_space = old_space_by_group[group.id]
+				if old_space and old_space != group.space_id:
+					group._propagate_classroom_change(old_space, group.space_id)
 		return res
 
 	def action_reactivate(self):
@@ -256,6 +283,63 @@ class EmsGroup(models.Model):
 			"type": "ir.actions.client",
 			"tag": "soft_reload",
 		}
+
+	def action_open_classroom_change_wizard(self):
+		"""Opens 'ems.group_classroom_change_wizard' for this group's pending classroom conflicts
+		(see 'pending_classroom_conflict_count' and the banner button on the form). Creates the
+		wizard record here, before ever opening the form - see that model's own create() override
+		for why its conflict lines must already be real, persisted records rather than staged via
+		context defaults on a not-yet-created one."""
+		self.ensure_one()
+		wizard = self.env['ems.group_classroom_change_wizard'].create({'group_id': self.id})
+		return {
+			"type": "ir.actions.act_window",
+			"res_model": "ems.group_classroom_change_wizard",
+			"res_id": wizard.id,
+			"view_mode": "form",
+			"target": "new",
+		}
+
+	def _propagate_classroom_change(self, old_space, new_space):
+		"""Best-effort propagation of a group's classroom change to its own teaching schedule (issue
+		#405) - moves every currently-active teaching block ('resource.calendar.attendance') still
+		using 'old_space' to 'new_space' (see '_resolve_or_flag_pending_block'). NEVER raises - see
+		write()'s own comment for why (nothing here may ever cause the group's own save to roll
+		back). Guard-duty/break/meeting blocks ('non_teaching' set, 'subject_id' empty) are out of
+		scope - the user-facing ask is specifically about "the classroom for some subject", not
+		every use of a room."""
+		self.ensure_one()
+		blocks = self.env['resource.calendar.attendance'].search([
+			('group_ids', '=', self.id),
+			('subject_id', '!=', False),
+			('space_id', '=', old_space.id),
+			('calendar_id.active', '=', True),
+		])
+		for block in blocks:
+			self._resolve_or_flag_pending_block(block, new_space)
+
+	def _resolve_or_flag_pending_block(self, block, new_space):
+		"""Attempts to move 'block' (and its derived 'ems.attendance_schedule' line, if it has one)
+		to 'new_space'. Moves it and clears 'space_pending_group_sync' when there is no collision;
+		otherwise (re)flags it as pending and returns the conflicts found, as
+		'ems.attendance_schedule.find_room_conflicts' returns them - shared by
+		'_propagate_classroom_change' (a block just left in 'old_space') and
+		'ems.group_classroom_change_wizard' (re-checking an already-flagged block when the wizard
+		opens, in case the collision it was flagged for has since resolved itself)."""
+		self.ensure_one()
+		schedule = block.attendance_schedule_id
+		if not schedule:
+			# Not yet synced into the official schedule - nothing to collide with yet, and
+			# check_overlap() will act as the safety net once it is.
+			block.write({'space_id': new_space.id, 'space_pending_group_sync': False})
+			return []
+		conflicts = schedule.find_room_conflicts(new_space.id)
+		if conflicts:
+			block.space_pending_group_sync = True
+			return conflicts
+		new_schedule = schedule._write_or_new_version({'space_id': new_space.id})
+		block.write({'space_id': new_space.id, 'attendance_schedule_id': new_schedule.id, 'space_pending_group_sync': False})
+		return []
 
 	def _ems_equivalent_for_course(self, course):
 		"""The group where a subject of a different `course` is actually taught for a

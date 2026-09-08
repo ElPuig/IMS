@@ -102,6 +102,8 @@ from . import test_year_record
 from . import test_non_teaching_type
 from . import test_teaching_reduction_type
 from . import test_group
+from . import test_group_classroom_change
+from . import test_group_classroom_change_tour
 from . import test_group_schedule
 from . import test_guard_duty_board
 from . import test_guard_duty_board_tour

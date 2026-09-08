@@ -327,6 +327,19 @@ class ems_working_schedule_assignation(models.Model):
 	# PERSONAL calendar carries its own row for the same shared class, and all of them point at the
 	# same single schedule line - see ems.attendance_template's own "Co-teaching" docs.
 	attendance_schedule_id = fields.Many2one(string="Attendance schedule", comodel_name="ems.attendance_schedule")
+	# NOTE: added for issue #405 (group classroom change propagation, see
+	# docs/en/developers/contacts/group.md's "Classroom change propagation" section). Only ever set
+	# True by 'ems.group._propagate_classroom_change()' when a room collision keeps it from moving
+	# this block to the group's new classroom automatically, and only ever cleared by
+	# 'ems.group_classroom_change_wizard's confirmation - deliberately NOT derived from comparing
+	# 'space_id' against the group's own (see that same doc section for why a live comparison would
+	# misfire on a block whose room legitimately diverges from its group's on purpose, e.g. one
+	# already resolved via the working-schedules import wizard).
+	space_pending_group_sync = fields.Boolean(
+		default=False,
+		help="This block's classroom no longer matches its group's main classroom because of a "
+			"collision detected when the group's classroom changed - resolve it from the group's "
+			"pending-classrooms notice.")
 	# NOTE: 'date_from'/'date_to' are NOT new fields - they already exist on core
 	# 'resource.calendar.attendance' (odoo/addons/resource/models/resource_calendar_attendance.py),
 	# reused here as-is rather than adding EMS-specific duplicates (2026-08-11, see plans/

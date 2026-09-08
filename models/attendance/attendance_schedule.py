@@ -127,38 +127,13 @@ class EmsAttendanceSchedule(models.Model):
     @api.constrains('weekday', 'start_time', 'end_time', 'space_id')
     def check_overlap(self):
         for schedule in self:
-            template = schedule.attendance_template_id
-            if not template.active or not (template.start_date and template.end_date):
-                continue
-
-            candidates = self.search([
-                ('id', '!=', schedule.id),
-                ('weekday', '=', schedule.weekday),
-                ('attendance_template_id.active', '=', True),
-                ('attendance_template_id.start_date', '<=', template.end_date),
-                ('attendance_template_id.end_date', '>=', template.start_date),
-                '|',
-                    ('teacher_ids', 'in', template.teacher_ids.ids),
-                    ('space_id', '=', schedule.space_id.id),
-            ])
-
-            for other in candidates:
-                if not schedule.ranges_overlap(schedule.start_time, schedule.end_time, other.start_time, other.end_time):
-                    continue
-
-                same_teacher = bool(set(other.teacher_ids.ids) & set(template.teacher_ids.ids))
-                if not same_teacher and schedule.is_co_teaching_with(other):
-                    # NOTE: same subject, sharing at least one group, different teacher, same room/time
-                    # — this is the SAME class session co-taught by more than one teacher, a legitimate
-                    # setup, not a genuine double-booking of the room by two unrelated sessions.
-                    continue
-
+            for other, same_teacher in schedule.find_room_conflicts(schedule.space_id.id):
                 reason = _("the same teacher") if same_teacher else _("the same space")
                 raise ValidationError(_(
                     "This session (%(this)s — %(this_teacher)s, %(this_space)s, %(this_time)s) overlaps with "
                     "another one (%(other)s — %(other_teacher)s, %(other_space)s, %(other_time)s): both fall on "
                     "%(weekday)s with overlapping times for %(reason)s.",
-                    this=template.display_name,
+                    this=schedule.attendance_template_id.display_name,
                     this_teacher=", ".join(schedule.teacher_ids.mapped('display_name')),
                     this_space=schedule.space_id.display_name,
                     this_time=schedule.time_range,
@@ -169,6 +144,48 @@ class EmsAttendanceSchedule(models.Model):
                     weekday=dict(schedule.weekdays_selection).get(schedule.weekday),
                     reason=reason,
                 ))
+
+    def find_room_conflicts(self, new_space_id):
+        """Every already-active 'ems.attendance_schedule' line that would collide with 'self' if it
+        moved to 'new_space_id' (same weekday, overlapping template date range, overlapping time),
+        excluding legitimate co-teaching (see 'is_co_teaching_with'). Never writes anything - a pure
+        "what if" check, so it can be reused both by 'check_overlap' (called with 'self.space_id',
+        identical behavior to before this was extracted) and by a caller proposing a room the
+        record does NOT hold yet (e.g. the group classroom-change wizard, see
+        'ems.group._propagate_classroom_change'), which needs to know about a collision before ever
+        writing 'space_id'. Returns a list of (conflicting_record, same_teacher) pairs - 'same_teacher'
+        is already known here (it decides which reason 'check_overlap' reports) and would otherwise
+        have to be recomputed by every caller."""
+        self.ensure_one()
+        template = self.attendance_template_id
+        if not template.active or not (template.start_date and template.end_date):
+            return []
+
+        candidates = self.search([
+            ('id', '!=', self.id),
+            ('weekday', '=', self.weekday),
+            ('attendance_template_id.active', '=', True),
+            ('attendance_template_id.start_date', '<=', template.end_date),
+            ('attendance_template_id.end_date', '>=', template.start_date),
+            '|',
+                ('teacher_ids', 'in', template.teacher_ids.ids),
+                ('space_id', '=', new_space_id),
+        ])
+
+        conflicts = []
+        for other in candidates:
+            if not self.ranges_overlap(self.start_time, self.end_time, other.start_time, other.end_time):
+                continue
+
+            same_teacher = bool(set(other.teacher_ids.ids) & set(template.teacher_ids.ids))
+            if not same_teacher and self.is_co_teaching_with(other):
+                # NOTE: same subject, sharing at least one group, different teacher, same room/time
+                # — this is the SAME class session co-taught by more than one teacher, a legitimate
+                # setup, not a genuine double-booking of the room by two unrelated sessions.
+                continue
+
+            conflicts.append((other, same_teacher))
+        return conflicts
 
     def is_co_teaching_with(self, other):
         """True if 'self' and 'other' represent the SAME class session co-taught by more than one

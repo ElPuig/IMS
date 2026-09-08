@@ -41,6 +41,7 @@ graph TD
 | `enrolled_student_ids` | `Many2many → res.partner` (computed) | — | No | See below. For a `reinforcement` group, this is that group's only notion of "membership" — see the removal note below |
 | `enrollment_view_ids` | `One2many → ems.enrollment_view` (computed) | — | No | See below |
 | `notes` | `Text` | No | Yes | — |
+| `pending_classroom_conflict_count` | `Integer` (computed) | — | No | See "Classroom change propagation to the schedule" below |
 
 ### `_compute_name`
 
@@ -219,6 +220,64 @@ Regression tests: `test_group.py::test_archive_group_with_active_main_students_r
 Browser tour: `ems_group_archive_confirmation` (`group_tour.js`) exercises both the accept
 ("Proceed") and decline ("Close") paths through the real Action menu.
 
+### Classroom change propagation to the schedule (issue #405)
+
+Changing `space_id` used to have zero effect on a group's already-generated schedule — the
+teacher's editable weekly calendar (`resource.calendar.attendance`) and the derived, official
+model behind real attendance-taking (`ems.attendance_schedule`) kept using whatever room they
+were created with, silently diverging from the group's own "current" classroom. `write()` now
+propagates the change, but **never at the cost of aborting the save** — a room collision is
+resolved later via a wizard, not by rolling back the edit that was just made (including any other
+field changed in the same save).
+
+```mermaid
+flowchart TD
+    A["write({'space_id': new, ...other fields...})"] --> B["super().write(vals) - ALWAYS runs\nand ALWAYS succeeds as requested"]
+    B --> C["_propagate_classroom_change(old_space, new_space)\n(best-effort, never raises)"]
+    C --> D{"Teaching blocks (resource.calendar.attendance)\nfor this group currently in old_space?"}
+    D -- none --> E[Nothing else to do]
+    D -- some --> F["For each block with an attendance_schedule_id:\nfind_room_conflicts(new_space)"]
+    F -- "no conflict" --> G["Move now: block.space_id = new_space\n+ attendance_schedule_id._write_or_new_version({'space_id': new_space})"]
+    F -- "conflict" --> H["Leave the block in old_space\nspace_pending_group_sync = True"]
+```
+
+`ems.attendance_schedule.find_room_conflicts(new_space_id)` is `check_overlap()`'s own
+candidate-search extracted into a reusable, non-raising method — `check_overlap()` now calls it
+with `self.space_id` (identical behavior), and this feature calls it with a hypothetical room
+before ever writing anything, to decide whether a block can move safely.
+
+**Why a persisted flag (`space_pending_group_sync` on `resource.calendar.attendance`) instead of
+comparing `block.space_id != group.space_id` on the fly:** a block's room is documented
+(`space_id`'s own comment above) to legitimately and permanently diverge from its group's default
+— e.g. a one-off reassignment made resolving a schedule-import conflict. Treating every such
+divergence as "pending" would misfire on data that was never meant to track the group's room
+1:1. The flag is only ever set by `_propagate_classroom_change` (a real, unresolved collision from
+*this* feature) and only ever cleared by the wizard's confirmation (paths below) — a block moved
+back into agreement with its group's room by any other means stays flagged until someone actually
+visits the wizard, since nothing else is in a position to know the mismatch was ever accepted.
+
+`ems.group.pending_classroom_conflict_count` (computed: count of this group's
+`resource.calendar.attendance` rows with `space_pending_group_sync = True`) drives a persistent
+banner on the group form (`views/community/group/form.xml`, next to `space_id`) — never a
+one-shot dialog that could be dismissed and forgotten — with a button opening
+`ems.group_classroom_change_wizard` (`models/contacts/group_classroom_change_wizard.py`).
+
+The wizard reuses, unmodified, the conflict-resolution infrastructure already built for the
+working-schedules import wizard (`docs/en/developers/employees/working_schedule.md`'s "Import
+wizard" section): `ems.group_classroom_change_wizard_conflict_line` inherits
+`ems.working_schedules_import_wizard.conflict_mixin` (`kind`/`resolution`/`left_space_id`/
+`right_space_id`) and its view uses the same `widget="ems_grouped_conflict_lines"` OWL field
+(dual `AutoComplete` room pickers, grouped cards) already driving the import wizard's own
+conflict screens — no client-side code was added for this feature. `kind` is always
+`plain_conflict` here (legitimate co-teaching is already excluded by `find_room_conflicts`, the
+same way `check_overlap` excludes it). All three of the mixin's resolutions apply, with the same
+meaning the import wizard already gives them: `reassign_rooms` (pick a room for either/both
+sides), `prevail_left` (the pending block takes the new room; the already-existing colliding
+session is archived, exactly like `_continue_from_db_conflicts`'s own handling), `prevail_right`
+(the pending block keeps its current room for that slot — the divergence becomes a deliberate,
+accepted one; the existing session is untouched). Confirming any resolution clears
+`space_pending_group_sync` on the resolved block.
+
 ### Tutor role sync — `create()`/`write()` share `_sync_tutor_role()`
 
 **Fixed bug (2026-07-27, ahead of this model's own DTON turn, at the user's explicit request once the gap was found while DTON-ing `hr.employee`):** `write()` already called `update_tutor_role()`/`_sync_security_groups()` on `hr.employee` whenever `tutor_id` changed; `create()` didn't — a group created with `tutor_id` already set in the creation vals left the employee's `tutorship_ids` relation correct (it's just `tutor_id`'s inverse) but never granted `ems.role_tutor` or synced their security groups, until someone happened to re-save the field later. Both paths now share one `_sync_tutor_role(employees)` helper. Regression test: `test_group.py::test_create_with_tutor_already_set_syncs_role`.
@@ -288,5 +347,6 @@ Note: the admin-equivalent group here is `group_department_chief`, not `group_ac
 | List | `views/community/group/list.xml` | — |
 | Form | `views/community/group/form.xml` | Main data (radio `group_type`) + Students (`main` only) / Enrolled (both types) / Schedule / Notes tabs |
 | Action + Menu | `views/community/group/menu.xml` | `action_group_tree`, "Groups (for students)" |
+| Classroom change wizard | `views/community/group/classroom_change_wizard.xml` | Opened from the group form's pending-conflicts banner — see "Classroom change propagation to the schedule" above |
 
 The Schedule tab is documented separately — see [Group schedule](group_schedule.md).

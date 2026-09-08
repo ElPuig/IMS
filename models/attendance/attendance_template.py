@@ -764,7 +764,7 @@ class EmsAttendanceTemplate(models.Model):
 		for key, templates in old_items.items():
 			if key in grouped_entries:
 				first_group = self.env['ems.group'].browse(grouped_entries[key][0]["group_ids"][0])
-				line_sync[key] = self._match_schedule_lines(templates[0], grouped_entries[key], first_group.space_id.id)
+				line_sync[key] = self._decide_schedule_line_changes(templates[0], grouped_entries[key], first_group.space_id.id)
 
 		return {
 			'teachers': teachers,
@@ -775,10 +775,19 @@ class EmsAttendanceTemplate(models.Model):
 			'end_date': end_date,
 		}
 
-	def _match_schedule_lines(self, survivor, group_entries, space_id):
-		"""Matches 'survivor's current active schedule lines against 'group_entries' (this sync's
-		freshly reconciled slots for the same key) by (weekday, start_time, end_time) - a line's own
-		identity within a template. Returns {'stale_lines', 'lines_to_rewrite', 'fresh_entries'}:
+	@api.model
+	def _decide_schedule_line_changes(self, template, entries, space_id):
+		"""The "bottom" decision of the sync pipeline (issue: resource.calendar.attendance → sync
+		bottom-up redesign, 2026-09-08) - a pure function, no writes, no side effects, safely callable
+		on its own outside the rest of the pipeline (see tests/test_attendance_template.py's own
+		isolated unit tests for it). Renamed/relocated from '_match_schedule_lines' - same algorithm,
+		unchanged, just a clearer name and an explicit '@api.model' marking that it never actually
+		needs 'self' to be a specific record (it was already effectively stateless).
+
+		Matches 'template's current active schedule lines against 'entries' (this sync's freshly
+		reconciled slots for the same subject+group-set+teacher-set key) by (weekday, start_time,
+		end_time) - a line's own identity within a template. Returns {'stale_lines',
+		'lines_to_rewrite', 'fresh_entries'}:
 		- 'stale_lines': lines with no matching entry at all - genuinely gone, always archived
 		  outright regardless of 'has_sessions' (archiving is never locked, only in-place field
 		  edits are - see 'ems.attendance_mixin').
@@ -787,11 +796,11 @@ class EmsAttendanceTemplate(models.Model):
 		- 'fresh_entries': entries with no matching existing line - a genuinely new schedule line.
 		A line whose matched entry is identical in every synced field (including 'space_id') is left
 		out of all three entirely - not even a no-op archive+recreate."""
-		lines_by_slot = {(line.weekday, line.start_time, line.end_time): line for line in survivor.attendance_schedule_ids}
+		lines_by_slot = {(line.weekday, line.start_time, line.end_time): line for line in template.attendance_schedule_ids}
 		matched_slots = set()
 		lines_to_rewrite = []
 		fresh_entries = []
-		for entry in group_entries:
+		for entry in entries:
 			slot = (entry["dayofweek"], entry["hour_from"], entry["hour_to"])
 			line = lines_by_slot.get(slot)
 			if line is None:
@@ -800,7 +809,7 @@ class EmsAttendanceTemplate(models.Model):
 			matched_slots.add(slot)
 			if line.space_id.id != entry.get("space_id", space_id):
 				lines_to_rewrite.append((line, entry))
-		stale_lines = survivor.attendance_schedule_ids.filtered(
+		stale_lines = template.attendance_schedule_ids.filtered(
 			lambda line: (line.weekday, line.start_time, line.end_time) not in matched_slots)
 		return {'stale_lines': stale_lines, 'lines_to_rewrite': lines_to_rewrite, 'fresh_entries': fresh_entries}
 

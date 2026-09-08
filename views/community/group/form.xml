@@ -10,8 +10,16 @@
                     this view's own declared fields, not just the model's - see form_controller.js's
                     archiveEnabled getter (keyed on model.root.activeFields). -->
                     <field name="active" invisible="1"/>
+                    <field name="pending_classroom_conflict_count" invisible="1"/>
                     <sheet>
                         <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                        <div class="alert alert-warning" role="alert" invisible="not pending_classroom_conflict_count">
+                            <p>
+                                This group's classroom changed, but <field name="pending_classroom_conflict_count" nolabel="1" class="oe_inline"/>
+                                teaching block(s) could not move to it automatically because of a room collision.
+                            </p>
+                            <button name="action_open_classroom_change_wizard" type="object" string="Resolve pending classrooms" class="btn-warning"/>
+                        </div>
                         <group string="Main data" col="4">
                             <group colspan="2">
                                 <field name="group_type" widget="radio" options="{'horizontal': true}" />

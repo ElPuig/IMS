@@ -726,7 +726,7 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
     def test_resync_updates_schedule_line_in_place_when_no_sessions(self):
         # A matched line (same weekday/time) whose room changed, with no real attendance history
         # yet, must be updated in place - same DB id - not archived and recreated. See
-        # 'ems.attendance_template._match_schedule_lines'/'_write_schedule_sync'.
+        # 'ems.attendance_template._decide_schedule_line_changes'/'_write_schedule_sync'.
         self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry(9, 10, '0')])
         line = self.env['ems.attendance_schedule'].search([
             ('attendance_template_id.teacher_ids', 'in', self.teacher.id),
@@ -1257,3 +1257,110 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
         self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [])
 
         self.assertFalse(self.env['ems.attendance_template'].browse(template_id).exists())
+
+
+class TestDecideScheduleLineChanges(TransactionCase):
+    """Bottom-up sync redesign (issue: resource.calendar.attendance -> sync, 2026-09-08) - Phase 1:
+    isolated unit tests for '_decide_schedule_line_changes' (renamed/relocated from
+    '_match_schedule_lines', same algorithm), the "bottom" pure decision function of the sync
+    pipeline. Deliberately does NOT go through sync_from_schedule/sync_from_schedule_batch or any
+    calendar row at all - only ems.attendance_template/ems.attendance_schedule fixtures built
+    directly, and direct calls to the method under test, exactly as its own docstring promises
+    ("safely callable on its own outside the rest of the pipeline")."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.level, cls.study = create_level_study(cls, 'TDSL', level={'name': 'Test Level (Decide Schedule Line Changes)'}, study={
+            'code': 'TDSL001', 'name': 'Test Study (Decide Schedule Line Changes)', 'date': date.today(),
+        })
+        cls.subject = cls.env['ems.subject'].create({
+            'code': 'TDSL001', 'acronym': 'TDSL', 'name': 'Test Subject (Decide Schedule Line Changes)',
+            'study_ids': [(6, 0, [cls.study.id])],
+        })
+        cls.space, cls.other_space = cls.env['ems.space'].create([{
+            'code': code, 'name': name,
+            'space_type_id': cls.env.ref('ems.space_type_classroom').id,
+            'work_location_id': cls.env.ref('ems.work_location_main').id,
+        } for code, name in (('TDSL-A', 'Test Space A (Decide Schedule Line Changes)'), ('TDSL-B', 'Test Space B (Decide Schedule Line Changes)'))])
+        cls.group = cls.env['ems.group'].create({
+            'course': 1, 'acronym': 'TDSL', 'level_id': cls.level.id, 'study_id': cls.study.id, 'space_id': cls.space.id,
+        })
+        cls.teacher = cls.env['hr.employee'].create({
+            'name': 'Test Teacher (Decide Schedule Line Changes)', 'employee_type': 'teacher',
+        })
+
+    def _entry(self, hour_from, hour_to, dayofweek, space=None):
+        entry = {
+            'subject_id': self.subject.id, 'group_ids': [self.group.id],
+            'hour_from': hour_from, 'hour_to': hour_to, 'dayofweek': dayofweek,
+        }
+        if space is not None:
+            entry['space_id'] = space.id
+        return entry
+
+    def _template_with_lines(self, *lines):
+        """'lines' is a list of (hour_from, hour_to, dayofweek, space) tuples - built directly via
+        the ORM, never through sync_from_schedule, so this test stays independent of it."""
+        template = self.env['ems.attendance_template'].create({
+            'teacher_ids': [(6, 0, [self.teacher.id])], 'subject_id': self.subject.id,
+            'group_ids': [(6, 0, [self.group.id])], 'study_ids': [(6, 0, [self.study.id])],
+            'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
+        })
+        for hour_from, hour_to, dayofweek, space in lines:
+            self.env['ems.attendance_schedule'].create({
+                'attendance_template_id': template.id, 'weekday': dayofweek,
+                'start_time': hour_from, 'end_time': hour_to, 'space_id': space.id,
+            })
+        return template
+
+    def test_matched_identical_line_is_untouched(self):
+        template = self._template_with_lines((9, 10, '0', self.space))
+        result = self.env['ems.attendance_template']._decide_schedule_line_changes(
+            template, [self._entry(9, 10, '0')], self.space.id)
+        self.assertFalse(result['stale_lines'])
+        self.assertFalse(result['lines_to_rewrite'])
+        self.assertFalse(result['fresh_entries'])
+
+    def test_line_with_no_matching_entry_is_stale(self):
+        template = self._template_with_lines((9, 10, '0', self.space))
+        result = self.env['ems.attendance_template']._decide_schedule_line_changes(template, [], self.space.id)
+        self.assertEqual(result['stale_lines'], template.attendance_schedule_ids)
+        self.assertFalse(result['lines_to_rewrite'])
+        self.assertFalse(result['fresh_entries'])
+
+    def test_entry_with_no_matching_line_is_fresh(self):
+        template = self._template_with_lines()
+        entry = self._entry(9, 10, '0')
+        result = self.env['ems.attendance_template']._decide_schedule_line_changes(template, [entry], self.space.id)
+        self.assertFalse(result['stale_lines'])
+        self.assertFalse(result['lines_to_rewrite'])
+        self.assertEqual(result['fresh_entries'], [entry])
+
+    def test_matched_line_with_different_space_is_rewritten(self):
+        template = self._template_with_lines((9, 10, '0', self.space))
+        entry = self._entry(9, 10, '0', space=self.other_space)
+        result = self.env['ems.attendance_template']._decide_schedule_line_changes(template, [entry], self.space.id)
+        self.assertFalse(result['stale_lines'])
+        self.assertEqual(result['lines_to_rewrite'], [(template.attendance_schedule_ids, entry)])
+        self.assertFalse(result['fresh_entries'])
+
+    def test_mixed_combination_across_several_lines_and_entries(self):
+        # Monday stays untouched, Tuesday goes stale (no entry), Wednesday is fresh (no line),
+        # Thursday is rewritten (matched slot, different room) - all in one call.
+        template = self._template_with_lines(
+            (9, 10, '0', self.space), (9, 10, '1', self.space), (9, 10, '3', self.space),
+        )
+        monday_line = template.attendance_schedule_ids.filtered(lambda line: line.weekday == '0')
+        thursday_line = template.attendance_schedule_ids.filtered(lambda line: line.weekday == '3')
+        wednesday_entry = self._entry(9, 10, '2')
+        thursday_entry = self._entry(9, 10, '3', space=self.other_space)
+
+        result = self.env['ems.attendance_template']._decide_schedule_line_changes(
+            template, [self._entry(9, 10, '0'), wednesday_entry, thursday_entry], self.space.id)
+
+        self.assertEqual(result['stale_lines'], template.attendance_schedule_ids.filtered(lambda line: line.weekday == '1'))
+        self.assertEqual(result['lines_to_rewrite'], [(thursday_line, thursday_entry)])
+        self.assertEqual(result['fresh_entries'], [wednesday_entry])
+        # Monday: matched, identical - confirmed by exclusion from every other bucket above.
+        self.assertNotIn(monday_line, result['stale_lines'])
