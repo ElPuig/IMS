@@ -16,13 +16,14 @@
 |-------|------|----------|--------|-------------|
 | `code` | `Char` | Yes | Yes | Unique code |
 | `name` | `Char` (`translate=True`) | Yes | Yes | Display name |
-| `sequence` | `Integer` (`default=10`) | No | Yes | Manual ordering |
 | `is_break` | `Boolean` | No | Yes | Dropped from both hours-summary columns on the working schedule (e.g. lunch/patio break) |
 | `is_fixed` | `Boolean` | No | Yes | Counted in the "Other fixed-schedule hours" column every day (e.g. guard duties) |
 | `is_guard` | `Boolean` | No | Yes | Counted as guard duty on the [guard duty schedule board](../attendance/guard_duty_board.md) |
 | `active` | `Boolean` (`default=True`) | No | Yes | Standard archive flag |
 
-`_order = "sequence, name"`; `unique_code` SQL constraint.
+`_order = "name"`; `unique_code` SQL constraint. Dropped the `sequence` field (2026-09-07,
+developer feedback) — nothing consumed its value beyond the list's own manual drag-order, so
+alphabetical by `name` is enough.
 
 ---
 

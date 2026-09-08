@@ -82,7 +82,7 @@ The corresponding security group (and anything only that role justified) is revo
 Unlike the other roles above, **Department chieff** and **Seminar leader** are not set from the teacher's own record — they are set from the department:
 
 1. Navigate to **Employees → Departments** and open the department.
-2. Set **Department Chief** (the department's `Manager` field, required) and, optionally, **Seminar Chief**.
+2. Set **Department Chief** (the department's `Manager` field) and, optionally, **Seminar Chief**. Only teachers and administrative/services staff appear in this field — a technical or system account is never a valid choice.
 3. Click **Save**.
 
 This has an immediate, automatic effect on every teacher in that department:
@@ -93,7 +93,7 @@ This has an immediate, automatic effect on every teacher in that department:
 - The **Manager** field on a teacher's own record is read-only — it can only be changed by editing the department, never directly on the teacher's record.
 - Reassigning either role to a different teacher automatically revokes it from whoever held it before (in that department).
 
-> **Note for existing departments:** a department created before this feature was enabled may have no Department Chief and/or Seminar Chief until an admin opens it and sets them — nothing is filled in automatically. **Department Chief is required** to save the department form going forward.
+> **Note for existing departments:** a department created before this feature was enabled may have no Department Chief and/or Seminar Chief until an admin opens it and sets them — nothing is filled in automatically. A department can also be left with **no Department Chief at all** (e.g. mid course-transition, after removing the outgoing Chief and before assigning a replacement) — it isn't required to save the form.
 
 ---
 
@@ -150,7 +150,8 @@ Unlike every other role above, the **Director** is not set from any teacher's re
 
 This has an effect beyond the setting itself:
 
-- The **Manager** of every top-level department's Area Manager (e.g. VET's, ESO/BTX's, ASP's) is automatically set to the **Director** — unless the Director is themselves heading that top-level department, in which case their own Manager is left blank.
+- The **Manager** of every top-level department's Area Manager (e.g. VET's, ESO/BTX's, ASP's) is automatically set to the **Director**.
+- The Director's own **Manager** is always left blank — nobody ever ranks above the Director, regardless of which department they nominally belong to, whether they head one themselves, or whether they're simply a regular member of one whose Chief is someone else.
 - Reassigning the Director to someone else automatically revokes the role from whoever held it before.
 
 > **Note on access:** the Settings screen requires Odoo's Settings access (granted through the "Settings Administrator" group or root/admin) — this is a *different* permission from the one that controls the department forms above. Someone with full academic access is not automatically able to reach Settings.

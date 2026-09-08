@@ -5,20 +5,14 @@ import base64
 from odoo import SUPERUSER_ID, models, fields, api, Command, _
 from odoo.exceptions import UserError, ValidationError
 
+from ..shared.schedule_report_mixin import HOUR_EPSILON
+
 employee_types = [
     ("asp", "Administrative and Services Personnel"),
     ("teacher", "Teacher")
 ]
 
 WEEKDAYS = ('0', '1', '2', '3', '4')
-# Two hour_from/hour_to values meant to represent the exact same moment can differ by a tiny
-# float remainder depending on how each was computed/entered (e.g. a framework's break stored as
-# the literal '11.416667' vs a real period's own hour_from computed as '11 + 25/60' ==
-# 11.416666666666666) — a strict '<' comparison would misread that hair's-width gap as a real
-# overlap. Used by '_get_derived_break_entries' for both the day-span containment check and the
-# overlap check; 1/120 hour (30s) safely absorbs that noise without being large enough to treat
-# two genuinely distinct, minutes-apart periods as touching.
-HOUR_EPSILON = 1 / 120
 
 # Classifies a real entry or a candidate break into "works mornings"/"works afternoons" for
 # '_get_derived_break_entries' - computed directly from 'hour_from' rather than trusting the
@@ -107,6 +101,7 @@ class ems_employee_base(models.AbstractModel):
    
     #Note: manual relation is needed, otherwise Odoo creates two tables within the BBDD, one for 'hr.employee.public' and one for 'hr.employee.base' 
     role_ids = fields.Many2many(string="Roles", comodel_name="ems.role", relation="hr_employee_public_ems_role_rel", column1="hr_employee_public_id", column2="ems_role_id", domain="[('employee_type', '=', employee_type)]")
+    teaching_reduction_ids = fields.Many2many(string="Teaching hour reductions", comodel_name="ems.teaching_reduction_type", relation="hr_employee_public_ems_teaching_reduction_type_rel", column1="hr_employee_public_id", column2="ems_teaching_reduction_type_id")
     tutorship_ids = fields.One2many(string="Tutorships", comodel_name="ems.group", inverse_name="tutor_id")
     headed_department_ids = fields.One2many(string="Departments Headed", comodel_name="hr.department", inverse_name="manager_id")
     seminar_department_ids = fields.One2many(string="Seminars Led", comodel_name="hr.department", inverse_name="seminar_chief_id")
@@ -277,6 +272,10 @@ class ems_employee_base(models.AbstractModel):
         chiefs a department themselves (Department Chief of a regular department, or Area Manager
         of a top-level one - see 'ems.department'):
 
+        - Whoever directs the company (directed_company_ids, i.e. res.company.director_id) always
+          has their own Manager cleared, unconditionally - the Director sits above the whole
+          hierarchy, regardless of whether they merely belong to a department, chief one, or head
+          a top-level one themselves. This takes priority over every other rule below.
         - Anyone who chiefs ANY department (headed_department_ids) is excluded from every OTHER
           department's own intra-cascade entirely, including their own nominal department_id if
           it differs from what they head (e.g. an employee nominally in "Computer Science" who
@@ -297,6 +296,16 @@ class ems_employee_base(models.AbstractModel):
           the Seminar Chief, or that same effective Manager if the department has no Seminar Chief.
         """
         for employee in self:
+            if employee.directed_company_ids:
+                # The Director sits above the whole hierarchy (see 'ems.department's own
+                # docstring) - unconditionally, regardless of whether they merely belong to a
+                # department, chief one, or head a top-level one themselves. Without this, a
+                # Director who is only a REGULAR member of a department (not its Chief) falls
+                # through to the generic branch below and ends up with that department's own
+                # Chief/Seminar Chief as their Manager - putting someone above the Director.
+                employee.parent_id = False
+                continue
+
             headed = employee.headed_department_ids
             if headed:
                 # Explicitly (re)assigned every time, including to an empty recordset (False) -

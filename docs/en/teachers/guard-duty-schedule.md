@@ -28,9 +28,20 @@ The **Guard duty** column on the right lists every teacher on guard duty in that
 
 ---
 
+## Filtering by Level
+
+Next to the shift dropdown there's a **level filter** button (it reads "All levels" until you check something). Click it to open a checklist of every level — ESO, Batxillerat, each vocational-training cycle, etc. — and check as many as you need. For example, check both **ESO** and **Batxillerat** together to see only that half of the centre while a colleague works from the vocational-training levels instead. Leave everything unchecked to see every level at once, exactly as before.
+
+Once one or more levels are checked:
+- Only the groups belonging to the checked level(s) become columns — every other group disappears from the table.
+- The **Guard duty** column only lists a teacher if they also teach one of the checked levels that day — a guard whose own duty has nothing to do with the levels you're looking at is left out, so the column stays focused on your half of the centre. They're still visible if you switch back to "All levels".
+- A guard duty that falls during that level's own break gets its own row labelled **Break**, so an otherwise empty-looking time block doesn't read as a gap in the schedule.
+
+---
+
 ## Exporting to PDF
 
-Click **PDF** in the toolbar to download the day and shift currently shown (not the whole week) as a printable document.
+Click **PDF** in the toolbar to download the day and shift currently shown (not the whole week) as a printable document — whatever level filter is currently checked is applied to the PDF too.
 
 ---
 

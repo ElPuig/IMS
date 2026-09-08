@@ -22,7 +22,7 @@ class EmsEnrollment(models.Model):
     inuse_subject_ids = fields.Many2many('ems.subject', compute='_compute_inuse_subject_ids', store=False)
 
     # NOTE: this field is used within ems.base.get_user_is_tutor, which is used to block the opening of the edit form if no permissions.
-    #       BUT, at this moment, only admins are allowed to create manual enrollments.
+    #       BUT, at this moment, only admins and secretary are allowed to create manual enrollments.
     # tutor_id = fields.Many2one(string='Tutor', related="student_id.tutor_id")
 
     @api.model
@@ -34,14 +34,14 @@ class EmsEnrollment(models.Model):
         # blocked every programmatic caller - sale.order._ems_apply_destination_placement()
         # above all, which materializes the subject enrollments when an enrollment is
         # confirmed. sudo() does NOT turn env.user into the superuser, it only sets env.su,
-        # so get_user_is_admin() keeps reflecting the real user behind the request (the
-        # student confirming from the portal, the secretary confirming from the backend) and
-        # the guard fired on them. env.su is what tells the two apart: a form opened from the
-        # UI never carries it, a placement running on their behalf always does.
+        # so get_user_is_admin()/get_user_is_secretary() keep reflecting the real user behind
+        # the request (the student confirming from the portal, the secretary confirming from
+        # the backend) and the guard fired on them. env.su is what tells the two apart: a form
+        # opened from the UI never carries it, a placement running on their behalf always does.
         if not self.env.su and "user_is_admin" in fields_list:
             # This happens when opening the form, when storing fires again but field per field
-            if not (res["user_is_admin"]):
-                raise UserError(_("Only admins can create manual enrollments. If you're a group's tutor, you can enroll students using the student's form."))
+            if not (res["user_is_admin"] or self.get_user_is_secretary()):
+                raise UserError(_("Only admins and secretary staff can create manual enrollments."))
         return res
 
     @api.depends('student_id')

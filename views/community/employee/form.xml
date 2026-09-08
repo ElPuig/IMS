@@ -175,6 +175,12 @@
                     <attribute name="invisible">1</attribute>
                 </xpath>
 
+                <xpath expr="//page[@name='hr_settings']/group" position="inside">
+                    <group string="Teaching hour reductions" name="teaching_reduction_group" invisible="employee_type != 'teacher'">
+                        <field name="teaching_reduction_ids" widget="many2many_tags" nolabel="1"/>
+                    </group>
+                </xpath>
+
                 <xpath expr="//group[@name='identification_group']" position="attributes">
                     <attribute name="string">Attendance</attribute>
                 </xpath>   

@@ -31,7 +31,6 @@
             </field>
             <field name="manager_id" position="attributes">
                 <attribute name="string">Department Chief</attribute>
-                <attribute name="required">not is_top_level and not shares_manager_with_parent</attribute>
                 <attribute name="invisible">is_top_level or shares_manager_with_parent</attribute>
             </field>
             <field name="manager_id" position="before">

@@ -77,6 +77,47 @@ class TestCompanyDirector(TransactionCase):
         self.assertNotEqual(director.parent_id, director)
         self.assertFalse(director.parent_id)
 
+    def test_director_as_plain_department_member_has_no_manager(self):
+        # Issue #416: the Director must never end up with anyone above them, even when they are
+        # only a REGULAR member of a department (not its Chief) - the exact real-world case found
+        # (the Director nominally belonged to a department chiefed by someone else).
+        chief = self._create_employee('Test Chief (Plain Member)')
+        department = self.env['hr.department'].create({
+            'name': 'Test Department (Plain Member)', 'manager_id': chief.id,
+        })
+        director = self._create_employee('Test Director (Plain Member)', department)
+
+        self.env.company.director_id = director.id
+
+        self.assertFalse(director.parent_id)
+
+    def test_director_as_plain_department_member_ignores_seminar_chief(self):
+        chief = self._create_employee('Test Chief (Plain Member Seminar)')
+        seminar_chief = self._create_employee('Test Seminar Chief (Plain Member Seminar)')
+        department = self.env['hr.department'].create({
+            'name': 'Test Department (Plain Member Seminar)', 'manager_id': chief.id, 'seminar_chief_id': seminar_chief.id,
+        })
+        director = self._create_employee('Test Director (Plain Member Seminar)', department)
+
+        self.env.company.director_id = director.id
+
+        self.assertFalse(director.parent_id)
+
+    def test_assigning_director_recomputes_their_own_manager(self):
+        # Covers res.company.write()'s own forced recompute of the (old|new) director's
+        # parent_id - _compute_parent_id() only depends on department_id, so without that forced
+        # call the Director's stale parent_id would not refresh just from director_id changing.
+        chief = self._create_employee('Test Chief (Recompute On Assign)')
+        department = self.env['hr.department'].create({
+            'name': 'Test Department (Recompute On Assign)', 'manager_id': chief.id,
+        })
+        director = self._create_employee('Test Director (Recompute On Assign)', department)
+        self.assertEqual(director.parent_id, chief)
+
+        self.env.company.director_id = director.id
+
+        self.assertFalse(director.parent_id)
+
     def test_onchange_role_ids_blocks_manual_director_assignment(self):
         employee = self._create_employee('Test Employee (Onchange Director Add)')
         employee.with_context(ems_syncing_roles=True).role_ids = [(4, self.role_director.id)]

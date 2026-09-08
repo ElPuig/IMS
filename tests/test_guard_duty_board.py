@@ -3,7 +3,7 @@ from datetime import date
 
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study
+from .common import create_level_study, create_level_study_group
 
 
 class TestGuardDutyBoard(TransactionCase):
@@ -64,9 +64,41 @@ class TestGuardDutyBoard(TransactionCase):
         cls.teacher_a = cls.env['hr.employee'].create({'name': 'Test Teacher A (Guard Duty Board)', 'employee_type': 'teacher'})
         cls.teacher_b = cls.env['hr.employee'].create({'name': 'Test Teacher B (Guard Duty Board)', 'employee_type': 'teacher'})
         cls.teacher_guard = cls.env['hr.employee'].create({'name': 'Test Teacher Guard (Guard Duty Board)', 'employee_type': 'teacher'})
+        # A second, distinct level/study/group (issue #390's level filter) - deliberately its own
+        # brand-new 'ems.level', never shared with the real dev DB's own data, so filtering tests
+        # below can assert strict exclusion rather than the "assertLessEqual" style the rest of
+        # this centre-wide-aggregation test class needs (see e.g. test_attendance_ids_aggregate_
+        # across_teachers' own NOTE).
+        cls.level2, cls.study2, cls.group_c = create_level_study_group(
+            cls, 'TGDB2', level={'name': 'Test Level 2 (Guard Duty Board)'},
+            study={'name': 'Test Study 2 (Guard Duty Board)', 'date': date.today()},
+            group={'course': 1, 'acronym': 'TGDBC', 'space_id': cls.space_b.id, 'shift': 'morning'},
+        )
+        cls.teacher_c = cls.env['hr.employee'].create({'name': 'Test Teacher C (Guard Duty Board, Level 2)', 'employee_type': 'teacher'})
+        # A subject of its own, valid for 'study2' only - 'self.subject' is only valid for
+        # 'self.study' (see 'ems.attendance_template._check_subject_valid_for_all_studies'), so a
+        # teaching entry for 'group_c' needs a subject actually taught in study2.
+        cls.subject2 = cls.env['ems.subject'].create({
+            'code': 'TGDB2001', 'acronym': 'TGDB2', 'name': 'Test Subject 2 (Guard Duty Board)',
+            'study_ids': [(6, 0, [cls.study2.id])],
+        })
 
     def _new_calendar(self, teacher, name):
-        calendar = self.env['resource.calendar'].create({'name': name})
+        # 'employee_id' (matching how every real personal calendar is created - see
+        # hr.employee.create()/course_transition_wizard.py's own 'resource.calendar' creates)
+        # is what '_get_guard_duty_board_attendance_ids' now uses to tell a teacher's own
+        # working schedule apart from Odoo's generic default calendar (e.g. "Standard 40
+        # hours/week", 'employee_id' False) - omitting it here made every fixture in this class
+        # indistinguishable from that generic calendar to the board's own aggregation. Clearing
+        # 'attendance_ids' also mirrors 'seed_from_framework()' - a plain create() with no
+        # attendance_ids auto-populates default Mon-Fri 8-12/13-17 rows (Odoo's own
+        # 'resource.calendar' default), which would otherwise leak into the board's centre-wide
+        # aggregation as noise even before any of this test's own schedule is applied (found
+        # 2026-09-08 via CI on a clean install, where that generic calendar's rows exist and
+        # this dev DB's own history happens not to have any).
+        calendar = self.env['resource.calendar'].create({
+            'name': name, 'employee_id': teacher.id, 'attendance_ids': [(5, 0, 0)],
+        })
         teacher.resource_calendar_id = calendar
         return calendar
 
@@ -288,6 +320,104 @@ class TestGuardDutyBoard(TransactionCase):
         self.assertIn(self.teacher_a.name.encode(), content)
         self.assertNotIn(self.teacher_b.name.encode(), content)
 
+    def test_get_guard_duty_board_lines_merges_a_guard_absorbed_by_a_longer_guard_period(self):
+        """Regression for issue #410: a teacher's own personal schedule can end a guard-duty slot
+        early (e.g. a shorter working day that block) while a colleague's guard for the same
+        start time runs the full period - found in production as a guard ending 13:25-14:00
+        sitting right next to another one ending 13:25-14:25. Before the fix this rendered as two
+        rows, the short one nearly empty (no cells, one guard); the short period must fold into
+        the long one's row instead of getting a row of its own."""
+        calendar_guard = self._new_calendar(self.teacher_guard, 'Test Calendar Guard (Absorbed)')
+        calendar_guard.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 9.5, 'day_period': 'morning',
+            'non_teaching': self.non_teaching_guard.id, 'name': 'Guard (short)',
+        }])
+        calendar_b = self._new_calendar(self.teacher_b, 'Test Calendar B (Absorbed)')
+        calendar_b.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'non_teaching': self.non_teaching_guard.id, 'name': 'Guard (full)',
+        }])
+
+        data = self.course.get_guard_duty_board_lines('0', 'morning')
+
+        time_labels = {line['time_label'] for line in data['lines']}
+        self.assertNotIn('09:00-09:30', time_labels)
+        matching = [line for line in data['lines'] if line['time_label'] == '09:00-10:00']
+        self.assertEqual(len(matching), 1)
+        # Not assertEqual: this dev DB's own real guards for Monday 9:00-10:00 legitimately show
+        # up here too (this board is centre-wide, not scoped to this test's fixtures - see the
+        # other tests' own NOTE) - only assert our two fixtures are included, not that they're
+        # the only ones.
+        self.assertLessEqual({self.teacher_guard, self.teacher_b}, set(matching[0]['guards'].mapped('employee_id')))
+
+    def test_get_guard_duty_board_lines_merges_a_non_guard_period_absorbed_by_a_teaching_period(self):
+        """Same containment bug, but for a non-teaching, non-guard entry (e.g. a coordination
+        duty, 'CT'/'AC' in real data) - it has neither a group (so it never becomes a
+        teaching_entries cell) nor non_teaching_is_guard (so it never becomes a guards entry
+        either), so before the fix its own short period rendered as a row with absolutely
+        nothing in it - worse than the guard case above, since it showed no guard name either.
+        Must fold into the containing teaching period's row instead of appearing at all."""
+        calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Absorbed Non-Guard)')
+        calendar_a.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 9.5, 'day_period': 'morning',
+            'non_teaching': self.non_teaching_break.id, 'name': 'Break (short)',
+        }])
+        calendar_b = self._new_calendar(self.teacher_b, 'Test Calendar B (Absorbed Non-Guard)')
+        calendar_b.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group_b.id], 'name': 'TGDBB: TGDB',
+        }])
+
+        data = self.course.get_guard_duty_board_lines('0', 'morning')
+
+        time_labels = {line['time_label'] for line in data['lines']}
+        self.assertNotIn('09:00-09:30', time_labels)
+        self.assertEqual(len([line for line in data['lines'] if line['time_label'] == '09:00-10:00']), 1)
+
+    def test_get_guard_duty_board_lines_keeps_an_uncontained_period_as_its_own_row(self):
+        """The containment merge must not eat a genuinely isolated period that doesn't fall
+        inside any larger one - regression guard against an over-eager merge swallowing
+        legitimate standalone rows. Uses a guard entry (not a plain break) so the row also
+        survives the separate "hide a period with nothing in it" rule added below - a period
+        with a guard is never content-less. Uses a deliberately unusual, wide time span
+        (08:06-09:54, wider than any real bell-schedule period and starting off the usual
+        on-the-hour/on-the-25 marks) so it can't accidentally be absorbed by this dev DB's own
+        real, unrelated schedule data - this board is centre-wide, not scoped to this test's own
+        fixtures (see the other tests' own NOTE)."""
+        calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Isolated)')
+        calendar_a.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 8.1, 'hour_to': 9.9, 'day_period': 'morning',
+            'non_teaching': self.non_teaching_guard.id, 'name': 'Guard (isolated)',
+        }])
+
+        data = self.course.get_guard_duty_board_lines('0', 'morning')
+
+        self.assertIn('08:06-09:54', {line['time_label'] for line in data['lines']})
+
+    def test_get_guard_duty_board_lines_hides_a_period_with_no_teaching_and_no_guards(self):
+        """Follow-up to issue #410 (developer request, 2026-09-07): a period where literally
+        nothing is scheduled anywhere in the centre - no group's class, no guard - adds no
+        information and must not render as a row at all. Found in production as the Wednesday
+        coordination-time slots (13:25-14:00 and 14:00-15:00): every teacher is either in a short
+        coordination duty or the coordination meeting itself, and nobody is on guard duty through
+        it. A non-teaching, non-guard entry (CT/AC/CM...) with nothing else running at the same
+        time must disappear entirely instead of showing an empty row. Reuses the exact same
+        08:06-09:54 span as the "keeps an uncontained period" test above (already confirmed there
+        not to be absorbed by any of this dev DB's own real data) so this test genuinely exercises
+        the "hide, don't merge" path instead of accidentally passing because the period got
+        silently absorbed into some unrelated real period - which is exactly what happened with an
+        earlier, narrower version of this test (08:09-08:39 turned out to sit inside a real
+        08:00-09:00 entry, making the assertion pass for the wrong reason)."""
+        calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Truly Blank)')
+        calendar_a.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 8.1, 'hour_to': 9.9, 'day_period': 'morning',
+            'non_teaching': self.non_teaching_break.id, 'name': 'CT (isolated, no guard)',
+        }])
+
+        data = self.course.get_guard_duty_board_lines('0', 'morning')
+
+        self.assertNotIn('08:06-09:54', {line['time_label'] for line in data['lines']})
+
     def test_report_guard_duty_board_scopes_to_one_shift_via_context(self):
         """Same as the weekday-scoping test above, but for 'guard_duty_shift': the PDF button
         also passes whichever shift the dropdown had selected, so printing while looking at
@@ -310,3 +440,199 @@ class TestGuardDutyBoard(TransactionCase):
         self.assertIn(self.teacher_a.name.encode(), content)
         self.assertNotIn(self.teacher_b.name.encode(), content)
         self.assertNotIn(b'Afternoon', content)
+
+    def test_get_guard_duty_board_lines_level_filter_narrows_teaching_but_shows_any_guard_on_duty(self):
+        """Level filter (issue #390): the filter only ever controls which time blocks (rows) are
+        visible, built purely from the selected level's own classes - see
+        docs/en/developers/attendance/guard_duty_board.md's own "Level filter" section. Once a row
+        is visible, EVERY guard on duty then shows, regardless of what level (if any) that guard's
+        own teacher otherwise teaches - developer feedback (2026-09-07), replacing an earlier
+        version that tried deriving a guard's "own level" from their other classes that day and
+        got it backwards for a guard with no teaching entry of their own at all: "no tenemos forma
+        de saber si un docente es de un nivel o de otro, pero es indiferente, porque está de
+        guardia y eso es lo que manda". Neither guard below teaches anything this day at all -
+        both are relevant purely because their guard duty coincides with a row group_a's own
+        class makes visible."""
+        calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Level Filter)')
+        calendar_a.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group_a.id], 'name': 'TGDBA: TGDB',
+        }])
+        calendar_c = self._new_calendar(self.teacher_c, 'Test Calendar C (Level Filter, Other Level)')
+        calendar_c.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject2.id, 'group_ids': [self.group_c.id], 'name': 'TGDBC: TGDB2',
+        }])
+        calendar_guard = self._new_calendar(self.teacher_guard, 'Test Calendar Guard (Level Filter)')
+        calendar_guard.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'non_teaching': self.non_teaching_guard.id, 'name': 'Guard',
+        }])
+        calendar_b = self._new_calendar(self.teacher_b, 'Test Calendar B (Level Filter, Other Guard)')
+        calendar_b.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'non_teaching': self.non_teaching_guard.id, 'name': 'Guard (also no teaching today)',
+        }])
+
+        data = self.course.get_guard_duty_board_lines('0', 'morning', level_ids=[self.level.id])
+
+        self.assertIn(self.group_a, data['groups'])
+        self.assertNotIn(self.group_c, data['groups'])
+        matching = [line for line in data['lines'] if line['time_label'] == '09:00-10:00']
+        self.assertEqual(len(matching), 1)
+        guard_teachers = set(matching[0]['guards'].mapped('employee_id'))
+        self.assertIn(self.teacher_guard, guard_teachers)
+        self.assertIn(self.teacher_b, guard_teachers)
+        cell_by_group = {cell['group'].id: cell for cell in matching[0]['cells']}
+        self.assertIn(self.group_a.id, cell_by_group)
+        self.assertNotIn(self.group_c.id, cell_by_group)
+
+    def test_get_guard_duty_board_lines_level_filter_hides_a_guard_with_no_matching_row_or_break(self):
+        """A guard whose own slot neither overlaps any row of the filtered level nor falls
+        inside that level's own break window simply isn't relevant to this level's view -
+        developer decision (2026-09-07): it stays visible under "All levels", just not here."""
+        calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (No Match)')
+        calendar_a.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 8, 'hour_to': 9, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group_a.id], 'name': 'TGDBA: TGDB',
+        }])
+        calendar_guard = self._new_calendar(self.teacher_guard, 'Test Calendar Guard (No Match)')
+        calendar_guard.apply_schedule_changes([
+            {'dayofweek': '0', 'hour_from': 8, 'hour_to': 9, 'day_period': 'morning',
+             'subject_id': self.subject.id, 'group_ids': [self.group_a.id], 'name': 'TGDBA: TGDB (early)'},
+            {'dayofweek': '0', 'hour_from': 12, 'hour_to': 13, 'day_period': 'morning',
+             'non_teaching': self.non_teaching_guard.id, 'name': 'Guard (unrelated hour)'},
+        ])
+
+        data = self.course.get_guard_duty_board_lines('0', 'morning', level_ids=[self.level.id])
+
+        self.assertNotIn('12:00-13:00', {line['time_label'] for line in data['lines']})
+
+    def test_get_guard_duty_board_lines_selecting_every_level_matches_all_levels(self):
+        """Checking every existing level in the filter dropdown must produce the exact same
+        result as checking none at all ("All levels") - developer report (2026-09-07): a guard
+        with no teaching entry that day at all (a guard-only shift, real example: Joan Sánchez
+        Escudero's Monday 8h guard) was silently dropped even with every level checked. Guard
+        visibility is purely time-based now (see "...narrows_teaching_but_shows_any_guard_on_duty"
+        above), so this specific symptom can no longer recur - but a level-filtered view still
+        only ever builds its rows from teaching entries, never from a guard-only period the way
+        the unfiltered path's own periods (built from every entry) do. Checking every level is
+        meant to mean "show everything", the same as checking none - unlike a real partial
+        selection (e.g. the test above), which must keep hiding every row/group of the levels
+        left unchecked."""
+        calendar_guard = self._new_calendar(self.teacher_guard, 'Test Calendar Guard (Every Level)')
+        calendar_guard.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'non_teaching': self.non_teaching_guard.id, 'name': 'Guard (no teaching at all today)',
+        }])
+        all_level_ids = self.env['ems.level'].search([]).ids
+
+        unfiltered = self.course.get_guard_duty_board_lines('0', 'morning')
+        every_level_selected = self.course.get_guard_duty_board_lines('0', 'morning', level_ids=all_level_ids)
+
+        unfiltered_guards = {teacher for line in unfiltered['lines'] for teacher in line['guards'].mapped('employee_id')}
+        every_level_guards = {teacher for line in every_level_selected['lines'] for teacher in line['guards'].mapped('employee_id')}
+        self.assertIn(self.teacher_guard, unfiltered_guards)
+        self.assertEqual(unfiltered_guards, every_level_guards)
+        self.assertEqual(
+            {group.id for group in unfiltered['groups']},
+            {group.id for group in every_level_selected['groups']},
+        )
+
+    def test_get_guard_duty_board_lines_level_filter_shows_break_time_guard_as_patio_row(self):
+        """A guard duty scheduled specifically during a level's own break ("Patio") has no
+        overlapping class of that level at all - without special handling it would just vanish
+        once the level filter restricts rows to teaching-only periods (see "Break ('Patio')
+        labelling" in docs/en/developers/attendance/guard_duty_board.md). It must instead render
+        as its own row, marked 'is_break', once that level's own framework identifies the period
+        as a break - but only under a level filter, never under "All levels" (no single "this row
+        is break" answer is possible without knowing which level is being viewed).
+
+        Deliberately off-grid AND unusually wide hours (08:55-10:42, ~1h47m) for the guard/break
+        period itself - same reasoning as
+        "test_get_guard_duty_board_lines_keeps_an_uncontained_period_as_its_own_row" above: this
+        board is centre-wide, not scoped to this test's own fixtures, so a plain, real-class-sized
+        window risks silently being absorbed (contained) into some unrelated real teacher's own
+        period of the day - width, not just an off-grid start, is what actually rules that out,
+        since no real bell-schedule period is ever this long."""
+        calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Patio)')
+        calendar_a.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 8.1, 'hour_to': 8.9, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group_a.id], 'name': 'TGDBA: TGDB',
+        }])
+        framework = self.env['resource.calendar'].create({
+            'name': 'Test Level Framework (Patio)', 'is_framework': True, 'level_id': self.level.id,
+            'full_time_required_hours': 24,
+        })
+        self.env['resource.calendar.attendance'].create({
+            'calendar_id': framework.id, 'name': 'BR: Break', 'dayofweek': '0',
+            'hour_from': 8.92, 'hour_to': 10.7, 'day_period': 'morning', 'non_teaching': self.non_teaching_break.id,
+        })
+        calendar_guard = self._new_calendar(self.teacher_guard, 'Test Calendar Guard (Patio)')
+        calendar_guard.apply_schedule_changes([
+            {'dayofweek': '0', 'hour_from': 8.1, 'hour_to': 8.9, 'day_period': 'morning',
+             'subject_id': self.subject.id, 'group_ids': [self.group_a.id], 'name': 'TGDBA: TGDB (early)'},
+            {'dayofweek': '0', 'hour_from': 8.92, 'hour_to': 10.7, 'day_period': 'morning',
+             'non_teaching': self.non_teaching_guard.id, 'name': 'Patio Guard'},
+        ])
+
+        unfiltered = self.course.get_guard_duty_board_lines('0', 'morning')
+        filtered = self.course.get_guard_duty_board_lines('0', 'morning', level_ids=[self.level.id])
+
+        unfiltered_patio = [line for line in unfiltered['lines'] if line['time_label'] == '08:55-10:42']
+        self.assertEqual(len(unfiltered_patio), 1)
+        self.assertFalse(unfiltered_patio[0].get('is_break'))
+
+        filtered_patio = [line for line in filtered['lines'] if line['time_label'] == '08:55-10:42']
+        self.assertEqual(len(filtered_patio), 1)
+        self.assertTrue(filtered_patio[0].get('is_break'))
+        self.assertIn(self.teacher_guard, filtered_patio[0]['guards'].mapped('employee_id'))
+        for cell in filtered_patio[0]['cells']:
+            self.assertFalse(cell['entries'])
+
+    def test_get_guard_duty_board_data_passes_level_ids_and_is_break(self):
+        calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Data Level Filter)')
+        calendar_a.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group_a.id], 'name': 'TGDBA: TGDB',
+        }])
+        calendar_c = self._new_calendar(self.teacher_c, 'Test Calendar C (Data Level Filter, Other Level)')
+        calendar_c.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject2.id, 'group_ids': [self.group_c.id], 'name': 'TGDBC: TGDB2',
+        }])
+
+        data = self.env['ems.course'].get_guard_duty_board_data('0', 'morning', level_ids=[self.level.id])
+        json.dumps(data)  # raises TypeError if anything isn't JSON-safe
+
+        self.assertIn(self.group_a.id, [group['id'] for group in data['groups']])
+        self.assertNotIn(self.group_c.id, [group['id'] for group in data['groups']])
+        self.assertTrue(all('is_break' in line for line in data['lines']))
+
+    def test_get_guard_duty_board_levels(self):
+        data = self.env['ems.course'].get_guard_duty_board_levels()
+
+        self.assertIn({'id': self.level.id, 'name': self.level.name}, data)
+        self.assertIn({'id': self.level2.id, 'name': self.level2.name}, data)
+
+    def test_report_guard_duty_board_scopes_to_levels_via_context(self):
+        """Same pattern as the weekday/shift context-scoping tests above, but for
+        'guard_duty_level_ids': the PDF button also forwards whichever level(s) the dropdown had
+        checked, so printing while filtered to level 1 must not also render level 2's group."""
+        calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (PDF Level Filter)')
+        calendar_a.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group_a.id], 'name': 'TGDBA: TGDB',
+        }])
+        calendar_c = self._new_calendar(self.teacher_c, 'Test Calendar C (PDF Level Filter, Other Level)')
+        calendar_c.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject2.id, 'group_ids': [self.group_c.id], 'name': 'TGDBC: TGDB2',
+        }])
+
+        content, _content_type = self.env['ir.actions.report'].with_context(
+            guard_duty_weekday='0', guard_duty_shift='morning', guard_duty_level_ids=[self.level.id]).\
+            _render_qweb_pdf('ems.report_guard_duty_board', [self.course.id])
+
+        self.assertIn(self.group_a.name.encode(), content)
+        self.assertNotIn(self.group_c.name.encode(), content)

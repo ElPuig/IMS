@@ -67,6 +67,15 @@ addressable by a real, stable URL.
   calendar itself retired. `ems_working_schedule.action_archive()` now cascades to its own
   `attendance_ids` (see `course_transition_wizard.md`), which fixes this at the source going
   forward — the explicit filter here stays anyway as defense-in-depth, not redundant with it.
+  Also filters `calendar_id.employee_id != False` (added 2026-09-08) — excludes any calendar
+  that isn't a specific teacher's own personal working schedule, concretely Odoo's own generic
+  default calendar ("Standard 40 hours/week", auto-created with Mon-Fri 8-12/13-17 rows the
+  first time anything needs `res.company.resource_calendar_id` and nothing real has been
+  configured yet). That calendar is never `is_framework=True`, so the check above alone doesn't
+  exclude it; on a clean install with no real schedules yet it silently leaked into this
+  aggregation and its generic 8-12 block absorbed narrower real periods into itself (found via
+  CI, which installs clean — this box's own long-lived dev DB never had that generic calendar
+  to begin with, which is why the bug never showed up locally).
 - `get_guard_duty_board_lines(weekday, shift)` — instance method, `self.ensure_one()`, called
   on a real `ems.course` record (the PDF template calls it on each of `docs`). For one weekday
   (`'0'`-`'4'`) and one shift (`'morning'`/`'afternoon'`, `SHIFT_HOURS` mirroring `ems.group`'s
@@ -80,6 +89,33 @@ addressable by a real, stable URL.
     recordset (every `non_teaching_is_guard` entry in that period). A guard slot has no
     `group_ids` of its own, so it can never occupy a group's cell — it's always reported
     through `guards` instead, never as an extra column.
+  - **A period fully contained in another period is folded into it, not given its own row**
+    (`_merge_absorbed_periods()`, module-level helper, fixed 2026-09-07 — issue #410). Found in
+    production as a guard-duty slot ending `13:25-14:00` (a teacher's own personal schedule
+    ending that block 25 minutes early) sitting right next to a colleague's `13:25-14:25` guard
+    for the same start time — before the fix, `periods` was a plain set of every distinct
+    `(hour_from, hour_to)` tuple across `entries`, so two conceptually-the-same periods with a
+    different `hour_to` rendered as two rows, the shorter one nearly (for a guard) or entirely
+    (for any other non-teaching entry — it's neither a `teaching_entries` cell nor a
+    `guard_entries` row, since it has no group and isn't `non_teaching_is_guard`) empty.
+    `_merge_absorbed_periods(periods)` groups periods into `{period: [period, *absorbed]}` —
+    one entry per period that keeps a row, mapping to every period (its own bounds plus any it
+    absorbed) whose `cells`/`guards` fold into that row. Containment uses `HOUR_EPSILON` (see
+    [shared/schedule_report_mixin.md](../shared/schedule_report_mixin.md)) for the same reason
+    `hr.employee._get_derived_break_entries` needs it — two periods meant to represent the same
+    moment can differ by a hair's-width float remainder. A period with no containing period
+    (e.g. a genuinely isolated 35-minute coordination slot with nothing else running at the same
+    time) keeps its own row exactly as before — the merge only removes a row when another,
+    larger period's range actually covers it.
+  - **A period left with no teaching cell and no guard, after the merge above, is dropped
+    entirely** (developer follow-up, 2026-09-07) — `if not guards and not any(cell['entries']
+    for cell in cells): continue`. Found on the Wednesday coordination-time slots
+    (`13:25-14:00`/`14:00-15:00`): once the merge above stopped duplicating rows, these two
+    genuinely had nothing to show (every teacher is in a coordination duty or the meeting itself,
+    nobody's on guard through it) — a bare time range with no subject and no guard name is not
+    useful information, so it no longer renders at all. A period with a guard but no teaching
+    (the normal shape of most guard slots) is unaffected — only a period with **neither** is
+    dropped.
   - Reuses `_format_report_time` from `ems.schedule_report_mixin` (still the reason this class
     mixes it in) — but deliberately **not** `_report_color_key`/`REPORT_COLOR_PALETTE`, unlike
     the teacher/group schedule PDFs. An earlier version did colour each cell by subject the same
@@ -298,6 +334,113 @@ unbroken string (an unlinked "Pending teacher (email@...)" placeholder — no sp
 still forced that one column — and, via `border-collapse`, every row sharing it — visibly wider
 than the rest, even under `table-layout: fixed`. With word-breaking allowed, the same content
 wraps onto multiple lines within its declared column width instead.
+
+## Level filter (issue #390)
+
+**Spec, written before implementation** — a level selector next to the existing shift
+`<select>`, letting a viewer narrow the board down to one or more `ems.level`s (e.g. "just my
+own vocational-training levels" while another colleague loads ESO/Batxillerat data in
+parallel). Design decisions confirmed with the developer 2026-09-07 (see
+`plans/guard_duty_board_level_filter.md` for the original design sketch/open questions this
+resolves):
+
+```mermaid
+flowchart TB
+    LVLSEL["Level filter (multi-select, 'ems.level')"] --> TE["teaching_entries: keep only rows with >=1 group_ids.level_id in the selection"]
+    TE --> GRP["groups: only the matching groups become columns"]
+    TE --> ROWS["periods/rows: built ONLY from the filtered teaching_entries (not every entry, unlike the unfiltered 'All levels' view) - this is the ONLY thing the filter controls"]
+    GUARD["guard_entries (never filtered by the guard's own teacher/level)"] -->|folded by containment into whichever row's range covers it| ROWS
+    GUARD -->|left over, no row above contains it| BREAK{"Falls inside one of the selected level(s)' own framework break period?"}
+    BREAK -->|yes| PATIO["Synthetic 'Patio'/break row (no group cells), added so a break-time guard stays visible"]
+    BREAK -->|no| DROP["Dropped - no visible block for this level to attach to (still visible under 'All levels')"]
+```
+
+- **What "a level" means for the filter**: a plain multi-select over existing `ems.level`
+  records (7 today: ESO, Batxillerat, CFGB, CFGM, CFGS, Cursos d'especialització, PFI) — no new
+  grouping model/field. The developer's own "ESO+Batxillerat" example is simply two boxes
+  checked at once; nothing persists the combination between visits. `ems.group` already carries
+  its own `level_id` (`models/contacts/group.py`, required for a "main" group, always empty for
+  a "reinforcement" one) — filtering reads `attendance.group_ids.filtered(lambda group:
+  group.level_id.id in level_ids)` directly, no `study_id` hop needed. A "reinforcement" group
+  (mixes students from several levels/studies by design) has no `level_id` at all, so it can
+  never match a level filter — only ever visible under "All levels", which the developer did not
+  flag as a problem for this iteration.
+- **The filter only ever controls which time blocks (rows) are visible — it never looks at a
+  guard's own teacher/level at all.** An earlier version (same day) derived a guard's "own level"
+  from whatever else that teacher taught that day (`level_teacher_ids`, an employee-id set) and
+  only showed a guard if they belonged to the filter that way — reverted after developer feedback
+  once it wrongly excluded a guard-only shift with no teaching entry of their own at all: *"no
+  tenemos forma de saber si un docente es de un nivel o de otro, pero es indiferente, porque está
+  de guardia y eso es lo que manda. Lo único que controlaremos con los filtros, es el marco
+  horario que aparece."* Once a row is visible (because some class of the filtered level(s) runs
+  then), **every** guard on duty during that block shows, regardless of what they otherwise
+  teach — a guard whose duty slot doesn't overlap **any** visible row is dropped under that
+  filter (not shown almost-empty), visible only under "All levels". The one exception is the
+  break/"Patio" case below, which exists specifically so a real break-time guard commitment
+  doesn't just vanish because no class runs during a break.
+- **Non-teaching, non-guard rows (CT/AC/CM/WIC, coordination/meetings)** need no filter logic of
+  their own — confirmed with the developer that the board never surfaces them as their own
+  content in the first place (they have no `group_ids` and aren't `non_teaching_is_guard`, so
+  the pre-existing "drop a period with nothing in it" rule from issue #410 already removes them
+  whether a level filter is active or not).
+- **Break ("Patio") labelling, once a level is selected**: the break itself is never a real
+  per-teacher attendance row (a teacher's own calendar has one continuous block spanning across
+  it, see `hr.employee._get_derived_break_entries`'s own docstring) — so a guard duty scheduled
+  specifically for a break period would otherwise have no teaching row to fold into and would
+  simply disappear once filtering periods to the selected level's own teaching entries. Instead,
+  after the normal per-period rows are built, any **remaining, still-unmatched** guard entry
+  (any guard not already folded into a row above — there is no per-teacher/level relevance check
+  any more, see above) is checked against that level's own framework(s)' break periods
+  (`resource.calendar` with
+  `is_framework=True` and `level_id` in the filter, `resource.calendar.attendance` rows with
+  `non_teaching_is_break=True`) — same source `_get_derived_break_entries` already reads. A
+  match becomes its own row (`is_break: True`, no group cells, just the guard(s)) labelled
+  distinctly by the client; a break period with no guard inside it is not rendered at all (same
+  "nothing to show" rule every other row already follows). Not attempted under "All levels" — a
+  break time differs per level group (confirmed against this dev DB, 2026-09-07: ESO/BTX break
+  10:00-10:25 + 12:25-12:40, ciclos break 11:00-11:25 + 18:00-18:20), so there is no single
+  correct "this row is break" answer without knowing which level(s) are being viewed.
+
+**Backend** (`models/attendance/guard_duty_board.py`):
+- `_period_contains(container, period)` — new module-level helper, extracted from the
+  containment check `_merge_absorbed_periods()` already had inline, now reused for folding a
+  guard/break row into whichever row's range covers it (a real containment check, not the exact
+  tuple-membership check the unfiltered path still uses — a guard's own period is no longer
+  necessarily one of the `periods` the rows come from once filtering restricts `periods` to
+  teaching entries only).
+- `get_guard_duty_board_lines(weekday, shift, level_ids=None)` — new optional `level_ids`
+  (falsy/omitted = "All levels", the exact previous behaviour, unchanged). `groups`/`periods`
+  come from level-filtered `teaching_entries` only when a filter is active.
+  **`level_ids` covering every existing `ems.level` is normalized to the falsy/"All levels" path
+  too** (bug fix, 2026-09-07, developer report): checking every checkbox in the client's own
+  filter dropdown is meant to mean "show everything", the same as checking none. Even with guard
+  visibility now purely time-based (above), a level-filtered view's rows still only ever come
+  from `teaching_entries` — never from a guard-only period, or a "reinforcement" group's period
+  (no `level_id` at all), the way the unfiltered path's own `entries`-wide `periods` naturally
+  include both. Comparing `set(level_ids)` against every current `ems.level` id and falling back
+  to `None` keeps "select everything" an exact match for "no filter" despite that structural
+  difference, without weakening the row-narrowing for a genuine *partial* selection (e.g. ESO+BTX
+  only, still correctly hiding every ciclos group/row).
+- `_get_guard_duty_board_break_lines(level_ids, weekday, shift_start, shift_end, groups,
+  unmatched_guards)` — new private helper, the break/"Patio" row logic above.
+- `get_guard_duty_board_data(weekday, shift, level_ids=None)` — passes `level_ids` through;
+  each JSON line also carries `is_break` (default `False`) for the client template.
+- `get_guard_duty_board_levels()` — new `@api.model`, `[{'id':, 'name':} ...]` for every
+  `ems.level` (centre-wide curriculum data, not course-scoped), read once by the client action
+  to populate the filter's checkbox list.
+
+**Frontend** (`static/src/js/backend/guard_duty_board.js` /
+`static/src/xml/backend/guard_duty_board.xml`): `state.activeLevelIds` (array, empty = "All
+levels") + `state.levels` (fetched once `onWillStart`, alongside the existing course-data call).
+A Bootstrap dropdown-with-checkboxes next to the shift `<select>` (native multi-`<select>`
+would need ctrl/cmd-click, which is not discoverable) — `o_guard_board_level_dropdown`/
+`o_guard_board_level_menu`. Toggling a checkbox re-runs `loadBoard()`, now passing
+`state.activeLevelIds` as the RPC's third argument. The PDF button forwards the same selection
+via a `guard_duty_level_ids` context key, mirroring `guard_duty_weekday`/`guard_duty_shift`.
+
+**PDF report** (`reports/attendance/report_guard_duty_board.xml`): reads
+`guard_duty_level_ids` from context the same way as the existing weekday/shift keys, passed
+through to `get_guard_duty_board_lines()`.
 
 ## Related docs
 

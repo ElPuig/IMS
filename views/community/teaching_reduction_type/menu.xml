@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.actions.act_window" id="action_teaching_reduction_type_list">
+            <field name="name">Teaching hour reduction types</field>
+            <field name="res_model">ems.teaching_reduction_type</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <menuitem name="Teaching hour reduction types" sequence="3" id="menu_teaching_reduction_types"
+                  parent="menu_community_config_schedules" action="action_teaching_reduction_type_list"/>
+    </data>
+</odoo>

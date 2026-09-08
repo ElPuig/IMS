@@ -1351,7 +1351,7 @@ msgid "Action Needed"
 msgstr "Acció Necessària"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__active model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__active model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__active model:ir.model.fields,field_description:ems.field_ems_attendance_justification__active model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__active model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__active model:ir.model.fields,field_description:ems.field_ems_attendance_template__active model:ir.model.fields,field_description:ems.field_ems_base__active model:ir.model.fields,field_description:ems.field_ems_enrollment__active model:ir.model.fields,field_description:ems.field_ems_grade_session__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__active model:ir.model.fields,field_description:ems.field_ems_notice__active model:ir.model.fields,field_description:ems.field_ems_notice_line__active model:ir.model.fields,field_description:ems.field_ems_strike__active model:ir.model.fields,field_description:ems.field_ems_strike_reason__active model:ir.model.fields,field_description:ems.field_ems_teaching__active model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__active model:ir.model.fields,field_description:ems.field_ems_attendance_status__active model:ir.model.fields,field_description:ems.field_ems_group__active model:ir.model.fields.selection,name:ems.selection__ems_study__transition_state__active
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__active model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__active model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__active model:ir.model.fields,field_description:ems.field_ems_attendance_justification__active model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__active model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__active model:ir.model.fields,field_description:ems.field_ems_attendance_template__active model:ir.model.fields,field_description:ems.field_ems_base__active model:ir.model.fields,field_description:ems.field_ems_enrollment__active model:ir.model.fields,field_description:ems.field_ems_grade_session__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__active model:ir.model.fields,field_description:ems.field_ems_notice__active model:ir.model.fields,field_description:ems.field_ems_notice_line__active model:ir.model.fields,field_description:ems.field_ems_strike__active model:ir.model.fields,field_description:ems.field_ems_strike_reason__active model:ir.model.fields,field_description:ems.field_ems_teaching__active model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__active model:ir.model.fields,field_description:ems.field_ems_attendance_status__active model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__active model:ir.model.fields,field_description:ems.field_ems_group__active model:ir.model.fields.selection,name:ems.selection__ems_study__transition_state__active
 msgid "Active"
 msgstr "Actiu"
 
@@ -1522,6 +1522,12 @@ msgstr "Extraescolar"
 #: model:ir.model.fields.selection,name:ems.selection__ems_group__shift__afternoon model:ir.model.fields.selection,name:ems.selection__sale_order__shift__afternoon model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__shift__afternoon model:ir.model.fields.selection,name:ems.selection__res_partner__preinscription_shift__afternoon model_terms:ir.ui.view,arch_db:ems.view_applicant_search code:addons/ems/static/src/js/backend/guard_duty_board_field.js:0 model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
 msgid "Afternoon"
 msgstr "Tarda"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "All levels"
+msgstr "Tots els nivells"
 
 #. module: ems
 #: model:ir.model,name:ems.model_res_partner_relation_all
@@ -2410,7 +2416,7 @@ msgid "Closing surveys"
 msgstr "Tancant enquestes"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_content__code model:ir.model.fields,field_description:ems.field_ems_criteria__code model:ir.model.fields,field_description:ems.field_ems_outcome__code model:ir.model.fields,field_description:ems.field_ems_space__code model:ir.model.fields,field_description:ems.field_ems_study__code model:ir.model.fields,field_description:ems.field_ems_subject__code model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__code
+#: model:ir.model.fields,field_description:ems.field_ems_content__code model:ir.model.fields,field_description:ems.field_ems_criteria__code model:ir.model.fields,field_description:ems.field_ems_outcome__code model:ir.model.fields,field_description:ems.field_ems_space__code model:ir.model.fields,field_description:ems.field_ems_study__code model:ir.model.fields,field_description:ems.field_ems_subject__code model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__code model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__code
 msgid "Code"
 msgstr "Codi"
 
@@ -4910,7 +4916,7 @@ msgid "NUSS"
 msgstr ""
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__name model:ir.model.fields,field_description:ems.field_ems_content__name model:ir.model.fields,field_description:ems.field_ems_course__name model:ir.model.fields,field_description:ems.field_ems_criteria__name model:ir.model.fields,field_description:ems.field_ems_csv_column__name model:ir.model.fields,field_description:ems.field_ems_group__name model:ir.model.fields,field_description:ems.field_ems_level__name model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__name model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__name model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__name model:ir.model.fields,field_description:ems.field_ems_outcome__name model:ir.model.fields,field_description:ems.field_ems_planning__name model:ir.model.fields,field_description:ems.field_ems_role__name model:ir.model.fields,field_description:ems.field_ems_space__name model:ir.model.fields,field_description:ems.field_ems_space_type__name model:ir.model.fields,field_description:ems.field_ems_strike_reason__name model:ir.model.fields,field_description:ems.field_ems_student_document__name model:ir.model.fields,field_description:ems.field_ems_study__name model:ir.model.fields,field_description:ems.field_ems_subject__name model:ir.model.fields,field_description:ems.field_ems_workgroup__name model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__name model:ir.model.fields,field_description:ems.field_ems_attendance_status__name
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__name model:ir.model.fields,field_description:ems.field_ems_content__name model:ir.model.fields,field_description:ems.field_ems_course__name model:ir.model.fields,field_description:ems.field_ems_criteria__name model:ir.model.fields,field_description:ems.field_ems_csv_column__name model:ir.model.fields,field_description:ems.field_ems_group__name model:ir.model.fields,field_description:ems.field_ems_level__name model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__name model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__name model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__name model:ir.model.fields,field_description:ems.field_ems_outcome__name model:ir.model.fields,field_description:ems.field_ems_planning__name model:ir.model.fields,field_description:ems.field_ems_role__name model:ir.model.fields,field_description:ems.field_ems_space__name model:ir.model.fields,field_description:ems.field_ems_space_type__name model:ir.model.fields,field_description:ems.field_ems_strike_reason__name model:ir.model.fields,field_description:ems.field_ems_student_document__name model:ir.model.fields,field_description:ems.field_ems_study__name model:ir.model.fields,field_description:ems.field_ems_subject__name model:ir.model.fields,field_description:ems.field_ems_workgroup__name model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__name model:ir.model.fields,field_description:ems.field_ems_attendance_status__name model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__name
 msgid "Name"
 msgstr "Nom"
 
@@ -5217,8 +5223,8 @@ msgstr "Només els administradors poden canviar l'estat de l'avaluació."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/enrollment.py:0
-msgid "Only admins can create manual enrollments. If you're a group's tutor, you can enroll students using the student's form."
-msgstr "Només els administradors poden crear matrícules manuals. Si ets tutor d'un grup, pots matricular alumnes des del formulari de l'alumne."
+msgid "Only admins and secretary staff can create manual enrollments."
+msgstr "Només els administradors i el personal de secretaria poden crear matrícules manuals."
 
 #. module: ems
 #. odoo-python
@@ -6456,7 +6462,7 @@ msgid "Sent on"
 msgstr "Enviat el"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_authorization_field__sequence model:ir.model.fields,field_description:ems.field_ems_csv_column__sequence model:ir.model.fields,field_description:ems.field_ems_strike_reason__sequence model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__sequence model:ir.model.fields,field_description:ems.field_ems_attendance_status__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_authorization_field__sequence model:ir.model.fields,field_description:ems.field_ems_csv_column__sequence model:ir.model.fields,field_description:ems.field_ems_strike_reason__sequence model:ir.model.fields,field_description:ems.field_ems_attendance_status__sequence
 msgid "Sequence"
 msgstr "Seqüència"
 
@@ -10927,6 +10933,8 @@ msgid "Another Coordinations"
 msgstr "Altres Coordinacions"
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/guard_duty_board.xml:0
 #: model:ems.non_teaching_type,name:ems.non_teaching_br
 msgid "Break"
 msgstr "Pati"
@@ -10990,6 +10998,26 @@ msgstr "Sempre és un compromís d'horari fix"
 #: model:ir.actions.act_window,name:ems.action_non_teaching_type_list model:ir.ui.menu,name:ems.menu_non_teaching_types
 msgid "Non-teaching types"
 msgstr "Tipus d'hora no lectiva"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_teaching_reduction_type_list model:ir.ui.menu,name:ems.menu_teaching_reduction_types
+msgid "Teaching hour reduction types"
+msgstr "Tipus de reducció lectiva"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__reduction_hours
+msgid "Reduction hours"
+msgstr "Hores de reducció"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__teaching_reduction_ids model:ir.model.fields,field_description:ems.field_hr_employee_base__teaching_reduction_ids model:ir.model.fields,field_description:ems.field_hr_employee_public__teaching_reduction_ids model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Teaching hour reductions"
+msgstr "Reduccions d'hores lectives"
+
+#. module: ems
+#: model:ems.teaching_reduction_type,name:ems.teaching_reduction_r55
+msgid "Reduction for teachers aged 55 and over"
+msgstr "Reducció per a majors de 55 anys"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_group__group_type
@@ -12116,6 +12144,12 @@ msgstr "Un departament no pot tenir Responsable propi i alhora compartir el seu 
 
 #. module: ems
 #. odoo-python
+#: code:addons/ems/models/employees/department.py:0
+msgid "%(head)s cannot head a department: only teachers and administrative and services personnel can be a Department Chief, Seminar Chief or Area Manager."
+msgstr "%(head)s no pot encapçalar un departament: només el professorat i el personal d'administració i serveis poden ser Cap de Departament, Cap de Seminari o Responsable d'Àrea."
+
+#. module: ems
+#. odoo-python
 #: code:addons/ems/models/attendance/attendance_template.py:0 code:addons/ems/models/employees/department.py:0 code:addons/ems/models/employees/role.py:0
 msgid "Color must be a hexadecimal code (e.g. #3A8DDE)."
 msgstr "El color ha de ser un codi hexadecimal (p. ex. #3A8DDE)."
@@ -12636,3 +12670,15 @@ msgstr "No s'ha trobat cap assignatura amb el codi '%s'."
 #: code:addons/ems/models/employees/working_schedule.py:0
 msgid "Classroom with code '%s' not found."
 msgstr "No s'ha trobat cap aula amb el codi '%s'."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid ""
+"The study change refreshed this student's enrollments from the "
+"%(template)s template, but the following subjects already have "
+"grades and were kept as-is:"
+msgstr ""
+"El canvi d'estudi ha actualitzat les matrícules d'aquest alumne a partir "
+"de la plantilla %(template)s, però les següents assignatures ja tenen "
+"notes i s'han mantingut tal com estaven:"

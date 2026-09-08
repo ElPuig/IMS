@@ -29,19 +29,28 @@ class TestGroupTour(HttpCase):
     def test_group_archive_confirmation_tour(self):
         force_user_language_to_english(self, self.env.ref('base.user_admin'))
         # Reinforcement groups again, for the same low-fragility reason as above - a plain Name
-        # and a Many2many student list, no Many2one selection needed to set the scene up.
+        # and a subject enrollment (the real, only mechanism for reinforcement membership since
+        # reinforcement_student_ids was removed - see group.md), no Many2one selection needed
+        # to set the scene up beyond that.
+        subject = self.env['ems.subject'].create({
+            'code': 'TOURARCH', 'acronym': 'TARC', 'name': 'Tour Archive Confirm Subject',
+        })
         student_accept = self.env['res.partner'].create({
             'name': 'Tour Archive Confirm Student Accept', 'contact_type': 'student',
         })
-        self.env['ems.group'].create({
+        accept_group = self.env['ems.group'].create({
             'group_type': 'reinforcement', 'name': 'Tour Archive Confirm Accept',
-            'reinforcement_student_ids': [(6, 0, [student_accept.id])],
+        })
+        self.env['ems.enrollment'].create({
+            'student_id': student_accept.id, 'group_id': accept_group.id, 'subject_id': subject.id,
         })
         student_decline = self.env['res.partner'].create({
             'name': 'Tour Archive Confirm Student Decline', 'contact_type': 'student',
         })
-        self.env['ems.group'].create({
+        decline_group = self.env['ems.group'].create({
             'group_type': 'reinforcement', 'name': 'Tour Archive Confirm Decline',
-            'reinforcement_student_ids': [(6, 0, [student_decline.id])],
+        })
+        self.env['ems.enrollment'].create({
+            'student_id': student_decline.id, 'group_id': decline_group.id, 'subject_id': subject.id,
         })
         self.start_tour("/odoo", "ems_group_archive_confirmation", login="admin")

@@ -1,0 +1,15 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_teaching_reduction_type_list">
+            <field name="name">ems.teaching_reduction_type.list</field>
+            <field name="model">ems.teaching_reduction_type</field>
+            <field name="arch" type="xml">
+                <list default_order="name">
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="reduction_hours"/>
+                </list>
+            </field>
+        </record>
+    </data>
+</odoo>

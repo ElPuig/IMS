@@ -101,6 +101,18 @@
     white-space: nowrap;
 }
 
+/* Break ("Patio") row label (issue #390's level filter) - a small text tag, not a background
+   fill, matching this board's own "no background colour anywhere" convention (see the guard
+   badge's own comment below) - the label alone is enough to tell a genuine break slot apart
+   from a plain empty-looking row. */
+.o_guard_board_break_label {
+    display: block;
+    font-size: 10px;
+    font-style: italic;
+    font-weight: normal;
+    opacity: 0.8;
+}
+
 .o_guard_board_cell_subject {
     display: block;
     font-weight: 600;

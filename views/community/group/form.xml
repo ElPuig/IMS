@@ -63,20 +63,7 @@
                                 </field>
                             </page>
 
-                            <page string="Students" invisible="group_type != 'reinforcement'">
-                                <field name="reinforcement_student_ids" widget="many2many">
-                                    <list default_order="name asc" >
-                                        <field name="image_1920" widget="image" />
-                                        <field name="name" class="align-middle"/>
-                                        <field name="main_group_id" class="align-middle"/>
-                                        <field name="student_email" class="align-middle"/>
-                                        <!-- Needed to open as fullscreen form -->
-                                        <field name="id" column_invisible="True"/>
-                                    </list>
-                                </field>
-                            </page>
-
-                             <page string="Enrolled" invisible="group_type != 'main'">
+                             <page string="Enrolled">
                                 <field name="enrollment_view_ids" widget="many2many">
                                     <list default_order="student_id asc">
                                         <field name="image_1920" widget="image" />

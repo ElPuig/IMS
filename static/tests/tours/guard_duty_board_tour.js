@@ -162,6 +162,40 @@ registry.category("web_tour.tours").add("ems_guard_duty_board", {
             content: "Back on Monday, the seeded teaching slot renders again",
         },
         {
+            // Level filter (issue #390): a checkbox dropdown, not a native multi-<select> (see
+            // guard_duty_board.js's own reasoning) - opening it and checking the seeded level
+            // narrows the board down to that level's own group/teacher, and back to "All levels"
+            // once unchecked. TestGuardDutyBoardTour seeds a SECOND level (group2/level2_teacher)
+            // specifically so this can assert real exclusion, not just that the dropdown opens.
+            // 'data-bs-auto-close="outside"' (guard_duty_board.xml) keeps the dropdown open across
+            // several checkbox clicks in a row, so it never needs re-opening between them.
+            trigger: ".o_guard_board_level_toggle",
+            content: "Open the level filter dropdown",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_level_item:contains('Tour Guard Board Level 1') input[type='checkbox']",
+            content: "Check the seeded level (level 1) to narrow the board down to it",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_table td:contains('Tour Guard Board Teacher')",
+            content: "Level 1's own teacher still shows once level 1 is checked",
+        },
+        {
+            trigger: ".o_guard_board_table:not(:has(td:contains('Tour Guard Board Level 2 Teacher')))",
+            content: "Level 2's teacher is NOT shown while only level 1 is checked",
+        },
+        {
+            trigger: ".o_guard_board_level_item:contains('Tour Guard Board Level 1') input[type='checkbox']",
+            content: "Uncheck level 1 to go back to 'All levels'",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_table td:contains('Tour Guard Board Level 2 Teacher')",
+            content: "Back on 'All levels', level 2's teacher shows again too",
+        },
+        {
             trigger: ".o_guard_board_toolbar button:contains('PDF')",
             content: "Download this day's PDF",
             run: "click",

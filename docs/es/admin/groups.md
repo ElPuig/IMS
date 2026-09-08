@@ -45,8 +45,8 @@ Los alumnos no se añaden desde aquí — consulta la pestaña **Alumnos** para 
 1. Haz clic en **Nuevo**.
 2. Cambia **Tipo de grupo** a **Refuerzo**. Nivel, Estudio, Tutor y Delegado desaparecen — no aplican.
 3. Rellena un **Nombre** directamente (p. ej., `REF-MATES`).
-4. En la pestaña **Alumnos**, añade alumnos de cualquier grupo/estudio principal.
-5. Haz clic en **Guardar**.
+4. Haz clic en **Guardar**.
+5. Añade alumnos igual que en cualquier otro grupo: desde la propia ficha del alumno (o el proceso de matrícula), matricúlalo en una asignatura con este grupo de refuerzo como **Grupo** — pueden venir de cualquier grupo/estudio principal. Aparecerán en la pestaña **Inscrito** de este grupo.
 
 ---
 
@@ -54,7 +54,7 @@ Los alumnos no se añaden desde aquí — consulta la pestaña **Alumnos** para 
 
 Puedes cambiar un grupo existente entre Principal y Refuerzo, pero:
 - Cambiar de **Principal → Refuerzo** se bloquea si el grupo todavía tiene alumnos matriculados con este como grupo principal — reasígnalos a otro grupo primero.
-- Cambiar en cualquier dirección limpia los campos que ya no aplican (nivel/estudio/curso/acrónimo/tutor/delegado, o la lista de alumnos de refuerzo).
+- Cambiar de **Principal → Refuerzo** limpia los campos que ya no aplican (nivel/estudio/curso/acrónimo/tutor/delegado).
 
 ---
 

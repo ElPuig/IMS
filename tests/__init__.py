@@ -46,6 +46,7 @@ from . import test_teaching
 from . import test_teaching_tour
 from . import test_tracking
 from . import test_non_teaching_type_tour
+from . import test_teaching_reduction_type_tour
 from . import test_employee_autocheckout
 from . import test_user_implied_groups
 from . import test_space_type
@@ -99,6 +100,7 @@ from . import test_working_schedule_stale_breaks_tour
 from . import test_task_assignment
 from . import test_year_record
 from . import test_non_teaching_type
+from . import test_teaching_reduction_type
 from . import test_group
 from . import test_group_schedule
 from . import test_guard_duty_board
@@ -110,6 +112,7 @@ from . import test_company_director
 from . import test_role
 from . import test_role_color_tour
 from . import test_department_color_tour
+from . import test_department_head_optional_tour
 from . import test_attendance_template_color_tour
 from . import test_withdrawal_tour
 from . import test_enrollment_header

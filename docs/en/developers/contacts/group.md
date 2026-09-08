@@ -37,9 +37,8 @@ graph TD
 | `delegate_id` | `Many2one → res.partner` | No (`main` only) | Yes | Domain restricted to students of this same group |
 | `space_id` | `Many2one → ems.space` | No | Yes | Usual classroom |
 | `shift` | `Selection` (`morning`/`afternoon`) | No | Yes | Feeds `group_schedule.md`'s `SHIFT_HOURS` window |
-| `main_student_ids` | `One2many → res.partner` | — | No | Inverse of `contact.main_group_id`, filtered to students |
-| `reinforcement_student_ids` | `Many2many → res.partner` | — | Yes | Filtered to students |
-| `enrolled_student_ids` | `Many2many → res.partner` (computed) | — | No | See below |
+| `main_student_ids` | `One2many → res.partner` | — | No | Inverse of `contact.main_group_id`, filtered to students. Always empty for a `reinforcement` group |
+| `enrolled_student_ids` | `Many2many → res.partner` (computed) | — | No | See below. For a `reinforcement` group, this is that group's only notion of "membership" — see the removal note below |
 | `enrollment_view_ids` | `One2many → ems.enrollment_view` (computed) | — | No | See below |
 | `notes` | `Text` | No | Yes | — |
 
@@ -58,6 +57,20 @@ flowchart TD
 ```
 
 `enrollment_view_ids` is unusual: its compute has **side effects** (delete + recreate `ems.enrollment_view` rows) rather than being a pure read — the only way found to expose "this group's enrollments, one row per student with their subjects aggregated" as a browsable One2many, since Odoo can't filter a computed relation server-side the way a stored inverse can (see the field's own inline comment). `ems.enrollment_view` is a `TransientModel` (auto-vacuumed), so the churn is cheap, but every read of a stale/unset `enrollment_view_ids` re-runs a delete+insert, not just a `SELECT` — worth knowing if this model's read patterns ever become a hot path.
+
+**`reinforcement_student_ids` removed (2026-09-07).** A `reinforcement` group used to have its
+own, separate `Many2many` field for "who belongs to this group", populated only by hand-editing
+the group's own **Students** tab — completely disconnected from `ems.enrollment`, the model that
+actually drives attendance/grades and is how a student is normally added to *any* group's roster
+(from the student's own form). A student enrolled that real way (an `ems.enrollment` row with
+`group_id` pointing at a reinforcement group) never showed up anywhere on the group's own form,
+since the tab reflecting real enrollments (`enrollment_view_ids`, below) was hidden for
+`group_type == 'reinforcement'` — reported by a teacher who enrolled students into a
+"Reforç Programació" group and saw them on the student's own card but not the group's. Fixed by
+deleting the field entirely (confirmed with the developer: no production reinforcement group
+relies on it as the sole record of a student's membership) and showing the `Enrolled` tab
+(`enrollment_view_ids`) for both group types — `ems.enrollment` is now the single, unambiguous
+source of truth for group membership regardless of `group_type`.
 
 **Runs under `sudo()` (bug found 2026-09-06).** `ems.enrollment_view`'s ACL grants teacher/tutor only `perm_read` (it's meant to be a read-only helper view) — but the compute's delete+recreate used to run as whoever opened the group's own form, so simply *reading* `enrollment_view_ids` as a plain teacher/tutor (no `perm_create`/`perm_unlink`) raised an `AccessError`, on any group at all, not something specific to one dataset. The delete+recreate is internal scratch-data bookkeeping for a computed field, not a real action the viewing user is taking, so it now runs via `self.env['ems.enrollment_view'].sudo()` throughout — safe here since every row it touches is already scoped to a `group_id` the calling user was independently allowed to `read()` in the first place. Covered by `tests/test_group.py::test_enrollment_view_ids_readable_by_a_plain_teacher`.
 
@@ -114,8 +127,8 @@ Regression tests: `test_group.py::test_create_with_archived_duplicate_name_raise
 ### Confirming archiving a group that still has active students
 
 Archiving is always allowed and never removes/unenrolls anyone — `main_student_ids` is a plain
-inverse of `res.partner.main_group_id`, `reinforcement_student_ids` a stored Many2many, and
-neither is touched by `active` changing. `_raise_if_archiving_active_students()` only asks for
+inverse of `res.partner.main_group_id` and `enrolled_student_ids` a computed field derived from
+`ems.enrollment.group_id`, and neither is touched by `active` changing. `_raise_if_archiving_active_students()` only asks for
 confirmation before that happens, via the same self-retriggering `RedirectWarning` pattern Odoo
 core uses for e.g. `account.account`'s Unmerge: the dialog's own button re-runs the exact same
 `write()` with a context flag (`ems_group_archive_confirmed`) that skips the check the second
@@ -126,7 +139,7 @@ time, so declining (closing the dialog) leaves the group genuinely untouched —
 flowchart TD
     A["write({'active': False})"] --> B{"ems_group_archive_confirmed\nin context?"}
     B -- yes --> P[Proceed straight to super\(\).write\(\)]
-    B -- no --> C{"Any active main_student_ids\nor reinforcement_student_ids?"}
+    B -- no --> C{"'main': any active main_student_ids?\n'reinforcement': any active enrolled_student_ids?"}
     C -- no --> P
     C -- yes --> E["raise RedirectWarning\n(nothing written yet)"]
     E --> F["User clicks 'Proceed' in the dialog"]
@@ -135,10 +148,13 @@ flowchart TD
     H --> I["soft_reload client action"]
 ```
 
-The count sums `len(main_student_ids)` (already `active_test`-filtered automatically, since it's
-a plain inverse search) plus `len(reinforcement_student_ids.filtered("active"))` (a stored
-Many2many does **not** auto-filter archived records on read, unlike a computed inverse - an
-explicit `.filtered("active")` is required or an already-archived reinforcement student would
+The count is type-aware, not a plain sum of both fields (which would double-count a `main`
+group's students, who normally also show up in `enrolled_student_ids` via their own subject
+enrollments): `main` groups count `len(main_student_ids)` (already `active_test`-filtered
+automatically, since it's a plain inverse search); `reinforcement` groups count
+`len(enrolled_student_ids.filtered("active"))` instead (`enrolled_student_ids` is built via
+`mapped()`, which does **not** auto-filter archived records the way a plain inverse search does -
+an explicit `.filtered("active")` is required or an already-archived reinforcement student would
 count and wrongly trigger the dialog). `_archive_confirmation_message()` builds the message
 (four paragraphs joined with `"\n\n"`, plain text - no HTML, no bullets) and is shared by two
 very different callers:
@@ -270,7 +286,7 @@ Note: the admin-equivalent group here is `group_department_chief`, not `group_ac
 | View | File | Notes |
 |------|------|-------|
 | List | `views/community/group/list.xml` | — |
-| Form | `views/community/group/form.xml` | Main data (radio `group_type`) + Students (main or reinforcement, shown conditionally) / Enrolled / Schedule / Notes tabs |
+| Form | `views/community/group/form.xml` | Main data (radio `group_type`) + Students (`main` only) / Enrolled (both types) / Schedule / Notes tabs |
 | Action + Menu | `views/community/group/menu.xml` | `action_group_tree`, "Groups (for students)" |
 
 The Schedule tab is documented separately — see [Group schedule](group_schedule.md).

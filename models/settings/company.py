@@ -165,6 +165,12 @@ class ems_company(models.Model):
                 self.env['hr.department'].search([
                     ('is_top_level', '=', True), ('company_id', '=', company.id),
                 ]).manager_id._compute_parent_id()
+                # _compute_parent_id() only depends on department_id, so changing who the
+                # Director is doesn't automatically re-trigger it for the (old|new) director
+                # employee's own parent_id, even though the Director-immunity rule it applies
+                # depends on director_id too - force it explicitly, same reasoning as the
+                # is_top_level managers' recompute just above.
+                (old_director | company.director_id)._compute_parent_id()
                 (old_director | company.director_id).update_director_role()
         return res
 

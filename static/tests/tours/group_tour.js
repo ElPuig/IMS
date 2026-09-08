@@ -91,17 +91,19 @@ registry.category("web_tour.tours").add("ems_group_form_tabs_and_reinforcement_c
             content: "Save",
             run: "click",
         },
-        // The reinforcement-type "Students" page (reinforcement_student_ids) is a SEPARATE
-        // <page> from the main-type one already checked above (same tab label, different
-        // visibility condition) - never rendered by any tour before.
+        // A reinforcement group has no "Students" tab of its own (removed 2026-09-07 along with
+        // 'reinforcement_student_ids' - see group.md): 'Enrolled' (ems.enrollment-backed, same
+        // field/tab already checked above for the 'main' group) is the only membership tab left,
+        // and is shown for both group types - never rendered for a reinforcement group by any
+        // tour before.
         {
-            trigger: ".o_form_view .o_notebook .nav-link:contains('Students')",
-            content: "Open the reinforcement group's own Students tab",
+            trigger: ".o_form_view .o_notebook .nav-link:contains('Enrolled')",
+            content: "Open the reinforcement group's Enrolled tab",
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='reinforcement_student_ids']",
-            content: "The reinforcement Students tab rendered without crashing",
+            trigger: ".o_form_view .o_field_widget[name='enrollment_view_ids']",
+            content: "The Enrolled tab rendered without crashing for a reinforcement group too",
         },
         {
             trigger: ".o_breadcrumb a",
@@ -336,7 +338,7 @@ registry.category("web_tour.tours").add("ems_group_archive_confirmation", {
         },
         {
             trigger: ".o_menu_item:contains('Unarchive')",
-            content: "It shows 'Unarchive' now, proving the group is actually archived (and the student was NOT removed - it is still on the group's own Students tab, untouched)",
+            content: "It shows 'Unarchive' now, proving the group is actually archived (and the student was NOT removed - their enrollment is still there, under the group's own Enrolled tab, untouched)",
         },
         {
             trigger: ".o_kanban_view, .o_control_panel",

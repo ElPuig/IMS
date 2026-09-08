@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.23.4',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.23.5',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -144,6 +144,9 @@
             'views/community/non_teaching_type/list.xml',
             'views/community/non_teaching_type/form.xml',
             'views/community/non_teaching_type/menu.xml',
+            'views/community/teaching_reduction_type/list.xml',
+            'views/community/teaching_reduction_type/form.xml',
+            'views/community/teaching_reduction_type/menu.xml',
             'views/community/employee/user_profile_form.xml',
 
             'views/community/subject/list.xml',
@@ -346,6 +349,7 @@
         'data/main/ems.strike.reason.csv',
         'data/main/ems.attendance_status.csv',
         'data/main/ems.non_teaching_type.csv',
+        'data/main/ems.teaching_reduction_type.csv',
         'data/main/ems.schedule_framework_default.xml',
 
         'data/cat/attachments/asix/ir.attachment.csv',

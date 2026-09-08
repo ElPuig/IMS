@@ -426,6 +426,45 @@ class TestAttendanceTemplate(TransactionCase):
         self.assertFalse(schedule.active)
         self.assertTrue(session.active)
 
+    def test_archive_or_delete_deletes_template_with_no_sessions(self):
+        # 2026-09-07: repeated working-schedule re-imports leave hundreds of archived-forever
+        # templates behind with no real attendance ever taken against them - pure clutter. A
+        # template with no sessions anywhere in its lines is safe to delete outright instead.
+        template = self._create_template(self.teacher_a, self.space_a)
+        self._create_schedule(template, self.space_a)
+        template_id = template.id
+
+        template._archive_or_delete()
+
+        self.assertFalse(self.env['ems.attendance_template'].browse(template_id).exists())
+
+    def test_archive_or_delete_archives_template_with_sessions(self):
+        # Same dispatch, but real history exists - must still be archived (kept, not deleted),
+        # exactly like before this change.
+        template = self._create_template(self.teacher_a, self.space_a)
+        schedule = self._create_schedule(template, self.space_a)
+        self._create_session(schedule, self.teacher_a)
+
+        template._archive_or_delete()
+
+        self.assertTrue(template.exists())
+        self.assertFalse(template.active)
+
+    def test_unlink_blocked_by_session_on_an_already_archived_line(self):
+        # Regression guard for the broadened '_has_real_sessions()' check (2026-09-07): the
+        # template itself can stay ACTIVE while one of its own lines was archived earlier (e.g. a
+        # mid-course room correction on a line that already had sessions - see
+        # '_write_schedule_sync'). unlink() must still refuse in that case - checking only the
+        # template's ACTIVE lines (the plain O2M's own default) would silently miss it.
+        template = self._create_template(self.teacher_a, self.space_a)
+        schedule = self._create_schedule(template, self.space_a)
+        self._create_session(schedule, self.teacher_a)
+        schedule.with_context(ems_bypass_template_lock=True).action_archive()
+
+        self.assertTrue(template.active)
+        with self.assertRaises(ValidationError):
+            template.unlink()
+
     def test_read_only_user_false_for_either_co_teacher(self):
         template = self._create_template(self.teacher_a, self.space_a)
         # ems_bypass_template_lock: 'teacher_ids' is otherwise locked (2026-08-11 refinement) - this
@@ -584,13 +623,70 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
         self.assertEqual(template.start_date.month, 9)
         self.assertEqual(template.start_date.day, 1)
 
-    def test_archives_template_no_longer_in_entries(self):
+    def test_deletes_template_no_longer_in_entries_when_it_has_no_sessions(self):
+        # Changed 2026-09-07 (was 'test_archives_template_no_longer_in_entries', asserting
+        # archived-not-active): a superseded template with no real attendance behind it is now
+        # deleted outright instead of left archived forever - see '_archive_or_delete'.
         self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry()])
         template = self.env['ems.attendance_template'].search([('teacher_ids', 'in', self.teacher.id)])
+        template_id = template.id
 
         self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [])
 
+        self.assertFalse(self.env['ems.attendance_template'].browse(template_id).exists())
+
+    def test_archives_template_no_longer_in_entries_when_it_has_real_sessions(self):
+        # Same drop, but with real attendance history behind it - must still be archived (kept
+        # for the record), not deleted.
+        self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry()])
+        template = self.env['ems.attendance_template'].search([('teacher_ids', 'in', self.teacher.id)])
+        self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': template.attendance_schedule_ids.id,
+            'date': date(2026, 2, 2), 'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
+        })
+
+        self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [])
+
+        self.assertTrue(template.exists())
         self.assertFalse(template.active)
+
+    def test_resync_preserves_both_templates_when_teacher_solo_teaches_same_subject_to_two_groups(self):
+        # Regression (2026-09-07): found via a real working-schedules re-import that wiped every
+        # ems.attendance_template for several teachers (e.g. Juan Morote) even though their
+        # calendar was correct and unchanged. Root cause: '_plan_schedule_sync' runs once per
+        # (subject, group-set, teacher-set) 'plan', and its own 'candidates' search matched by
+        # subject_id + teacher_ids only, with no group_ids filter - so a solo teacher who teaches
+        # the SAME subject to two DIFFERENT groups (no co-teaching) had each plan's search also
+        # pull in the OTHER group's template. Since that other group's key isn't in THIS plan's
+        # own 'grouped_entries', '_archive_stale_schedule_sync' archived it as "stale" - and
+        # because '_write_schedule_sync' later writes into an 'old_items' snapshot taken BEFORE
+        # that cross-archival, it silently no-ops into the now-archived record instead of the
+        # still-active one. Reproduces with a full resync of the teacher's unchanged schedule
+        # (no import_mode involved at all - this is the shared sync_from_schedule_batch path used
+        # by both the importer and a live Schedule-tab edit).
+        second_group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'TATS3', 'level_id': self.level.id, 'study_id': self.study.id,
+            'space_id': self.space.id,
+        })
+        entries = [
+            self._entry(9, 10, '0', group=self.group),
+            self._entry(9, 10, '1', group=second_group),
+        ]
+        self.env['ems.attendance_template'].sync_from_schedule(self.teacher, entries)
+        template_a = self.env['ems.attendance_template'].search([
+            ('teacher_ids', 'in', self.teacher.id), ('group_ids', 'in', self.group.id),
+        ])
+        template_b = self.env['ems.attendance_template'].search([
+            ('teacher_ids', 'in', self.teacher.id), ('group_ids', 'in', second_group.id),
+        ])
+        self.assertTrue(template_a)
+        self.assertTrue(template_b)
+
+        # Full resync of the teacher's ENTIRE current schedule, unchanged - must be a no-op.
+        self.env['ems.attendance_template'].sync_from_schedule(self.teacher, entries)
+
+        self.assertTrue(template_a.active, "the OTHER group's resync must not archive this template")
+        self.assertTrue(template_b.active, "the OTHER group's resync must not archive this template")
 
     def test_second_entry_same_key_reuses_template(self):
         # Two schedule slots for the same subject+group must land on the SAME template, not create two.
@@ -847,11 +943,13 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
     def test_regenerate_all_from_calendars_archives_stale_and_rebuilds_from_current_schedule(self):
         # A pre-existing template with no calendar backing at all (e.g. a genuine leftover
         # duplicate from before points 1-4 existed) - regenerate_all_from_calendars() must not
-        # try to preserve or merge it, just archive it outright.
+        # try to preserve or merge it, just archive-or-delete it outright (deleted here since it
+        # has no real sessions - see '_archive_or_delete', changed 2026-09-07).
         self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry(9, 10, '0')])
         stale_template = self.env['ems.attendance_template'].search([
             ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
         ])
+        stale_template_id = stale_template.id
         self.assertTrue(stale_template.active)
 
         student = self.env['res.partner'].create({
@@ -869,12 +967,12 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
 
         self.env['ems.attendance_template'].regenerate_all_from_calendars(teachers=self.teacher)
 
-        self.assertFalse(stale_template.active)
+        self.assertFalse(self.env['ems.attendance_template'].browse(stale_template_id).exists())
         new_template = self.env['ems.attendance_template'].search([
             ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id), ('active', '=', True),
         ])
         self.assertEqual(len(new_template), 1)
-        self.assertNotEqual(new_template.id, stale_template.id)
+        self.assertNotEqual(new_template.id, stale_template_id)
         self.assertEqual(new_template.attendance_schedule_ids.mapped('weekday'), ['2'])
         # Roster refilled from live enrollment, not left empty just because it's a brand new line.
         self.assertEqual(new_template.attendance_schedule_ids.student_ids, student)
@@ -1146,13 +1244,16 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
         self.assertEqual(templates.teacher_ids, self.other_teacher)
         self.assertEqual(templates.attendance_schedule_ids.mapped('weekday'), ['2'])
 
-    def test_live_edit_dropping_solo_combo_archives_template(self):
-        # A drops a subject+group combo nobody else teaches: the template must be archived outright.
+    def test_live_edit_dropping_solo_combo_deletes_unused_template(self):
+        # A drops a subject+group combo nobody else teaches: the template must be
+        # archived-or-deleted outright (deleted here since it has no real sessions - see
+        # '_archive_or_delete', changed 2026-09-07; was 'archives_template' before that).
         self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry(9, 10, '0')])
         template = self.env['ems.attendance_template'].search([
             ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
         ])
+        template_id = template.id
 
         self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [])
 
-        self.assertFalse(template.active)
+        self.assertFalse(self.env['ems.attendance_template'].browse(template_id).exists())

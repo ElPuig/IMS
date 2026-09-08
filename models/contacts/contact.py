@@ -7,6 +7,7 @@ from ..shared import base
 import datetime
 import re
 from dateutil.relativedelta import relativedelta
+from markupsafe import Markup
 
 class EmsStudentBenefit(models.Model):
     _name = 'ems.student.benefit'
@@ -549,6 +550,50 @@ class ResPartner(models.Model):
         old_main_groups = {}
         if 'main_group_id' in values and not self.env.su:
             old_main_groups = {partner.id: partner.main_group_id for partner in self}
+
+        # Refresh ems.enrollment from the matching enrollment template whenever a
+        # student's study_id actually changes interactively, without an explicit new
+        # main_group_id in the same write (see _ems_refresh_enrollments_from_template).
+        # Scoped narrowly on purpose:
+        # - 'not values.get('main_group_id')': when the caller also picks a group
+        #   explicitly in the same write, that already goes through the pre-existing
+        #   old_main_groups/_migrate_enrollments_on_group_change mechanism above, which
+        #   repoints the OLD (same-study) enrollments into the new group - mixing that
+        #   with a template-driven refresh for a different study would create enrollment
+        #   rows for subjects that don't belong to either the old or the new curriculum.
+        # - 'not self.env.su': excludes system flows acting on the user's behalf that
+        #   already resolve their own group/subjects, chiefly sale.order.
+        #   _ems_apply_destination_placement() (always writes main_group_id and
+        #   study_id together, so it never matches this branch anyway) - same
+        #   env.su distinction already used for old_main_groups above and in
+        #   ems.enrollment.default_get().
+        # - contact_type == 'student' (effective, after this same write): excludes
+        #   applicants (applicant_import_wizard, the course transition wizard's pending
+        #   graduates) which also write study_id without a group, on purpose - they are
+        #   not placed yet, so there is nothing to enroll them into.
+        study_refresh_candidates = self.env['res.partner']
+        if 'study_id' in values and not self.env.su and not values.get('main_group_id'):
+            new_study_id = values.get('study_id')
+            study_refresh_candidates = self.filtered(
+                lambda partner: values.get('contact_type', partner.contact_type) == 'student'
+                and partner.study_id.id != new_study_id
+            )
+            if study_refresh_candidates:
+                # Resolved explicitly either way (a found group, or False) rather than left
+                # as whatever it already was: otherwise a direct write() bypassing the form's
+                # own _onchange_study_id (which clears it client-side) would leave main_group_id
+                # stuck on a group belonging to the OLD study - the exact "incongruence between
+                # main_group, level and studies" _compute_group_data already guards against for
+                # every other path. First group alphabetically for the new study - no course
+                # filter needed: a main group's own name is built as study.acronym + course +
+                # acronym (see ems.group._compute_name), so ordering by name within the study
+                # already lands on its lowest course first.
+                auto_group = self.env['ems.group']
+                if new_study_id:
+                    auto_group = self.env['ems.group'].search(
+                        [('study_id', '=', new_study_id)], order='name', limit=1)
+                values['main_group_id'] = auto_group.id if auto_group else False
+
         self._compute_group_data(values)
         contact = super(ResPartner, self).write(values)
         if 'contact_type' in values:
@@ -556,6 +601,9 @@ class ResPartner(models.Model):
 
         if old_main_groups:
             self._migrate_enrollments_on_group_change(old_main_groups)
+
+        if study_refresh_candidates:
+            study_refresh_candidates._ems_refresh_enrollments_from_template()
 
         for partner in portal_email_changed:
             partner._apply_portal_email_change()
@@ -824,6 +872,62 @@ class ResPartner(models.Model):
             if old_group and partner.main_group_id and old_group != partner.main_group_id:
                 Enrollment._ems_move_group(partner, old_group, partner.main_group_id)
 
+    def _ems_refresh_enrollments_from_template(self):
+        """Regenerates each student's ems.enrollment lines from the enrollment template
+        matching its (new) study + main group's course - called by write() right after
+        an interactive study_id change (see there for the exact gating). Mirrors the
+        subject/group resolution sale.order._ems_apply_destination_placement() already
+        uses (same product->subject lookup, same _ems_equivalent_for_course() fallback
+        for a subject taught in a different course), so both flows land on the same
+        result for the same template. Idempotent: an existing (student, group, subject)
+        already matching the template is left untouched.
+
+        A student with no main_group_id (the new study has no group yet) is skipped
+        without error - nothing to enroll into. A stale enrollment (not part of the new
+        template) is removed unless the student already has scored grades on it, in
+        which case it is left alone and reported via a chatter note.
+        """
+        Enrollment = self.env['ems.enrollment'].sudo()
+        GradeSession = self.env['ems.grade_session']
+        for student in self:
+            group = student.main_group_id
+            if not group:
+                continue
+            template = self.env['sale.order.template']._ems_find_for(student.study_id, group.course)
+            if not template:
+                continue
+
+            new_pairs = set()
+            for subject in self.env['ems.subject'].sudo().search([
+                ('product_id', 'in', template.sale_order_template_line_ids.product_id.ids)
+            ]):
+                subject_course = student.study_id._ems_subject_course(subject.product_id)
+                subject_group = group
+                if subject_course and subject_course != group.course:
+                    subject_group = group._ems_equivalent_for_course(subject_course) or group
+                new_pairs.add((subject_group.id, subject.id))
+                if not Enrollment.search_count([
+                    ('student_id', '=', student.id), ('group_id', '=', subject_group.id), ('subject_id', '=', subject.id)
+                ]):
+                    Enrollment.create({'student_id': student.id, 'group_id': subject_group.id, 'subject_id': subject.id})
+
+            stale = Enrollment.search([('student_id', '=', student.id)]).filtered(
+                lambda enrollment: (enrollment.group_id.id, enrollment.subject_id.id) not in new_pairs)
+            kept_with_grades = stale.filtered(
+                lambda enrollment: GradeSession._ems_has_scored_grades(
+                    student.id, enrollment.group_id.id, enrollment.subject_id.id))
+            (stale - kept_with_grades).unlink()
+            if kept_with_grades:
+                intro = _(
+                    "The study change refreshed this student's enrollments from the "
+                    "%(template)s template, but the following subjects already have "
+                    "grades and were kept as-is:",
+                    template=template.display_name,
+                )
+                items = kept_with_grades.mapped(
+                    lambda enrollment: f"{enrollment.subject_id.display_name} ({enrollment.group_id.display_name})")
+                student.message_post(body=Markup("<p>{}</p>").format(intro) + base.EmsBase.build_html_list(self, items))
+
     def _compute_group_data(self, values):
         # Avoids incongruences between the main_group, level and studies.     
         if 'main_group_id' in values and values.get('main_group_id'):   
@@ -837,7 +941,7 @@ class ResPartner(models.Model):
 
     def _get_read_only_user(self):
         is_admin = base.EmsBase.get_user_is_admin(self)
-        is_secretary = self.env.user.has_group('ems.group_secretary')
+        is_secretary = base.EmsBase.get_user_is_secretary(self)
         return not (is_admin or is_secretary or self._user_is_tutor_of_record())
 
     def _user_is_tutor_of_record(self):
@@ -857,7 +961,7 @@ class ResPartner(models.Model):
         # Used to make non-contact fields read-only for tutors while admin/secretary
         # keep full edit access.
         is_admin = base.EmsBase.get_user_is_admin(self)
-        is_secretary = self.env.user.has_group('ems.group_secretary')
+        is_secretary = base.EmsBase.get_user_is_secretary(self)
         if is_admin or is_secretary:
             return False
         for t in self.env.user.employee_ids:

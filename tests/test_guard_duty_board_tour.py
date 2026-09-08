@@ -23,7 +23,7 @@ class TestGuardDutyBoardTour(HttpCase):
         if not self.env.company.current_course_id:
             self.env.company.current_course_id = self.env['ems.course'].create({'start': 1998, 'end': 1999})
 
-        level, study = create_level_study(self, 'TGDBT', level={'name': 'Test Level (Guard Duty Board Tour)'}, study={
+        level, study = create_level_study(self, 'TGDBT', level={'name': 'Tour Guard Board Level 1'}, study={
             'code': 'TGDBT001', 'name': 'Test Study (Guard Duty Board Tour)', 'date': date.today(),
         })
         subject = self.env['ems.subject'].create({
@@ -40,7 +40,12 @@ class TestGuardDutyBoardTour(HttpCase):
             'space_id': space.id, 'shift': 'morning',
         })
         teacher = self.env['hr.employee'].create({'name': 'Tour Guard Board Teacher', 'employee_type': 'teacher'})
-        calendar = self.env['resource.calendar'].create({'name': 'Tour Guard Board Teacher Calendar'})
+        # 'employee_id' (matching every real personal calendar - see hr.employee.create()/
+        # course_transition_wizard.py) is what '_get_guard_duty_board_attendance_ids' now uses to
+        # tell a teacher's own working schedule apart from Odoo's generic default calendar (e.g.
+        # "Standard 40 hours/week", 'employee_id' False) - omitting it here made this fixture
+        # indistinguishable from that generic calendar on a clean install (found 2026-09-08 via CI).
+        calendar = self.env['resource.calendar'].create({'name': 'Tour Guard Board Teacher Calendar', 'employee_id': teacher.id})
         teacher.resource_calendar_id = calendar
         calendar.apply_schedule_changes([{
             'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
@@ -48,7 +53,7 @@ class TestGuardDutyBoardTour(HttpCase):
         }])
 
         guard_teacher = self.env['hr.employee'].create({'name': 'Tour Guard Board Guard', 'employee_type': 'teacher'})
-        guard_calendar = self.env['resource.calendar'].create({'name': 'Tour Guard Board Guard Calendar'})
+        guard_calendar = self.env['resource.calendar'].create({'name': 'Tour Guard Board Guard Calendar', 'employee_id': guard_teacher.id})
         guard_teacher.resource_calendar_id = guard_calendar
         guard_calendar.apply_schedule_changes([{
             'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
@@ -58,11 +63,39 @@ class TestGuardDutyBoardTour(HttpCase):
         # A distinct afternoon-only teacher, so the tour can prove the shift dropdown actually
         # re-fetches (not just keeps showing the morning data it already has).
         afternoon_teacher = self.env['hr.employee'].create({'name': 'Tour Guard Board Afternoon Teacher', 'employee_type': 'teacher'})
-        afternoon_calendar = self.env['resource.calendar'].create({'name': 'Tour Guard Board Afternoon Calendar'})
+        afternoon_calendar = self.env['resource.calendar'].create({'name': 'Tour Guard Board Afternoon Calendar', 'employee_id': afternoon_teacher.id})
         afternoon_teacher.resource_calendar_id = afternoon_calendar
         afternoon_calendar.apply_schedule_changes([{
             'dayofweek': '0', 'hour_from': 16, 'hour_to': 17, 'day_period': 'afternoon',
             'subject_id': subject.id, 'group_ids': [group.id], 'name': 'TGDBT: TGDBT (afternoon)',
+        }])
+
+        # A second level/study/group (issue #390's level filter), so the tour can prove checking
+        # a level in the dropdown actually narrows the board down - not just that the dropdown
+        # opens. Own subject: 'subject' above is only valid for 'study' (see 'ems.
+        # attendance_template._check_subject_valid_for_all_studies'), not 'study2'.
+        level2, study2 = create_level_study(self, 'TGDBT2', level={'name': 'Tour Guard Board Level 2'}, study={
+            'code': 'TGDBT2001', 'name': 'Test Study 2 (Guard Duty Board Tour)', 'date': date.today(),
+        })
+        subject2 = self.env['ems.subject'].create({
+            'code': 'TGDBT2001', 'acronym': 'TGDBT2', 'name': 'Test Subject 2 (Guard Duty Board Tour)',
+            'study_ids': [(6, 0, [study2.id])],
+        })
+        space2 = self.env['ems.space'].create({
+            'code': 'TGDBT2-A', 'name': 'Tour Guard Board Space 2',
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id,
+        })
+        group2 = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'TGDBT2', 'level_id': level2.id, 'study_id': study2.id,
+            'space_id': space2.id, 'shift': 'morning',
+        })
+        level2_teacher = self.env['hr.employee'].create({'name': 'Tour Guard Board Level 2 Teacher', 'employee_type': 'teacher'})
+        level2_calendar = self.env['resource.calendar'].create({'name': 'Tour Guard Board Level 2 Calendar', 'employee_id': level2_teacher.id})
+        level2_teacher.resource_calendar_id = level2_calendar
+        level2_calendar.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': subject2.id, 'group_ids': [group2.id], 'name': 'TGDBT2: TGDBT2',
         }])
 
         self.start_tour("/odoo", "ems_guard_duty_board", login="admin")

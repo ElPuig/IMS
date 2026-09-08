@@ -45,8 +45,8 @@ Els alumnes no s'afegeixen des d'aquí — consulta la pestanya **Alumnes** per 
 1. Fes clic a **Nou**.
 2. Canvia **Tipus de grup** a **Reforç**. Nivell, Estudi, Tutor i Delegat desapareixen — no apliquen.
 3. Omple un **Nom** directament (p. ex., `REF-MATES`).
-4. A la pestanya **Alumnes**, afegeix alumnes de qualsevol grup/estudi principal.
-5. Fes clic a **Desa**.
+4. Fes clic a **Desa**.
+5. Afegeix alumnes de la mateixa manera que a qualsevol altre grup: des de la fitxa del propi alumne (o el procés de matrícula), matricula'l en una assignatura amb aquest grup de reforç com a **Grup** — poden venir de qualsevol grup/estudi principal. Apareixeran a la pestanya **Inscrit** d'aquest grup.
 
 ---
 
@@ -54,7 +54,7 @@ Els alumnes no s'afegeixen des d'aquí — consulta la pestanya **Alumnes** per 
 
 Pots canviar un grup existent entre Principal i Reforç, però:
 - Canviar de **Principal → Reforç** es bloqueja si el grup encara té alumnes matriculats amb aquest com a grup principal — reassigna'ls a un altre grup primer.
-- Canviar en qualsevol direcció neteja els camps que ja no apliquen (nivell/estudi/curs/acrònim/tutor/delegat, o la llista d'alumnes de reforç).
+- Canviar de **Principal → Reforç** neteja els camps que ja no apliquen (nivell/estudi/curs/acrònim/tutor/delegat).
 
 ---
 

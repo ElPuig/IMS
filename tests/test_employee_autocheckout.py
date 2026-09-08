@@ -51,8 +51,14 @@ class TestEmployeeAutocheckout(TransactionCase):
         self.assertEqual(result, expected)
 
     def test_auto_close_attendance_closes_after_scheduled_hour(self):
-        self._add_slot(0.0, 0.02)  # ~1 minute after midnight, already passed
+        # 'dayofweek' must match 'check_in' 's own date, not 'self.weekday' (cached at
+        # setUpClass time) - the 2h offset below can push check_in onto the PREVIOUS calendar
+        # day whenever this test happens to run shortly after UTC midnight, same class of bug
+        # already avoided by 'test_create_auto_closes_stale_open_attendance' (found 2026-09-08:
+        # CI ran this class at 00:12 UTC, so 'self.weekday' was Tuesday while check_in was still
+        # Monday, and the slot never matched).
         check_in = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=2)
+        self._add_slot(0.0, 0.02, dayofweek=str(check_in.weekday()))  # ~1 minute after midnight, already passed
         attendance = self.env['hr.attendance'].create({
             'employee_id': self.teacher.id, 'check_in': check_in,
         })
@@ -90,8 +96,10 @@ class TestEmployeeAutocheckout(TransactionCase):
     def test_auto_close_attendance_fallback_when_scheduled_before_checkin(self):
         # Scheduled hour already passed relative to check_in itself (e.g. checked in very
         # late) — falls back to check_in + 1h instead of a check_out before check_in.
-        self._add_slot(0.0, 0.02)
+        # 'dayofweek' derived from check_in's own date, not 'self.weekday' - see the identical
+        # NOTE on 'test_auto_close_attendance_closes_after_scheduled_hour' above.
         check_in = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=3)
+        self._add_slot(0.0, 0.02, dayofweek=str(check_in.weekday()))
         attendance = self.env['hr.attendance'].create({
             'employee_id': self.teacher.id, 'check_in': check_in,
         })

@@ -6,7 +6,7 @@ from dateutil.relativedelta import relativedelta
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study_group, mock_outgoing_email
+from .common import create_level_study, create_level_study_group, mock_outgoing_email
 
 
 class TestContactLifecycle(TransactionCase):
@@ -559,3 +559,152 @@ class TestContactMainGroupChange(TransactionCase):
         virtual.main_group_id = self.group
 
         self.assertFalse(virtual.main_group_pending_change)
+
+
+class TestContactStudyChange(TransactionCase):
+    """Changing 'study_id' regenerates the student's ems.enrollment rows from the enrollment
+    template matching the new study + auto-picked group's course (secretary report: changing
+    a student's study left their subject enrollments stale). See docs/en/developers/contacts/
+    contact.md and res.partner._ems_refresh_enrollments_from_template()."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.old_level, cls.old_study, cls.old_group = create_level_study_group(
+            cls, 'TSCO', level={'name': 'Test Study Change Old Level'}, study={
+                'code': 'TSCO001', 'acronym': 'TSCOS', 'name': 'Test Study Change Old Study'})
+        cls.old_subject = cls.env['ems.subject'].create({
+            'code': 'TSCO001', 'acronym': 'TSCO', 'name': 'Test Study Change Old Subject',
+            'study_ids': [(6, 0, [cls.old_study.id])],
+        })
+
+        cls.new_level, cls.new_study, cls.new_group_b = create_level_study_group(
+            cls, 'TSCN', level={'name': 'Test Study Change New Level'}, study={
+                'code': 'TSCN001', 'acronym': 'TSCNS', 'name': 'Test Study Change New Study'},
+            group={'acronym': 'B'})
+        # A second, alphabetically-earlier group for the same study+course, to prove the
+        # auto-pick lands on the first one by name (see contact.py write()'s auto_group search).
+        cls.new_group_a = cls.env['ems.group'].create({
+            'course': 1, 'acronym': 'A', 'level_id': cls.new_level.id, 'study_id': cls.new_study.id,
+        })
+        cls.new_subject = cls.env['ems.subject'].create({
+            'code': 'TSCN001', 'acronym': 'TSCN', 'name': 'Test Study Change New Subject',
+            'study_ids': [(6, 0, [cls.new_study.id])],
+        })
+        cls.template = cls.env['sale.order.template'].create({
+            'name': 'Test Study Change Template', 'ems_study_id': cls.new_study.id, 'study_year': 1,
+            'sale_order_template_line_ids': [(0, 0, {'product_id': cls.new_subject.product_id.id})],
+        })
+
+        # A real (non-superuser) user: see TestContactMainGroupChange's own admin_user for why
+        # (TransactionCase's self.env runs as SUPERUSER_ID, indistinguishable from the sudo()'d
+        # system flows this feature must NOT touch).
+        cls.admin_user = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Admin (Study Change)', 'login': 'test_admin_study_change',
+            'email': 'test.admin.study.change@example.com',
+            'groups_id': [(4, cls.env.ref('ems.group_academic_admin').id)],
+        })
+
+    def _student(self):
+        return self.env['res.partner'].create({
+            'name': 'Study Change Student', 'contact_type': 'student', 'main_group_id': self.old_group.id})
+
+    def _old_enrollment(self, student):
+        return self.env['ems.enrollment'].create({
+            'student_id': student.id, 'group_id': self.old_group.id, 'subject_id': self.old_subject.id})
+
+    def test_write_study_id_auto_picks_first_group_alphabetically(self):
+        student = self._student()
+        student.with_user(self.admin_user).write({'study_id': self.new_study.id})
+        self.assertEqual(student.main_group_id, self.new_group_a)
+
+    def test_write_study_id_creates_enrollment_from_template(self):
+        student = self._student()
+        student.with_user(self.admin_user).write({'study_id': self.new_study.id})
+        enrollment = self.env['ems.enrollment'].search([('student_id', '=', student.id)])
+        self.assertEqual(enrollment.subject_id, self.new_subject)
+        self.assertEqual(enrollment.group_id, self.new_group_a)
+
+    def test_write_study_id_removes_old_enrollment_without_grades(self):
+        student = self._student()
+        old_enrollment = self._old_enrollment(student)
+        student.with_user(self.admin_user).write({'study_id': self.new_study.id})
+        self.assertFalse(old_enrollment.exists())
+
+    def test_write_study_id_keeps_old_enrollment_with_scored_grades(self):
+        student = self._student()
+        teacher = self.env['hr.employee'].create({'name': 'TSC Teacher', 'employee_type': 'teacher'})
+        # The session must exist BEFORE the enrollment for _ems_sync_grade_session_add() (fired
+        # by ems.enrollment.create()) to populate its lines - see TestContactMainGroupChange's
+        # own test_write_raises_if_old_enrollment_has_scored_grades for the same ordering note.
+        session = self.env['ems.grade_session'].create({
+            'group_id': self.old_group.id, 'subject_id': self.old_subject.id, 'round': '1', 'teacher_id': teacher.id})
+        old_enrollment = self._old_enrollment(student)
+        line = session.grade_subject_line_ids.filtered(lambda l: l.student_id == student)
+        line.write({'external_score': 8, 'external_is_scored': True})
+
+        student.with_user(self.admin_user).write({'study_id': self.new_study.id})
+
+        self.assertTrue(old_enrollment.exists())
+        new_enrollment = self.env['ems.enrollment'].search([
+            ('student_id', '=', student.id), ('subject_id', '=', self.new_subject.id)])
+        self.assertTrue(new_enrollment)
+
+    def test_write_study_id_kept_grades_note_is_translated(self):
+        # Verifies the .po translation actually loaded and applies at runtime - a msgid
+        # existing in the .po file is necessary but not sufficient (see CLAUDE.md's i18n
+        # verification rule).
+        student = self._student()
+        teacher = self.env['hr.employee'].create({'name': 'TSC Teacher ES', 'employee_type': 'teacher'})
+        session = self.env['ems.grade_session'].create({
+            'group_id': self.old_group.id, 'subject_id': self.old_subject.id, 'round': '1', 'teacher_id': teacher.id})
+        self._old_enrollment(student)
+        line = session.grade_subject_line_ids.filtered(lambda l: l.student_id == student)
+        line.write({'external_score': 8, 'external_is_scored': True})
+
+        student.with_user(self.admin_user).with_context(lang='es_ES').write({'study_id': self.new_study.id})
+
+        note = student.message_ids.filtered(lambda m: 'plantilla' in (m.body or ''))
+        self.assertTrue(note)
+        self.assertIn('ya tienen', note.body)
+
+    def test_write_study_id_without_any_group_creates_nothing(self):
+        empty_level, empty_study = create_level_study(self, 'TSCE', level={'name': 'Test Study Change Empty Level'}, study={
+            'code': 'TSCE001', 'acronym': 'TSCES', 'name': 'Test Study Change Empty Study'})
+        student = self._student()
+        student.with_user(self.admin_user).write({'study_id': empty_study.id})
+        self.assertFalse(student.main_group_id)
+        self.assertFalse(self.env['ems.enrollment'].search([('student_id', '=', student.id)]))
+
+    def test_write_study_id_with_explicit_group_skips_template_refresh(self):
+        """An explicit main_group_id in the same write is handled by the pre-existing
+        group-change migration (TestContactMainGroupChange) instead - see contact.py
+        write()'s 'not values.get('main_group_id')' gate."""
+        student = self._student()
+        self._old_enrollment(student)
+        student.with_user(self.admin_user).write({
+            'study_id': self.new_study.id, 'main_group_id': self.new_group_b.id})
+
+        self.assertEqual(student.main_group_id, self.new_group_b)
+        moved = self.env['ems.enrollment'].search([('student_id', '=', student.id)])
+        self.assertEqual(moved.subject_id, self.old_subject)
+        self.assertEqual(moved.group_id, self.new_group_b)
+
+    def test_sudo_write_study_id_does_not_refresh_enrollments(self):
+        """Mirrors TestContactMainGroupChange.test_sudo_write_does_not_migrate_enrollment:
+        under sudo, main_group_id is written as given (untouched here) and nothing else
+        about the student is inferred - the caller (a system flow acting on the student's
+        behalf) is responsible for its own group/enrollments, exactly like
+        sale.order._ems_apply_destination_placement() already is."""
+        student = self._student()
+        old_enrollment = self._old_enrollment(student)
+        student.with_user(self.admin_user).sudo().write({'study_id': self.new_study.id})
+        self.assertTrue(old_enrollment.exists())
+        self.assertEqual(student.main_group_id, self.old_group)
+
+    def test_write_study_id_on_non_student_contact_is_noop(self):
+        applicant = self.env['res.partner'].create({
+            'name': 'Study Change Applicant', 'contact_type': 'applicant'})
+        applicant.with_user(self.admin_user).write({'study_id': self.new_study.id})
+        self.assertFalse(applicant.main_group_id)
+        self.assertFalse(self.env['ems.enrollment'].search([('student_id', '=', applicant.id)]))
