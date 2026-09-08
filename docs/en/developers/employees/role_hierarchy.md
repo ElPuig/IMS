@@ -146,17 +146,45 @@ Read-only (`domain_force` `[]`, `perm_read` only), in `security/rules/student_da
 |------|--------|---------------------------|
 | Contacts and enrolment | `res.partner`, `ems.enrollment`, `ems.authorization` | Already readable by any teacher - covered here only so the technical group stands alone |
 | Grades | `ems.grade_session`, `ems.grade_subject_line`, `ems.grade_outcome_line` | The teacher who owns the session, or the group's tutor |
-| Academic record | `ems.student.year_record`, `.subject`, `.outcome` | Admin, secretary, Head of Studies, or the student's tutor |
+| Academic record | `ems.student.year_record`, `.subject`, `.outcome` | **Now every teacher** - see below |
 | Daily attendance | `ems.attendance_session_header`, `ems.attendance_session_line`, `ems.attendance_justification` | The session's own teacher, or the student's tutor |
 | Attendance issues | `ems.attendance_issue_tutor`, `ems.attendance_issue_student`, `ems.attendance_issue_status` | The student's tutor |
 | Coexistence | `ems.strike`, `ems.strike.reason` | The issuing teacher, the student's tutor, or `group_coexistence` (strikes only) |
+| Enrolment | `sale.order`, `sale.order.line` | The student's own tutor |
 
 `ems.strike.reason` deliberately gets an ACL line but **no** record rule: no group row-filters
 that catalog in the first place, so a rule would add noise without changing what anyone sees.
 
-Financial data (`sale.order`, `sale.order.line`, invoices, payments) is deliberately **out of
-scope**: neither post has a reason to see what a family paid, and it stays with secretary,
-admin and the student's own tutor.
+Invoices and payments (`account.move`, `account.payment`) are deliberately **out of scope**:
+neither post has a reason to see what a family paid, and they stay with secretary and admin.
+
+`sale.order` is **not** in that exclusion, despite being the model the money lives on, and the
+distinction matters: in EMS an enrolment *is* a `sale.order`, and the student form's **Secretary
+tab** resolves its authorizations through `res.partner._ems_enrollment_in_force()`, which walks
+`sale_order_ids`. Denying it does not merely hide a number - the walk yields nothing *silently*,
+so the tab renders empty and, worse, the `auth_image`/`auth_trip`/`auth_healt`/`auth_share`
+badges on the Student data tab all read **"No"** on a student whose family did sign. Read access
+here is what a tutor already has (`rule_sale_order_teacher`, ACL via `group_teacher`); these two
+posts get the same mechanism with an open domain instead of one narrowed to own tutees.
+
+### The academic record is no longer transversal-only (issue #393, widened scope)
+
+Partway through this issue the centre decided a student's academic history is necessary
+information for the **whole teaching community**, not just their tutor - so the three
+`ems.student.year_record*` rules that were scoped to `student_id.main_group_id.tutor_id` were
+opened to a plain `[]` domain on `group_teacher`, and `menu_year_record` now lists
+`group_teacher` instead of the technical group. Reading is centre-wide for any teacher; writing
+is untouched and still belongs to the admin (and the secretary's own result adjustment).
+
+This makes the reader group's own `year_record` rules and ACL lines redundant in practice, since
+both posts imply `group_teacher`. They are kept deliberately: the technical group is meant to
+stand on its own, so that what it grants stays legible in one file rather than depending on
+another group's current scope.
+
+The three rule XML IDs still end in `_tutor`. Renaming an XML ID that already exists in
+production requires a migration script, and this branch deliberately does not bump the manifest
+version, so only their `name` and domain were updated - a rename is worth folding into whichever
+future branch does bump the version.
 
 ### Menus: permissions with no way in are invisible
 
@@ -168,7 +196,7 @@ them. Each gains `ems.group_student_data_reader` alongside its existing groups:
 |------|------|-----------------------|
 | `menu_ems_academic_management` (root) | `views/academic_management/menu.xml` | admin, secretary, tutor |
 | `menu_students_tutor` | `views/academic_management/enrollment/menu.xml` | admin, secretary, tutor |
-| `menu_year_record` | `views/planning_grading/grading/year_record/menu.xml` | admin, secretary, Head of Studies |
+| `menu_year_record` | `views/planning_grading/grading/year_record/menu.xml` | admin, secretary, Head of Studies (now `group_teacher`, see above) |
 
 The attendance, coexistence and grading menus carry no `groups` attribute at all, so they follow
 their children's own access and need no change - `menu_grade_sessions` ("Evaluation by group and

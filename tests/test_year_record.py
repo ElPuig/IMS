@@ -458,17 +458,18 @@ class TestYearRecord(TransactionCase):
         Record.generate_for_students(student, self.current_course, group=self.group)
         self.assertEqual(self._frozen(student).group_id, self.group)
 
-    def test_access_tutor_reads_own_students_only(self):
+    def test_access_any_teacher_reads_every_students_record(self):
+        """Issue #393 widened this from tutor-scoped to centre-wide: the centre considers a
+        student's academic history necessary information for the whole teaching community, so a
+        teacher who tutors nobody reads it too. Writing is still refused - see
+        test_access_teacher_cannot_write."""
         student = self._student('Access Student')
         record = self._generate(student)
-        # The group's tutor can read its students' records.
-        self.assertIn(record, self.env['ems.student.year_record'].with_user(
-            self.tutor_user).search([]))
-        # Another teacher cannot.
-        self.assertNotIn(record, self.env['ems.student.year_record'].with_user(
-            self.other_teacher_user).search([]))
-        with self.assertRaises(AccessError):
-            record.with_user(self.other_teacher_user).read(['student_id'])
+        for user in (self.tutor_user, self.other_teacher_user):
+            with self.subTest(user=user.login):
+                self.assertIn(record, self.env['ems.student.year_record'].with_user(
+                    user).search([]))
+                self.assertTrue(record.with_user(user).read(['student_id']))
 
     def test_access_secretary_can_adjust_result(self):
         student = self._graded_student('Secretary Access Student')

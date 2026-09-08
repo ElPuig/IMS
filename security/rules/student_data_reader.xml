@@ -189,5 +189,35 @@
             <field name="perm_unlink" eval="False"/>
         </record>
 
+
+        <!-- The enrolment authorizations shown on the student form's "Secretary" tab hang off the
+             enrolment, and in EMS an enrolment IS a sale.order: 'res.partner._ems_enrollment_in_force()'
+             walks 'sale_order_ids' to resolve both that tab's list and the auth_image/auth_trip/
+             auth_healt/auth_share badges. Without read access there the walk silently yields nothing -
+             the tab renders empty and, worse, every badge reads "No" on a student whose family did
+             sign. This is the same mechanism a tutor already gets (ACL on sale.order plus
+             'rule_sale_order_teacher'), with an open domain instead of one narrowed to own tutees. -->
+        <record id="rule_sale_order_student_data_reader" model="ir.rule">
+            <field name="name">Enrollment (sale.order): student data reader (all data, read only)</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="groups" eval="[(4, ref('ems.group_student_data_reader'))]"/>
+            <field name="domain_force">[]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_sale_order_line_student_data_reader" model="ir.rule">
+            <field name="name">Enrollment line: student data reader (all data, read only)</field>
+            <field name="model_id" ref="sale.model_sale_order_line"/>
+            <field name="groups" eval="[(4, ref('ems.group_student_data_reader'))]"/>
+            <field name="domain_force">[]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
     </data>
 </odoo>

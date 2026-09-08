@@ -5,7 +5,7 @@ from datetime import date
 from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study_group, mock_outgoing_email
+from .common import create_level_study_group, create_student_academic_file, mock_outgoing_email
 
 # Every model the guidance (Orientació) and coexistence posts must be able to read
 # centre-wide - see docs/en/developers/employees/role_hierarchy.md, "Transversal read-only
@@ -28,10 +28,15 @@ STUDENT_DATA_MODELS = (
     'ems.attendance_issue_status',
     'ems.strike',
     'ems.strike.reason',
+    # An EMS enrolment IS a sale.order, and the Secretary tab's authorizations hang off it -
+    # see rule_sale_order_student_data_reader for why read access here is not optional.
+    'sale.order',
+    'sale.order.line',
 )
 
-# Deliberately out of scope: neither post has a reason to see what a family paid.
-FINANCIAL_MODELS = ('sale.order', 'sale.order.line', 'account.move')
+# Deliberately out of scope: neither post has a reason to see invoices or payments. sale.order
+# itself is NOT here - it is the enrolment record, not an accounting document (see above).
+FINANCIAL_MODELS = ('account.move', 'account.payment')
 
 # The screens the data above actually renders in - a permission with no route to it is
 # invisible, so the menus are part of the feature, not an afterthought.
@@ -123,12 +128,13 @@ class TestStudentDataReader(TransactionCase):
             group={'name': 'Test Group (Reader)', 'tutor_id': cls.tutor_employee.id},
         )
 
-        cls.student = cls.env['res.partner'].create({
-            'name': 'Test Student (Reader)', 'contact_type': 'student',
-            'student_email': 'test_student_reader@example.com',
-            'birth_date': date(date.today().year - 15, 1, 1),
-            'main_group_id': cls.group_record.id,
-        })
+        academic_file = create_student_academic_file(cls, 'TSDR', cls.group_record)
+        cls.student = academic_file['student']
+        cls.course = academic_file['course']
+        cls.order = academic_file['order']
+        cls.authorization = academic_file['authorization']
+        cls.benefit = academic_file['benefit']
+        cls.year_record = academic_file['year_record']
 
         cls.subject = cls.env['ems.subject'].create({
             'code': 'TSDR-SUB-01', 'acronym': 'TSDRS', 'name': 'Test Subject (Reader)',
@@ -136,13 +142,6 @@ class TestStudentDataReader(TransactionCase):
         cls.grade_session = cls.env['ems.grade_session'].create({
             'group_id': cls.group_record.id, 'subject_id': cls.subject.id, 'round': '1',
             'teacher_id': cls.tutor_employee.id,
-        })
-
-        cls.course = cls.env['ems.course'].search([], limit=1) or cls.env['ems.course'].create({
-            'start': 2098, 'end': 2099,
-        })
-        cls.year_record = cls.env['ems.student.year_record'].create({
-            'student_id': cls.student.id, 'course_id': cls.course.id,
         })
 
         cls.strike = cls.env['ems.strike'].create({
@@ -261,6 +260,32 @@ class TestStudentDataReader(TransactionCase):
         with self.assertRaises(AccessError):
             self.grade_session.with_user(self.plain_teacher_user).read(['subject_id'])
 
+    def test_every_teacher_reads_any_students_academic_history(self):
+        """Issue #393, widened scope: the centre considers a student's academic history necessary
+        information for the whole teaching community, so it is no longer tutor-scoped. A plain
+        teacher, tutor of nobody, must read it - and its subject/outcome children with it."""
+        record = self.year_record.with_user(self.plain_teacher_user)
+        self.assertEqual(record.student_id, self.student)
+        for model in ('ems.student.year_record', 'ems.student.year_record.subject',
+                      'ems.student.year_record.outcome'):
+            with self.subTest(model=model):
+                rules = self.env['ir.rule'].with_user(self.plain_teacher_user)
+                self.assertEqual([leaf for leaf in (rules._compute_domain(model, 'read') or [])
+                                  if leaf != (1, '=', 1)], [],
+                                 f"{model} is still tutor-scoped for a plain teacher")
+
+    def test_academic_history_stays_read_only_for_teachers(self):
+        """Widening the read scope must not have handed anyone write access."""
+        for operation in ('write', 'create', 'unlink'):
+            with self.subTest(operation=operation):
+                self.assertFalse(
+                    self.env['ems.student.year_record']
+                        .with_user(self.plain_teacher_user).has_access(operation))
+
+    def test_academic_history_menu_is_reachable_by_any_teacher(self):
+        visible = self.env['ir.ui.menu'].with_user(self.plain_teacher_user).search([]).ids
+        self.assertIn(self.env.ref('ems.menu_year_record').id, visible)
+
     def test_orientation_reads_year_record_of_any_student(self):
         self.assertEqual(
             self.year_record.with_user(self.orientation_user).student_id, self.student)
@@ -299,6 +324,24 @@ class TestStudentDataReader(TransactionCase):
                 result = action.with_user(user).run()
                 self.assertNotIn(('tutor_id.user_id', '=', user.id), result['domain'],
                                  f"{user.login} would only see their own tutees")
+
+    def test_secretary_tab_data_is_visible(self):
+        """The Secretary tab's authorizations resolve through `_ems_enrollment_in_force()`, which
+        walks `sale_order_ids`. Without read access there the walk yields nothing silently: the
+        tab renders empty and every auth_* badge reads "No" on a student who did sign."""
+        for user in (self.orientation_user, self.coexistence_user):
+            with self.subTest(user=user.login):
+                student = self.student.with_user(user)
+                self.assertEqual(student.ems_authorization_ids, self.authorization,
+                                 "the Secretary tab would render empty")
+                self.assertTrue(student.auth_image,
+                                "the authorization badge would wrongly read 'No'")
+
+    def test_benefits_are_visible(self):
+        """The other half of the Secretary tab."""
+        for user in (self.orientation_user, self.coexistence_user):
+            with self.subTest(user=user.login):
+                self.assertEqual(self.student.with_user(user).benefit_ids, self.benefit)
 
     # ---------------------------------------------------------------- menu visibility
 
