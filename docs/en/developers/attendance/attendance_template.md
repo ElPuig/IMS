@@ -136,18 +136,36 @@ Key behaviours, each covered by its own docstring in the code:
 - **Archive-then-write, in two full passes across the whole batch** (`_archive_stale_schedule_sync` for every plan, then `_write_schedule_sync` for every plan) — never interleaved per-plan. Interleaving would let one plan's fresh line collide (via `ems.attendance_schedule.check_overlap()`) with another plan's still-active *stale* line that hasn't been re-synced yet, when two groups share a classroom.
 - **Per-line, `has_sessions`-aware matching for a persisting template (added 2026-08-05, replacing a blunter "archive every line, recreate all fresh" behavior):** `_plan_schedule_sync` calls `_decide_schedule_line_changes` (renamed 2026-09-08 from `_match_schedule_lines`, same algorithm, unchanged - see "Bottom-up sync redesign" below) once per persisting key, matching the survivor's current `attendance_schedule_ids` against the incoming entries by `(weekday, start_time, end_time)` - a line's own identity within a template. A line with no matching entry is archived outright (genuinely gone); a matched line whose room hasn't changed is left completely untouched; a matched line whose room *has* changed goes through the same decision as `ems.attendance_mixin._write_or_new_version` - updated in place if it has no real sessions yet, or archived-and-replaced-with-a-fresh-line if it does (split across the two passes above for the same cross-plan collision reason, not called as one atomic step - see the code's own comments on `_archive_stale_schedule_sync`/`_write_schedule_sync` for why). This is shared, unconditional model-level behavior - it applies identically whether the caller is the live Schedule tab's own edit or (once built) the working-schedule import wizard, not something either caller opts into separately.
 
-### Bottom-up sync redesign (in progress, 2026-09-08)
+### Bottom-up sync redesign (Phases 1-6 done, Phase 7-8 remaining, 2026-09-08)
 
-`resource.calendar.attendance` changes don't yet automatically trigger this sync - only three
-explicit callers do (the Schedule tab's `apply_schedule_changes`, the working-schedules import
-wizard, and the offline `regenerate_all_from_calendars`). A redesign is under way to make any
-`resource.calendar.attendance` change the reliable, single trigger for keeping this model in sync,
-built bottom-up: `_decide_schedule_line_changes` (a pure decision function, no writes - the
-"bottom" piece, tested in isolation) → an applier that writes its decision → a per-teacher sync
-step → an automatic hook on `resource.calendar.attendance` itself. See
-`docs/en/developers/settings/course_transition_wizard.md` for why `course_transition_wizard.py`'s
-own direct archival of these models is deliberately left untouched until this foundation is
-proven. This section will be filled in with the finished architecture once the redesign lands.
+Any `resource.calendar.attendance` change (`create`/`write`/`unlink`) is now the reliable, single
+trigger for keeping this model in sync - built bottom-up: `_decide_schedule_line_changes` (a pure
+decision function, no writes - the "bottom" piece, tested in isolation) → per-template appliers
+(`_apply_schedule_line_archive_pass`/`_apply_schedule_line_write_pass`) → a per-teacher sync step
+(`hr.employee._ems_sync_schedule_from_calendar()`) → an automatic hook on
+`resource.calendar.attendance` itself (`_ems_sync_schedule_from_calendar_unless_suppressed()`,
+gated by the `EMS_SKIP_AUTO_SCHEDULE_SYNC` context flag - see `models/shared/attendance_mixin.py`
+for when a batch caller needs to suppress it and resync explicitly afterward instead, e.g. to
+avoid a false cross-teacher room collision mid-batch). Every existing caller
+(`apply_schedule_changes`, the working-schedules import wizard, `regenerate_all_from_calendars`)
+was unified onto this same mechanism in the same pass.
+
+**Design invariant: every active line always has a real calendar block behind it.** Nothing
+outside the sync mechanism itself writes `ems.attendance_template`/`ems.attendance_schedule`
+directly anymore - a caller that needs to move or archive a session's room does so by touching
+only `resource.calendar.attendance` (via `ems.attendance_schedule._relocate_via_calendar_blocks`/
+`_archive_via_calendar_blocks`, or `ems.group._resolve_or_flag_pending_block`'s own automatic,
+no-collision path) and lets the hook keep this model in sync as a consequence. A one-time
+migration (`migrations/18.0.0.23.6/post-migrate.py`, re-running `regenerate_all_from_calendars()`)
+backfilled every legacy calendar block that predated the `attendance_schedule_id` FK or the
+automatic hook itself. The **one still-open exception**: `course_transition_wizard.py` still
+creates calendar blocks and template/schedule lines directly, bypassing this pipeline entirely
+(see `docs/en/developers/settings/course_transition_wizard.md`) - Phase 7 replaces that logic and
+closes this gap for good; until then, `_relocate_via_calendar_blocks`/`_archive_via_calendar_blocks`
+keep a deliberate, TEMPORARY fallback for a line with no calendar block, clearly marked in their
+own docstrings as a Phase 7 dependency to be removed once that phase lands.
+
+This section will be filled in with the finished, diagrammed architecture as part of Phase 8.
 - **Duplicate consolidation:** more than one active template can share the same (subject, group-set, teacher-set) key, a pre-existing data-quality artifact of repeated past imports. Only `templates[0]` (the "survivor") gets refreshed; every other duplicate sharing that key is archived outright. Since `_check_unique_teaching_assignment` (2026-08-11) rejects a literal duplicate `create()`/`write()` outright, this path is now effectively legacy-data-only — a duplicate can no longer be created going forward, only inherited from data older than that constraint (see `tests/test_attendance_template.py::test_resync_consolidates_duplicate_templates_for_same_key`, whose fixture now constructs the duplicate via raw SQL for exactly this reason).
 - **Archive-or-delete (changed 2026-09-07):** every template-level "this is stale/superseded/a duplicate" call site (`vacated` above, `_archive_stale_schedule_sync`'s two template-level branches, `regenerate_all_from_calendars`'s scope-wide archive step, and the import wizard's own `db_conflicts` "prevail_left" resolution in `working_schedule.py`) goes through `_archive_or_delete()` rather than a bare `action_archive()`: a template with **no real session anywhere in its lines** (checked with `active_test=False`, so an already-archived line with real history still counts — see `_has_real_sessions()`) is deleted outright (`sudo().unlink()`); one that has real history is still archived exactly as before. Before this, EVERY superseded template was archived forever regardless of whether it was ever actually used — found from a real complaint: repeatedly re-importing working schedules to fix small details (several times in one day) left hundreds of never-used archived templates behind, pure clutter with no history worth keeping. `unlink()` itself still refuses outright once any of a template's schedule lines (active OR archived) has a real `attendance_session_ids` entry — a real roll-call was taken against it — so `_archive_or_delete()` can never accidentally destroy real history; it's a safe, additive convenience on top of that same guarantee, not a relaxation of it. A second safety net exists below the ORM layer too: `ems_attendance_session_header.attendance_schedule_id` is a DB-level `ON DELETE RESTRICT` foreign key, so even a bypassed/bug in the Python check would still have Postgres itself refuse the delete outright rather than silently losing a session's own link. Not applied (yet) to `course_transition_wizard`'s own two template-archival call sites — a deliberate, smaller-scope decision for this pass, see `plans/attendance_template_archive_or_delete_course_transition.md`.
 - **`find_external_conflicts()`** is a read-only helper (used by the import wizard's preview and by the import itself) that finds active schedule lines belonging to teachers **outside** the current batch that would collide on room+time — a batch only cleans up its own teachers' stale data, so an external teacher's now-conflicting line needs separate handling.

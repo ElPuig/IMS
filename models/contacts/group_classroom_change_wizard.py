@@ -114,7 +114,7 @@ class EmsGroupClassroomChangeWizardConflictLine(models.TransientModel):
 
 		Bottom-up sync redesign, Phase 6 (2026-09-08): both sides now write ONLY
 		'resource.calendar.attendance' (the pending block directly here; the existing session via
-		'ems.attendance_schedule._resync_calendar_blocks_to'/'_archive_via_calendar_blocks') and let
+		'ems.attendance_schedule._relocate_via_calendar_blocks'/'_archive_via_calendar_blocks') and let
 		the automatic hook keep 'ems.attendance_schedule'/'ems.attendance_template' correctly in
 		sync as a consequence - this is exactly what fixes the real bug found on SMX1D/SMX2D
 		(writing the schedule directly left the teacher's own calendar silently pointing at the old
@@ -130,7 +130,7 @@ class EmsGroupClassroomChangeWizardConflictLine(models.TransientModel):
 			# 'left_space_id' before 'existing' has vacated it would trip 'check_overlap' on a purely
 			# transient state, even though the end result (both moved) is perfectly valid.
 			if existing.space_id != self.right_space_id:
-				existing._resync_calendar_blocks_to(self.right_space_id)
+				existing._relocate_via_calendar_blocks(self.right_space_id)
 			block.space_id = self.left_space_id.id
 		elif self.resolution == 'prevail_left':
 			# The pending block takes the group's new classroom; the session it collided with is

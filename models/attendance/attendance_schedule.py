@@ -187,7 +187,7 @@ class EmsAttendanceSchedule(models.Model):
             conflicts.append((other, same_teacher))
         return conflicts
 
-    def _resync_calendar_blocks_to(self, space):
+    def _relocate_via_calendar_blocks(self, space):
         """Bottom-up sync redesign, Phase 6 (2026-09-08, docs/en/developers/attendance/
         attendance_template.md's "Bottom-up sync redesign" section) - moves every
         'resource.calendar.attendance' row deriving THIS line (via its own 'attendance_schedule_id'
@@ -195,14 +195,24 @@ class EmsAttendanceSchedule(models.Model):
         correctly updating this very line (writing it in place, or cloning a fresh version if it
         'has_sessions') as a natural consequence - callers resolving a room conflict should call
         this instead of writing 'space_id'/'_write_or_new_version' on this model directly, exactly
-        the bug found and fixed in 'ems.group_classroom_change_wizard' (2026-09-08) and in this
-        model's own former callers in the working-schedules import wizard's
-        '_continue_from_db_conflicts' (models/employees/working_schedule.py) - both left the
-        teacher's own calendar silently pointing at the old room, ready to put the very collision
-        being "resolved" right back the next time anything re-read the calendar. A line with NO
-        calendar block behind it at all (legacy, predates the 'attendance_schedule_id' FK added
-        2026-08-11) falls back to writing itself directly, mirroring what the hook would otherwise
-        do for a line that does have one."""
+        the bug found and fixed in 'ems.group_classroom_change_wizard'/'ems.group.
+        _resolve_or_flag_pending_block' and in this model's own former callers in the
+        working-schedules import wizard's '_continue_from_db_conflicts'
+        (models/employees/working_schedule.py) - all three left the teacher's own calendar
+        silently pointing at the old room, ready to put the very collision being "resolved" right
+        back the next time anything re-read the calendar.
+
+        DESIGN INVARIANT (2026-09-08): every active line is meant to always have at least one real
+        calendar block behind it - a one-off migration (see migrations/ for the version that added
+        it) backfilled every legacy block that predated the 'attendance_schedule_id' FK (added
+        2026-08-11), and the automatic hook keeps it true for every calendar write from here on.
+        The single still-open exception is 'course_transition_wizard.py' (bottom-up sync
+        redesign's own Phase 7, not done yet as of this writing) - it still creates calendar
+        blocks AND schedule/template lines directly, bypassing the sync pipeline entirely, so a
+        line it creates can still lack a calendar block. The 'else' branch below is a deliberate,
+        TEMPORARY safety net for exactly that case - remove it once Phase 7 closes the gap, not
+        before (see docs/en/developers/attendance/attendance_template.md's "Bottom-up sync
+        redesign" section)."""
         self.ensure_one()
         blocks = self.env['resource.calendar.attendance'].search([('attendance_schedule_id', '=', self.id)])
         if blocks:
@@ -212,14 +222,17 @@ class EmsAttendanceSchedule(models.Model):
 
     def _archive_via_calendar_blocks(self):
         """Bottom-up sync redesign, Phase 6 (2026-09-08) - archives every 'resource.calendar.
-        attendance' row deriving THIS line, the counterpart to '_resync_calendar_blocks_to' above
+        attendance' row deriving THIS line, the counterpart to '_relocate_via_calendar_blocks' above
         for the "this session should go away entirely" case (e.g. a room-conflict resolution where
         this side loses). The automatic hook then naturally archives this line - and, if nothing
         else backs its template, the template itself too - as a consequence, the exact same way it
         archives any other now-orphaned line; callers never need to touch 'ems.attendance_template'/
-        'ems.attendance_schedule' directly for this. No calendar block at all falls back to
-        archiving this line (and its now-possibly-empty template) directly, same convention as
-        '_resync_calendar_blocks_to'."""
+        'ems.attendance_schedule' directly for this.
+
+        Same design invariant and same TEMPORARY exception as '_relocate_via_calendar_blocks'
+        above (see its docstring) - the 'else' branch below only still exists for a line created
+        directly by 'course_transition_wizard.py' (Phase 7, not done yet), and must be removed
+        once that phase closes the gap."""
         self.ensure_one()
         blocks = self.env['resource.calendar.attendance'].search([('attendance_schedule_id', '=', self.id)])
         if blocks:

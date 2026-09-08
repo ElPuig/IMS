@@ -19,6 +19,14 @@ Each conflict card's sub-group (already able to bulk-apply a resolution type to 
 ## Room conflict resolution left the teacher's own calendar out of sync (issue #405):
 Resolving a room conflict via the new group-classroom-change wizard only updated the "official" schedule record, not the teacher's own editable calendar block it derives from - so the group's Schedule tab (and any later re-sync of that teacher's calendar) kept showing the old, colliding room, silently undoing the resolution. Found on real data (SMX1D/SMX2D) right after building the feature; fixed so both sides always move together, and the 20 real rows already affected on this box were corrected.
 
+# Internal changes
+
+## The teacher's own calendar is now the sole trigger for the official teaching schedule:
+Following the room-conflict-resolution bug above, editing a teacher's calendar (create, edit, or delete a teaching block) now automatically keeps `ems.attendance_schedule`/`ems.attendance_template` in sync on its own, via a new automatic hook - nothing outside this mechanism writes those two models directly anymore. Built bottom-up, in small, independently-tested pieces (a pure decision function, per-template appliers, a per-teacher entry point, the automatic hook itself, then unifying every existing caller onto it), each one verified before the next was built on top of it. Along the way, three real design bugs were found and fixed: a group with no classroom could crash the background sync instead of being skipped; an early fix for that accidentally deleted an already-correctly-roomed schedule; and a latent bug (never previously exercised) dropped a co-teacher's own classroom when their template got rebuilt around them. Two shared helper methods (`_relocate_via_calendar_blocks`/`_archive_via_calendar_blocks`) now let any caller resolving a room conflict move or archive a session by touching only the calendar, reused to simplify both the group-classroom-change wizard and the working-schedules import wizard's own conflict resolution (fixing the same "calendar left stale" class of bug there too), and a similar direct-write pattern in `ems.group`'s own automatic (no-collision) classroom-change path.
+
+## One-time backfill for calendar blocks that predate the schedule-link column:
+A handful of calendar blocks created before the `attendance_schedule_id` link column existed (or before the automatic sync hook above did) had no link to their corresponding schedule line - migrated by re-running the existing calendar-driven rebuild tool (`regenerate_all_from_calendars`, already used by earlier migrations) once more, closing the gap for every teacher with no unresolved conflicts.
+
 # Changes
 
 ## "Another Coordinations" teaching type marked as fixed:

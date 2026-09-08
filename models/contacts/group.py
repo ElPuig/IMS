@@ -329,7 +329,10 @@ class EmsGroup(models.Model):
 		self.ensure_one()
 		schedule = block.attendance_schedule_id
 		if not schedule:
-			# Not yet synced into the official schedule - nothing to collide with yet, and
+			# Not yet synced into the official schedule (only reachable today via a course
+			# transition's own direct, calendar-bypassing writes - see ems.attendance_schedule's
+			# own '_relocate_via_calendar_blocks'/'_archive_via_calendar_blocks' docstrings for the
+			# same, still-open Phase 7 dependency) - nothing to collide with yet, and
 			# check_overlap() will act as the safety net once it is.
 			block.write({'space_id': new_space.id, 'space_pending_group_sync': False})
 			return []
@@ -337,8 +340,15 @@ class EmsGroup(models.Model):
 		if conflicts:
 			block.space_pending_group_sync = True
 			return conflicts
-		new_schedule = schedule._write_or_new_version({'space_id': new_space.id})
-		block.write({'space_id': new_space.id, 'attendance_schedule_id': new_schedule.id, 'space_pending_group_sync': False})
+		# Bottom-up sync redesign (2026-09-08) - moves EVERY calendar block deriving 'schedule'
+		# (not just 'block'), letting the automatic hook keep 'ems.attendance_schedule' in sync as
+		# a consequence, exactly like 'ems.group_classroom_change_wizard'/the import wizard's own
+		# conflict resolutions. Fixes a real latent bug the previous direct-write version had: if
+		# 'schedule' is shared by a co-teacher (has_sessions clones it under a new id),
+		# only 'block' itself got re-pointed at the new id - any OTHER teacher's own block still
+		# sharing this same line was left pointing at the now-archived one.
+		schedule._relocate_via_calendar_blocks(new_space)
+		block.space_pending_group_sync = False
 		return []
 
 	def _ems_equivalent_for_course(self, course):

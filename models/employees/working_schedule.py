@@ -1579,7 +1579,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					# CALENDAR block(s) behind 'right_schedule_id', letting the automatic hook keep
 					# the schedule line itself correctly in sync, instead of writing it directly and
 					# leaving the calendar stale.
-					line.right_schedule_id._resync_calendar_blocks_to(line.right_space_id)
+					line.right_schedule_id._relocate_via_calendar_blocks(line.right_space_id)
 
 		for item_index, entry_indices in indices_to_remove.items():
 			for entry_index in sorted(entry_indices, reverse=True):
