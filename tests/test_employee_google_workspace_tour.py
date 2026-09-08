@@ -1,10 +1,19 @@
+from unittest.mock import patch
+
 from odoo.tests import tagged, HttpCase
 
-from .common import force_user_language_to_english
+from .common import force_user_language_to_english, mock_outgoing_email
 
 
 @tagged('post_install', '-at_install')
 class TestEmployeeGoogleWorkspaceTour(HttpCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        # This box's ir.mail_server rows point at real, credentialed servers and the
+        # seeding below posts to the chatter - see CLAUDE.md's "Email safety in tests".
+        mock_outgoing_email(cls)
 
     def _seed_teacher(self, name, **vals):
         # "0000 " prefix: hr.employee's default _order is "name", so these sort first
@@ -28,7 +37,7 @@ class TestEmployeeGoogleWorkspaceTour(HttpCase):
         self._seed_teacher('GW Tour None')
         self._seed_teacher('GW Tour Pending', work_email='gw.tour.pending@elpuig.xeill.net')
         active = self._seed_teacher('GW Tour Active', work_email='gw.tour.active@elpuig.xeill.net')
-        active.action_create_ems_user()
+        relink = self._seed_teacher('GW Tour Relink', work_email='gw.tour.relink@elpuig.xeill.net')
         self._seed_teacher(
             'GW Tour Suspended', work_email='gw.tour.suspended@elpuig.xeill.net',
             google_ws_suspended=True)
@@ -38,4 +47,22 @@ class TestEmployeeGoogleWorkspaceTour(HttpCase):
             'schedule_import_code': 'X_TOUR',
         })
 
-        self.start_tour("/odoo", "ems_employee_google_workspace_state", login="admin")
+        employee_cls = type(self.env['hr.employee'])
+        # The Google user id is patched for the whole test: seeding the two 'active'
+        # teachers and pressing the repair button all go through the Directory API,
+        # and a test must never reach the centre's real Google Workspace.
+        with patch.object(employee_cls, '_gw_google_user_id',
+                          return_value='103000000000000000020'):
+            active.action_create_ems_user()
+        # ... whereas this one is exactly the broken state the repair button exists for:
+        # an EMS user that lost its OAuth data, so the tour can press the button itself.
+        with patch.object(employee_cls, '_gw_google_user_id', return_value=False):
+            relink.action_create_ems_user()
+        self.assertTrue(active.user_id.oauth_uid)
+        self.assertFalse(relink.user_id.oauth_uid)
+
+        with patch.object(employee_cls, '_gw_google_user_id',
+                          return_value='103000000000000000021'):
+            self.start_tour("/odoo", "ems_employee_google_workspace_state", login="admin")
+
+        self.assertEqual(relink.user_id.oauth_uid, '103000000000000000021')

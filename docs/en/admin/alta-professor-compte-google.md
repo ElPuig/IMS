@@ -85,6 +85,8 @@ The **Create Google account** button, at the top of the record, lets you force t
 - **Departure (archiving the record):** besides suspending the Google account, archiving the employee **immediately deactivates their EMS user**, so they can no longer sign in. Unarchiving restores both.
 - **The record already existed as a "Pending identification" placeholder:** if a working-schedule import created this teacher automatically before their identity was known (see "Teachers Not Yet Hired (Pending Identification)" in [Teacher Working Schedules & Schedule Frameworks](working-schedules.md)), the record already has a schedule, subjects and attendance lists set up — only **Step 2** and **Step 3** above are needed (replace the placeholder name, fill in the private email), then **Create Google account**. That single click also clears the "Pending identification" badge; nothing about the already-imported schedule needs to be redone.
 
+- **The teacher has an EMS user but cannot sign in with Google:** if the connection between the EMS user and their Google account is lost, Google accepts the login but EMS answers *Access Denied*, and no password reset fixes it. A **Re-link Google sign-in** button then appears at the top of the record, next to **Suspend Google account**. Pressing it asks Google for the account identifier again and restores the connection; the teacher can log in straight away. It changes nothing else — not the Google account, the password or the corporate address — and it does not appear while the connection is working.
+
 ---
 
 [← Back to Administrator index](index.md)
