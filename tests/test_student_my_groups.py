@@ -31,6 +31,11 @@ class TestStudentMyGroups(TransactionCase):
             'code': 'MYG001', 'acronym': 'MYG', 'name': 'Test Subject (My Groups)',
             'study_ids': [(6, 0, [cls.study.id])],
         })
+        # Taught in the same groups, but by somebody else.
+        cls.other_subject = cls.env['ems.subject'].create({
+            'code': 'MYG002', 'acronym': 'MYG2', 'name': 'Test Other Subject (My Groups)',
+            'study_ids': [(6, 0, [cls.study.id])],
+        })
 
         # The students. 'own_student' is in the taught group; 'other_student' is in a group
         # nobody in this test teaches; 'reinforcement_student' keeps 'other_group' as their main
@@ -108,6 +113,27 @@ class TestStudentMyGroups(TransactionCase):
         self.assertIn(self.tutored_student, students)
         self.assertIn(self.own_student, students)
         self.assertNotIn(self.other_student, students)
+
+    def test_repeater_enrolled_in_someone_elses_subject_is_excluded(self):
+        # Found in production 2026-09-09: a repeater from a higher course carries a failed
+        # subject down into one of my groups. They are only mine if the subject is one I
+        # actually teach there - matching on the group alone showed a teacher of SMX1A/SMX1B
+        # 19 students of SMX2A/SMX2B on the strength of another teacher's subject.
+        repeater = self.Partner.create({
+            'name': 'Test Repeater Student (My Groups)', 'contact_type': 'student',
+            'main_group_id': self.other_group.id,
+        })
+        self.env['ems.enrollment'].create({
+            'student_id': repeater.id, 'group_id': self.taught_group.id,
+            'subject_id': self.other_subject.id,
+        })
+        self.assertNotIn(repeater, self._search_as(self.teacher_user))
+        # ...and is picked up as soon as they take a subject this teacher does teach there.
+        self.env['ems.enrollment'].create({
+            'student_id': repeater.id, 'group_id': self.taught_group.id,
+            'subject_id': self.subject.id,
+        })
+        self.assertIn(repeater, self._search_as(self.teacher_user))
 
     def test_user_without_groups_is_not_filtered(self):
         # The whole point of the empty-domain branch: administration/secretariat keep seeing

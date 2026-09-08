@@ -91,7 +91,7 @@ flowchart LR
     E -->|"teaching_ids.group_id"| G["ems.group"]
     E -->|"tutorship_ids"| G
     G -->|"main_student_ids<br/>(main_group_id)"| S["res.partner<br/>(student)"]
-    G -->|"ems.enrollment.group_id"| S
+    G -->|"ems.enrollment<br/>(group + subject)"| S
 ```
 
 - `teaching_ids.group_id` — every group the employee teaches, main **or** reinforcement.
@@ -102,15 +102,34 @@ flowchart LR
   `ems.teaching` row. Not hypothetical: 6 groups were in exactly that state when this was
   written, 2 of them with students.
 
-**Both student-membership directions matter.** `main_group_id` is a plain many2one and can be
-pushed straight into the domain, but it would miss a **reinforcement** group entirely: nobody's
-main group is a reinforcement one, and its students are attached through `ems.enrollment`
-instead — 17 students in this centre's only such group at the time of writing, 0 via
-`main_group_id`. The second branch resolves those student ids in Python. It also catches a
-*desdoble*/repeater enrolled in a group that isn't their main one (issue #368).
+**The two student-membership branches are deliberately of different width.**
 
-Reading them needs `active_test=False`, since the action itself runs with `active_test: False`
-so archived alumni/withdrawals stay reachable once the `students_only` facet is removed.
+`main_group_id` covers the groups themselves: everyone whose main group is one of mine,
+whatever they happen to be enrolled in there. It is a plain many2one, pushed straight into the
+domain.
+
+`ems.enrollment` covers the students who reach one of my groups **without** it being their main
+one — a **reinforcement** group (nobody's main group is a reinforcement one, and its students
+are attached through `ems.enrollment` only: 17 students in this centre's only such group at the
+time of writing, 0 via `main_group_id`) and a **repeater** carrying a failed subject down into a
+lower course's group. This branch matches the exact `(group_id, subject_id)` pairs the employee
+teaches — the ternary `ems.enrollment` mirrors from `ems.teaching` — and resolves the student
+ids in Python.
+
+> Matching that second branch on the **group alone** was the shipped behaviour for about an
+> hour, and it was too wide: a teacher of SMX1A/SMX1B was shown 19 students of SMX2A/SMX2B whose
+> only link to them was some *other* teacher's subject taught in SMX1A/SMX1B. Only 4 of those 19
+> survive the pair match, and they are exactly the repeaters sitting in one of this teacher's
+> own classes. Nobody is lost to the tightening: an SMX1A student enrolled in none of that
+> teacher's subjects is still matched by `main_group_id`.
+
+The pairs come from `teaching_ids` alone, not from `_get_own_groups()`: a group that is only in
+scope because the employee **tutors** it contributes no subject of theirs, and its tutorands are
+already covered by the `main_group_id` branch.
+
+Reading enrolments needs `active_test=False`, since the action itself runs with
+`active_test: False` so archived alumni/withdrawals stay reachable once the `students_only`
+facet is removed.
 
 **A user with no groups at all is not filtered.** `_search_is_my_student` returns an **empty
 domain** (not `[('id', 'in', [])]`) when the employee teaches and tutors nothing, so
@@ -130,11 +149,10 @@ groups and clear the facet when they need the whole cohort.
 Adjacent `<filter>` elements are ORed together, so placing it next to `students_only` /
 `former_students` would have widened the result set instead of narrowing it.
 
-Rejected alternative: filtering **only** through `ems.enrollment` (student/group/subject, the
-exact mirror of `ems.teaching`, which would also allow filtering per subject). Enrolment coverage
-is uneven — FP has rows, ESO/BTX/PFI largely do not — so ESO/BTX teachers would have seen
-nothing. As the *second* branch of an `OR` it is safe: it only ever adds students on top of the
-`main_group_id` one, never takes any away.
+Rejected alternative: filtering **only** through `ems.enrollment`. Enrolment coverage is uneven
+— FP has rows, ESO/BTX/PFI largely do not — so ESO/BTX teachers would have seen nothing. As the
+*second* branch of an `OR` it is safe: it only ever adds students on top of the `main_group_id`
+one, never takes any away.
 
 ### `_compute_group_data(values)`
 

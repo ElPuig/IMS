@@ -449,18 +449,34 @@ class ResPartner(models.Model):
         groups = employee._get_own_groups() if employee else self.env['ems.group']
         if not groups:
             return []
-        # 'main_group_id' alone would miss a reinforcement group entirely: nobody's main group
-        # is a reinforcement one, its students are attached through ems.enrollment instead
-        # (17 students in this centre's only such group at the time of writing, 0 via
-        # main_group_id). The same second branch also catches a "desdoble"/repeater enrolled in
-        # a group that isn't their main one. It only ever ADDS students, so the uneven
-        # enrollment coverage across levels (FP has rows, ESO/BTX/PFI largely don't) can't take
-        # anyone away from the main_group_id branch.
+        # Two branches, deliberately of different width.
+        #
+        # 'main_group_id' covers the groups themselves: everyone whose main group is one of
+        # mine, whatever they happen to be enrolled in there.
+        #
+        # ems.enrollment covers the students who reach one of my groups WITHOUT it being their
+        # main one - a reinforcement group (nobody's main group is a reinforcement one, its
+        # students are attached through ems.enrollment only) and a repeater carrying a failed
+        # subject down into a lower course's group. Matching those by group alone was too wide
+        # (found 2026-09-09 by a teacher of SMX1A/SMX1B, who was shown 19 students of SMX2A and
+        # SMX2B whose only link was some other teacher's subject taught in SMX1A/SMX1B): what
+        # actually makes such a student mine is the exact (group, subject) pair I teach, the
+        # ternary ems.enrollment mirrors from ems.teaching. Only 4 of those 19 survive the pair
+        # match, which are precisely the repeaters sitting in one of this teacher's own classes.
+        #
+        # The pair match is built from 'teaching_ids' alone, not from 'groups': a group that is
+        # only in scope because the employee tutors it (no ems.teaching row) contributes no
+        # subject of theirs, and its own tutorands are already covered by the branch above.
+        #
         # active_test=False because the Students action itself runs with it: archived alumni and
         # withdrawals must stay reachable once the 'students_only' facet is removed.
-        enrolled = self.env['ems.enrollment'].sudo().with_context(active_test=False).search(
-            [('group_id', 'in', groups.ids)]).student_id
-        return ['|', ('main_group_id', 'in', groups.ids), ('id', 'in', enrolled.ids)]
+        pairs = {(teaching.group_id.id, teaching.subject_id.id)
+                 for teaching in employee.teaching_ids}
+        enrolled = self.env['ems.enrollment'].sudo().with_context(active_test=False).search([
+            ('group_id', 'in', [group_id for group_id, _subject_id in pairs]),
+            ('subject_id', 'in', [subject_id for _group_id, subject_id in pairs]),
+        ]).filtered(lambda enrollment: (enrollment.group_id.id, enrollment.subject_id.id) in pairs)
+        return ['|', ('main_group_id', 'in', groups.ids), ('id', 'in', enrolled.student_id.ids)]
 
     @api.depends('main_group_id')
     def _compute_is_my_student(self):
