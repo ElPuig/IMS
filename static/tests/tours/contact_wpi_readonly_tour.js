@@ -16,6 +16,14 @@ registry.category("web_tour.tours").add("ems_contact_wpi_readonly_for_non_tutora
             content: "Educational Community loaded",
         },
         {
+            // Issue #421: the action now opens scoped to the logged-in tutor's own groups, and
+            // this tour's whole point is a student OUTSIDE them. Clearing the facet is the
+            // supported way to widen it back - the same escape hatch a real tutor would use.
+            trigger: ".o_searchview_facet:contains('My students') .o_facet_remove",
+            content: "Clear the default 'My students' facet",
+            run: "click",
+        },
+        {
             trigger: ".o_switch_view.o_list",
             content: "Switch to list view",
             run: "click",

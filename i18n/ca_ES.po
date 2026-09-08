@@ -12682,3 +12682,20 @@ msgstr ""
 "El canvi d'estudi ha actualitzat les matrícules d'aquest alumne a partir "
 "de la plantilla %(template)s, però les següents assignatures ja tenen "
 "notes i s'han mantingut tal com estaven:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "My students"
+msgstr "El meu alumnat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__is_my_student
+#: model:ir.model.fields,field_description:ems.field_res_users__is_my_student
+msgid "Taught by me"
+msgstr "Dels meus grups"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "Unsupported search on is_my_student"
+msgstr "Cerca no admesa sobre is_my_student"

@@ -66,6 +66,7 @@ This **must be a real compute, not a plain `related=`**, unlike `hr.employee`'s 
 | `is_adult` | `birth_date` | `>= 18` years via `relativedelta`; `False` if no birth date |
 | `strike_count` | `strike_ids` | `len()` of `ems.strike` records |
 | `transition_status` | `contact_type`, `exit_type`, next-course `sale_order_ids` | `enrolled` / `unplaced` / `graduated` / `former` / `missing`; searchable via `_search_transition_status` (evaluates in Python then converts to an `id in/not in` domain — not SQL-pushable). Full branch coverage in `tests/test_exit_management.py`. |
+| `is_my_student` | (not stored) | `True` when the student belongs to one of the current user's own groups. Searchable via `_search_is_my_student`; backs the "My students" search filter that the Students action applies by default. See below. |
 | `auth_image` / `auth_trip` / `auth_healt` / `auth_share` | current-course `sale_order_ids.ems_authorization_ids` | One `ems.authorization` per template per order; `True` only if `status == 'yes'` for that `auth_type` in the **current** course |
 | `ems_authorization_ids` | (not stored) | Current-course authorizations across the student's `sale.order`s — feeds the badges above |
 | `ems_current_enrollment_id` | (not stored) | The student's `sale.order` for the enrollment-default (or else current) course, in `draft/sent/sale` state |
@@ -73,6 +74,67 @@ This **must be a real compute, not a plain `related=`**, unlike `hr.employee`'s 
 | `archived_reason_label` / `archived_reason_color` | `contact_type` | Feeds the `ems_archived_reason_ribbon` field widget (form + kanban) — see "Contact lifecycle" above |
 
 > `ems_authorization_ids`/`ems_current_enrollment_id`/`auth_*` sit at the boundary with [`ems.authorization*`](../enrollment/authorization.md) (`models/enrollment/authorization.py`). `_compute_ems_authorization_ids` was missing its `@api.depends` entirely (a real bug — a non-stored compute field with no dependencies never gets invalidated by later writes in the same transaction) — found and fixed during that model group's own DTON pass, not this one; see that doc's "res.partner auth booleans" section.
+
+### `is_my_student` / `_search_is_my_student` — the teacher's own students (issue #421)
+
+The Students action (`ems.action_student_kanban`) used to open on every student in the centre.
+It now applies a second default facet, `search_default_my_students`, so a teacher lands on the
+students of the groups they actually work with.
+
+**What counts as "one of my groups"** is the union of two sources, resolved by
+`hr.employee._get_own_groups()` (`models/employees/employee.py`) so the compute and the search
+cannot drift apart:
+
+```mermaid
+flowchart LR
+    U["res.users<br/>(current user)"] --> E["hr.employee"]
+    E -->|"teaching_ids.group_id"| G["ems.group"]
+    E -->|"tutorship_ids"| G
+    G -->|"main_student_ids<br/>(main_group_id)"| S["res.partner<br/>(student)"]
+    G -->|"ems.enrollment.group_id"| S
+```
+
+- `teaching_ids.group_id` — every group the employee teaches, main **or** reinforcement.
+  A tutoring assignment is normally already in here, as an ordinary `ems.teaching` row on the
+  group's tutorship subject (`ems.subject.is_tutorship`).
+- `tutorship_ids` — the already-existing `One2many` inverse of `ems.group.tutor_id`. Needed on
+  top of the above because a tutor set **by hand** on the group form has no matching
+  `ems.teaching` row. Not hypothetical: 6 groups were in exactly that state when this was
+  written, 2 of them with students.
+
+**Both student-membership directions matter.** `main_group_id` is a plain many2one and can be
+pushed straight into the domain, but it would miss a **reinforcement** group entirely: nobody's
+main group is a reinforcement one, and its students are attached through `ems.enrollment`
+instead — 17 students in this centre's only such group at the time of writing, 0 via
+`main_group_id`. The second branch resolves those student ids in Python. It also catches a
+*desdoble*/repeater enrolled in a group that isn't their main one (issue #368).
+
+Reading them needs `active_test=False`, since the action itself runs with `active_test: False`
+so archived alumni/withdrawals stay reachable once the `students_only` facet is removed.
+
+**A user with no groups at all is not filtered.** `_search_is_my_student` returns an **empty
+domain** (not `[('id', 'in', [])]`) when the employee teaches and tutors nothing, so
+administration and secretariat keep seeing every student even though the default facet is
+applied to them too. This is deliberate: an `ir.actions.act_window`'s `context` is a string
+evaluated **client-side** and has no ORM access, so it cannot decide per user whether to add
+`search_default_my_students`. Making the *search* inert for those users is what keeps the action
+a plain `act_window` — the alternative (an `ir.actions.server` building the context in Python)
+would have had to be threaded through both menu items and would diverge from the
+`/odoo/action-ems.action_student_kanban` URL that nine browser tours navigate to.
+
+Accepted trade-off: those users do see an inert "My students" facet in the search bar. Head of
+studies and Orientation get no exemption either — if they also teach, they open on their own
+groups and clear the facet when they need the whole cohort.
+
+**The filter must sit in its own group in the search view** (wrapped in `<separator/>`).
+Adjacent `<filter>` elements are ORed together, so placing it next to `students_only` /
+`former_students` would have widened the result set instead of narrowing it.
+
+Rejected alternative: filtering **only** through `ems.enrollment` (student/group/subject, the
+exact mirror of `ems.teaching`, which would also allow filtering per subject). Enrolment coverage
+is uneven — FP has rows, ESO/BTX/PFI largely do not — so ESO/BTX teachers would have seen
+nothing. As the *second* branch of an `OR` it is safe: it only ever adds students on top of the
+`main_group_id` one, never takes any away.
 
 ### `_compute_group_data(values)`
 
@@ -207,7 +269,7 @@ The **field-level** editing surface for tutors is narrower than the record rule 
 | List | `views/community/contact/list.xml` | `js_class="student_list"`; columns conditional on `default_contact_type` context |
 | Kanban | `views/community/contact/kanban.xml` | Default view for the Students menu |
 | Form | `views/community/contact/form.xml` | Inherits `base.view_partner_form`; `js_class="studentpopup_expand_button"`; conditional pages per `contact_type` (`student`, `applicant`, `former_student`, `academic_history`, base `contact_addresses`) |
-| Search | `views/community/contact/search.xml` | — |
+| Search | `views/community/contact/search.xml` | `view_student_search` carries the `students_only` default facet and the `my_students` one (issue #421, see above) |
 | Relation wizard | `views/community/contact/relation_wizard.xml` | `action_contact_relation_wizard` |
 | Menu | `views/community/contact/menu.xml` + `views/community/menu.xml` | `action_student_kanban` (top-level "Educational Community" entry), `action_family_list`, `action_provider_kanban` |
 

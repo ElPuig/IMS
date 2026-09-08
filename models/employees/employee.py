@@ -356,6 +356,18 @@ class ems_employee_base(models.AbstractModel):
     def _onchange_job_id(self):
         self._sync_security_groups()
 
+    def _get_own_groups(self):
+        """The groups this employee actually works with: the ones they teach plus the ones
+        they tutor. Backs res.partner's 'is_my_student' (issue #421) - see
+        docs/en/developers/contacts/contact.md.
+
+        Both sources are needed. A tutoring assignment is normally already an ordinary
+        ems.teaching row, on the group's tutorship subject (ems.subject.is_tutorship), so
+        'teaching_ids' alone covers the usual case - but a tutor set by hand on the group
+        form has no ems.teaching row behind it at all, and that really happens (6 groups
+        were in exactly that state when this was written, 2 of them with students)."""
+        return self.teaching_ids.group_id | self.tutorship_ids
+
     def _ems_role_hierarchy_truth(self):
         """Returns a (role, should_be_assigned, message) tuple per hierarchy-managed role (the
         7 roles whose role_ids membership is derived entirely from department/company/group

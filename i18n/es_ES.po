@@ -12682,3 +12682,20 @@ msgstr ""
 "El cambio de estudio ha actualizado las matrículas de este alumno a partir "
 "de la plantilla %(template)s, pero las siguientes asignaturas ya tienen "
 "notas y se han mantenido tal cual:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "My students"
+msgstr "Mi alumnado"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__is_my_student
+#: model:ir.model.fields,field_description:ems.field_res_users__is_my_student
+msgid "Taught by me"
+msgstr "De mis grupos"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "Unsupported search on is_my_student"
+msgstr "Búsqueda no admitida sobre is_my_student"

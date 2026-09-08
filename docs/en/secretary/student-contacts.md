@@ -14,8 +14,9 @@ This guide explains how to manage **student, family, applicant and provider cont
 2. [Adding a family contact to a student](#adding-a-family-contact-to-a-student)
 3. [Enrolling a student in subjects](#enrolling-a-student-in-subjects)
 4. [Bonifications and exemptions](#bonifications-and-exemptions)
-5. [Columns shown in the student list view](#columns-shown-in-the-student-list-view)
-6. [Fields only admin/secretary/tutors can see](#fields-only-adminsecretarytutors-can-see)
+5. [Filters applied when you open the student list](#filters-applied-when-you-open-the-student-list)
+6. [Columns shown in the student list view](#columns-shown-in-the-student-list-view)
+7. [Fields only admin/secretary/tutors can see](#fields-only-adminsecretarytutors-can-see)
 
 ---
 
@@ -54,6 +55,10 @@ A student's fee **benefits** (bonifications, which discount part of the enrollme
 - A student's overall **Benefits** badge (shown on the form) reflects the highest-priority benefit registered: an exemption always outranks a bonification.
 
 Whether a benefit actually changes the enrollment fee depends on the state of the corresponding enrollment: a benefit registered **before** the enrollment is confirmed applies to it immediately; one registered **after confirmation** does not retroactively change an already-confirmed order — re-applying it explicitly (from the enrollment) is needed instead. See the enrollment's own manual for that re-apply action.
+
+## Filters applied when you open the student list
+
+The search bar opens with two filters already applied: **Students**, which hides former students, and **My students**, which restricts the list to the groups of whoever is logged in. Because secretariat and administration are not assigned to any group, **My students** does not hide anything from you — the list shows every student with it on. Remove either filter by clicking its **×**.
 
 ## Columns shown in the student list view
 

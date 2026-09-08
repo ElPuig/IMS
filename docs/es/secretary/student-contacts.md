@@ -14,8 +14,9 @@ Esta guía explica cómo gestionar los contactos de tipo **alumno, familia, aspi
 2. [Añadir un contacto familiar a un alumno](#añadir-un-contacto-familiar-a-un-alumno)
 3. [Matricular a un alumno en asignaturas](#matricular-a-un-alumno-en-asignaturas)
 4. [Bonificaciones y exenciones](#bonificaciones-y-exenciones)
-5. [Columnas que se muestran en la vista de lista de alumnado](#columnas-que-se-muestran-en-la-vista-de-lista-de-alumnado)
-6. [Campos que solo ven admin/secretaría/tutores](#campos-que-solo-ven-adminsecretaríatutores)
+5. [Filtros aplicados al abrir la lista de alumnado](#filtros-aplicados-al-abrir-la-lista-de-alumnado)
+6. [Columnas que se muestran en la vista de lista de alumnado](#columnas-que-se-muestran-en-la-vista-de-lista-de-alumnado)
+7. [Campos que solo ven admin/secretaría/tutores](#campos-que-solo-ven-adminsecretaríatutores)
 
 ---
 
@@ -54,6 +55,10 @@ Los **beneficios** de cuota de un alumno (bonificaciones, que descuentan parte d
 - El distintivo de **Beneficios** del alumno (visible en la ficha) refleja el beneficio de mayor prioridad registrado: una exención siempre tiene preferencia sobre una bonificación.
 
 Que un beneficio cambie realmente la cuota de matrícula depende del estado de la matrícula correspondiente: un beneficio registrado **antes** de que la matrícula se confirme se aplica a ella inmediatamente; uno registrado **después de confirmarla** no modifica retroactivamente su importe — hay que volver a aplicarlo explícitamente (desde la matrícula). Consulta el manual de la matrícula para esa acción.
+
+## Filtros aplicados al abrir la lista de alumnado
+
+La barra de búsqueda se abre con dos filtros ya aplicados: **Alumnado**, que oculta al alumnado antiguo, y **Mi alumnado**, que limita la lista a los grupos de quien esté conectado. Como secretaría y administración no están asignadas a ningún grupo, **Mi alumnado** no te oculta nada — con el filtro puesto la lista muestra igualmente todo el alumnado. Quita cualquiera de los dos filtros haciendo clic en su **×**.
 
 ## Columnas que se muestran en la vista de lista de alumnado
 
