@@ -89,21 +89,93 @@ method added to either integration.
 
 ## Lifecycle
 
+Archiving a student does **not** touch the Google account straight away. It opens a
+two-stage grace period (issue #388) driven by two date fields on the partner and a daily
+cron, so a student who leaves and comes back within the month never loses anything, and
+nobody is deactivated without having been told first:
+
+```mermaid
+flowchart LR
+    A[Archived / withdrawal / graduation] -->|warning email + chatter| B[google_ws_deactivation_date = today + 30]
+    B -->|daily cron, date reached| C[Account suspended, moved to the suspended OU]
+    C --> D[google_ws_deletion_date = today + 30]
+    D -->|daily cron, date reached| E[Account deleted in Google]
+    B -->|unarchived| F[Schedule cancelled, nothing ever changed in Google]
+    C -->|unarchived| G[Reactivated]
+    E -->|unarchived| H[Recreated from scratch]
+```
+
 | Student event | Google account |
 |---|---|
 | Admitted / data completed (ready) | created (queued), OU by current `is_adult` |
 | `birth_date` arrives/changes | relocated to the OU matching the new `is_adult` (queued) |
-| Archived / withdrawal / graduation conversion | suspended, moved to the suspended OU (queued) |
-| Unarchived | reactivated (queued); recreated from scratch if it was deleted in Admin (404/403) |
+| Archived / withdrawal / graduation conversion | **nothing yet**: `google_ws_deactivation_date` set to today + `GW_DEACTIVATION_DELAY_DAYS`, warning email sent, chatter note posted |
+| Deactivation date reached (daily cron) | suspended, moved to the suspended OU (queued); `google_ws_deletion_date` set to today + `GW_DELETION_DELAY_DAYS` |
+| Deletion date reached (daily cron) | **deleted** in Google (queued); `google_ws_deleted = True`, `student_email` kept for traceability |
+| Unarchived before the deactivation date | schedule cancelled, chatter note; the account was never touched |
+| Unarchived while suspended | reactivated (queued), deletion schedule cancelled |
+| Unarchived after deletion | recreated from scratch (new credentials; the same address again if it is still free, the next candidate if Google still holds it) |
 | Deleted (`unlink`) | suspended **synchronously**, before the record disappears |
 
-The `unlink()` override (added in this pass, mirroring `HrEmployeeGoogleWorkspace.unlink()`
-exactly — the student side had none before) exists because a hard delete bypasses
-`write()`'s `active` flip entirely: without it, hard-deleting a student record with a live
-Google account would leave that account active forever, with no EMS record left to act on
-it. Runs `action_suspend_google_account()` synchronously (not queued) since the partner —
-and its `student_email` — will not exist once `unlink()` returns; a failure is logged, not
-raised, so it never blocks the actual deletion.
+The delays are fixed constants in `models/shared/google_workspace_mixin.py`
+(`GW_DEACTIVATION_DELAY_DAYS`, `GW_DELETION_DELAY_DAYS`, both 30) rather than company
+settings: the centre's policy is the one written in the issue, and a per-centre knob would
+only add a way to get it wrong.
+
+### The daily cron
+
+`ems.ir_cron_gw_student_lifecycle` (`data/main/ir_cron_google_workspace.csv`) runs
+`res.partner._gw_cron_process_lifecycle()` once a day. It does no Google API call itself:
+it only finds the partners whose scheduled date has arrived and enqueues the existing
+`action_suspend_google_account` / `action_delete_google_account` jobs, so a slow or failing
+Directory API call never blocks the cron.
+
+```python
+# suspension due: archived students whose deactivation date has arrived
+[('active', '=', False), ('google_ws_deactivation_date', '<=', today),
+ ('google_ws_suspended', '=', False), ('student_email', '!=', False)]
+# deletion due: already suspended, deletion date arrived, not deleted yet
+[('active', '=', False), ('google_ws_deletion_date', '<=', today),
+ ('google_ws_suspended', '=', True), ('google_ws_deleted', '=', False)]
+```
+
+Both searches use `active_test=False` — every record they look for is archived by
+definition.
+
+### Deletion is irreversible, and only for new departures
+
+`action_delete_google_account()` calls `users().delete()` on the Directory API: the mailbox
+and Drive content are gone. Three guards keep it narrow:
+
+- It only ever runs from a `google_ws_deletion_date` that `action_suspend_google_account()`
+  itself set — i.e. an account that went through the full warned-and-suspended path.
+- Students already suspended before this feature existed have no
+  `google_ws_deletion_date`, and the migration deliberately does **not** backfill one: they
+  stay suspended forever, exactly as they are today. Only departures from now on get a
+  deletion date.
+- `google_ws_deleted` makes it idempotent, and `student_email` is deliberately **kept** on
+  the record after deletion, so the address is still seen as taken by
+  `_gw_email_used_in_ems()` and never handed to a different student.
+
+### `unlink()` keeps suspending synchronously
+
+The `unlink()` override still suspends immediately instead of scheduling, and deliberately
+so: a hard delete leaves no record to hold `google_ws_deactivation_date`, so there would be
+nothing for the cron to find. A hard delete is also not the archive/withdrawal path the
+grace period is about — it is an administrative removal of the record itself. Runs
+`action_suspend_google_account()` synchronously (not queued) since the partner — and its
+`student_email` — will not exist once `unlink()` returns; a failure is logged, not raised,
+so it never blocks the actual deletion.
+
+### The warning email
+
+`ems.mail_template_google_deactivation_student`
+(`data/main/mail.template-google_lifecycle.csv`) is sent once, when the schedule is
+created, to **both** the personal address (`email`) and the corporate one
+(`student_email`): the corporate mailbox is still alive during the grace period, and it is
+the one the student actually reads day to day. It states both dates — deactivation and
+deletion — as the issue requires. A student with neither address gets the chatter note
+only.
 
 ## `google_ws_state`
 
@@ -151,6 +223,16 @@ suspended-account skip, and the non-dry-run regression test for the bug above), 
 `unlink()`. `google_ws_state` for all 3 states and the `google_ws_suspended` migration
 backfill are already covered by `tests/test_exit_management.py` (not duplicated here — see
 that file's `test_gw_*`/`test_migration_backfills_suspended_for_alumni_and_withdrawal`).
-No browser tour: the header buttons/state logic is identical in shape to the staff side,
-already covered end-to-end by `tests/test_employee_google_workspace_tour.py` for that
-sibling — not worth a second near-identical tour for the student form.
+`tests/test_student_google_workspace.py` also carries
+`TestStudentGoogleWorkspaceLifecycle` for the grace period (#388): scheduling on archive,
+the warning email, cancelling, the deletion schedule set by the suspension and cancelled
+by the reactivation, `action_delete_google_account` (dry-run, the real `users().delete()`
+call, idempotence, the not-suspended guard, the address staying reserved), recreation
+after deletion, and both cron stages - including the check that a student suspended
+before this feature existed, with no `google_ws_deletion_date`, is never deleted.
+
+`tests/test_student_google_workspace_tour.py` (`TestStudentGoogleWorkspaceTour`) renders
+the two banners and their buttons in a real browser: they are driven by the date fields
+rather than by `google_ws_state`, so no state test covers them. It relies on
+`ems.action_student_kanban` running with `active_test` disabled, which is what keeps
+archived students reachable from their own menu.

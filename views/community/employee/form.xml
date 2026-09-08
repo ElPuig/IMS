@@ -44,7 +44,22 @@
                                 class="btn-secondary"
                                 invisible="google_ws_state != 'suspended'"
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
+                        <!-- Grace period (issue #388): archiving only schedules the
+                             suspension. The date is not part of google_ws_state - the
+                             account is still fully active - so these two are driven by
+                             the date field itself. -->
+                        <button name="action_cancel_scheduled_deactivation" type="object"
+                                string="Cancel scheduled deactivation"
+                                class="btn-secondary"
+                                invisible="not google_ws_deactivation_date"
+                                groups="ems.group_academic_admin,hr.group_hr_user"/>
                     </header>
+                    <div class="alert alert-warning" role="alert"
+                         invisible="not google_ws_deactivation_date">
+                        The Google account is scheduled to be deactivated on
+                        <field name="google_ws_deactivation_date" readonly="1" nolabel="1"
+                               class="oe_inline"/>.
+                    </div>
                 </xpath>
 
                 <field name="work_email" position="attributes">

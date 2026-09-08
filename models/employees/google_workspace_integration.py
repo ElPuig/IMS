@@ -5,7 +5,10 @@ import logging
 from odoo import SUPERUSER_ID, _, api, fields, models
 from odoo.exceptions import UserError
 
-from ..shared.google_workspace_mixin import HttpError
+from ..shared.google_workspace_mixin import (
+    GW_DEACTIVATION_DELAY_DAYS,
+    HttpError,
+)
 
 _logger = logging.getLogger(__name__)
 
@@ -34,6 +37,10 @@ class HrEmployeeGoogleWorkspace(models.Model):
     google_ws_domain = fields.Char(
         related='company_id.google_ws_domain', readonly=True,
         string="Google Workspace domain")
+    google_ws_deactivation_date = fields.Date(
+        string="Scheduled Google deactivation", copy=False, readonly=True,
+        help="Date the corporate account is due to be suspended, set when the employee is "
+             "archived. Until then the account keeps working; unarchiving cancels it.")
     google_ws_missing_notice_sent = fields.Boolean(
         copy=False, default=False,
         help="Internal flag: a chatter note about missing required data was already "
@@ -216,6 +223,61 @@ class HrEmployeeGoogleWorkspace(models.Model):
             "Missing required data: %s."
         ) % ", ".join(missing))
         emp.google_ws_missing_notice_sent = True
+
+    def _gw_schedule_deactivation(self):
+        """Open the grace period instead of suspending the account right away.
+
+        Called when staff are archived. Sets the due date, warns the employee and posts a
+        chatter note; the daily cron does the actual suspension once the date arrives, so
+        an employee who comes back within the month never loses anything. An employee
+        whose deactivation is already scheduled keeps the original date - re-archiving an
+        already-archived record must not push the deadline back.
+        """
+        if not self.env.company.google_ws_enabled:
+            return
+        for employee in self.sudo().filtered(
+            lambda e: e.employee_type in ('teacher', 'asp') and e.work_email
+            and not e.google_ws_suspended and not e.google_ws_deactivation_date
+        ):
+            due = self._gw()._gw_schedule_date(GW_DEACTIVATION_DELAY_DAYS)
+            employee.google_ws_deactivation_date = due
+            self._gw()._gw_send_lifecycle_warning(
+                employee, 'ems.mail_template_google_deactivation_employee',
+                [employee.private_email, employee.work_email])
+            employee.message_post(body=_(
+                "Google Workspace: the corporate account %(email)s will be suspended on "
+                "%(date)s. Unarchiving this employee before that date cancels it.") % {
+                    'email': employee.work_email, 'date': due})
+
+    def _gw_cancel_scheduled_deactivation(self):
+        """Call off a pending deactivation (the employee is back before the deadline)."""
+        for employee in self.sudo().filtered('google_ws_deactivation_date'):
+            employee.google_ws_deactivation_date = False
+            employee.message_post(body=_(
+                "Google Workspace: the scheduled suspension of %s has been cancelled.")
+                % employee.work_email)
+
+    def action_cancel_scheduled_deactivation(self):
+        """Header button: keep the account even though the employee stays archived."""
+        self._gw_cancel_scheduled_deactivation()
+
+    @api.model
+    def _gw_cron_process_lifecycle(self):
+        """Daily cron: suspend the accounts whose grace period has run out.
+
+        Only enqueues the existing suspension job, so a slow or failing Directory API
+        call never blocks the cron. Every candidate is archived by definition, hence
+        active_test=False.
+        """
+        if not self.env.company.google_ws_enabled:
+            return
+        due = self.with_context(active_test=False).search([
+            ('active', '=', False),
+            ('google_ws_deactivation_date', '<=', fields.Date.context_today(self)),
+            ('google_ws_suspended', '=', False),
+            ('work_email', '!=', False),
+        ])
+        due._gw_enqueue_suspend()
 
     def _gw_enqueue_suspend(self):
         """Enqueue account suspension for staff with a corporate email (deduplicated)."""
@@ -615,7 +677,8 @@ class HrEmployeeGoogleWorkspace(models.Model):
                 status = getattr(getattr(e, 'resp', None), 'status', None)
                 if status in (404, 403):
                     # Account no longer exists in Google: nothing to suspend.
-                    emp.google_ws_suspended = True
+                    emp.write({'google_ws_suspended': True,
+                               'google_ws_deactivation_date': False})
                     self.message_post(body=_(
                         "Google Workspace: account %s no longer exists; marked as suspended.")
                         % emp.work_email)
@@ -627,7 +690,7 @@ class HrEmployeeGoogleWorkspace(models.Model):
                         'email': emp.work_email, 'ou': ou, 'err': str(e)[:200]})
                 raise
 
-        emp.google_ws_suspended = True
+        emp.write({'google_ws_suspended': True, 'google_ws_deactivation_date': False})
         self.message_post(body=_(
             "Google Workspace account suspended: %(email)s (moved to OU %(ou)s)%(dry)s.") % {
                 'email': emp.work_email, 'ou': ou,
@@ -673,7 +736,7 @@ class HrEmployeeGoogleWorkspace(models.Model):
             _logger.exception("Could not reactivate Google account for %s", self.name)
             raise
 
-        emp.google_ws_suspended = False
+        emp.write({'google_ws_suspended': False, 'google_ws_deactivation_date': False})
         self.message_post(body=_(
             "Google Workspace account reactivated: %(email)s (moved to OU %(ou)s).") % {
                 'email': emp.work_email, 'ou': ou})
@@ -692,9 +755,13 @@ class HrEmployeeGoogleWorkspace(models.Model):
         self._gw_enqueue_if_ready()
         if 'active' in vals:
             if vals.get('active'):
+                # Back before the deadline: nothing was ever changed in Google, so the
+                # pending schedule is simply called off. An account already suspended
+                # (the cron got there first) still needs reactivating.
+                self._gw_cancel_scheduled_deactivation()
                 self._gw_enqueue_reactivate()
             else:
-                self._gw_enqueue_suspend()
+                self._gw_schedule_deactivation()
             self._ems_sync_user_active(bool(vals.get('active')))
         return res
 

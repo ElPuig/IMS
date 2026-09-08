@@ -618,12 +618,15 @@ class ResPartner(models.Model):
         if 'birth_date' in values:
             self._gw_enqueue_relocate()
 
-        # Google Workspace: archive -> suspend account; unarchive -> reactivate.
+        # Google Workspace: archive -> schedule the suspension after a grace period
+        # (issue #388); unarchive -> call it off, or reactivate if the cron got there
+        # first and the account is already suspended.
         if 'active' in values:
             if values['active']:
+                self._gw_cancel_scheduled_deactivation()
                 self._gw_enqueue_reactivate()
             else:
-                self._gw_enqueue_suspend()
+                self._gw_schedule_deactivation()
 
         return contact
 
@@ -758,10 +761,12 @@ class ResPartner(models.Model):
                 'level_id': False,
                 'study_id': False,
             })
-            # Suspend the corporate Google account (moved to the /alumnos/bajas OU).
-            # sudo: the secretary running the withdrawal has no rights over the queue
-            # job / res.users. Guarded internally by google_ws_enabled and student_email.
-            partner.sudo()._gw_enqueue_suspend()
+            # Schedule the corporate Google account's suspension (issue #388): the
+            # student is warned now and the account is only suspended once the grace
+            # period runs out. sudo: the secretary running the withdrawal has no rights
+            # over the mail template / queue job. Guarded internally by
+            # google_ws_enabled and student_email.
+            partner.sudo()._gw_schedule_deactivation()
 
     def _ems_clear_operational_records(self):
         """Delete the operational records of a student leaving the centre.

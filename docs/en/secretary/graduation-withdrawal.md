@@ -56,6 +56,22 @@ Archiving a student from the generic Archive action (list or form) opens this sa
 4. If you chose **Expulsion**, they become **Expelled** — always, regardless of any earlier graduation mark. Otherwise, they become **alumni** if they had ever been marked as graduated (even long ago), or **withdrawal** otherwise.
 5. Their portal access is revoked — and their family's too, **unless** a family member still has another child actively enrolled at the school (a sibling keeps the family's access working).
 6. The student's record is archived.
+7. Their corporate Google account is scheduled for suspension: EMS emails the student (personal and corporate address) telling them the account will be suspended in 30 days and deleted 30 days after that, and shows both dates on their record as they are set.
+
+---
+
+## The corporate Google account after a withdrawal
+
+The account is not touched the day the student leaves — it keeps working for 30 days, then is suspended, and 30 days after that it is deleted for good (mailbox and Drive files included).
+
+On the student's record, at the top:
+
+- **Cancel scheduled deactivation** — keeps the account even though the student has left.
+- **Suspend Google account** — suspends it straight away, without waiting out the 30 days. This also starts the 30-day countdown to deletion.
+- **Delete Google account** — deletes it for good, without waiting. Asks for confirmation first; it cannot be undone.
+- **Reactivate Google account** — brings a suspended account back and calls off its deletion.
+
+Bringing the student back (unarchiving the record) does the same automatically: it calls off whichever step was scheduled, or reactivates the account if it was already suspended. If the account had already been deleted, a new one is created with fresh credentials.
 
 If the portal access can't be revoked for some reason, the student is **not** archived — you'll see that flagged in the confirmation message, and can retry once the underlying issue is resolved.
 

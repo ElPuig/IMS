@@ -56,6 +56,22 @@ Arxivar un alumne des de l'acció genèrica d'Arxivar (llista o fitxa) obre auto
 4. Si heu triat **Expulsió**, passa a ser **Expulsat/da** — sempre, independentment de qualsevol marca de graduació anterior. Si no, passa a ser **extitulat** si en algun moment va ser marcat com a graduat (encara que fos fa temps), o **baixa** en cas contrari.
 5. Se li revoca l'accés al portal — i també al de la seva família, **tret que** algun membre de la família encara tingui un altre fill/a matriculat/da activament al centre (un germà/na manté l'accés de la família funcionant).
 6. La fitxa de l'alumne s'arxiva.
+7. Es programa la suspensió del seu compte corporatiu de Google: EMS li envia un correu (a l'adreça personal i a la corporativa) avisant-lo que el compte se suspendrà d'aquí a 30 dies i s'eliminarà 30 dies més tard, i mostra les dues dates a la fitxa a mesura que es fixen.
+
+---
+
+## El compte corporatiu de Google després d'una baixa
+
+El compte no es toca el dia que l'alumne marxa: continua funcionant 30 dies, després se suspèn i, 30 dies més tard, s'elimina definitivament (bústia i fitxers de Drive inclosos).
+
+A la part superior de la fitxa de l'alumne:
+
+- **Cancel·la la desactivació programada** — conserva el compte encara que l'alumne hagi marxat.
+- **Suspèn el compte de Google** — el suspèn immediatament, sense esperar els 30 dies. Això també inicia el compte enrere de 30 dies fins a l'eliminació.
+- **Elimina el compte de Google** — l'elimina definitivament, sense esperar. Demana confirmació abans; no es pot desfer.
+- **Reactiva el compte de Google** — recupera un compte suspès i anul·la la seva eliminació.
+
+Si l'alumne torna (desarxivar la fitxa), això es fa automàticament: s'anul·la el pas que estigués programat, o es reactiva el compte si ja estava suspès. Si el compte ja s'havia eliminat, se'n crea un de nou amb credencials noves.
 
 Si l'accés al portal no es pot revocar per algun motiu, l'alumne **no** s'arxiva — ho veureu indicat al missatge de confirmació, i podeu tornar-ho a intentar un cop resolt el problema.
 

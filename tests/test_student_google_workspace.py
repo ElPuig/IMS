@@ -3,6 +3,10 @@ from unittest.mock import Mock, patch
 
 from dateutil.relativedelta import relativedelta
 
+from odoo.addons.ems.models.shared.google_workspace_mixin import (
+    GW_DEACTIVATION_DELAY_DAYS,
+    GW_DELETION_DELAY_DAYS,
+)
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
 
@@ -212,3 +216,221 @@ class TestStudentGoogleWorkspace(TransactionCase):
         with patch.object(type(student), 'action_suspend_google_account', autospec=True) as suspend:
             student.unlink()
         suspend.assert_not_called()
+
+
+class TestStudentGoogleWorkspaceLifecycle(TransactionCase):
+    """Issue #388: archiving a student opens a 30-day grace period before the Google
+    account is suspended, and a further 30 days before it is deleted.
+
+    Everything runs in dry-run so no real Google API call is performed, and the
+    warning email is patched out at the transport level.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.company = cls.env.company
+        cls.company.write({
+            'google_ws_enabled': True,
+            'google_ws_dry_run': True,
+            'google_ws_domain': 'elpuig.xeill.net',
+            'google_ws_ou_minor': '/alumnos',
+            'google_ws_ou_adult': '/alumnos/+18',
+            'google_ws_ou_suspended': '/alumnos/bajas',
+        })
+        patcher = patch(
+            'odoo.addons.base.models.ir_mail_server.IrMailServer.send_email')
+        patcher.start()
+        cls.addClassCleanup(patcher.stop)
+
+    def _new_student(self, **vals):
+        base = {
+            'name': 'Laia Puig Roca', 'firstname': 'Laia', 'lastname': 'Puig Roca',
+            'contact_type': 'student', 'student_id': '1234567890',
+            'email': 'laia.personal@example.com',
+            'student_email': 'lpuig@elpuig.xeill.net',
+            'birth_date': date.today() - relativedelta(years=15),
+        }
+        base.update(vals)
+        return self.env['res.partner'].create(base)
+
+    # --- stage 1: scheduling on archive -----------------------------------
+
+    def test_archive_schedules_deactivation_instead_of_suspending(self):
+        student = self._new_student()
+        student.write({'active': False})
+        self.assertEqual(
+            student.google_ws_deactivation_date,
+            date.today() + relativedelta(days=GW_DEACTIVATION_DELAY_DAYS))
+        self.assertFalse(student.google_ws_suspended)
+        self.assertFalse(student.google_ws_deletion_date)
+
+    def test_archive_sends_the_warning_email(self):
+        student = self._new_student()
+        with patch.object(type(self.env['mail.template']), 'send_mail') as send_mail:
+            student.write({'active': False})
+        send_mail.assert_called_once()
+
+    def test_unarchive_cancels_the_schedule(self):
+        student = self._new_student()
+        student.write({'active': False})
+        student.write({'active': True})
+        self.assertFalse(student.google_ws_deactivation_date)
+
+    def test_manual_cancel_button(self):
+        student = self._new_student()
+        student.write({'active': False})
+        student.action_cancel_scheduled_deactivation()
+        self.assertFalse(student.google_ws_deactivation_date)
+
+    # --- stage 2: suspension schedules the deletion -----------------------
+
+    def test_suspending_schedules_the_deletion(self):
+        student = self._new_student()
+        student.action_suspend_google_account()
+        self.assertEqual(
+            student.google_ws_deletion_date,
+            date.today() + relativedelta(days=GW_DELETION_DELAY_DAYS))
+        self.assertFalse(student.google_ws_deactivation_date)
+
+    def test_reactivating_cancels_the_deletion(self):
+        student = self._new_student()
+        student.action_suspend_google_account()
+        student.action_reactivate_google_account()
+        self.assertFalse(student.google_ws_deletion_date)
+        self.assertFalse(student.google_ws_suspended)
+
+    # --- stage 3: deletion -------------------------------------------------
+
+    def test_delete_dry_run_marks_the_account_deleted(self):
+        student = self._new_student()
+        student.action_suspend_google_account()
+        student.action_delete_google_account()
+        self.assertTrue(student.google_ws_deleted)
+        self.assertFalse(student.google_ws_deletion_date)
+
+    def test_delete_keeps_the_corporate_email_reserved(self):
+        student = self._new_student()
+        student.action_suspend_google_account()
+        student.action_delete_google_account()
+        self.assertEqual(student.student_email, 'lpuig@elpuig.xeill.net')
+        # The address stays taken, so it is never handed to a different student.
+        other = self._new_student(name='Pau Roca', student_id='9876543210',
+                                  student_email=False)
+        self.assertTrue(other._gw_email_used_in_ems('lpuig@elpuig.xeill.net'))
+
+    def test_delete_refuses_an_account_that_is_not_suspended(self):
+        student = self._new_student()
+        student.action_delete_google_account()
+        self.assertFalse(student.google_ws_deleted)
+
+    def test_delete_is_idempotent(self):
+        student = self._new_student()
+        student.action_suspend_google_account()
+        student.action_delete_google_account()
+        student.google_ws_deletion_date = date.today()
+        student.action_delete_google_account()
+        self.assertTrue(student.google_ws_deleted)
+
+    def test_delete_calls_the_directory_api(self):
+        student = self._new_student()
+        student.action_suspend_google_account()
+        mock_service = Mock()
+        self.company.google_ws_dry_run = False
+        try:
+            with patch(
+                'odoo.addons.ems.models.shared.google_workspace_mixin.'
+                'GoogleWorkspaceMixin._gw_get_service',
+                return_value=mock_service,
+            ):
+                student.action_delete_google_account()
+        finally:
+            self.company.google_ws_dry_run = True
+        mock_service.users.return_value.delete.assert_called_once_with(
+            userKey='lpuig@elpuig.xeill.net')
+
+    def test_reactivating_a_deleted_account_recreates_it(self):
+        # Patching action_create_google_account is not an option here: queue_job
+        # refuses a mock ("Job accepts only methods of Models"), so the real dry-run
+        # creation runs and the assertion is on its outcome - a brand-new address.
+        student = self._new_student()
+        student.action_suspend_google_account()
+        student.action_delete_google_account()
+        student.action_reactivate_google_account()
+        self.assertFalse(student.google_ws_deleted)
+        self.assertFalse(student.google_ws_deletion_date)
+        # The address itself may well come back the same: the candidates are derived
+        # from the name, and it is no longer taken by anyone once the record released
+        # it. Google is the one that decides, replying 409 while it still holds the
+        # deleted address, in which case the next candidate is used.
+        self.assertTrue(student.student_email)
+
+    # --- the cron ----------------------------------------------------------
+
+    def test_cron_does_nothing_before_the_dates(self):
+        student = self._new_student()
+        student.write({'active': False})
+        with patch.object(type(student), 'action_suspend_google_account') as suspend:
+            self.env['res.partner'].with_context(
+            queue_job__no_delay=True)._gw_cron_process_lifecycle()
+        suspend.assert_not_called()
+
+    def test_cron_suspends_once_the_deactivation_date_is_reached(self):
+        student = self._new_student()
+        student.write({'active': False})
+        student.google_ws_deactivation_date = date.today()
+        self.env['res.partner'].with_context(
+            queue_job__no_delay=True)._gw_cron_process_lifecycle()
+        self.assertTrue(student.google_ws_suspended)
+        self.assertEqual(
+            student.google_ws_deletion_date,
+            date.today() + relativedelta(days=GW_DELETION_DELAY_DAYS))
+
+    def test_cron_deletes_once_the_deletion_date_is_reached(self):
+        student = self._new_student()
+        student.write({'active': False})
+        student.google_ws_deactivation_date = date.today()
+        self.env['res.partner'].with_context(
+            queue_job__no_delay=True)._gw_cron_process_lifecycle()
+        student.google_ws_deletion_date = date.today()
+        self.env['res.partner'].with_context(
+            queue_job__no_delay=True)._gw_cron_process_lifecycle()
+        self.assertTrue(student.google_ws_deleted)
+
+    def test_cron_never_deletes_an_account_without_a_deletion_date(self):
+        # Students suspended before this feature existed have no deletion date:
+        # the migration deliberately does not backfill one.
+        student = self._new_student(google_ws_suspended=True)
+        student.write({'active': False})
+        self.env['res.partner'].with_context(
+            queue_job__no_delay=True)._gw_cron_process_lifecycle()
+        self.assertFalse(student.google_ws_deleted)
+
+    def test_cron_ignores_active_students(self):
+        student = self._new_student()
+        student.google_ws_deactivation_date = date.today()
+        self.env['res.partner'].with_context(
+            queue_job__no_delay=True)._gw_cron_process_lifecycle()
+        self.assertFalse(student.google_ws_suspended)
+
+    # --- withdrawal / graduation path --------------------------------------
+
+    def test_withdrawal_schedules_instead_of_suspending(self):
+        student = self._new_student()
+        student.sudo()._gw_schedule_deactivation()
+        self.assertTrue(student.google_ws_deactivation_date)
+        self.assertFalse(student.google_ws_suspended)
+
+    def test_schedule_covers_ex_students(self):
+        alumni = self._new_student(contact_type='alumni')
+        alumni._gw_schedule_deactivation()
+        self.assertTrue(alumni.google_ws_deactivation_date)
+
+    # --- hard delete keeps the old immediate behaviour ---------------------
+
+    def test_unlink_still_suspends_immediately(self):
+        student = self._new_student()
+        with patch.object(
+                type(student), 'action_suspend_google_account', autospec=True) as suspend:
+            student.unlink()
+        suspend.assert_called_once()

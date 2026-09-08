@@ -5,7 +5,11 @@ import logging
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 
-from ..shared.google_workspace_mixin import HttpError
+from ..shared.google_workspace_mixin import (
+    GW_DEACTIVATION_DELAY_DAYS,
+    GW_DELETION_DELAY_DAYS,
+    HttpError,
+)
 
 _logger = logging.getLogger(__name__)
 
@@ -20,6 +24,18 @@ class ResPartnerGoogleWorkspace(models.Model):
     google_ws_suspended = fields.Boolean(
         string="Google account suspended", default=False, copy=False,
         help="True when the student's Google Workspace account is suspended (former student).")
+    google_ws_deactivation_date = fields.Date(
+        string="Scheduled Google deactivation", copy=False, readonly=True,
+        help="Date the corporate account is due to be suspended, set when the student "
+             "leaves. Until then the account keeps working; coming back cancels it.")
+    google_ws_deletion_date = fields.Date(
+        string="Scheduled Google deletion", copy=False, readonly=True,
+        help="Date the suspended corporate account is due to be deleted for good. Set "
+             "when the account is suspended; reactivating it cancels the deletion.")
+    google_ws_deleted = fields.Boolean(
+        string="Google account deleted", default=False, copy=False, readonly=True,
+        help="True once the corporate account has been deleted in Google. The address is "
+             "kept on the record so it is never handed to a different student.")
     google_ws_state = fields.Selection(
         selection=[
             ('none', 'No Google account'),
@@ -173,6 +189,88 @@ class ResPartnerGoogleWorkspace(models.Model):
                 identity_key='gw_relocate_%s' % partner.id,
                 description="Relocate Google Workspace account: %s" % partner.name,
             ).action_relocate_google_account()
+
+    def _gw_schedule_deactivation(self):
+        """Open the grace period instead of suspending the account right away.
+
+        Called when a student is archived or converted to an ex-student
+        (withdrawal/graduation/expulsion). Sets the due date, warns the student and posts
+        a chatter note; the daily cron does the actual suspension once the date arrives,
+        so a student who comes back within the month never loses anything. A student
+        whose deactivation is already scheduled keeps the original date - archiving an
+        already-archived record must not push the deadline back.
+        """
+        if not self.env.company.google_ws_enabled:
+            return
+        for partner in self.filtered(
+            lambda p: p.contact_type in ('student', 'alumni', 'withdrawal', 'expelled')
+            and p.student_email and not p.google_ws_suspended
+            and not p.google_ws_deactivation_date
+        ):
+            due = self._gw()._gw_schedule_date(GW_DEACTIVATION_DELAY_DAYS)
+            partner.sudo().google_ws_deactivation_date = due
+            self._gw()._gw_send_lifecycle_warning(
+                partner, 'ems.mail_template_google_deactivation_student',
+                [partner.email, partner.student_email],
+                extra_context={'gw_deletion_date': self._gw()._gw_schedule_date(
+                    GW_DEACTIVATION_DELAY_DAYS + GW_DELETION_DELAY_DAYS)})
+            partner.message_post(body=_(
+                "Google Workspace: the corporate account %(email)s will be suspended on "
+                "%(date)s and deleted %(days)s days later. Bringing this student back "
+                "before then cancels it.") % {
+                    'email': partner.student_email, 'date': due,
+                    'days': GW_DELETION_DELAY_DAYS})
+
+    def _gw_cancel_scheduled_deactivation(self):
+        """Call off a pending deactivation (the student is back before the deadline)."""
+        for partner in self.filtered('google_ws_deactivation_date'):
+            partner.sudo().google_ws_deactivation_date = False
+            partner.message_post(body=_(
+                "Google Workspace: the scheduled suspension of %s has been cancelled.")
+                % partner.student_email)
+
+    def action_cancel_scheduled_deactivation(self):
+        """Header button: keep the account even though the student is no longer here."""
+        self._gw_cancel_scheduled_deactivation()
+
+    @api.model
+    def _gw_cron_process_lifecycle(self):
+        """Daily cron: run whichever lifecycle step has fallen due.
+
+        Two independent stages - suspension after the first grace period, deletion after
+        the second - both of which only enqueue the existing job, so a slow or failing
+        Directory API call never blocks the cron. Every candidate is archived by
+        definition, hence active_test=False. Students suspended before this feature
+        existed have no google_ws_deletion_date and are therefore never deleted.
+        """
+        if not self.env.company.google_ws_enabled:
+            return
+        today = fields.Date.context_today(self)
+        partners = self.with_context(active_test=False)
+        partners.search([
+            ('active', '=', False),
+            ('google_ws_deactivation_date', '<=', today),
+            ('google_ws_suspended', '=', False),
+            ('student_email', '!=', False),
+        ])._gw_enqueue_suspend()
+        partners.search([
+            ('active', '=', False),
+            ('google_ws_deletion_date', '<=', today),
+            ('google_ws_suspended', '=', True),
+            ('google_ws_deleted', '=', False),
+        ])._gw_enqueue_delete()
+
+    def _gw_enqueue_delete(self):
+        """Enqueue the permanent deletion of already-suspended accounts (deduplicated)."""
+        if not self.env.company.google_ws_enabled:
+            return
+        for partner in self.filtered(
+            lambda p: p.student_email and p.google_ws_suspended and not p.google_ws_deleted
+        ):
+            partner.with_delay(
+                identity_key='gw_delete_%s' % partner.id,
+                description="Delete Google Workspace account: %s" % partner.name,
+            ).action_delete_google_account()
 
     def _gw_enqueue_suspend(self):
         """Enqueue account suspension for students/ex-students with a corporate email
@@ -365,8 +463,13 @@ class ResPartnerGoogleWorkspace(models.Model):
             except HttpError as e:
                 status = getattr(getattr(e, 'resp', None), 'status', None)
                 if status in (404, 403):
-                    # Account no longer exists in Google: nothing to suspend.
-                    self.sudo().google_ws_suspended = True
+                    # Account no longer exists in Google: nothing to suspend, and nothing
+                    # left to delete either - no deletion date is scheduled.
+                    self.sudo().write({
+                        'google_ws_suspended': True,
+                        'google_ws_deactivation_date': False,
+                        'google_ws_deleted': True,
+                    })
                     self.message_post(body=_(
                         "Google Workspace: account %s no longer exists; marked as suspended.")
                         % self.student_email)
@@ -378,10 +481,57 @@ class ResPartnerGoogleWorkspace(models.Model):
                         'email': self.student_email, 'ou': ou, 'err': str(e)[:200]})
                 raise
 
-        self.sudo().google_ws_suspended = True
+        deletion_due = self._gw()._gw_schedule_date(GW_DELETION_DELAY_DAYS)
+        self.sudo().write({
+            'google_ws_suspended': True,
+            'google_ws_deactivation_date': False,
+            'google_ws_deletion_date': deletion_due,
+        })
         self.message_post(body=_(
-            "Google Workspace account suspended: %(email)s (moved to OU %(ou)s)%(dry)s.") % {
-                'email': self.student_email, 'ou': ou,
+            "Google Workspace account suspended: %(email)s (moved to OU %(ou)s)%(dry)s. "
+            "It will be deleted for good on %(date)s unless the student comes back.") % {
+                'email': self.student_email, 'ou': ou, 'date': deletion_due,
+                'dry': _(" [dry-run]") if company.google_ws_dry_run else ''})
+
+    def action_delete_google_account(self):
+        """Delete the ex-student's Google account for good (queue job / manual button).
+
+        The last stage of the leaving lifecycle: the account has already been suspended
+        for a full grace period and the student never came back. This is irreversible -
+        the mailbox and Drive content are gone - so it only ever runs on an account that
+        went through the whole warned-and-suspended path. Idempotent.
+
+        ``student_email`` is deliberately kept on the record: it is what makes
+        ``_gw_email_used_in_ems()`` still consider the address taken, so it is never
+        handed to a different student later on.
+        """
+        self.ensure_one()
+        company = self.env.company
+        if not company.google_ws_enabled:
+            return
+        if not self.student_email or not self.google_ws_suspended or self.google_ws_deleted:
+            return
+
+        if company.google_ws_dry_run:
+            _logger.info("[GW dry-run] delete %s", self.student_email)
+        else:
+            service = self._gw()._gw_get_service()
+            try:
+                service.users().delete(userKey=self.student_email).execute()
+            except HttpError as e:
+                status = getattr(getattr(e, 'resp', None), 'status', None)
+                if status not in (404, 403):
+                    _logger.exception("Could not delete Google account for %s", self.name)
+                    self.message_post(body=_(
+                        "Google Workspace: could not delete %(email)s. Error: %(err)s") % {
+                            'email': self.student_email, 'err': str(e)[:200]})
+                    raise
+                # Already gone in Admin: the end state is the one we wanted anyway.
+
+        self.sudo().write({'google_ws_deleted': True, 'google_ws_deletion_date': False})
+        self.message_post(body=_(
+            "Google Workspace account deleted for good: %(email)s%(dry)s.") % {
+                'email': self.student_email,
                 'dry': _(" [dry-run]") if company.google_ws_dry_run else ''})
 
     def action_relocate_google_account(self):
@@ -427,11 +577,24 @@ class ResPartnerGoogleWorkspace(models.Model):
             return
         if self.contact_type != 'student' or not self.student_email:
             return
+        if self.google_ws_deleted:
+            # The grace period ran out and the account is gone for good: there is nothing
+            # to reactivate, so a brand-new one is created (new address, new credentials).
+            self.message_post(body=_(
+                "Google Workspace: account %s was deleted; creating a new one.")
+                % self.student_email)
+            self.sudo().write({
+                'student_email': False, 'google_ws_suspended': False,
+                'google_ws_deleted': False, 'google_ws_deletion_date': False,
+            })
+            self.action_create_google_account()
+            return
 
         ou = company.google_ws_ou_adult if self.is_adult else company.google_ws_ou_minor
         if company.google_ws_dry_run:
             _logger.info("[GW dry-run] reactivate %s -> suspended=False, OU=%s", self.student_email, ou)
-            self.sudo().google_ws_suspended = False
+            self.sudo().write({
+                'google_ws_suspended': False, 'google_ws_deletion_date': False})
             self.message_post(body=_(
                 "Google Workspace account reactivated: %s [dry-run].") % self.student_email)
             return
@@ -449,13 +612,16 @@ class ResPartnerGoogleWorkspace(models.Model):
                 self.message_post(body=_(
                     "Google Workspace: account %s no longer exists; recreating it.")
                     % self.student_email)
-                self.sudo().write({'student_email': False, 'google_ws_suspended': False})
+                self.sudo().write({
+                    'student_email': False, 'google_ws_suspended': False,
+                    'google_ws_deletion_date': False,
+                })
                 self.action_create_google_account()
                 return
             _logger.exception("Could not reactivate Google account for %s", self.name)
             raise
 
-        self.sudo().google_ws_suspended = False
+        self.sudo().write({'google_ws_suspended': False, 'google_ws_deletion_date': False})
         self.message_post(body=_(
             "Google Workspace account reactivated: %(email)s (moved to OU %(ou)s).") % {
                 'email': self.student_email, 'ou': ou})

@@ -1,3 +1,8 @@
+from datetime import date
+from unittest.mock import patch
+
+from dateutil.relativedelta import relativedelta
+
 from odoo.tests import tagged, HttpCase
 
 from .common import force_user_language_to_english
@@ -5,6 +10,16 @@ from .common import force_user_language_to_english
 
 @tagged('post_install', '-at_install')
 class TestEmployeeGoogleWorkspaceTour(HttpCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        # Archiving a teacher now sends the grace-period warning (#388), and this DB
+        # has real outgoing mail servers configured: never let a test reach SMTP.
+        mail_patcher = patch(
+            'odoo.addons.base.models.ir_mail_server.IrMailServer.send_email')
+        mail_patcher.start()
+        cls.addClassCleanup(mail_patcher.stop)
 
     def _seed_teacher(self, name, **vals):
         # "0000 " prefix: hr.employee's default _order is "name", so these sort first
@@ -32,6 +47,12 @@ class TestEmployeeGoogleWorkspaceTour(HttpCase):
         self._seed_teacher(
             'GW Tour Suspended', work_email='gw.tour.suspended@elpuig.xeill.net',
             google_ws_suspended=True)
+        # Grace period (#388): archived, with the suspension already scheduled - the
+        # state the form's banner and "Cancel scheduled deactivation" button react to.
+        scheduled = self._seed_teacher(
+            'GW Tour Scheduled', work_email='gw.tour.scheduled@elpuig.xeill.net')
+        scheduled.write({'active': False})
+        scheduled.google_ws_deactivation_date = date.today() + relativedelta(days=30)
         self.env['hr.employee'].create({
             'name': '0000 GW Tour Pending Identification',
             'employee_type': 'teacher',
