@@ -105,10 +105,20 @@ class EmsCourseGuardDutyBoard(models.Model):
         archived by some other path without its own attendance rows following (found 2026-09-01:
         before that cascade existed, a rolled-over teacher's ARCHIVED calendar kept showing
         active non-teaching rows here indefinitely, since a bare 'active=True' row search never
-        looks at its own parent calendar's active state at all)."""
+        looks at its own parent calendar's active state at all).
+
+        'calendar_id.employee_id != False' excludes any calendar that isn't a specific teacher's
+        own personal working schedule - concretely, Odoo's own generic default calendar (e.g.
+        "Standard 40 hours/week", auto-created with its own Mon-Fri 8-12/13-17 attendance rows
+        the first time anything needs 'res.company.resource_calendar_id' and nothing has been
+        customized yet). That calendar is never itself is_framework=True, so the check above
+        alone doesn't exclude it, and on a clean install with no real schedules configured yet
+        it silently shows up here and corrupts period computation (found 2026-09-08 via CI: the
+        generic 8-12 block contains/absorbs a real, narrower test period into itself)."""
         return self.env['resource.calendar.attendance'].search([
             ('calendar_id.is_framework', '=', False),
             ('calendar_id.active', '=', True),
+            ('calendar_id.employee_id', '!=', False),
             ('dayofweek', 'in', WEEKDAYS),
         ])
 

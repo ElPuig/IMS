@@ -84,7 +84,21 @@ class TestGuardDutyBoard(TransactionCase):
         })
 
     def _new_calendar(self, teacher, name):
-        calendar = self.env['resource.calendar'].create({'name': name})
+        # 'employee_id' (matching how every real personal calendar is created - see
+        # hr.employee.create()/course_transition_wizard.py's own 'resource.calendar' creates)
+        # is what '_get_guard_duty_board_attendance_ids' now uses to tell a teacher's own
+        # working schedule apart from Odoo's generic default calendar (e.g. "Standard 40
+        # hours/week", 'employee_id' False) - omitting it here made every fixture in this class
+        # indistinguishable from that generic calendar to the board's own aggregation. Clearing
+        # 'attendance_ids' also mirrors 'seed_from_framework()' - a plain create() with no
+        # attendance_ids auto-populates default Mon-Fri 8-12/13-17 rows (Odoo's own
+        # 'resource.calendar' default), which would otherwise leak into the board's centre-wide
+        # aggregation as noise even before any of this test's own schedule is applied (found
+        # 2026-09-08 via CI on a clean install, where that generic calendar's rows exist and
+        # this dev DB's own history happens not to have any).
+        calendar = self.env['resource.calendar'].create({
+            'name': name, 'employee_id': teacher.id, 'attendance_ids': [(5, 0, 0)],
+        })
         teacher.resource_calendar_id = calendar
         return calendar
 

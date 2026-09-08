@@ -67,6 +67,15 @@ addressable by a real, stable URL.
   calendar itself retired. `ems_working_schedule.action_archive()` now cascades to its own
   `attendance_ids` (see `course_transition_wizard.md`), which fixes this at the source going
   forward — the explicit filter here stays anyway as defense-in-depth, not redundant with it.
+  Also filters `calendar_id.employee_id != False` (added 2026-09-08) — excludes any calendar
+  that isn't a specific teacher's own personal working schedule, concretely Odoo's own generic
+  default calendar ("Standard 40 hours/week", auto-created with Mon-Fri 8-12/13-17 rows the
+  first time anything needs `res.company.resource_calendar_id` and nothing real has been
+  configured yet). That calendar is never `is_framework=True`, so the check above alone doesn't
+  exclude it; on a clean install with no real schedules yet it silently leaked into this
+  aggregation and its generic 8-12 block absorbed narrower real periods into itself (found via
+  CI, which installs clean — this box's own long-lived dev DB never had that generic calendar
+  to begin with, which is why the bug never showed up locally).
 - `get_guard_duty_board_lines(weekday, shift)` — instance method, `self.ensure_one()`, called
   on a real `ems.course` record (the PDF template calls it on each of `docs`). For one weekday
   (`'0'`-`'4'`) and one shift (`'morning'`/`'afternoon'`, `SHIFT_HOURS` mirroring `ems.group`'s

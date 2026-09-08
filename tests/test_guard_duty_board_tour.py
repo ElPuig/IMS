@@ -40,7 +40,12 @@ class TestGuardDutyBoardTour(HttpCase):
             'space_id': space.id, 'shift': 'morning',
         })
         teacher = self.env['hr.employee'].create({'name': 'Tour Guard Board Teacher', 'employee_type': 'teacher'})
-        calendar = self.env['resource.calendar'].create({'name': 'Tour Guard Board Teacher Calendar'})
+        # 'employee_id' (matching every real personal calendar - see hr.employee.create()/
+        # course_transition_wizard.py) is what '_get_guard_duty_board_attendance_ids' now uses to
+        # tell a teacher's own working schedule apart from Odoo's generic default calendar (e.g.
+        # "Standard 40 hours/week", 'employee_id' False) - omitting it here made this fixture
+        # indistinguishable from that generic calendar on a clean install (found 2026-09-08 via CI).
+        calendar = self.env['resource.calendar'].create({'name': 'Tour Guard Board Teacher Calendar', 'employee_id': teacher.id})
         teacher.resource_calendar_id = calendar
         calendar.apply_schedule_changes([{
             'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
@@ -48,7 +53,7 @@ class TestGuardDutyBoardTour(HttpCase):
         }])
 
         guard_teacher = self.env['hr.employee'].create({'name': 'Tour Guard Board Guard', 'employee_type': 'teacher'})
-        guard_calendar = self.env['resource.calendar'].create({'name': 'Tour Guard Board Guard Calendar'})
+        guard_calendar = self.env['resource.calendar'].create({'name': 'Tour Guard Board Guard Calendar', 'employee_id': guard_teacher.id})
         guard_teacher.resource_calendar_id = guard_calendar
         guard_calendar.apply_schedule_changes([{
             'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
@@ -58,7 +63,7 @@ class TestGuardDutyBoardTour(HttpCase):
         # A distinct afternoon-only teacher, so the tour can prove the shift dropdown actually
         # re-fetches (not just keeps showing the morning data it already has).
         afternoon_teacher = self.env['hr.employee'].create({'name': 'Tour Guard Board Afternoon Teacher', 'employee_type': 'teacher'})
-        afternoon_calendar = self.env['resource.calendar'].create({'name': 'Tour Guard Board Afternoon Calendar'})
+        afternoon_calendar = self.env['resource.calendar'].create({'name': 'Tour Guard Board Afternoon Calendar', 'employee_id': afternoon_teacher.id})
         afternoon_teacher.resource_calendar_id = afternoon_calendar
         afternoon_calendar.apply_schedule_changes([{
             'dayofweek': '0', 'hour_from': 16, 'hour_to': 17, 'day_period': 'afternoon',
@@ -86,7 +91,7 @@ class TestGuardDutyBoardTour(HttpCase):
             'space_id': space2.id, 'shift': 'morning',
         })
         level2_teacher = self.env['hr.employee'].create({'name': 'Tour Guard Board Level 2 Teacher', 'employee_type': 'teacher'})
-        level2_calendar = self.env['resource.calendar'].create({'name': 'Tour Guard Board Level 2 Calendar'})
+        level2_calendar = self.env['resource.calendar'].create({'name': 'Tour Guard Board Level 2 Calendar', 'employee_id': level2_teacher.id})
         level2_teacher.resource_calendar_id = level2_calendar
         level2_calendar.apply_schedule_changes([{
             'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
