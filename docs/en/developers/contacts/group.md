@@ -59,6 +59,8 @@ flowchart TD
 
 `enrollment_view_ids` is unusual: its compute has **side effects** (delete + recreate `ems.enrollment_view` rows) rather than being a pure read — the only way found to expose "this group's enrollments, one row per student with their subjects aggregated" as a browsable One2many, since Odoo can't filter a computed relation server-side the way a stored inverse can (see the field's own inline comment). `ems.enrollment_view` is a `TransientModel` (auto-vacuumed), so the churn is cheap, but every read of a stale/unset `enrollment_view_ids` re-runs a delete+insert, not just a `SELECT` — worth knowing if this model's read patterns ever become a hot path.
 
+**Runs under `sudo()` (bug found 2026-09-06).** `ems.enrollment_view`'s ACL grants teacher/tutor only `perm_read` (it's meant to be a read-only helper view) — but the compute's delete+recreate used to run as whoever opened the group's own form, so simply *reading* `enrollment_view_ids` as a plain teacher/tutor (no `perm_create`/`perm_unlink`) raised an `AccessError`, on any group at all, not something specific to one dataset. The delete+recreate is internal scratch-data bookkeeping for a computed field, not a real action the viewing user is taking, so it now runs via `self.env['ems.enrollment_view'].sudo()` throughout — safe here since every row it touches is already scoped to a `group_id` the calling user was independently allowed to `read()` in the first place. Covered by `tests/test_group.py::test_enrollment_view_ids_readable_by_a_plain_teacher`.
+
 ### `group_type` switching
 
 - **`_onchange_group_type`** (form-only): clears the group's own now-irrelevant fields the moment the radio is toggled, purely so the user sees them clear before Save.
@@ -213,6 +215,24 @@ flowchart TD
     E --> F[super().write]
     F --> G["_sync_tutor_role(old_tutor | new_tutor)"]
 ```
+
+**Who clears a stale `tutor_id`/`delegate_id` (2026-09-01):** neither field is auto-derived by a
+compute — both stay whatever they were last set to (by hand on the group form, or by CSV import)
+until something explicitly writes over them. Two independent cleanups now do that, in the two
+situations this actually comes up:
+- `tutor_id` — a group's tutoring is also recorded as an ordinary `ems.teaching` row on the
+  group's own tutoring subject (`ems.subject.is_tutorship`); `ems.teaching.unlink()` clears
+  `tutor_id` whenever that row goes away and `tutor_id` still matches the departing teacher (see
+  `docs/en/developers/employees/teaching.md`). No group-emptiness check is involved — the group
+  itself is never archived by this.
+- `delegate_id` — `res.partner._ems_clear_stale_delegate(group)` clears it whenever a student who
+  was the delegate stops being a member of `group` (leaving the centre entirely, or a course
+  transition stranding them with no placement — see `docs/en/developers/settings/
+  course_transition_wizard.md`).
+
+Groups are reused across academic years (see "Archiving and reactivation" above) — emptying out
+for a year is normal and never archives the group on its own; only these two now-invalid
+references get cleared.
 
 ---
 

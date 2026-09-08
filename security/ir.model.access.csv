@@ -2,6 +2,10 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 ems.access_hr_employee_admin,ems.access_hr_employee_admin,ems.model_hr_employee,ems.group_academic_admin,1,1,1,1
 ems.access_hr_employee_teacher,ems.access_hr_employee_teacher,ems.model_hr_employee,ems.group_teacher,1,0,0,0
 
+ems.access_resource_calendar_head_of_studies,ems.access_resource_calendar_head_of_studies,resource.model_resource_calendar,ems.group_head_of_studies,1,1,1,0
+ems.access_resource_calendar_tac,ems.access_resource_calendar_tac,resource.model_resource_calendar,ems.group_tac,1,1,1,0
+ems.access_resource_calendar_attendance_tac,ems.access_resource_calendar_attendance_tac,resource.model_resource_calendar_attendance,ems.group_tac,1,1,1,1
+
 
 ems.access_hr_department_admin,ems.access_hr_department_admin,hr.model_hr_department,ems.group_academic_admin,1,1,1,1
 ems.access_hr_department_teacher,ems.access_hr_department_teacher,hr.model_hr_department,ems.group_teacher,1,0,0,0
@@ -245,6 +249,10 @@ ems.access_ems_limesurvey_block_quality,ems.access_ems_limesurvey_block_quality,
 ems.access_ems_limesurvey_header_quality,ems.access_ems_limesurvey_header_quality,ems.model_ems_limesurvey_header,ems.group_quality,1,1,1,0
 ems.access_ems_limesurvey_enrollment_quality,ems.access_ems_limesurvey_enrollment_quality,ems.model_ems_limesurvey_enrollment,ems.group_quality,1,1,1,0
 ems.access_ems_limesurvey_recipient_quality,ems.access_ems_limesurvey_recipient_quality,ems.model_ems_limesurvey_recipient,ems.group_quality,1,1,1,0
+ems.access_ems_limesurvey_block_admin,ems.access_ems_limesurvey_block_admin,ems.model_ems_limesurvey_block,ems.group_academic_admin,1,1,1,1
+ems.access_ems_limesurvey_header_admin,ems.access_ems_limesurvey_header_admin,ems.model_ems_limesurvey_header,ems.group_academic_admin,1,1,1,1
+ems.access_ems_limesurvey_enrollment_admin,ems.access_ems_limesurvey_enrollment_admin,ems.model_ems_limesurvey_enrollment,ems.group_academic_admin,1,1,1,1
+ems.access_ems_limesurvey_recipient_admin,ems.access_ems_limesurvey_recipient_admin,ems.model_ems_limesurvey_recipient,ems.group_academic_admin,1,1,1,1
 ems.access_ems_contact_relation_wizard_admin,ems.access_ems_contact_relation_wizard_admin,ems.model_ems_contact_relation_wizard,ems.group_academic_admin,1,1,1,1
 ems.access_ems_contact_relation_wizard_teacher,ems.access_ems_contact_relation_wizard_teacher,ems.model_ems_contact_relation_wizard,ems.group_teacher,1,1,1,1
 ems.access_ems_student_import_wizard_admin,ems.access_ems_student_import_wizard_admin,ems.model_ems_student_import_wizard,ems.group_academic_admin,1,1,1,1
@@ -262,6 +270,10 @@ ems.access_ems_enrollment_proposal_wizard_secretary,ems.access_ems_enrollment_pr
 ems.access_ems_enrollment_proposal_wizard_tutor,ems.access_ems_enrollment_proposal_wizard_tutor,ems.model_ems_enrollment_proposal_wizard,ems.group_tutor,1,1,1,1
 ems.access_ems_notice_admin,ems.access_ems_notice_admin,ems.model_ems_notice,ems.group_academic_admin,1,1,1,1
 ems.access_ems_notice_line_admin,ems.access_ems_notice_line_admin,ems.model_ems_notice_line,ems.group_academic_admin,1,1,1,1
+ems.access_ems_notice_hos,ems.access_ems_notice_hos,ems.model_ems_notice,ems.group_head_of_studies,1,1,1,1
+ems.access_ems_notice_line_hos,ems.access_ems_notice_line_hos,ems.model_ems_notice_line,ems.group_head_of_studies,1,1,1,1
+ems.access_ems_notice_quality_admin,ems.access_ems_notice_quality_admin,ems.model_ems_notice,ems.group_quality_admin,1,1,1,1
+ems.access_ems_notice_line_quality_admin,ems.access_ems_notice_line_quality_admin,ems.model_ems_notice_line,ems.group_quality_admin,1,1,1,1
 ems.access_ems_portal_access_wizard_admin,ems.access_ems_portal_access_wizard_admin,ems.model_ems_portal_access_wizard,ems.group_academic_admin,1,1,1,1
 ems.access_ems_portal_access_wizard_secretary,ems.access_ems_portal_access_wizard_secretary,ems.model_ems_portal_access_wizard,ems.group_secretary,1,1,1,1
 ems.access_ems_portal_access_wizard_tutor,ems.access_ems_portal_access_wizard_tutor,ems.model_ems_portal_access_wizard,ems.group_tutor,1,1,1,1

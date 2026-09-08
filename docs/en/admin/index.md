@@ -27,6 +27,8 @@ This section contains the manuals for **administrators**.
 - [Setting Up the Next Course](course-transition.md) — Closing the year: archiving the academic history, graduating and archiving former students, placing everyone in their new group and switching the current course.
 - [Importing Grades from Esfera](grade-import.md) — Loading each evaluation's official grades into EMS, and optionally creating the enrollments that are missing.
 - [Configuring staff absences](absences.md) — The two settings, the absence type catalogue and where the approver comes from.
+- [Notices: Sending Bulk Emails to Students and Families](notice.md) — Composing and sending a Notice, and who sees which notices.
+- [Surveys: LimeSurvey Integration](survey.md) — The survey lifecycle (draft → recipients → upload → open → close → download) and who can manage which surveys.
 
 ---
 

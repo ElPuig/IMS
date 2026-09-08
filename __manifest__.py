@@ -60,6 +60,7 @@
         'security/rules/coexistence.xml',
         'security/rules/communications.xml',
         'security/rules/contacts.xml',
+        'security/rules/employees.xml',
         'security/rules/grading.xml',
         'security/rules/planning.xml',
         'security/rules/portal.xml',
@@ -193,6 +194,7 @@
             'views/communications/menu.xml',
 
             'views/communications/surveys/header/list.xml',
+            'views/communications/surveys/header/search.xml',
             'views/communications/surveys/header/form.xml',
             'views/communications/surveys/header/menu.xml',
             'views/communications/surveys/block/form.xml',
@@ -233,6 +235,7 @@
             'views/attendance/attendance_correction/menu.xml',
             'views/attendance/attendance_correction/list.xml',
             'views/attendance/attendance_correction/form.xml',
+            'views/attendance/attendance_correction/search.xml',
             'views/attendance/attendance_correction/hr_attendance_form.xml',
 
             'views/attendance/guard_duty_board/menu.xml',
@@ -254,6 +257,7 @@
             'views/attendance/attendance_reports/wizard.xml',
 
             'views/communications/notice/list.xml',
+            'views/communications/notice/search.xml',
             'views/communications/notice/form.xml',
 
         'views/coexistence/strike/list.xml',

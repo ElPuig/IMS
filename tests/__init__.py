@@ -1,6 +1,7 @@
 from . import test_absence
 from . import test_absence_tour
 from . import test_contact
+from . import test_contact_group_change_tour
 from . import test_contact_relation_wizard
 from . import test_contact_tour
 from . import test_course_transition
@@ -123,6 +124,7 @@ from . import test_family_tour
 from . import test_payment_term
 from . import test_enrollment_line
 from . import test_enrollment_tour
+from . import test_enrollment_placement_tour
 from . import test_enrollment_proposal_tour
 from . import test_applicant_tour
 from . import test_no_destination_tour
@@ -140,6 +142,7 @@ from . import test_portal_actions
 from . import test_enrollment_product_extension
 from . import test_enrollment_mail_activity
 from . import test_attendance_session
+from . import test_attendance_session_tour
 from . import test_attendance_passlist_tour
 from . import test_attendance_template_tour
 from . import test_attendance_archived_filter_tour
@@ -156,3 +159,5 @@ from . import test_limesurvey_block_tour
 from . import test_shared_mixins
 from . import test_grade_matrix_tour
 from . import test_grade_tutor_matrix_tour
+from . import test_employee_staff_permissions
+from . import test_employee_staff_permissions_tour

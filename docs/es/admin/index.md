@@ -27,6 +27,8 @@ Esta sección contiene los manuales para **administradores**.
 - [Preparar el curso siguiente](course-transition.md) — Cerrar el curso: archivar el historial académico, graduar y archivar a los exalumnos, colocar a todos en su grupo nuevo y cambiar el curso actual.
 - [Importar las notas desde Esfera](grade-import.md) — Cargar en EMS las notas oficiales de cada evaluación y, opcionalmente, crear las matrículas que falten.
 - [Configurar las ausencias del personal](absences.md) — Los dos parámetros, el catálogo de tipos de ausencia y de dónde sale quién aprueba.
+- [Comunicados: enviar correos masivos a alumnos y familias](notice.md) — Redactar y enviar un Comunicado, y quién ve qué comunicados.
+- [Encuestas: integración con LimeSurvey](survey.md) — El ciclo de vida de la encuesta (borrador → destinatarios → subida → abierta → cerrada → descarga) y quién puede gestionar qué encuestas.
 
 ---
 

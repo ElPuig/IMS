@@ -14,7 +14,8 @@ This guide explains how to manage **student, family, applicant and provider cont
 2. [Adding a family contact to a student](#adding-a-family-contact-to-a-student)
 3. [Enrolling a student in subjects](#enrolling-a-student-in-subjects)
 4. [Bonifications and exemptions](#bonifications-and-exemptions)
-5. [Fields only admin/secretary/tutors can see](#fields-only-adminsecretarytutors-can-see)
+5. [Columns shown in the student list view](#columns-shown-in-the-student-list-view)
+6. [Fields only admin/secretary/tutors can see](#fields-only-adminsecretarytutors-can-see)
 
 ---
 
@@ -40,6 +41,8 @@ A student's main group (**Studies** tab) does not by itself enroll them in any s
 
 Removing a subject line is blocked once the student already has grades recorded for it, to avoid silently losing graded work — un-enroll before any grade is entered if a mistake needs correcting.
 
+**Changing a student's main group moves their subject enrollments too.** If you change the **Main Group** field itself (Studies tab), any subject enrollment that was in the old group moves automatically to the new one — a subject already enrolled through a different group (e.g. a reinforcement group) is left as-is. This is rejected, for the same reason as above, if a subject in the old group already has grades recorded. The group tutor can do this too, for their own tutored students — see [Changing a student's group](../tutors/change-student-group.md).
+
 ## Bonifications and exemptions
 
 A student's fee **benefits** (bonifications, which discount part of the enrollment fee, and exemptions, which waive it entirely) are registered in the **Secretary** tab of the student's record:
@@ -49,6 +52,10 @@ A student's fee **benefits** (bonifications, which discount part of the enrollme
 - A student's overall **Benefits** badge (shown on the form) reflects the highest-priority benefit registered: an exemption always outranks a bonification.
 
 Whether a benefit actually changes the enrollment fee depends on the state of the corresponding enrollment: a benefit registered **before** the enrollment is confirmed applies to it immediately; one registered **after confirmation** does not retroactively change an already-confirmed order — re-applying it explicitly (from the enrollment) is needed instead. See the enrollment's own manual for that re-apply action.
+
+## Columns shown in the student list view
+
+Switching the Students screen from Kanban to List view shows, by default, most of the fields already used in the centre's official student data export (document ID/DNI-NIE, birth date, whether the student is of legal age, social security number, nationality, address and postal code), plus the four authorization badges (image rights, school trips, health data, share with family). Any column can be hidden — click the icon at the right of the column headers and untick what you don't need; the choice is remembered for your next visit.
 
 ## Fields only admin/secretary/tutors can see
 

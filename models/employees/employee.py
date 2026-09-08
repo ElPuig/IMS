@@ -132,9 +132,14 @@ class ems_employee_base(models.AbstractModel):
         # would always read False regardless of who's actually looking — re-checking
         # against a recordset explicitly bound to the real calling user (self.env.user
         # itself is unaffected by compute_sudo) restores the real per-user answer.
-        can_write = self.with_user(self.env.user).check_access_rights('write', raise_exception=False)
+        # _filtered_access, rather than check_access_rights alone, also applies the record rules
+        # on top of the model-level ACL: since issue #391 the answer is per record, not per user -
+        # the Head of Studies and the TAC coordinator may write a teacher's record but not an ASP
+        # one (security/rules/employees.xml). A record still being created carries a NewId, which
+        # _check_access deliberately skips the rule pass for, so a brand-new form stays editable.
+        writable = self.with_user(self.env.user)._filtered_access('write')
         for employee in self:
-            employee.read_only = not can_write
+            employee.read_only = employee not in writable
 
     def _compute_can_edit_schedule(self):
         can_edit = self.env.user.has_group('ems.group_department_chief')
@@ -231,6 +236,31 @@ class ems_employee_base(models.AbstractModel):
                 seen_slots.add(slot)
                 breaks |= candidate
         return breaks
+
+    def _teaching_entries_from_calendar(self):
+        """This teacher's current teaching entries, read straight off their own
+        'resource_calendar_id.attendance_ids' — the same {'subject_id', 'group_ids', ...} shape
+        'ems.teaching.sync_from_schedule()'/'ems.attendance_template.sync_from_schedule_batch()'
+        already expect. Extracted from what used to be inline in
+        'ems.attendance_template.regenerate_all_from_calendars()' so course transition's own
+        teaching resync ('course_transition_wizard._apply_teaching_resync()', added 2026-09-01)
+        can reuse the exact same entries without duplicating the dict-building logic — both need
+        "what does this teacher's calendar say they teach, right now" as their single source of
+        truth. Only rows with a real 'subject_id' count; a non-teaching commitment (guard duty, a
+        meeting...) is never a teaching entry."""
+        self.ensure_one()
+        return [{
+            'subject_id': attendance.subject_id.id,
+            'group_ids': attendance.group_ids.ids,
+            'dayofweek': attendance.dayofweek,
+            'hour_from': attendance.hour_from,
+            'hour_to': attendance.hour_to,
+            'space_id': attendance.space_id.id,
+            # 'date_from'/'date_to' — core Odoo's own fields on resource.calendar.attendance,
+            # see that model's own NOTE (working_schedule.py) for why they're reused as-is.
+            'date_from': attendance.date_from,
+            'date_to': attendance.date_to,
+        } for attendance in self.resource_calendar_id.attendance_ids if attendance.subject_id]
 
     def _get_new_employee_type(self):
         return employee_types
@@ -657,6 +687,43 @@ class ems_employee(models.AbstractModel):
             ).resource_calendar_id
             orphaned = (calendars - still_used).filtered(lambda calendar: calendar.id not in company_calendar_ids)
             orphaned.unlink()
+        return result
+
+    def action_archive(self):
+        """Cascades to this teacher's own personal calendar - mirrors 'ems_working_schedule.
+        action_archive()''s own cascade to its 'attendance_ids' (models/employees/
+        working_schedule.py), one level up. Without this, archiving a teacher directly (a
+        mid-course departure, never going through '_apply_calendar_rollover()') left their
+        calendar - and every guard-duty/coordination-meeting row still on it - active
+        indefinitely, keeping them visible on any screen that aggregates across every teacher's
+        calendar rather than going through this one employee's own 'resource_calendar_id' (found
+        2026-09-06 via the Guard Duty Board still showing a departed teacher, a distinct gap from
+        the course-transition-rollover cascade already fixed 2026-09-01/02). 'employee_id ==
+        employee' - not merely 'not is_framework' - is what actually identifies a calendar as
+        this teacher's own: it also excludes a calendar shared with other teachers (see
+        hr.employee.unlink()'s own same-shaped guard, just above)."""
+        result = super().action_archive()
+        for employee in self:
+            calendar = employee.resource_calendar_id
+            if calendar.employee_id == employee and calendar.active:
+                calendar.action_archive()
+        return result
+
+    def action_unarchive(self):
+        """Symmetric with action_archive() above - a teacher rehired/returning before a course
+        transition ever rolled their calendar over should find it active again rather than having
+        to recreate it by hand. Deliberately calendar-level only: this never reactivates any of
+        the calendar's own 'attendance_ids' rows (already cascaded to inactive by
+        'ems_working_schedule.action_archive()' when the calendar itself was archived above) -
+        some of those rows could equally have gone inactive earlier for an unrelated reason (e.g.
+        superseded by a later room change via '_write_or_new_version()'), so blindly reviving
+        every one of them here would resurrect stale, superseded schedule versions alongside the
+        genuine ones. A returning teacher gets a fresh schedule import/assignment regardless."""
+        result = super().action_unarchive()
+        for employee in self:
+            calendar = employee.resource_calendar_id
+            if calendar.employee_id == employee and not calendar.active:
+                calendar.action_unarchive()
         return result
 
     def action_mark_as_identified(self):

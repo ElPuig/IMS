@@ -48,6 +48,17 @@ class EmsStudy(models.Model):
         compute='_compute_uses_enrollment_flow',
         search='_search_uses_enrollment_flow')
 
+    @api.constrains('subject_ids')
+    def _check_subject_codes_unique_per_study(self):
+        """Editing 'subject_ids' from this side (the study's own 'Subjects' tab) writes the
+        exact same many2many relation as 'ems.subject.study_ids', but Odoo only re-validates
+        the model that actually received the write() call - a real code conflict introduced
+        from here would otherwise silently pass (confirmed empirically 2026-09-06:
+        'ems.subject._check_code_unique_per_study' does NOT fire on its own when a study's
+        subjects are edited from here). Delegates to that same method - on the subjects that
+        just changed - instead of duplicating its logic."""
+        self.subject_ids._check_code_unique_per_study()
+
     @api.depends('acronym', 'name')
     def _compute_display_name(self):
         for study in self:
@@ -84,6 +95,20 @@ class EmsStudy(models.Model):
         for study_id in study_ids[1:]:
             subjects &= self.env['ems.subject'].search([('study_ids', 'in', study_id)])
         return subjects
+
+    def _ems_subject_course(self, product):
+        """The single course (study_year) this study's own templates sell `product`
+        for, or False when it is not sold by exactly one course's template - missing
+        entirely, or genuinely offered across more than one (e.g. a transversal
+        module). Shared by sale.order._ems_course_from_tutorship() (one specific
+        product, the tutorship) and _ems_apply_destination_placement() (every
+        subject on the order), so a subject's course is always resolved the same way."""
+        self.ensure_one()
+        templates = self.env['sale.order.template'].search([
+            ('ems_study_id', '=', self.id), ('study_year', '!=', False)])
+        years = {template.study_year for template in templates
+            if product in template.sale_order_template_line_ids.product_id}
+        return years.pop() if len(years) == 1 else False
 
     def _compute_uses_enrollment_flow(self):
         Template = self.env['sale.order.template']

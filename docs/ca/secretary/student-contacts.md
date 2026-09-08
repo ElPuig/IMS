@@ -14,7 +14,8 @@ Aquesta guia explica com gestionar els contactes de tipus **alumne, família, as
 2. [Afegir un contacte familiar a un alumne](#afegir-un-contacte-familiar-a-un-alumne)
 3. [Matricular un alumne en assignatures](#matricular-un-alumne-en-assignatures)
 4. [Bonificacions i exempcions](#bonificacions-i-exempcions)
-5. [Camps que només veuen admin/secretaria/tutors](#camps-que-només-veuen-adminsecretariatutors)
+5. [Columnes que es mostren a la vista de llista d'alumnat](#columnes-que-es-mostren-a-la-vista-de-llista-dalumnat)
+6. [Camps que només veuen admin/secretaria/tutors](#camps-que-només-veuen-adminsecretariatutors)
 
 ---
 
@@ -40,6 +41,8 @@ El grup principal d'un alumne (pestanya **Estudis**) no el matricula per si sol 
 
 Eliminar una línia d'assignatura queda bloquejat un cop l'alumne ja té notes registrades per a aquesta assignatura, per evitar perdre feina avaluada sense voler — desmatricula abans que s'introdueixi cap nota si cal corregir un error.
 
+**Canviar el grup principal d'un alumne també mou les seves matrícules per assignatura.** Si canvies el camp **Grup principal** (pestanya Estudis), qualsevol matrícula que estigués al grup antic passa automàticament al grup nou — una assignatura ja matriculada a través d'un grup diferent (per exemple, un grup de reforç) es manté igual. Això es rebutja, pel mateix motiu que a dalt, si alguna assignatura del grup antic ja té notes registrades. El tutor/a del grup també ho pot fer, per als seus propis alumnes tutoritzats — vegeu [Canviar el grup d'un alumne](../tutors/change-student-group.md).
+
 ## Bonificacions i exempcions
 
 Els **beneficis** de quota d'un alumne (bonificacions, que descompten part de la quota de matrícula, i exempcions, que l'eximeixen totalment) es registren a la pestanya **Secretaria** de la fitxa de l'alumne:
@@ -49,6 +52,10 @@ Els **beneficis** de quota d'un alumne (bonificacions, que descompten part de la
 - El distintiu de **Beneficis** de l'alumne (visible a la fitxa) reflecteix el benefici de prioritat més alta registrat: una exempció sempre té preferència sobre una bonificació.
 
 Que un benefici canviï realment la quota de matrícula depèn de l'estat de la matrícula corresponent: un benefici registrat **abans** que la matrícula es confirmi s'hi aplica immediatament; un de registrat **després de confirmar-la** no en modifica retroactivament l'import — cal tornar a aplicar-lo explícitament (des de la matrícula). Consulta el manual de la matrícula per a aquesta acció.
+
+## Columnes que es mostren a la vista de llista d'alumnat
+
+Canviar la pantalla d'Alumnat de vista Kanban a vista de Llista mostra, per defecte, la majoria de camps ja utilitzats a l'exportació oficial de dades d'alumnat del centre (document d'identitat/DNI-NIE, data de naixement, si l'alumne és major d'edat, número de la seguretat social, nacionalitat, adreça i codi postal), més els quatre distintius d'autorització (drets d'imatge, sortides escolars, dades de salut, compartir amb la família). Qualsevol columna es pot amagar — fes clic a la icona de la dreta de les capçaleres de columna i desmarca les que no necessitis; l'elecció es recorda per a la propera visita.
 
 ## Camps que només veuen admin/secretaria/tutors
 

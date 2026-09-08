@@ -61,6 +61,20 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_unknown_te
             content: "File attached",
         },
         {
+            // Confirms the radio widget actually renders and can be picked (2026-09-02, see
+            // plans/calendar_pipeline_simplification.md) - 'combine' is the default, so this tour
+            // deliberately picks the OTHER option to prove both are real, clickable choices, not
+            // just verify the default happens to already look right.
+            trigger: ".modal .o_field_widget[name='import_mode'] label:contains('Replace')",
+            content: "Pick 'Replace' instead of the default 'Combine'",
+            run: "click",
+        },
+        {
+            trigger:
+                ".modal .o_field_widget[name='import_mode'] .o_radio_item:has(label:contains('Replace')) input[type='radio']:checked",
+            content: "'Replace' is now the selected option",
+        },
+        {
             trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
             content: "Continue is enabled purely because a file is attached - the unknown e-mail inside it isn't checked at this screen any more",
             run: "click",
@@ -920,11 +934,14 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_create_new
 
 // Screen 4 ("Internal conflicts", 2026-08-05, see plans/working_schedule_import_redesign.md's
 // step 4) - two DIFFERENT teachers in the same batch, same subject, DIFFERENT groups sharing the
-// SAME classroom at the same slot: a "desdoble" (split session) needing two different rooms. This
-// tour proves the room-reassignment path renders and resolves in a real browser - both teachers
-// are already-known e-mails (no group/teacher line needed), so this exercises 'internal_conflicts'
-// in isolation. "Continue" stays disabled while both rooms are still the same (the pre-filled
-// default), same as picking no group/teacher would on the earlier screens.
+// SAME classroom at the same slot: a "Room conflict" needing two different rooms (this same-
+// subject/no-shared-group/different-teacher shape used to be its own "Split session" kind, merged
+// into "Room conflict" 2026-09-06 - see '_classify_conflict_kind's own docstring in models/
+// employees/working_schedule.py). This tour proves the room-reassignment path renders and resolves
+// in a real browser - both teachers are already-known e-mails (no group/teacher line needed), so
+// this exercises 'internal_conflicts' in isolation. "Continue" stays disabled while both rooms are
+// still the same (the pre-filled default), same as picking no group/teacher would on the earlier
+// screens.
 registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_internal_conflict", {
     test: true,
     url: "/odoo/action-ems.action_working_schedules_tree",
@@ -998,8 +1015,8 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_in
             run: "click",
         },
         {
-            trigger: ".modal .card:contains('Split session')",
-            content: "The 'internal_conflicts' screen groups the colliding pair under its own 'Split session' card",
+            trigger: ".modal .card:contains('Room conflict')",
+            content: "The 'internal_conflicts' screen groups the colliding pair under its own 'Room conflict' card",
         },
         {
             trigger: ".modal .ems_conflict_row:contains('Tour Resolve Conflict Group B')",
