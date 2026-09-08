@@ -1,5 +1,35 @@
 # What's new:
 
+## Guard duty board: who is missing, and what has to be covered:
+
+The guard duty schedule (Employee Attendances > Guard duty schedule) only ever answered "who is
+on guard on a Tuesday". It now also answers "who is missing on Tuesday the 15th, and which of
+their classes needs covering" - the read-only half of the guard-duty integration, so a human can
+assign the guards. The deciding half (which of the several teachers on guard in a period covers
+a given absence, and notifying them) stays out: nothing at the centre decides that yet. It is
+tracked as issue #307, and `plans/absence_guard_duty.md` has been re-scoped to just that.
+
+The board is keyed by weekday while an absence happens on a real date, so the screen gained a
+week first: `‹ ›` navigation plus a date picker, with each weekday tab now showing its own day of
+the month. Picking any date moves the whole week and lands on that date's weekday.
+
+Two views of the same day, switched from the toolbar without re-fetching anything:
+
+- **Guard duty schedule** - the timetable as before, with every teacher who is away marked in
+  place, in their own cell, and in the guard-duty column.
+- **Guard duty table** - one row per time block, with an "Absences" column (each absent teacher
+  and the group, subject and room that has to be covered) against the "Guard duty" column (who
+  is available to cover it).
+
+Absences are shown in two distinct weights: an approved one in bold red (a fact to plan around),
+one still awaiting its approver in a lighter italic (a warning). Refused and cancelled requests
+never appear. A teacher who is away during a period they were on guard for is marked in the
+guard column rather than listed as work to cover - they have no class of their own for anyone to
+cover, they are simply one fewer person available. Only the fact and the time interval of an
+absence are exposed; the type, the reason and the supporting document never reach this screen.
+
+The day's PDF prints exactly what the screen shows, absences included.
+
 ## Staff absence management moved from Google Forms into EMS (cycle 1: foundation):
 
 The centre managed staff absences with three parallel Google applications (a Form feeding a

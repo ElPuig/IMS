@@ -130,3 +130,97 @@
     font-weight: 600;
     white-space: nowrap;
 }
+
+/* Week navigation + date picker: the board used to be a pure weekday timetable, and only needs
+   a real date now that absences (which happen on dates, not weekdays) are drawn on it. */
+.o_guard_board_date_input {
+    width: auto;
+}
+
+.o_guard_board_view_tabs {
+    margin-left: auto;
+}
+
+.o_guard_board_view_tabs .nav-link {
+    padding: 2px 10px;
+    font-size: 12px;
+}
+
+/* The weekday tab keeps its name and gains the day of the month it stands for in the shown
+   week - enough to tell two weeks apart without spelling out a full date on every tab. */
+.o_guard_board_tab_date {
+    display: inline-block;
+    margin-left: 5px;
+    font-size: 10px;
+    opacity: 0.65;
+}
+
+/* Absences. The only colour on the whole board, deliberately: everything else was stripped back
+   to plain text and thin borders (see .o_guard_board_guard_badge above), so red reads as "this
+   is missing" and nothing else competes with it. An approved absence is a fact to plan around
+   (bold); one still waiting on its approver is a warning (lighter, italic) - never the same
+   weight, or the planner cannot tell what is already decided. */
+.o_guard_board_absent {
+    color: #b52a37;
+    font-weight: 700;
+}
+
+.o_guard_board_absent_pending {
+    color: #b52a37;
+    font-style: italic;
+    opacity: 0.75;
+}
+
+/* The second tab: one row per time block, what needs covering against who can cover it. Its
+   absence column carries a whole line per uncovered class (teacher + group/subject/room), so it
+   is left-aligned and given more room than a group column ever needs.
+
+   Unlike the timetable tab, this table is NOT stretched across the window. It only ever has
+   three columns, so Bootstrap's own `.table { width: 100% }` spread them over the full width of
+   a wide screen and left the content adrift in acres of empty cell (developer feedback,
+   2026-09-08: "queda demasiado disperso en la pantalla"). Overriding width to `auto` makes
+   `table-layout: fixed` size the table to the literal sum of the <col> widths below instead,
+   and `margin: 0 auto` centres that fixed block in the wrapper. The wrapper keeps its own
+   `overflow-x: auto`, so a narrow window still scrolls rather than squeezing the columns. */
+.o_guard_board_duty_table {
+    width: auto;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.o_guard_board_col_absences {
+    width: 420px;
+}
+
+/* Narrower than the timetable tab's own columns: a time block is the same text either way, and
+   the guard column here holds the same badges but has no group columns competing for width. */
+.o_guard_board_duty_table .o_guard_board_col_time {
+    width: 100px;
+}
+
+.o_guard_board_duty_table .o_guard_board_col_guard {
+    width: 230px;
+}
+
+.o_guard_board_duty_table .o_guard_board_absence_cell {
+    text-align: left;
+}
+
+/* One absence, one line - never wrapped (developer feedback, 2026-09-08: "elimina el salto de
+   línea aunque quede una columna un poco más ancha"). The column above is sized from the real
+   worst case measured on this centre's own data (a 22-character name plus a 33-character
+   group/subject/room detail, ~315px rendered) with room to spare, so nothing reaches the
+   ellipsis in practice; it is there so that a name longer than anything seen so far degrades by
+   being clipped rather than by spilling over the guard-duty column next to it. */
+.o_guard_board_absence_row {
+    padding: 2px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.o_guard_board_absence_class {
+    margin-left: 6px;
+    font-size: 10px;
+    opacity: 0.8;
+}

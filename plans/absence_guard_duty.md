@@ -1,13 +1,26 @@
 # Guard duty: covering the lessons an absence leaves uncovered
 
-**Status: current as of 2026-09-03. Not implemented.** Split out of `plans/absence_management.md`
-when the absence feature itself landed (branch `376-absence-management`); everything else in that
-plan is implemented and documented in `docs/en/developers/employees/absence.md`.
+**Status: partly implemented as of 2026-09-08.** Split out of `plans/absence_management.md` when
+the absence feature itself landed (branch `376-absence-management`); everything else in that plan
+is implemented and documented in `docs/en/developers/employees/absence.md`.
 
-**Deferred deliberately (2026-09-03), not abandoned.** Guard duty is still being designed at the
-centre: several teachers are on guard in the same period, and nothing yet decides which of them
-covers a given absence. Until that is settled there is no way to say who a notification should
-even go to, so this waits for its own issue.
+**What has since been built (2026-09-08), and is no longer part of this plan:** the *read-only*
+half — showing which lessons an absence leaves uncovered, so a human can assign the guards. The
+guard duty board grew a week/date picker and a second view ("Guard duty table": one row per time
+block, absences against the teachers on guard), and marks absent teachers in place on the
+timetable itself. See `docs/en/developers/attendance/guard_duty_board.md`'s "Absences on the
+board" section — that, not this file, is now authoritative for anything already shipped.
+
+Note it was built off `resource.calendar.attendance` (the teacher's own working schedule, which
+is what the board has always aggregated and where guard-duty slots actually live via
+`non_teaching_is_guard`), **not** off `ems.attendance_schedule` as the resolver sketched below
+assumes. Anything reused from this file has to be re-pointed accordingly.
+
+**Still deferred deliberately, not abandoned:** the *deciding* half — automatically assigning
+which of the several teachers on guard in a period covers a given absence, and notifying them.
+Nothing at the centre decides that yet, so there is still no way to say who a notification should
+even go to. Tracked as issue #307 (Automatic guard assignation), with #148 (a guard teacher
+checking in for a colleague) alongside it.
 
 ### What the exploration found, which invalidates the first sketch
 

@@ -12592,9 +12592,10 @@ msgid "Guard duty"
 msgstr "Guàrdia"
 
 #. module: ems
-#: model:ir.actions.server,name:ems.action_guard_duty_board
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+#: model:ir.actions.client,name:ems.action_guard_duty_board
 #: model:ir.ui.menu,name:ems.menu_guard_duty_board
-#: model_terms:ir.ui.view,arch_db:ems.view_guard_duty_board_form
 msgid "Guard duty schedule"
 msgstr "Horari de guàrdies"
 
@@ -13193,6 +13194,8 @@ msgstr ""
 "Una sol·licitud d'absència aprovada ja no es pot modificar. El justificant "
 "sí que s'hi pot adjuntar; qualsevol altre canvi l'ha de fer qui l'ha "
 "aprovada."
+
+#. module: ems
 #: model:ems.role,name:ems.role_tac
 msgid "TAC coordinator"
 msgstr "Coordinador/a TAC"
@@ -13239,3 +13242,33 @@ msgstr "No s'ha trobat cap assignatura amb el codi '%s'."
 #: code:addons/ems/models/employees/working_schedule.py:0
 msgid "Classroom with code '%s' not found."
 msgstr "No s'ha trobat cap aula amb el codi '%s'."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Absences"
+msgstr "Absències"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Guard duty table"
+msgstr "Taula de guàrdies"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Loading..."
+msgstr "S'està carregant..."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "No schedule for this shift."
+msgstr "No hi ha horari per a aquest torn."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Nobody is missing this shift."
+msgstr "No falta ningú en aquest torn."

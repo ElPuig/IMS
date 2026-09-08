@@ -33,7 +33,9 @@ registry.category("web_tour.tours").add("ems_guard_duty_board", {
                 const expectedIndex = jsDay >= 1 && jsDay <= 5 ? jsDay - 1 : 0;
                 const dayLabels = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
                 const activeLink = document.querySelector(".o_guard_board_tabs .nav-link.active");
-                const activeLabel = activeLink && activeLink.textContent.trim();
+                // The tab holds two spans now - the weekday name and the day of the month it
+                // stands for in the shown week - so read the name, not the whole textContent.
+                const activeLabel = activeLink && activeLink.querySelector("span").textContent.trim();
                 if (activeLabel !== dayLabels[expectedIndex]) {
                     throw new Error(`Expected the default active day to be '${dayLabels[expectedIndex]}' (today), got '${activeLabel}'`);
                 }
@@ -160,6 +162,107 @@ registry.category("web_tour.tours").add("ems_guard_duty_board", {
         {
             trigger: ".o_guard_board_table td:contains('Tour Guard Board Teacher')",
             content: "Back on Monday, the seeded teaching slot renders again",
+        },
+        {
+            // The board now stands for a real week, not just a weekday: absences happen on
+            // dates. The date input must agree with whichever weekday tab is active.
+            trigger: ".o_guard_board_date_input",
+            content: "The date input matches the active weekday tab",
+            run: () => {
+                const value = document.querySelector(".o_guard_board_date_input").value;
+                const picked = new Date(value + "T00:00:00");
+                if (picked.getDay() !== 1) {
+                    throw new Error(`Expected the Monday tab's date to be a Monday, got ${value}`);
+                }
+            },
+        },
+        {
+            trigger: ".o_guard_board_table .o_guard_board_absent:contains('Tour Guard Board Teacher')",
+            content: "The teacher with an approved absence is marked in their own cell",
+        },
+        {
+            trigger: ".o_guard_board_guard_badge:contains('Tour Guard Board Guard'):not(.o_guard_board_absent)",
+            content: "The guard on duty, who is not away, is not marked",
+        },
+        {
+            trigger: ".o_guard_board_view_tabs .nav-link:contains('Guard duty table')",
+            content: "Switch to the guard duty table",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_duty_table",
+            content: "The table renders",
+        },
+        {
+            // Regression check for a real complaint (developer feedback, 2026-09-08: "queda
+            // demasiado disperso en la pantalla"). With only three columns, Bootstrap's own
+            // `.table { width: 100% }` spread them across the whole window; the table now sizes
+            // to its own fixed <col> widths and is centred instead (see guard_duty_board.css).
+            trigger: ".o_guard_board_duty_table",
+            content: "The guard duty table keeps its own width and stays centred",
+            run: () => {
+                const table = document.querySelector(".o_guard_board_duty_table");
+                const wrap = table.closest(".o_guard_board_table_wrap");
+                const tableBox = table.getBoundingClientRect();
+                const wrapBox = wrap.getBoundingClientRect();
+                if (tableBox.width >= wrapBox.width) {
+                    throw new Error(`The table should be narrower than the page, got table=${tableBox.width} wrap=${wrapBox.width}`);
+                }
+                // Only meaningful when there is spare room to centre it in; a narrow window
+                // legitimately leaves none.
+                const left = tableBox.left - wrapBox.left;
+                const right = wrapBox.right - tableBox.right;
+                if (Math.abs(left - right) > 2) {
+                    throw new Error(`The table is not centred: ${left}px on the left, ${right}px on the right`);
+                }
+                // Each absence stays on one line (developer feedback, 2026-09-08). Measured
+                // against its own line-height rather than a hardcoded pixel height, so a theme
+                // or font change cannot quietly turn this into a false pass.
+                for (const row of document.querySelectorAll(".o_guard_board_absence_row")) {
+                    const lineHeight = parseFloat(getComputedStyle(row).lineHeight) || 16;
+                    const lines = Math.round((row.getBoundingClientRect().height - 4) / lineHeight);
+                    if (lines > 1) {
+                        throw new Error(`An absence row wrapped onto ${lines} lines: "${row.textContent.trim()}"`);
+                    }
+                }
+            },
+        },
+        {
+            trigger: ".o_guard_board_absence_cell .o_guard_board_absent:contains('Tour Guard Board Teacher')",
+            content: "The absent teacher heads their own row in the Absences column",
+        },
+        {
+            trigger: ".o_guard_board_absence_class:contains('Tour Guard Board Space')",
+            content: "The row says which class has to be covered, room included",
+        },
+        {
+            trigger: ".o_guard_board_duty_table .o_guard_board_guard_badge:contains('Tour Guard Board Guard')",
+            content: "The same row lists who is on guard duty to cover it",
+        },
+        {
+            // Moving off this week must clear the absence: it belongs to one date, not to every
+            // Monday - the surest proof the board is really re-fetching per date.
+            trigger: ".o_guard_board_toolbar .o_guard_board_week_nav button:last-child",
+            content: "Move to next week",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_duty_table:not(:has(.o_guard_board_absent))",
+            content: "Next week has no absence, so nobody is marked",
+        },
+        {
+            trigger: ".o_guard_board_week_nav button:first-child",
+            content: "Back to the week the absence is in",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_absence_cell .o_guard_board_absent:contains('Tour Guard Board Teacher')",
+            content: "The absence is back",
+        },
+        {
+            trigger: ".o_guard_board_view_tabs .nav-link:contains('Guard duty schedule')",
+            content: "Back to the timetable tab",
+            run: "click",
         },
         {
             trigger: ".o_guard_board_toolbar button:contains('PDF')",
