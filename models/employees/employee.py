@@ -257,6 +257,26 @@ class ems_employee_base(models.AbstractModel):
             'date_to': attendance.date_to,
         } for attendance in self.resource_calendar_id.attendance_ids if attendance.subject_id]
 
+    def _ems_sync_schedule_from_calendar(self):
+        """Bottom-up sync redesign, Phase 3 (2026-09-08, docs/en/developers/attendance/
+        attendance_template.md's "Bottom-up sync redesign" section) - the per-teacher "sync me
+        from my own calendar, right now" step, one level above the template-level Phase 1+2
+        pieces ('ems.attendance_template._decide_schedule_line_changes'/
+        '_apply_schedule_line_archive_pass'/'_apply_schedule_line_write_pass') and one level below the automatic
+        'resource.calendar.attendance' hook still to come (Phase 4). Not new reconciliation logic -
+        both 'ems.teaching.sync_from_schedule' and 'ems.attendance_template.sync_from_schedule'
+        already correctly reduce to a single-teacher case ('sync_from_schedule_batch([(teacher,
+        entries)])' already runs through the exact same Phase 1+2 pipeline for a batch of one, no
+        code changed there for this to be true). This just gives that case its own clear name and
+        home, at the level ('hr.employee', the calendar's own "container") the whole redesign's
+        naming principle asks for - mirrors exactly what 'resource.calendar.
+        apply_schedule_changes()' already does inline for the Schedule tab's own save (to be
+        simplified to reuse this instead, Phase 5)."""
+        self.ensure_one()
+        entries = self._teaching_entries_from_calendar()
+        self.env['ems.teaching'].sync_from_schedule(self, entries)
+        self.env['ems.attendance_template'].sync_from_schedule(self, entries)
+
     def _get_new_employee_type(self):
         return employee_types
     
