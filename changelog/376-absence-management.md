@@ -265,6 +265,10 @@ the calendar and the notification e-mails already did.
 
 # Fixes:
 
+## Automatic check-out no longer credits hours covered by an approved absence:
+
+The nightly automatic check-out closed a forgotten attendance at the end of the employee's weekly timetable, which knew nothing about absences: somebody who left at 14:00 with the afternoon approved off, and forgot to check out, had their attendance closed at 18:00 and was credited four hours they had permission to miss. It now closes at the end of what they were actually expected to work that day, absences subtracted. Only approved absences count; a request still awaiting its approver changes nothing. When an absence covers the whole day there is no scheduled hour to close at, so the attendance is deliberately left open for a human to correct rather than closed at an invented time.
+
 ## An absence could silently drop out of the monthly report:
 
 Three flags on a request are proposed from its absence type, and they shared one piece of code

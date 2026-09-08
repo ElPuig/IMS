@@ -38,7 +38,11 @@ flowchart TD
     I --> J
 ```
 
-`_get_last_working_hour(employee, work_date)` returns the latest `hour_to` among that weekday's `resource_calendar_id.attendance_ids`, converted to a naive UTC datetime via `ems.datetime_utils` — `None` if the employee has no calendar or no slot that day.
+`_get_last_working_hour(employee, work_date)` returns the end of the last stretch the employee was actually **expected** to work that day, as a naive UTC datetime — `None` if they have no calendar, never work that weekday, or an approved absence covers the whole of it.
+
+**It asks the calendar what was expected; it does not read the raw weekly timetable** (changed 2026-09-08, when `hr_holidays` first made absences visible to Odoo — see [Staff absences](absence.md)). An approved absence becomes a `resource.calendar.leaves` row on the employee's own calendar, and Odoo's `hr.employee._get_expected_attendances()` already subtracts those (it calls `_work_intervals_batch` with `compute_leaves=True`). The earlier version filtered `resource_calendar_id.attendance_ids` by weekday and took the latest `hour_to`, which knew nothing about leave: a teacher who left at 14:00 with the afternoon approved off and forgot to check out had their attendance closed at 18:00, crediting four hours they had permission to miss. Only an **approved** absence counts — a request still awaiting its approver never becomes a resource leave, so it correctly changes nothing.
+
+Both cases that yield `None` mean the same thing to the caller: there is no scheduled hour to close at, so the attendance is left open (with a `WARNING` in the log) for a human to correct. That is deliberate — inventing an end time for a day the employee was wholly on leave is exactly the behaviour this replaced. Covered by `TestEmployeeAutocheckout`.
 
 ## `_cron_auto_check_out()` — the nightly EMS mode
 

@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, time, timedelta, timezone
+
+import pytz
 
 from odoo import api, models, fields, _
 
@@ -100,21 +102,35 @@ class ems_attendance(models.Model):
         return True
 
     def _get_last_working_hour(self, employee, work_date):
-        """Return the last hour_to (as naive UTC datetime) for the employee on work_date.
-        Returns None if the employee has no working schedule for that day."""
+        """End of the last stretch the employee was actually expected to work on work_date, as
+        a naive UTC datetime, or None when nothing was expected of them at all.
+
+        Asks the calendar what was expected rather than reading its raw weekly 'attendance_ids':
+        an approved absence becomes a 'resource.calendar.leaves' row on that same calendar (see
+        docs/en/developers/employees/absence.md), and Odoo's own '_get_expected_attendances'
+        already subtracts those - it calls '_work_intervals_batch' with compute_leaves=True.
+        Reading the untouched timetable instead closed the attendance at the end of a day the
+        employee had permission to miss part of, crediting them hours they were on approved
+        leave for. Only an approved absence counts: a request still awaiting its approver never
+        becomes a resource leave, so it correctly changes nothing here.
+
+        None means the same thing to the caller in both of the cases that produce it - the
+        employee never works that weekday, or an absence covers the whole of it: either way
+        there is no scheduled hour to close at, and leaving the attendance open for a human to
+        correct is more honest than closing it at an invented time.
+        """
         if not employee.resource_calendar_id:
             return None
 
-        weekday = str(work_date.weekday())  # '0'=Monday … '6'=Sunday
-        slots = employee.resource_calendar_id.attendance_ids.filtered(
-            lambda a: a.dayofweek == weekday
-        ).sorted(key=lambda a: a.hour_to, reverse=True)
-
-        if not slots:
+        employee_tz = pytz.timezone(employee._get_tz())
+        day_start = employee_tz.localize(datetime.combine(work_date, time.min))
+        day_end = employee_tz.localize(datetime.combine(work_date, time.max))
+        expected = employee._get_expected_attendances(day_start, day_end)
+        if not expected:
             return None
 
-        utils = self.env['ems.datetime_utils']
-        return utils.datetime_to_odoo(utils.time_float_to_utc_datetime(work_date, slots[0].hour_to))
+        last_end = max(interval_end for _interval_start, interval_end, *_rest in expected)
+        return last_end.astimezone(pytz.utc).replace(tzinfo=None)
 
     def _cron_auto_check_out(self):
         """Delegates to native Odoo or EMS checkout logic based on company's auto_checkout_mode."""

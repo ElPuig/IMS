@@ -2,6 +2,8 @@ from datetime import datetime, timedelta, timezone
 
 from odoo.tests.common import TransactionCase
 
+from .common import mock_outgoing_email
+
 
 class TestEmployeeAutocheckout(TransactionCase):
     """models/employees/employee_autocheckout.py (hr.attendance extension) — previously
@@ -11,6 +13,9 @@ class TestEmployeeAutocheckout(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # Approving an absence posts to the chatter and notifies its followers - see CLAUDE.md's
+        # 'Email safety in tests'.
+        mock_outgoing_email(cls)
         cls.teacher = cls.env['hr.employee'].create({
             'name': 'Test Autocheckout Teacher', 'employee_type': 'teacher',
         })
@@ -138,3 +143,81 @@ class TestEmployeeAutocheckout(TransactionCase):
             })
 
         self.assertFalse(stale.check_out)
+
+    # --- Approved absences shorten the working day ------------------------------------------
+    #
+    # An auto check-out that reads the raw weekly timetable closes the attendance at the end of
+    # a day the employee was partly on leave for, crediting hours they had permission to miss.
+    # See docs/en/developers/employees/absence.md.
+
+    def _approved_absence(self, day, hour_from=None, hour_to=None):
+        vals = {
+            'employee_id': self.teacher.id,
+            'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
+            'request_date_from': day,
+            'request_date_to': day,
+            'ems_submitted': True,
+            'ems_responsible_declaration': True,
+        }
+        if hour_from is None:
+            vals['ems_full_day'] = True
+        else:
+            vals.update({'ems_full_day': False,
+                         'request_hour_from': hour_from, 'request_hour_to': hour_to})
+        leave = self.env['hr.leave'].create(vals)
+        leave.action_approve()
+        return leave
+
+    def test_an_approved_afternoon_absence_moves_the_check_out_earlier(self):
+        """The teacher leaves at 14:00 with the afternoon approved and forgets to check out:
+        the attendance must close at 14:00, not at the untouched end of their timetable."""
+        self._add_slot(8.0, 14.0)
+        self._add_slot(15.0, 18.0)
+        self._approved_absence(self.today, hour_from=15.0, hour_to=18.0)
+
+        result = self.env['hr.attendance']._get_last_working_hour(self.teacher, self.today)
+
+        utils = self.env['ems.datetime_utils']
+        self.assertEqual(result, utils.datetime_to_odoo(
+            utils.time_float_to_utc_datetime(self.today, 14.0)),
+            "the afternoon was approved off, so 14:00 is the last hour actually expected")
+
+    def test_without_any_absence_the_whole_timetable_still_counts(self):
+        """The fix must not move the check-out on an ordinary day."""
+        self._add_slot(8.0, 14.0)
+        self._add_slot(15.0, 18.0)
+
+        result = self.env['hr.attendance']._get_last_working_hour(self.teacher, self.today)
+
+        utils = self.env['ems.datetime_utils']
+        self.assertEqual(result, utils.datetime_to_odoo(
+            utils.time_float_to_utc_datetime(self.today, 18.0)))
+
+    def test_a_whole_day_absence_leaves_nothing_to_close_at(self):
+        """Nothing was expected of them at all, so there is no scheduled hour to close at and
+        the attendance is deliberately left open for a human to correct - inventing an hour
+        here is exactly what this fix is removing."""
+        self._add_slot(8.0, 14.0)
+        self._approved_absence(self.today)
+
+        self.assertIsNone(
+            self.env['hr.attendance']._get_last_working_hour(self.teacher, self.today))
+
+    def test_a_pending_request_does_not_move_the_check_out(self):
+        """Only an approved absence frees the employee from those hours."""
+        self._add_slot(8.0, 14.0)
+        self._add_slot(15.0, 18.0)
+        leave = self.env['hr.leave'].create({
+            'employee_id': self.teacher.id,
+            'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
+            'request_date_from': self.today, 'request_date_to': self.today,
+            'ems_full_day': False, 'request_hour_from': 15.0, 'request_hour_to': 18.0,
+            'ems_submitted': True, 'ems_responsible_declaration': True,
+        })
+        self.assertEqual(leave.state, 'confirm')
+
+        result = self.env['hr.attendance']._get_last_working_hour(self.teacher, self.today)
+
+        utils = self.env['ems.datetime_utils']
+        self.assertEqual(result, utils.datetime_to_odoo(
+            utils.time_float_to_utc_datetime(self.today, 18.0)))
