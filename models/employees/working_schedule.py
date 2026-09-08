@@ -119,18 +119,28 @@ class ems_working_schedule(models.Model):
 		slots are never included, only real subject/non-teaching entries), then re-derive the teacher's
 		'teaching_ids' from the same cells so both stay in sync. 'source_framework_id' is only passed
 		when "New" picked a different reference framework (directly, or inherited by copying a
-		colleague), so future edits keep showing the right blank slots."""
+		colleague), so future edits keep showing the right blank slots.
+
+		Bottom-up sync redesign, Phase 5 (2026-09-08): the unlink+write below is a single-teacher
+		operation, so - unlike the import wizard's own per-teacher loop - it never risks the
+		cross-teacher false-collision 'sync_from_schedule_batch' guards against; suppressing the
+		automatic hook here is purely to avoid syncing the SAME teacher redundantly (once per
+		hook-triggered write, once explicitly below) rather than a correctness requirement. The
+		explicit sync at the end now reuses 'hr.employee._ems_sync_schedule_from_calendar()' (Phase
+		3) - reading the calendar back fresh from the DB post-write, instead of the in-memory
+		'cells' buffer this used to pass straight through, matching the exact same "the write
+		already happened, so the calendar is now trustworthy" pattern already used by the working-
+		schedules import wizard's own '_apply_import'."""
 		self.ensure_one()
-		self.attendance_ids.filtered(lambda attendance: attendance.dayofweek in ('0', '1', '2', '3', '4')).unlink()
-		self.write({'attendance_ids': [(0, 0, cell) for cell in cells]})
+		suppressed = self.with_context(**{EMS_SKIP_AUTO_SCHEDULE_SYNC: True})
+		suppressed.attendance_ids.filtered(lambda attendance: attendance.dayofweek in ('0', '1', '2', '3', '4')).unlink()
+		suppressed.write({'attendance_ids': [(0, 0, cell) for cell in cells]})
 		if source_framework_id:
 			self.source_framework_id = source_framework_id
 
 		teacher = self.get_employee()
 		if teacher:
-			entries = [cell for cell in cells if cell.get('subject_id')]
-			self.env['ems.teaching'].sync_from_schedule(teacher, entries)
-			self.env['ems.attendance_template'].sync_from_schedule(teacher, entries, start_date=fields.Date.today())
+			teacher._ems_sync_schedule_from_calendar()
 
 	def get_employee(self):
 		"""The teacher this calendar belongs to (a documented 1:1 assumption: one personal calendar
