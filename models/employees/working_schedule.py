@@ -12,7 +12,7 @@ import math
 import re
 from datetime import datetime
 
-from ..shared.attendance_mixin import EMS_BYPASS_TEMPLATE_LOCK_KEY, EMS_SKIP_AUTO_SCHEDULE_SYNC
+from ..shared.attendance_mixin import EMS_SKIP_AUTO_SCHEDULE_SYNC
 
 
 def _m2m_command_ids(commands):
@@ -1561,18 +1561,25 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				# was the template's only active line, the now-empty template is
 				# archived-or-deleted outright too ("archives") rather than left as an orphaned,
 				# lineless record - deleted instead of archived when it has no real sessions
-				# (2026-09-07, see 'ems.attendance_template._archive_or_delete').
-				template = line.right_schedule_id.attendance_template_id
-				line.right_schedule_id.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
-				if not template.attendance_schedule_ids:
-					template._archive_or_delete()
+				# (2026-09-07, see 'ems.attendance_template._archive_or_delete'). Bug fixed
+				# 2026-09-08 (bottom-up sync redesign, Phase 6): this used to archive
+				# 'right_schedule_id' directly, leaving the teacher's own calendar block silently
+				# pointing at a now-archived session - '_archive_via_calendar_blocks' instead
+				# archives the CALENDAR block(s) behind it, and the automatic hook archives the
+				# schedule line (and its template, if left empty) as a natural consequence, exactly
+				# like 'ems.group_classroom_change_wizard''s own equivalent fix the same day.
+				line.right_schedule_id._archive_via_calendar_blocks()
 			elif line.resolution == 'prevail_right':
 				indices_to_remove.setdefault(line.left_item_index, set()).add(line.left_entry_index)
 			elif line.resolution == 'reassign_rooms':
 				node_cache[line.left_item_index]['entries'][line.left_entry_index]['space_id'] = line.left_space_id.id
 				node_cache[line.left_item_index]['attendance_ids'][line.left_entry_index + 1][2]['space_id'] = line.left_space_id.id
 				if line.right_schedule_id.space_id != line.right_space_id:
-					line.right_schedule_id._write_or_new_version({'space_id': line.right_space_id.id})
+					# NOTE: same 2026-09-08 fix as the 'prevail_left' branch above - moves the
+					# CALENDAR block(s) behind 'right_schedule_id', letting the automatic hook keep
+					# the schedule line itself correctly in sync, instead of writing it directly and
+					# leaving the calendar stale.
+					line.right_schedule_id._resync_calendar_blocks_to(line.right_space_id)
 
 		for item_index, entry_indices in indices_to_remove.items():
 			for entry_index in sorted(entry_indices, reverse=True):

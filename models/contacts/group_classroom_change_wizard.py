@@ -3,8 +3,6 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
-from ..shared.attendance_mixin import EMS_BYPASS_TEMPLATE_LOCK_KEY
-
 
 class EmsGroupClassroomChangeWizard(models.TransientModel):
 	_name = "ems.group_classroom_change_wizard"
@@ -112,7 +110,15 @@ class EmsGroupClassroomChangeWizardConflictLine(models.TransientModel):
 	def _apply_resolution(self):
 		"""Applies this line's chosen 'resolution', then clears 'space_pending_group_sync' on
 		'left_attendance_id' regardless of which one was picked - either way the admin has now made
-		an explicit, informed decision about this block, so it stops being "pending"."""
+		an explicit, informed decision about this block, so it stops being "pending".
+
+		Bottom-up sync redesign, Phase 6 (2026-09-08): both sides now write ONLY
+		'resource.calendar.attendance' (the pending block directly here; the existing session via
+		'ems.attendance_schedule._resync_calendar_blocks_to'/'_archive_via_calendar_blocks') and let
+		the automatic hook keep 'ems.attendance_schedule'/'ems.attendance_template' correctly in
+		sync as a consequence - this is exactly what fixes the real bug found on SMX1D/SMX2D
+		(writing the schedule directly left the teacher's own calendar silently pointing at the old
+		room), now fixed at the source instead of patched here."""
 		self.ensure_one()
 		block = self.left_attendance_id
 		existing = self.right_schedule_id
@@ -124,43 +130,14 @@ class EmsGroupClassroomChangeWizardConflictLine(models.TransientModel):
 			# 'left_space_id' before 'existing' has vacated it would trip 'check_overlap' on a purely
 			# transient state, even though the end result (both moved) is perfectly valid.
 			if existing.space_id != self.right_space_id:
-				self._move_schedule_to(existing, self.right_space_id)
-			self._move_block_to(block, self.left_space_id)
+				existing._resync_calendar_blocks_to(self.right_space_id)
+			block.space_id = self.left_space_id.id
 		elif self.resolution == 'prevail_left':
 			# The pending block takes the group's new classroom; the session it collided with is
 			# archived - same handling as the import wizard's own 'prevail_left' on an external
-			# conflict (models/employees/working_schedule.py's '_continue_from_db_conflicts'). Also
-			# archives the teacher's own calendar block(s) behind 'existing' - see '_move_schedule_to'
-			# on why leaving them active would be a bug, not just an existing-precedent trade-off.
-			template = existing.attendance_template_id
-			self.env['resource.calendar.attendance'].search([
-				('attendance_schedule_id', '=', existing.id),
-			]).action_archive()
-			existing.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
-			if not template.attendance_schedule_ids:
-				template._archive_or_delete()
-			self._move_block_to(block, new_space)
+			# conflict (models/employees/working_schedule.py's '_continue_from_db_conflicts').
+			existing._archive_via_calendar_blocks()
+			block.space_id = new_space.id
 		# 'prevail_right': the pending block keeps its current classroom for this slot - a deliberate,
 		# accepted divergence from the group's own room from now on. Nothing to write on either side.
 		block.space_pending_group_sync = False
-
-	def _move_block_to(self, block, space):
-		if block.attendance_schedule_id:
-			self._move_schedule_to(block.attendance_schedule_id, space)
-		else:
-			block.space_id = space.id
-
-	def _move_schedule_to(self, schedule, space):
-		"""Moves 'schedule' (an already-active 'ems.attendance_schedule', either side of the
-		conflict) to 'space', and - critically - every 'resource.calendar.attendance' row that
-		derives it (via 'attendance_schedule_id'; can be more than one under co-teaching) along with
-		it. Found the hard way (2026-09-08, real data: SMX1D/SMX2D): writing only the schedule left
-		the teacher's own calendar block still showing the OLD room, so the group's Schedule tab and
-		any later re-sync from that calendar (ems.attendance_template.sync_from_schedule*, which
-		treats the calendar as the single source of truth) silently put the collision right back -
-		'resolving' it in the wizard achieved nothing lasting. Re-points 'attendance_schedule_id' to
-		whatever '_write_or_new_version' actually returns (a clone, if the record 'has_sessions')."""
-		blocks = self.env['resource.calendar.attendance'].search([('attendance_schedule_id', '=', schedule.id)])
-		new_schedule = schedule._write_or_new_version({'space_id': space.id})
-		if blocks:
-			blocks.write({'space_id': space.id, 'attendance_schedule_id': new_schedule.id})

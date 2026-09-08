@@ -187,6 +187,49 @@ class EmsAttendanceSchedule(models.Model):
             conflicts.append((other, same_teacher))
         return conflicts
 
+    def _resync_calendar_blocks_to(self, space):
+        """Bottom-up sync redesign, Phase 6 (2026-09-08, docs/en/developers/attendance/
+        attendance_template.md's "Bottom-up sync redesign" section) - moves every
+        'resource.calendar.attendance' row deriving THIS line (via its own 'attendance_schedule_id'
+        FK) to 'space'. The automatic hook on that model then re-syncs the affected teacher(s),
+        correctly updating this very line (writing it in place, or cloning a fresh version if it
+        'has_sessions') as a natural consequence - callers resolving a room conflict should call
+        this instead of writing 'space_id'/'_write_or_new_version' on this model directly, exactly
+        the bug found and fixed in 'ems.group_classroom_change_wizard' (2026-09-08) and in this
+        model's own former callers in the working-schedules import wizard's
+        '_continue_from_db_conflicts' (models/employees/working_schedule.py) - both left the
+        teacher's own calendar silently pointing at the old room, ready to put the very collision
+        being "resolved" right back the next time anything re-read the calendar. A line with NO
+        calendar block behind it at all (legacy, predates the 'attendance_schedule_id' FK added
+        2026-08-11) falls back to writing itself directly, mirroring what the hook would otherwise
+        do for a line that does have one."""
+        self.ensure_one()
+        blocks = self.env['resource.calendar.attendance'].search([('attendance_schedule_id', '=', self.id)])
+        if blocks:
+            blocks.write({'space_id': space.id})
+        else:
+            self._write_or_new_version({'space_id': space.id})
+
+    def _archive_via_calendar_blocks(self):
+        """Bottom-up sync redesign, Phase 6 (2026-09-08) - archives every 'resource.calendar.
+        attendance' row deriving THIS line, the counterpart to '_resync_calendar_blocks_to' above
+        for the "this session should go away entirely" case (e.g. a room-conflict resolution where
+        this side loses). The automatic hook then naturally archives this line - and, if nothing
+        else backs its template, the template itself too - as a consequence, the exact same way it
+        archives any other now-orphaned line; callers never need to touch 'ems.attendance_template'/
+        'ems.attendance_schedule' directly for this. No calendar block at all falls back to
+        archiving this line (and its now-possibly-empty template) directly, same convention as
+        '_resync_calendar_blocks_to'."""
+        self.ensure_one()
+        blocks = self.env['resource.calendar.attendance'].search([('attendance_schedule_id', '=', self.id)])
+        if blocks:
+            blocks.action_archive()
+        else:
+            template = self.attendance_template_id
+            self.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
+            if not template.attendance_schedule_ids:
+                template._archive_or_delete()
+
     def is_co_teaching_with(self, other):
         """True if 'self' and 'other' represent the SAME class session co-taught by more than one
         teacher — same subject, sharing at least one group — rather than two unrelated sessions that
