@@ -162,3 +162,4 @@ from . import test_grade_matrix_tour
 from . import test_grade_tutor_matrix_tour
 from . import test_employee_staff_permissions
 from . import test_employee_staff_permissions_tour
+from . import test_student_data_reader

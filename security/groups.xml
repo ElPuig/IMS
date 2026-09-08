@@ -78,6 +78,18 @@
             <field name="visible">True</field>
         </record>
 
+        <!-- Kept separate for the same reason as category_secretary/category_quality/
+             category_coexistence/category_tac: the guidance team (Orientació) is transversal to
+             the teacher/tutor/HoS hierarchy - the post is held by teachers, but it doesn't sit
+             anywhere on that chain, so it gets its own independent Manager/Administrator chain. -->
+        <record model="ir.module.category" id="category_orientation">
+            <field name="name">Guidance</field>
+            <field name="description">Educational Management System - Guidance (Orientació)</field>
+            <field name="parent_id" ref="ems.category_main"/>
+            <field name="sequence">6</field>
+            <field name="visible">True</field>
+        </record>
+
         <!-- Consolidates Odoo's native Administration (Access Rights/Settings), Canned Responses
              and Job Queue permissions - previously scattered technical selectors - into one clean
              EMS selector. Kept separate for the same reason as category_secretary/category_quality. -->
@@ -85,8 +97,23 @@
             <field name="name">Settings</field>
             <field name="description">Educational Management System - Settings</field>
             <field name="parent_id" ref="ems.category_main"/>
-            <field name="sequence">6</field>
+            <field name="sequence">7</field>
             <field name="visible">True</field>
+        </record>
+
+        <!-- Technical group, deliberately with no category_id: it never appears as a pickable
+             role selector on the user form, and is granted only by implication (group_orientation
+             and group_coexistence below). It owns the whole read-only surface over the student
+             dataset - record rules (security/rules/student_data_reader.xml), ACL lines and menu
+             visibility - so the two transversal posts that need it share one set of rules instead
+             of duplicating ~17 of them each. It carries its own ACL lines rather than leaning on
+             group_teacher's, because group_coexistence does not imply group_teacher: a coexistence
+             coordinator who is not a teacher still gets the full read access issue #393 asks for.
+             See docs/en/developers/employees/role_hierarchy.md, "Transversal read-only access to
+             student data". -->
+        <record model="res.groups" id="group_student_data_reader">
+            <field name="name">Student data reader</field>
+            <field name="comment">Read-only access to every student's academic, attendance and coexistence data, centre-wide. Technical group: granted by implication only, never assigned by hand.</field>
         </record>
 
         <record model="res.groups" id="group_teacher">
@@ -185,8 +212,19 @@
              logic is only used to route the escalation email, not to gate read access). -->
         <record model="res.groups" id="group_coexistence">
             <field name="name">Manager</field>
-            <field name="comment">Access rights for the Coexistence team: can read all strikes centre-wide.</field>
+            <field name="comment">Access rights for the Coexistence team: can read all strikes centre-wide, plus every student's academic, attendance and coexistence data (issue #393).</field>
             <field name="category_id" ref="ems.category_coexistence"/>
+            <!-- Implies group_teacher for the same reason group_tac and group_orientation do:
+                 role_coexistence is employee_type='teacher', so the post is always held by a
+                 teacher. It is also a hard requirement rather than a courtesy: the Students
+                 screen runs through an ir.actions.server, and Odoo requires write access on the
+                 action's own model (res.partner) to execute one at all - without group_teacher a
+                 coexistence coordinator gets an AccessError opening the screen, however complete
+                 their read permissions are. -->
+            <field name="implied_ids" eval="[
+                (4, ref('ems.group_teacher')),
+                (4, ref('ems.group_student_data_reader')),
+            ]"/>
         </record>
 
         <!-- Same privileges as Manager for now; kept as its own group so it can be
@@ -224,6 +262,32 @@
             <field name="comment">Access rights for the TAC coordinator. Currently identical to Manager.</field>
             <field name="category_id" ref="ems.category_tac"/>
             <field name="implied_ids" eval="[(4, ref('ems.group_tac'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+
+        <!-- Implies group_teacher because the guidance post is always held by a teacher
+             (role_orientation is employee_type='teacher'), same as group_tac above, and
+             group_student_data_reader for the centre-wide read access issue #393 asks for.
+             Read-only by design: it adds no write/create/unlink anywhere. -->
+        <record model="res.groups" id="group_orientation">
+            <field name="name">Manager</field>
+            <field name="comment">Access rights for the Guidance team (Orientació): reads every student's academic, attendance and coexistence data.</field>
+            <field name="category_id" ref="ems.category_orientation"/>
+            <field name="implied_ids" eval="[
+                (4, ref('ems.group_teacher')),
+                (4, ref('ems.group_student_data_reader')),
+            ]"/>
+        </record>
+
+        <!-- Same privileges as Manager for now; kept as its own group so it can be
+             differentiated later without another migration. root/admin are added directly
+             (not via group_academic_admin's implied_ids) so the blocks stay independent:
+             see group_academic_admin below. -->
+        <record model="res.groups" id="group_orientation_admin">
+            <field name="name">Administrator</field>
+            <field name="comment">Access rights for the Guidance coordinator. Currently identical to Manager.</field>
+            <field name="category_id" ref="ems.category_orientation"/>
+            <field name="implied_ids" eval="[(4, ref('ems.group_orientation'))]"/>
             <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
         </record>
 

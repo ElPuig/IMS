@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #393: the guidance (Orientació) and coexistence posts read every student's
+             file centre-wide, not just their own tutees'. One technical group owns the whole
+             surface (see security/groups.xml's group_student_data_reader) so both posts share a
+             single set of rules; Odoo ORs rules across a user's groups, so a domain of [] here
+             widens whatever group_teacher's own tutor_id-filtered rules already allow rather
+             than fighting them. Read only throughout: write/create/unlink stay with the groups
+             that already own them.
+
+             ems.strike.reason (the strike-reason catalog) deliberately has no rule here: no
+             group row-filters it in the first place, so the ACL read line alone is the whole
+             permission and a rule would only add noise. -->
+
+        <record id="rule_res_partner_student_data_reader" model="ir.rule">
+            <field name="name">Contact: student data reader (all data, read only)</field>
+            <field name="model_id" ref="ems.model_res_partner"/>
+            <field name="groups" eval="[(4, ref('ems.group_student_data_reader'))]"/>
+            <field name="domain_force">[]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_ems_enrollment_student_data_reader" model="ir.rule">
+            <field name="name">Enrollment: student data reader (all data, read only)</field>
+            <field name="model_id" ref="ems.model_ems_enrollment"/>
+            <field name="groups" eval="[(4, ref('ems.group_student_data_reader'))]"/>
+            <field name="domain_force">[]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_ems_authorization_student_data_reader" model="ir.rule">
+            <field name="name">Authorization: student data reader (all data, read only)</field>
+            <field name="model_id" ref="ems.model_ems_authorization"/>
+            <field name="groups" eval="[(4, ref('ems.group_student_data_reader'))]"/>
+            <field name="domain_force">[]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_ems_grade_session_student_data_reader" model="ir.rule">
+            <field name="name">Grade session: student data reader (all data, read only)</field>
+            <field name="model_id" ref="ems.model_ems_grade_session"/>
+            <field name="groups" eval="[(4, ref('ems.group_student_data_reader'))]"/>
+            <field name="domain_force">[]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_ems_grade_subject_line_student_data_reader" model="ir.rule">
+            <field name="name">Grade (subject line): student data reader (all data, read only)</field>
+            <field name="model_id" ref="ems.model_ems_grade_subject_line"/>
+            <field name="groups" eval="[(4, ref('ems.group_student_data_reader'))]"/>
+            <field name="domain_force">[]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_ems_grade_outcome_line_student_data_reader" model="ir.rule">
+            <field name="name">Grade (outcome line): student data reader (all data, read only)</field>
+            <field name="model_id" ref="ems.model_ems_grade_outcome_line"/>
+            <field name="groups" eval="[(4, ref('ems.group_student_data_reader'))]"/>
+            <field name="domain_force">[]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_ems_student_year_record_student_data_reader" model="ir.rule">
+            <field name="name">Year record: student data reader (all data, read only)</field>
+            <field name="model_id" ref="ems.model_ems_student_year_record"/>
+            <field name="groups" eval="[(4, ref('ems.group_student_data_reader'))]"/>
+            <field name="domain_force">[]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_ems_student_year_record_subject_student_data_reader" model="ir.rule">
+            <field name="name">Year record (subject): student data reader (all data, read only)</field>
+            <field name="model_id" ref="ems.model_ems_student_year_record_subject"/>
+            <field name="groups" eval="[(4, ref('ems.group_student_data_reader'))]"/>
+            <field name="domain_force">[]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_ems_student_year_record_outcome_student_data_reader" model="ir.rule">
+            <field name="name">Year record (outcome): student data reader (all data, read only)</field>
+            <field name="model_id" ref="ems.model_ems_student_year_record_outcome"/>
+            <field name="groups" eval="[(4, ref('ems.group_student_data_reader'))]"/>
+            <field name="domain_force">[]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_ems_attendance_session_header_student_data_reader" model="ir.rule">
+            <field name="name">Attendance session: student data reader (all data, read only)</field>
+            <field name="model_id" ref="ems.model_ems_attendance_session_header"/>
+            <field name="groups" eval="[(4, ref('ems.group_student_data_reader'))]"/>
+            <field name="domain_force">[]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_ems_attendance_session_line_student_data_reader" model="ir.rule">
+            <field name="name">Attendance session line: student data reader (all data, read only)</field>
+            <field name="model_id" ref="ems.model_ems_attendance_session_line"/>
+            <field name="groups" eval="[(4, ref('ems.group_student_data_reader'))]"/>
+            <field name="domain_force">[]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_ems_attendance_justification_student_data_reader" model="ir.rule">
+            <field name="name">Attendance justification: student data reader (all data, read only)</field>
+            <field name="model_id" ref="ems.model_ems_attendance_justification"/>
+            <field name="groups" eval="[(4, ref('ems.group_student_data_reader'))]"/>
+            <field name="domain_force">[]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_ems_attendance_issue_tutor_student_data_reader" model="ir.rule">
+            <field name="name">Attendance issue (tutor): student data reader (all data, read only)</field>
+            <field name="model_id" ref="ems.model_ems_attendance_issue_tutor"/>
+            <field name="groups" eval="[(4, ref('ems.group_student_data_reader'))]"/>
+            <field name="domain_force">[]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_ems_attendance_issue_student_student_data_reader" model="ir.rule">
+            <field name="name">Attendance issue (student): student data reader (all data, read only)</field>
+            <field name="model_id" ref="ems.model_ems_attendance_issue_student"/>
+            <field name="groups" eval="[(4, ref('ems.group_student_data_reader'))]"/>
+            <field name="domain_force">[]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_ems_attendance_issue_status_student_data_reader" model="ir.rule">
+            <field name="name">Attendance issue (status): student data reader (all data, read only)</field>
+            <field name="model_id" ref="ems.model_ems_attendance_issue_status"/>
+            <field name="groups" eval="[(4, ref('ems.group_student_data_reader'))]"/>
+            <field name="domain_force">[]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_ems_strike_student_data_reader" model="ir.rule">
+            <field name="name">Strike: student data reader (all data, read only)</field>
+            <field name="model_id" ref="ems.model_ems_strike"/>
+            <field name="groups" eval="[(4, ref('ems.group_student_data_reader'))]"/>
+            <field name="domain_force">[]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+    </data>
+</odoo>
