@@ -136,7 +136,7 @@ Key behaviours, each covered by its own docstring in the code:
 - **Archive-then-write, in two full passes across the whole batch** (`_archive_stale_schedule_sync` for every plan, then `_write_schedule_sync` for every plan) — never interleaved per-plan. Interleaving would let one plan's fresh line collide (via `ems.attendance_schedule.check_overlap()`) with another plan's still-active *stale* line that hasn't been re-synced yet, when two groups share a classroom.
 - **Per-line, `has_sessions`-aware matching for a persisting template (added 2026-08-05, replacing a blunter "archive every line, recreate all fresh" behavior):** `_plan_schedule_sync` calls `_decide_schedule_line_changes` (renamed 2026-09-08 from `_match_schedule_lines`, same algorithm, unchanged - see "Bottom-up sync redesign" below) once per persisting key, matching the survivor's current `attendance_schedule_ids` against the incoming entries by `(weekday, start_time, end_time)` - a line's own identity within a template. A line with no matching entry is archived outright (genuinely gone); a matched line whose room hasn't changed is left completely untouched; a matched line whose room *has* changed goes through the same decision as `ems.attendance_mixin._write_or_new_version` - updated in place if it has no real sessions yet, or archived-and-replaced-with-a-fresh-line if it does (split across the two passes above for the same cross-plan collision reason, not called as one atomic step - see the code's own comments on `_archive_stale_schedule_sync`/`_write_schedule_sync` for why). This is shared, unconditional model-level behavior - it applies identically whether the caller is the live Schedule tab's own edit or (once built) the working-schedule import wizard, not something either caller opts into separately.
 
-### Bottom-up sync redesign (Phases 1-6 done, Phase 7-8 remaining, 2026-09-08)
+### Bottom-up sync redesign (Phases 1-7 done, Phase 8 remaining, 2026-09-08)
 
 Any `resource.calendar.attendance` change (`create`/`write`/`unlink`) is now the reliable, single
 trigger for keeping this model in sync - built bottom-up: `_decide_schedule_line_changes` (a pure
@@ -150,20 +150,29 @@ avoid a false cross-teacher room collision mid-batch). Every existing caller
 (`apply_schedule_changes`, the working-schedules import wizard, `regenerate_all_from_calendars`)
 was unified onto this same mechanism in the same pass.
 
-**Design invariant: every active line always has a real calendar block behind it.** Nothing
-outside the sync mechanism itself writes `ems.attendance_template`/`ems.attendance_schedule`
-directly anymore - a caller that needs to move or archive a session's room does so by touching
-only `resource.calendar.attendance` (via `ems.attendance_schedule._relocate_via_calendar_blocks`/
-`_archive_via_calendar_blocks`, or `ems.group._resolve_or_flag_pending_block`'s own automatic,
-no-collision path) and lets the hook keep this model in sync as a consequence. A one-time
-migration (`migrations/18.0.0.23.6/post-migrate.py`, re-running `regenerate_all_from_calendars()`)
-backfilled every legacy calendar block that predated the `attendance_schedule_id` FK or the
-automatic hook itself. The **one still-open exception**: `course_transition_wizard.py` still
-creates calendar blocks and template/schedule lines directly, bypassing this pipeline entirely
-(see `docs/en/developers/settings/course_transition_wizard.md`) - Phase 7 replaces that logic and
-closes this gap for good; until then, `_relocate_via_calendar_blocks`/`_archive_via_calendar_blocks`
-keep a deliberate, TEMPORARY fallback for a line with no calendar block, clearly marked in their
-own docstrings as a Phase 7 dependency to be removed once that phase lands.
+**Design invariant, closed for good by Phase 7: every active line always has a real calendar block
+behind it.** Nothing outside the sync mechanism itself writes
+`ems.attendance_template`/`ems.attendance_schedule` directly anymore - a caller that needs to move
+or archive a session's room does so by touching only `resource.calendar.attendance` (via
+`ems.attendance_schedule._relocate_via_calendar_blocks`/`_archive_via_calendar_blocks`, or
+`ems.group._resolve_or_flag_pending_block`'s own automatic, no-collision path) and lets the hook
+keep this model in sync as a consequence. A one-time migration
+(`migrations/18.0.0.23.6/post-migrate.py`, re-running `regenerate_all_from_calendars()`) backfilled
+every legacy calendar block that predated the `attendance_schedule_id` FK or the automatic hook
+itself.
+
+**Phase 7 (2026-09-08) closed the one remaining exception:** `course_transition_wizard.py`'s own
+`_apply_calendar_archival()` used to manage `ems.attendance_template`/`ems.attendance_schedule`
+directly (a hand-rolled FK/fallback lookup, plus its own per-template departure decision) - now it
+only archives the migrating `resource.calendar.attendance` rows and lets the automatic hook resync
+the affected teacher(s), exactly like any other calendar change (see
+`docs/en/developers/settings/course_transition_wizard.md` for the full before/after and the
+empirical check that motivated it - 124 of 127 tests passed unchanged with the hook un-suppressed;
+the 3 that didn't tested a calendar/template drift the new invariant makes structurally impossible,
+and were deleted). With no writer left able to create a line without a calendar block behind it,
+the TEMPORARY fallback `_relocate_via_calendar_blocks`/`_archive_via_calendar_blocks` kept for this
+exact gap was removed in the same pass - both methods now unconditionally assume a calendar block
+exists, matching the invariant they help enforce.
 
 This section will be filled in with the finished, diagrammed architecture as part of Phase 8.
 - **Duplicate consolidation:** more than one active template can share the same (subject, group-set, teacher-set) key, a pre-existing data-quality artifact of repeated past imports. Only `templates[0]` (the "survivor") gets refreshed; every other duplicate sharing that key is archived outright. Since `_check_unique_teaching_assignment` (2026-08-11) rejects a literal duplicate `create()`/`write()` outright, this path is now effectively legacy-data-only — a duplicate can no longer be created going forward, only inherited from data older than that constraint (see `tests/test_attendance_template.py::test_resync_consolidates_duplicate_templates_for_same_key`, whose fixture now constructs the duplicate via raw SQL for exactly this reason).

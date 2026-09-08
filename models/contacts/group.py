@@ -327,15 +327,11 @@ class EmsGroup(models.Model):
 		'ems.group_classroom_change_wizard' (re-checking an already-flagged block when the wizard
 		opens, in case the collision it was flagged for has since resolved itself)."""
 		self.ensure_one()
+		# 'schedule' is never empty here: 'block' is a genuine teaching block (subject_id set, see
+		# '_propagate_classroom_change's own domain), and the bottom-up sync redesign's invariant
+		# (closed for good by Phase 7, 2026-09-08 - see ems.attendance_schedule.
+		# '_relocate_via_calendar_blocks's own docstring) guarantees one always exists.
 		schedule = block.attendance_schedule_id
-		if not schedule:
-			# Not yet synced into the official schedule (only reachable today via a course
-			# transition's own direct, calendar-bypassing writes - see ems.attendance_schedule's
-			# own '_relocate_via_calendar_blocks'/'_archive_via_calendar_blocks' docstrings for the
-			# same, still-open Phase 7 dependency) - nothing to collide with yet, and
-			# check_overlap() will act as the safety net once it is.
-			block.write({'space_id': new_space.id, 'space_pending_group_sync': False})
-			return []
 		conflicts = schedule.find_room_conflicts(new_space.id)
 		if conflicts:
 			block.space_pending_group_sync = True

@@ -27,6 +27,9 @@ Following the room-conflict-resolution bug above, editing a teacher's calendar (
 ## One-time backfill for calendar blocks that predate the schedule-link column:
 A handful of calendar blocks created before the `attendance_schedule_id` link column existed (or before the automatic sync hook above did) had no link to their corresponding schedule line - migrated by re-running the existing calendar-driven rebuild tool (`regenerate_all_from_calendars`, already used by earlier migrations) once more, closing the gap for every teacher with no unresolved conflicts.
 
+## The course-transition wizard no longer manages the teaching schedule by hand either:
+Rounding off the two items above, the end-of-year course transition's own archival step used to work out by hand which schedule records a departing teacher's calendar change implied (a fallback lookup for older data, plus its own logic for whether to drop just that teacher or archive the whole class). It now simply archives the calendar blocks that are moving on and lets the same automatic mechanism keep the official schedule in sync, exactly like every other part of the app already does - one less place doing its own version of the same job, and one less way for the two to quietly drift apart. Three tests that specifically exercised the old drifted-data fallback were removed, since that state can no longer occur; the behavior they protected remains fully covered by the general schedule-sync test suite.
+
 # Changes
 
 ## "Another Coordinations" teaching type marked as fixed:

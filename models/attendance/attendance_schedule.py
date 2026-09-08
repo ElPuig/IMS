@@ -202,23 +202,16 @@ class EmsAttendanceSchedule(models.Model):
         silently pointing at the old room, ready to put the very collision being "resolved" right
         back the next time anything re-read the calendar.
 
-        DESIGN INVARIANT (2026-09-08): every active line is meant to always have at least one real
-        calendar block behind it - a one-off migration (see migrations/ for the version that added
-        it) backfilled every legacy block that predated the 'attendance_schedule_id' FK (added
-        2026-08-11), and the automatic hook keeps it true for every calendar write from here on.
-        The single still-open exception is 'course_transition_wizard.py' (bottom-up sync
-        redesign's own Phase 7, not done yet as of this writing) - it still creates calendar
-        blocks AND schedule/template lines directly, bypassing the sync pipeline entirely, so a
-        line it creates can still lack a calendar block. The 'else' branch below is a deliberate,
-        TEMPORARY safety net for exactly that case - remove it once Phase 7 closes the gap, not
-        before (see docs/en/developers/attendance/attendance_template.md's "Bottom-up sync
-        redesign" section)."""
+        DESIGN INVARIANT (2026-09-08, closed for good by Phase 7, 2026-09-08): every active line
+        always has at least one real calendar block behind it - a one-off migration backfilled
+        every legacy block that predated the 'attendance_schedule_id' FK (added 2026-08-11), the
+        automatic hook keeps it true for every calendar write since, and Phase 7 removed the last
+        direct writer ('course_transition_wizard.py') that could still create a line without one.
+        No fallback needed anymore - see docs/en/developers/attendance/attendance_template.md's
+        "Bottom-up sync redesign" section for the full history."""
         self.ensure_one()
         blocks = self.env['resource.calendar.attendance'].search([('attendance_schedule_id', '=', self.id)])
-        if blocks:
-            blocks.write({'space_id': space.id})
-        else:
-            self._write_or_new_version({'space_id': space.id})
+        blocks.write({'space_id': space.id})
 
     def _archive_via_calendar_blocks(self):
         """Bottom-up sync redesign, Phase 6 (2026-09-08) - archives every 'resource.calendar.
@@ -229,19 +222,11 @@ class EmsAttendanceSchedule(models.Model):
         archives any other now-orphaned line; callers never need to touch 'ems.attendance_template'/
         'ems.attendance_schedule' directly for this.
 
-        Same design invariant and same TEMPORARY exception as '_relocate_via_calendar_blocks'
-        above (see its docstring) - the 'else' branch below only still exists for a line created
-        directly by 'course_transition_wizard.py' (Phase 7, not done yet), and must be removed
-        once that phase closes the gap."""
+        Same design invariant as '_relocate_via_calendar_blocks' above (see its docstring) - closed
+        for good by Phase 7, no fallback needed anymore."""
         self.ensure_one()
         blocks = self.env['resource.calendar.attendance'].search([('attendance_schedule_id', '=', self.id)])
-        if blocks:
-            blocks.action_archive()
-        else:
-            template = self.attendance_template_id
-            self.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
-            if not template.attendance_schedule_ids:
-                template._archive_or_delete()
+        blocks.action_archive()
 
     def is_co_teaching_with(self, other):
         """True if 'self' and 'other' represent the SAME class session co-taught by more than one
