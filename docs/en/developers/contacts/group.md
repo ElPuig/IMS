@@ -236,10 +236,21 @@ flowchart TD
     B --> C["_propagate_classroom_change(old_space, new_space)\n(best-effort, never raises)"]
     C --> D{"Teaching blocks (resource.calendar.attendance)\nfor this group currently in old_space?"}
     D -- none --> E[Nothing else to do]
-    D -- some --> F["For each block with an attendance_schedule_id:\nfind_room_conflicts(new_space)"]
-    F -- "no conflict" --> G["Move now: block.space_id = new_space\n+ attendance_schedule_id._write_or_new_version({'space_id': new_space})"]
+    D -- some --> F["For each block (always has an\nattendance_schedule_id - bottom-up sync\nredesign's invariant): find_room_conflicts(new_space)"]
+    F -- "no conflict" --> G["attendance_schedule_id._relocate_via_calendar_blocks(new_space)\n- moves the calendar block(s), the automatic\nsync hook keeps the schedule line in sync"]
     F -- "conflict" --> H["Leave the block in old_space\nspace_pending_group_sync = True"]
 ```
+
+**Bottom-up sync redesign (2026-09-08):** the "no conflict" path used to write
+`ems.attendance_schedule.space_id` directly (`_write_or_new_version`), then re-point the block's
+own `attendance_schedule_id` by hand — this had a real latent bug (fixed the same day): if that
+write cloned the line (a co-teacher's line with real session history), any OTHER teacher sharing
+that same line was left pointing at the now-archived id. It now calls
+`schedule._relocate_via_calendar_blocks(new_space)` instead - moves every calendar block deriving
+that line (not just this one), and the automatic sync hook keeps `ems.attendance_schedule` correct
+as a natural consequence, exactly the same shared method `ems.group_classroom_change_wizard` and
+the working-schedules import wizard's own conflict resolution use (see
+`docs/en/developers/attendance/attendance_template.md`'s "Bottom-up sync redesign" section).
 
 `ems.attendance_schedule.find_room_conflicts(new_space_id)` is `check_overlap()`'s own
 candidate-search extracted into a reusable, non-raising method — `check_overlap()` now calls it

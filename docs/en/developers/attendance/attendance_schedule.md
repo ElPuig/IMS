@@ -63,9 +63,16 @@ and letting the sync pipeline reconcile it.
 (`models/shared/attendance_mixin.py`), was NOT removed** - it's still used internally by the
 schedule-sync pipeline (`ems.attendance_template._archive_stale_schedule_sync`/
 `_write_schedule_sync`, see that model's "CRUD flow", which shares the exact same `has_sessions`
-predicate for its own per-line decisions) and by the import wizard's own room-reassignment
-conflict resolution (`working_schedule.py`, `line.right_schedule_id._write_or_new_version(...)`).
-Only the direct, button-driven entry point on this model and `ems.attendance_template` is gone.
+predicate for its own per-line decisions). Only the direct, button-driven entry point on this
+model and `ems.attendance_template` is gone. The import wizard's own room-reassignment conflict
+resolution (`working_schedule.py`'s `_continue_from_db_conflicts`) used to call
+`line.right_schedule_id._write_or_new_version(...)` directly too - the bottom-up sync redesign's
+Phase 6 (2026-09-08) replaced that with two new shared methods on this model,
+`_relocate_via_calendar_blocks(space)`/`_archive_via_calendar_blocks()` (see their own docstrings
+in `models/attendance/attendance_schedule.py`), which move/archive the calendar block instead and
+let the automatic sync hook keep this model in sync as a consequence - see
+`docs/en/developers/attendance/attendance_template.md`'s "Bottom-up sync redesign" section for the
+full picture.
 
 ---
 
