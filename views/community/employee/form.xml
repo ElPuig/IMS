@@ -54,8 +54,12 @@
                                 invisible="not google_ws_deactivation_date"
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
                     </header>
+                    <!-- Same groups as the buttons above, for the same reason as on the
+                         student form: whoever cannot act on the account has no business
+                         reading its schedule either. -->
                     <div class="alert alert-warning" role="alert"
-                         invisible="not google_ws_deactivation_date">
+                         invisible="not google_ws_deactivation_date"
+                         groups="ems.group_academic_admin,hr.group_hr_user">
                         The Google account is scheduled to be deactivated on
                         <field name="google_ws_deactivation_date" readonly="1" nolabel="1"
                                class="oe_inline"/>.

@@ -73,14 +73,20 @@
                                 confirm="This deletes the corporate Google account for good: the mailbox and the Drive files cannot be recovered afterwards. Continue?"
                                 groups="ems.group_secretary,ems.group_academic_admin"/>
                     </header>
+                    <!-- Same groups as the buttons above: the teacher role has read
+                         access to every res.partner (rule_contact_teacher), so without
+                         this a tutor opening a former student's file would read the
+                         account's schedule while being unable to act on it. -->
                     <div class="alert alert-warning" role="alert"
-                         invisible="not google_ws_deactivation_date">
+                         invisible="not google_ws_deactivation_date"
+                         groups="ems.group_secretary,ems.group_academic_admin">
                         The Google account is scheduled to be deactivated on
                         <field name="google_ws_deactivation_date" readonly="1" nolabel="1"
                                class="oe_inline"/>.
                     </div>
                     <div class="alert alert-danger" role="alert"
-                         invisible="not google_ws_deletion_date">
+                         invisible="not google_ws_deletion_date"
+                         groups="ems.group_secretary,ems.group_academic_admin">
                         The suspended Google account is scheduled to be deleted for good on
                         <field name="google_ws_deletion_date" readonly="1" nolabel="1"
                                class="oe_inline"/>.

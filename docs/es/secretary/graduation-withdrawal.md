@@ -73,6 +73,8 @@ En la parte superior de la ficha del alumno:
 
 Si el alumno vuelve (desarchivar la ficha), esto se hace automáticamente: se anula el paso que estuviera programado, o se reactiva la cuenta si ya estaba suspendida. Si la cuenta ya se había eliminado, se crea una nueva con credenciales nuevas.
 
+Para ver a todo el alumnado con algo pendiente, ve a **Comunidad educativa → Alumnos** y usa los filtros **Suspensión de Google pendiente** o **Eliminación de Google pendiente**. Ambas fechas están disponibles como columnas opcionales en la vista de lista (el selector del extremo derecho de la cabecera), de modo que puedes ordenar por ellas; **Agrupar por → Fecha de suspensión de Google** las agrupa por mes.
+
 Si el acceso al portal no se puede revocar por algún motivo, el alumno **no** se archiva — lo verás indicado en el mensaje de confirmación, y puedes volver a intentarlo una vez resuelto el problema.
 
 ---

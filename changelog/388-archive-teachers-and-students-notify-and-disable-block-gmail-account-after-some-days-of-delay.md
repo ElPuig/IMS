@@ -12,6 +12,16 @@ Once a student's account has been suspended, it is scheduled for permanent delet
 
 Deletion only ever applies to departures from now on: students suspended before this feature existed carry no deletion date, and the update deliberately does not give them one, so no existing suspended account is ever deleted without its owner having been warned first. A deleted student's corporate address stays recorded on their file, so it is never handed out to a different student later.
 
+## Finding the accounts with something pending:
+
+The student list (Educational Community > Students) gains two filters, "Google suspension pending" and "Google deletion pending", a group-by on the suspension date, and both dates as optional columns so they can be sorted. The staff list gains the equivalent suspension filter. All of them are restricted to the roles that can actually act on those accounts, matching the buttons on the forms.
+
+# Fixes
+
+## Google account schedule no longer visible to teachers:
+
+The teacher role has unrestricted read access to every contact, so the banners announcing a scheduled suspension or deletion were readable by any teacher opening a former student's file, even though the buttons acting on that account were already restricted to the secretariat and the academic administration. The banners, the new list columns and the new filters now all carry the same restriction as those buttons, with regression tests asserting on the view actually returned per user.
+
 # Internal changes
 
 ## Two daily scheduled actions drive the lifecycle:

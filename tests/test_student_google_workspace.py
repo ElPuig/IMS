@@ -426,6 +426,46 @@ class TestStudentGoogleWorkspaceLifecycle(TransactionCase):
         alumni._gw_schedule_deactivation()
         self.assertTrue(alumni.google_ws_deactivation_date)
 
+    # --- who may see the schedule ------------------------------------------
+
+    def _teacher_user(self):
+        return self.env['res.users'].create({
+            'name': 'GW Lifecycle Teacher', 'login': 'gw.lifecycle.teacher',
+            'email': 'gw.lifecycle.teacher@example.com', 'lang': 'en_US',
+            'groups_id': [(6, 0, [self.env.ref('ems.group_teacher').id,
+                                  self.env.ref('base.group_user').id])],
+        })
+
+    def test_schedule_is_hidden_from_teachers(self):
+        # rule_contact_teacher gives the teacher role read access to every res.partner,
+        # so the form's banners/columns must be restricted the same way its Google
+        # buttons already are - a tutor opening a former student's file has no business
+        # reading the account's schedule while being unable to act on it.
+        teacher = self._teacher_user()
+        arch = self.env['res.partner'].with_user(teacher).get_view(
+            self.env.ref('ems.view_contact_form').id, 'form')['arch']
+        self.assertNotIn('google_ws_deactivation_date', arch)
+        self.assertNotIn('google_ws_deletion_date', arch)
+
+    def test_schedule_is_visible_to_the_secretary(self):
+        secretary = self.env['res.users'].create({
+            'name': 'GW Lifecycle Secretary', 'login': 'gw.lifecycle.secretary',
+            'email': 'gw.lifecycle.secretary@example.com', 'lang': 'en_US',
+            'groups_id': [(6, 0, [self.env.ref('ems.group_secretary').id,
+                                  self.env.ref('base.group_user').id])],
+        })
+        arch = self.env['res.partner'].with_user(secretary).get_view(
+            self.env.ref('ems.view_contact_form').id, 'form')['arch']
+        self.assertIn('google_ws_deactivation_date', arch)
+        self.assertIn('google_ws_deletion_date', arch)
+
+    def test_search_filters_are_hidden_from_teachers(self):
+        teacher = self._teacher_user()
+        arch = self.env['res.partner'].with_user(teacher).get_view(
+            self.env.ref('ems.view_student_search').id, 'search')['arch']
+        self.assertNotIn('gw_deactivation_pending', arch)
+        self.assertNotIn('gw_deletion_pending', arch)
+
     # --- hard delete keeps the old immediate behaviour ---------------------
 
     def test_unlink_still_suspends_immediately(self):

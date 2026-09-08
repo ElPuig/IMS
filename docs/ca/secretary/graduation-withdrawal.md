@@ -73,6 +73,8 @@ A la part superior de la fitxa de l'alumne:
 
 Si l'alumne torna (desarxivar la fitxa), això es fa automàticament: s'anul·la el pas que estigués programat, o es reactiva el compte si ja estava suspès. Si el compte ja s'havia eliminat, se'n crea un de nou amb credencials noves.
 
+Per veure tot l'alumnat amb alguna cosa pendent, aneu a **Comunitat educativa → Alumnes** i feu servir els filtres **Suspensió de Google pendent** o **Eliminació de Google pendent**. Les dues dates estan disponibles com a columnes opcionals a la vista de llista (el selector a l'extrem dret de la capçalera), de manera que hi podeu ordenar; **Agrupa per → Data de suspensió de Google** les agrupa per mes.
+
 Si l'accés al portal no es pot revocar per algun motiu, l'alumne **no** s'arxiva — ho veureu indicat al missatge de confirmació, i podeu tornar-ho a intentar un cop resolt el problema.
 
 ---

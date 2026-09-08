@@ -203,9 +203,26 @@ already archived/withdrawn before the field existed.
 
 ## Access control
 
+`rule_contact_teacher` (`security/rules/contacts.xml`) gives `ems.group_teacher` **read
+access to every `res.partner`, unrestricted** (`domain_force = []`). Anything about the
+Google account that appears on the student form is therefore visible to any teacher unless
+it carries its own `groups`, which is why the grace-period banners, the optional list
+columns and the search filters all repeat the same groups as the buttons they belong to:
+whoever cannot act on the account has no business reading its schedule either. Regression
+tests: `test_schedule_is_hidden_from_teachers` / `test_schedule_is_visible_to_the_secretary`
+/ `test_search_filters_are_hidden_from_teachers`, which assert on the arch actually
+returned by `get_view()` per user.
+
+This is a view-level restriction, not a field-level one: the fields themselves carry no
+`groups=`, so they stay readable over RPC by anyone who can read the partner. That was a
+deliberate call (the data is an administrative date, not personal data about the student);
+tightening it would mean putting `groups=` on the field definitions and re-checking every
+write path.
+
 | Action | Who |
 |---|---|
-| Header buttons (create/suspend/reactivate) | `ems.group_secretary`, `ems.group_academic_admin` |
+| Header buttons (create/suspend/reactivate/delete/cancel) | `ems.group_secretary`, `ems.group_academic_admin` |
+| Grace-period banners, optional list columns, search filters | same as above |
 | `_gw_deliver_credentials`'s document/email creation | `sudo()` inside the flow (queue jobs run as the job's own user, not necessarily one with `ems.student.document`/mail rights) |
 
 ## Required fields

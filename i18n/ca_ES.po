@@ -12922,3 +12922,19 @@ msgstr ""
 "                       res.</p>\n"
 "                    <p>Salutacions,<br/>Secretaria del centre</p>\n"
 "                </div>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_search
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "Google suspension pending"
+msgstr "Suspensió de Google pendent"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "Google deletion pending"
+msgstr "Eliminació de Google pendent"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "Google suspension date"
+msgstr "Data de suspensió de Google"
