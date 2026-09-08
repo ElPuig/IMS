@@ -5,6 +5,7 @@ import base64
 from odoo import SUPERUSER_ID, models, fields, api, Command, _
 from odoo.exceptions import UserError, ValidationError
 
+from ..shared.attendance_mixin import EMS_SKIP_AUTO_SCHEDULE_SYNC
 from ..shared.schedule_report_mixin import HOUR_EPSILON
 
 employee_types = [
@@ -262,8 +263,9 @@ class ems_employee_base(models.AbstractModel):
         attendance_template.md's "Bottom-up sync redesign" section) - the per-teacher "sync me
         from my own calendar, right now" step, one level above the template-level Phase 1+2
         pieces ('ems.attendance_template._decide_schedule_line_changes'/
-        '_apply_schedule_line_archive_pass'/'_apply_schedule_line_write_pass') and one level below the automatic
-        'resource.calendar.attendance' hook still to come (Phase 4). Not new reconciliation logic -
+        '_apply_schedule_line_archive_pass'/'_apply_schedule_line_write_pass') and one level below
+        the automatic 'resource.calendar.attendance' hook (Phase 4, see
+        '_ems_sync_schedule_from_calendar_unless_suppressed' below). Not new reconciliation logic -
         both 'ems.teaching.sync_from_schedule' and 'ems.attendance_template.sync_from_schedule'
         already correctly reduce to a single-teacher case ('sync_from_schedule_batch([(teacher,
         entries)])' already runs through the exact same Phase 1+2 pipeline for a batch of one, no
@@ -276,6 +278,19 @@ class ems_employee_base(models.AbstractModel):
         entries = self._teaching_entries_from_calendar()
         self.env['ems.teaching'].sync_from_schedule(self, entries)
         self.env['ems.attendance_template'].sync_from_schedule(self, entries)
+
+    def _ems_sync_schedule_from_calendar_unless_suppressed(self):
+        """Bottom-up sync redesign, Phase 4 (2026-09-08) - recordset-level wrapper around
+        '_ems_sync_schedule_from_calendar' above (Phase 3): syncs every teacher in 'self', unless
+        'EMS_SKIP_AUTO_SCHEDULE_SYNC' is set in context (see that constant's own docstring in
+        'ems.attendance_mixin' for when/why a caller sets it). This is the ONE place that checks
+        the flag - 'resource.calendar.attendance's own create()/write()/unlink() hook
+        (models/employees/working_schedule.py) only ever derives WHICH teachers are affected and
+        calls this, never checks the flag itself, so there is exactly one spot to reason about."""
+        if self.env.context.get(EMS_SKIP_AUTO_SCHEDULE_SYNC):
+            return
+        for teacher in self:
+            teacher._ems_sync_schedule_from_calendar()
 
     def _get_new_employee_type(self):
         return employee_types

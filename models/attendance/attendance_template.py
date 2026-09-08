@@ -262,11 +262,54 @@ class EmsAttendanceTemplate(models.Model):
 		before writing ANY group's fresh ones — doing this one group at a time can raise a false
 		check_overlap() collision when two groups share a classroom: the first group's fresh line would
 		be checked against the second group's still-active STALE line, since that second group hasn't
-		been re-synced yet at that point."""
+		been re-synced yet at that point.
+
+		An entry with no resolvable 'space_id' (developer decision, 2026-09-08, bottom-up sync
+		redesign, see '_plan_schedule_sync's own handling) never crashes this pipeline on
+		'ems.attendance_schedule.space_id's NOT NULL constraint - deliberately NOT filtered out
+		HERE, before reconciliation, though: an earlier version of this fix did exactly that, and
+        it broke a genuinely different, worse way - dropping the entry before
+		'_reconcile_teacher_groups' ever sees it makes that method think the teacher no longer
+		teaches this at all, silently VACATING (and, with no real sessions, DELETING) an already-
+		correctly-roomed existing template just because the group's OWN default happened to be
+		empty. The resolution instead happens per-key, once the existing survivor's own lines are
+		known (so a slot that already has a real room keeps it, untouched)."""
 		merged_groups, vacated = self._reconcile_teacher_groups(teacher_entries)
 		vacated._archive_or_delete()
 		self._run_schedule_sync_plans(merged_groups, start_date=start_date)
 		self._link_calendar_attendance(merged_groups)
+
+	def _entries_with_a_resolvable_space(self, entries, existing_lines, group_space_id):
+		"""Bottom-up sync redesign (2026-09-08, developer decision after real fixture fallout during
+		Phase 4: skip silently, never crash a background sync over a group that simply has no
+		classroom yet - deliberately DIFFERENT from the working-schedules import wizard's own
+		'_groups_without_space', which still raises a clear, actionable error - that one is a human-
+		driven, interactive call with someone there to read and act on it; the automatic
+		resource.calendar.attendance hook has no such moment, so silently not creating/rewriting an
+		incomplete schedule line is the only sane default). Called per (subject, group-set) key,
+		once 'existing_lines' (the survivor template's own CURRENT lines, before this sync) is
+		known - NOT earlier, before reconciliation (see 'sync_from_schedule_batch's own note on why
+		an earlier version of this fix, filtering before '_reconcile_teacher_groups' ever ran,
+		wrongly looked like "nobody teaches this anymore" and vacated/deleted an already-correctly-
+		roomed template).
+
+		An entry resolves its space, in order: its own explicit 'space_id' (a one-off override,
+		same convention '_schedule_line_vals' already uses) > the group's own default
+		('group_space_id') > whatever room the line ALREADY at this exact slot has, if any (so a
+		pre-existing, already-roomed line is never treated as needing a room-less rewrite just
+		because the group's own default is empty or missing - it keeps its own room, untouched).
+		Only dropped if none of the three resolves anything - a genuinely brand new slot with no
+		room anywhere to infer one from."""
+		lines_by_slot = {(line.weekday, line.start_time, line.end_time): line for line in existing_lines}
+		resolved = []
+		for entry in entries:
+			if entry.get('space_id') or group_space_id:
+				resolved.append(entry)
+				continue
+			existing_line = lines_by_slot.get((entry['dayofweek'], entry['hour_from'], entry['hour_to']))
+			if existing_line:
+				resolved.append({**entry, 'space_id': existing_line.space_id.id})
+		return resolved
 
 	def regenerate_all_from_calendars(self, teachers=None):
 		"""Archive every active template outright, then rebuild an equivalent, fully calendar-backed
@@ -564,6 +607,16 @@ class EmsAttendanceTemplate(models.Model):
 						'dayofweek': line.weekday,
 						'hour_from': line.start_time,
 						'hour_to': line.end_time,
+						# NOTE: bug found 2026-09-08 (bottom-up sync redesign, Phase 4) - without this,
+						# an untouched teacher's own slot silently forgot whatever real room the
+						# EXISTING line already had, falling back to the group's OWN default instead
+						# (see '_schedule_line_vals's 'entry.get("space_id", space_id)') - harmless
+						# whenever that default happens to agree, but wrong (and, if the group has no
+						# default at all, a NOT NULL crash) whenever the line's own room had legitimately
+						# diverged from it. Never exercised before this redesign: nothing called
+						# sync_from_schedule_batch for an "untouched" bystander teacher like this until
+						# the automatic resource.calendar.attendance hook started doing so.
+						'space_id': line.space_id.id,
 					}})
 					by_slot[slot_key]['teacher_ids'].update(untouched.ids)
 
@@ -764,7 +817,9 @@ class EmsAttendanceTemplate(models.Model):
 		for key, templates in old_items.items():
 			if key in grouped_entries:
 				first_group = self.env['ems.group'].browse(grouped_entries[key][0]["group_ids"][0])
-				line_sync[key] = self._decide_schedule_line_changes(templates[0], grouped_entries[key], first_group.space_id.id)
+				resolved_entries = self._entries_with_a_resolvable_space(
+					grouped_entries[key], templates[0].attendance_schedule_ids, first_group.space_id.id)
+				line_sync[key] = self._decide_schedule_line_changes(templates[0], resolved_entries, first_group.space_id.id)
 
 		return {
 			'teachers': teachers,
@@ -950,6 +1005,14 @@ class EmsAttendanceTemplate(models.Model):
 			# TODO: define default start and end date for subjects within settings.
 			groups = self.env['ems.group'].browse(group_entries[0]["group_ids"])
 			first_group = groups[:1]
+			# NOTE: no existing lines to fall back to at all (this key has no survivor template
+			# yet) - an entry with no resolvable space is simply dropped (see
+			# '_entries_with_a_resolvable_space'); if that empties the whole key, there is nothing
+			# left worth creating a brand-new template for.
+			group_entries = self._entries_with_a_resolvable_space(
+				group_entries, self.env['ems.attendance_schedule'], first_group.space_id.id)
+			if not group_entries:
+				continue
 			templates[key] = {
 				'start_date': plan['start_date'],
 				'end_date': plan['end_date'],

@@ -12,7 +12,7 @@ import math
 import re
 from datetime import datetime
 
-from ..shared.attendance_mixin import EMS_BYPASS_TEMPLATE_LOCK_KEY
+from ..shared.attendance_mixin import EMS_BYPASS_TEMPLATE_LOCK_KEY, EMS_SKIP_AUTO_SCHEDULE_SYNC
 
 
 def _m2m_command_ids(commands):
@@ -372,6 +372,17 @@ class ems_working_schedule_assignation(models.Model):
 	# out a guard-duty row without a separate 'ems.non_teaching_type' fetch.
 	non_teaching_is_guard = fields.Boolean(related="non_teaching.is_guard", store=True)
 
+	# NOTE: Phase 4 of the bottom-up sync redesign (2026-09-08, see EMS_SKIP_AUTO_SCHEDULE_SYNC's
+	# own docstring in ems.attendance_mixin) - only these fields can actually change what
+	# 'hr.employee._teaching_entries_from_calendar()' reads back, so only a write() touching one of
+	# them needs to re-sync anything. 'calendar_id' is included even though it should never
+	# genuinely change on an existing row (a block belongs to the calendar it was created on) -
+	# included anyway as a defensive, cheap safety net rather than assuming that invariant holds.
+	_SYNC_TRIGGER_FIELDS = {
+		'active', 'subject_id', 'group_ids', 'dayofweek', 'hour_from', 'hour_to', 'space_id',
+		'date_from', 'date_to', 'non_teaching', 'calendar_id',
+	}
+
 	@api.model_create_multi
 	def create(self, vals_list):
 		for vals in vals_list:
@@ -379,7 +390,30 @@ class ems_working_schedule_assignation(models.Model):
 				group_ids = _m2m_command_ids(vals.get('group_ids'))
 				if group_ids:
 					vals['space_id'] = self.env['ems.group'].browse(group_ids[0]).space_id.id
-		return super().create(vals_list)
+		records = super().create(vals_list)
+		# NOTE: derives WHO is affected only - whether/how to actually sync them (and the
+		# EMS_SKIP_AUTO_SCHEDULE_SYNC suppression check) lives entirely in
+		# 'hr.employee._ems_sync_schedule_from_calendar_unless_suppressed()', the one place that
+		# decision is made, regardless of which of the three overrides below reached it.
+		records.mapped('employee_id')._ems_sync_schedule_from_calendar_unless_suppressed()
+		return records
+
+	def write(self, vals):
+		trigger = bool(vals.keys() & self._SYNC_TRIGGER_FIELDS)
+		# 'calendar_id' should never actually change here (see the field set's own note above), but
+		# capturing the PRE-write teacher(s) too costs nothing and closes that edge case for real,
+		# rather than only trusting it never happens.
+		before = self.mapped('employee_id') if trigger else self.env['hr.employee']
+		res = super().write(vals)
+		if trigger:
+			(before | self.mapped('employee_id'))._ems_sync_schedule_from_calendar_unless_suppressed()
+		return res
+
+	def unlink(self):
+		before = self.mapped('employee_id')
+		res = super().unlink()
+		before._ems_sync_schedule_from_calendar_unless_suppressed()
+		return res
 
 	@api.depends("calendar_id")
 	def _compute_employee_id(self):
@@ -1628,7 +1662,16 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		different days) - found while investigating a bigger pipeline-simplification effort, not a
 		hypothetical."""
 		entries = [command[2] for command in attendance_ids if command != [5]]
-		calendar = teacher.resource_calendar_id
+		# NOTE: bottom-up sync redesign (2026-09-08, EMS_SKIP_AUTO_SCHEDULE_SYNC's own docstring,
+		# ems.attendance_mixin) - this method runs ONCE PER TEACHER in a loop ('_apply_import'
+		# below), and the automatic resource.calendar.attendance hook would otherwise try to
+		# re-sync each one immediately, in isolation - exactly the false cross-teacher room-
+		# collision 'sync_from_schedule_batch's own docstring warns about (a teacher already
+		# resynced here colliding against another teacher's still-stale line, simply because that
+		# other teacher's own turn in this loop hasn't happened yet). Suppressed for this whole
+		# method; '_apply_import' still runs its own explicit, correctly-ordered
+		# 'sync_from_schedule_batch' across every teacher together, unchanged, right after.
+		calendar = teacher.with_context(**{EMS_SKIP_AUTO_SCHEDULE_SYNC: True}).resource_calendar_id
 		existing = calendar.attendance_ids.filtered(lambda attendance: attendance.dayofweek in ('0', '1', '2', '3', '4'))
 		new_slots = {(entry['dayofweek'], entry['hour_from'], entry['hour_to']) for entry in entries}
 		superseded = existing.filtered(

@@ -3,6 +3,8 @@ from datetime import date
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
+from odoo.addons.ems.models.shared.attendance_mixin import EMS_SKIP_AUTO_SCHEDULE_SYNC
+
 from .common import create_level_study
 
 
@@ -1034,11 +1036,16 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
         # recorded under their OWN subject_id, physically sharing a room/slot with the group's main
         # teacher - not recognized as co-teaching (is_co_teaching_with needs a matching subject_id),
         # so regenerating from calendars must drop one side rather than aborting the whole batch.
-        self.teacher.resource_calendar_id.write({'attendance_ids': [(0, 0, {
+        # NOTE: fixture setup deliberately builds a real, unresolved conflict across two teachers -
+        # since the bottom-up sync redesign's automatic hook (EMS_SKIP_AUTO_SCHEDULE_SYNC's own
+        # docstring, ems.attendance_mixin) would otherwise try to sync each write immediately and
+        # raise the very conflict this test wants regenerate_all_from_calendars() itself to resolve,
+        # suppressed here exactly like any other batch caller building up state before its own sync.
+        self.teacher.resource_calendar_id.with_context(**{EMS_SKIP_AUTO_SCHEDULE_SYNC: True}).write({'attendance_ids': [(0, 0, {
             'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning', 'name': 'Main',
             'subject_id': self.subject.id, 'group_ids': [(6, 0, [self.group.id])], 'space_id': self.space.id,
         })]})
-        self.other_teacher.resource_calendar_id.write({'attendance_ids': [(0, 0, {
+        self.other_teacher.resource_calendar_id.with_context(**{EMS_SKIP_AUTO_SCHEDULE_SYNC: True}).write({'attendance_ids': [(0, 0, {
             'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning', 'name': 'Support',
             'subject_id': self.other_subject.id, 'group_ids': [(6, 0, [self.group.id])], 'space_id': self.space.id,
         })]})

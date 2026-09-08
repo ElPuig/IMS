@@ -8,7 +8,7 @@ from datetime import datetime
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 
-from ..shared.attendance_mixin import EMS_BYPASS_TEMPLATE_LOCK_KEY
+from ..shared.attendance_mixin import EMS_BYPASS_TEMPLATE_LOCK_KEY, EMS_SKIP_AUTO_SCHEDULE_SYNC
 
 # Actions the preview predicts for each student of the scope. They are the wizard's
 # whole vocabulary: every student in scope ends up in exactly one of them.
@@ -1063,8 +1063,21 @@ Called from `_apply_cleanup()` **last**, after `students._ems_clear_operational_
         # here left those lines active=True forever, so a later import could still find them
         # as a genuine "existing schedule conflict" against a study that had already transitioned.
         self._templates_to_archive().with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
-        affected_teachers = self._apply_calendar_archival()
-        self._apply_calendar_rollover(affected_teachers)
+        # NOTE: EMS_SKIP_AUTO_SCHEDULE_SYNC (2026-09-08, bottom-up sync redesign, stopgap ahead of
+        # Phase 7) - this wizard still manages ems.attendance_template/ems.attendance_schedule
+        # directly (its own FK/fallback matching, session archival, study-scoped archival above -
+        # none of it goes through the sync_from_schedule* pipeline). The automatic
+        # resource.calendar.attendance hook (Phase 4) would otherwise re-sync every teacher this
+        # method archives/rolls calendars for, using ITS OWN "read the teacher's whole current
+        # calendar" reconciliation - which can legitimately disagree with this wizard's own
+        # decisions (e.g. a co-teacher added to a template's teacher_ids with no matching calendar
+        # block of their own, a deliberate, pre-existing pattern this wizard's own tests rely on).
+        # Suppressed for both calendar-touching steps below; '_apply_teaching_resync' right after
+        # is unaffected (its own explicit 'ems.teaching.sync_from_schedule' call is a distinct
+        # mechanism, never triggered by this flag).
+        self_suppressed = self.with_context(**{EMS_SKIP_AUTO_SCHEDULE_SYNC: True})
+        affected_teachers = self_suppressed._apply_calendar_archival()
+        self_suppressed._apply_calendar_rollover(affected_teachers)
         self._apply_teaching_resync(affected_teachers)
         students._ems_clear_operational_records()
         groups = self._scope_groups()

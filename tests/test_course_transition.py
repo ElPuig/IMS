@@ -5,6 +5,8 @@ from unittest.mock import patch
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
 
+from odoo.addons.ems.models.shared.attendance_mixin import EMS_SKIP_AUTO_SCHEDULE_SYNC
+
 
 class TestCourseTransition(TransactionCase):
     """Fase 6: course transition wizard — 'ems.study.transition_state', the
@@ -95,7 +97,18 @@ class TestCourseTransition(TransactionCase):
         # 'ems.attendance_mixin.find_schedule_lines_for_teaching', matched by teacher+subject+
         # group overlap, no longer by weekday/time/room - a block missing its own subject would
         # never match any template's schedule line).
-        return self.env['resource.calendar.attendance'].create({
+        # NOTE: EMS_SKIP_AUTO_SCHEDULE_SYNC - this whole test class builds its own
+        # ems.attendance_template/ems.attendance_schedule fixtures directly via the ORM,
+        # deliberately decoupled from calendar reality (e.g. adding a co-teacher to a template's
+        # own teacher_ids without ever giving them a matching calendar block - see decision 3/4 of
+        # the plan this class tests). The bottom-up sync redesign's automatic hook (Phase 4) reads
+        # a teacher's ENTIRE current calendar on every touch - exactly the same "submit my whole
+        # schedule" semantics every other caller of sync_from_schedule_batch already has - so
+        # firing it here would "correct" these deliberately-inconsistent fixtures out from under
+        # the test. course_transition_wizard.py itself is not yet migrated to rely on this hook
+        # (Phase 7, deferred) - it still manages these models directly - so its own fixtures
+        # suppress the hook the same way that wizard's own eventual Phase 7 integration will.
+        return self.env['resource.calendar.attendance'].with_context(**{EMS_SKIP_AUTO_SCHEDULE_SYNC: True}).create({
             'calendar_id': calendar.id, 'name': 'Test Block (Course Transition)',
             'dayofweek': weekday, 'hour_from': hour_from, 'hour_to': hour_to, 'day_period': 'morning',
             'subject_id': (subject or self.subject_int).id,
@@ -1326,7 +1339,8 @@ class TestCourseTransition(TransactionCase):
         old_calendar = self.teacher.resource_calendar_id
         self._calendar_block(old_calendar, [self.group1])
         non_teaching = self.env.ref('ems.non_teaching_g')
-        self.env['resource.calendar.attendance'].create({
+        # NOTE: EMS_SKIP_AUTO_SCHEDULE_SYNC - see '_calendar_block's own note above.
+        self.env['resource.calendar.attendance'].with_context(**{EMS_SKIP_AUTO_SCHEDULE_SYNC: True}).create({
             'calendar_id': old_calendar.id, 'name': 'Test Guard (Course Transition)',
             'dayofweek': '1', 'hour_from': 10.0, 'hour_to': 11.0, 'day_period': 'morning',
             'non_teaching': non_teaching.id,
@@ -1376,7 +1390,8 @@ class TestCourseTransition(TransactionCase):
         old_calendar = self.teacher.resource_calendar_id
         self._calendar_block(old_calendar, [self.group1])
         non_teaching = self.env.ref('ems.non_teaching_g')
-        guard = self.env['resource.calendar.attendance'].create({
+        # NOTE: EMS_SKIP_AUTO_SCHEDULE_SYNC - see '_calendar_block's own note above.
+        guard = self.env['resource.calendar.attendance'].with_context(**{EMS_SKIP_AUTO_SCHEDULE_SYNC: True}).create({
             'calendar_id': old_calendar.id, 'name': 'Test Guard (Course Transition)',
             'dayofweek': '1', 'hour_from': 10.0, 'hour_to': 11.0, 'day_period': 'morning',
             'non_teaching': non_teaching.id,
