@@ -242,6 +242,8 @@ flowchart TD
     E -- yes --> G["res.partner.create(contact_type='family', ...)"] --> F
 ```
 
+The three roles `action_save()`'s own guard clears (`_get_read_only_user()`: academic admin, secretary, or a tutor of that student) must each hold create rights on the wizard model too — the guard runs *inside* the wizard, so a role missing from `ir.model.access.csv` fails earlier, on opening it. That mismatch was issue #423: secretary cleared the guard and saw the "Add contact" button, but the wizard granted access to academic admin and teacher only, so only the one secretary who also happens to be a teacher could use it.
+
 `_onchange_student_id` pre-fills the address fields from the student (client-side convenience only — `action_open_relation_wizard` already seeds them server-side when the wizard is created, since it's opened with `target: 'new'` on an already-saved record, not a blank `new()` form).
 
 ---
@@ -265,6 +267,7 @@ flowchart TD
 | `ems.student.benefit` | Secretary | ✓ | ✓ | ✓ | ✓ |
 | `ems.student.benefit` | Teacher | ✓ | — | — | — |
 | `ems.contact.relation.wizard` | Academic admin | ✓ | ✓ | ✓ | ✓ |
+| `ems.contact.relation.wizard` | Secretary | ✓ | ✓ | ✓ | ✓ |
 | `ems.contact.relation.wizard` | Teacher | ✓ | ✓ | ✓ | ✓ |
 
 ### `security/rules/contacts.xml` (record rules, `res.partner`)
