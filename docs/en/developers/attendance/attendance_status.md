@@ -21,7 +21,7 @@ erDiagram
 | Field | Type | Description |
 |-------|------|--------------|
 | `name` | `Char` (translate) | Label shown in the passlist buttons, radio widget, and reports |
-| `sequence` | `Integer` | Ordering, matches the original enum order (Attended, Delayed, Miss, Justified Miss, Issue) |
+| `sequence` | `Integer` | Ordering, matches the original enum order (Attended, Minor Delay, Severe Delay, Miss, Justified Miss, Issue) |
 | `active` | `Boolean` | Archivable without deleting historical references |
 | `category` | `Selection` (`assistance`/`absence`) | Replaces the old `a_`/`m_` code-prefix convention (`attendance_status_selection`'s comment: *"status starting with 'a_' will be computed as an 'attendance' and starting with 'm_' as a 'm_miss' when reporting summary data"*) — now an explicit field instead of a naming convention, read by `_report_data` in `attendance_reports.py` for the Assistance/Absence breakdown |
 | `notifiable` | `Boolean` | Replaces the hardcoded `ems_attendance_session_line.status_is_notificable()` check (`self.status in ['m_miss', 'a_issue']`) — now `bool(self.status_id.notifiable)` |
@@ -32,10 +32,24 @@ Seed data (`data/main/ems.attendance_status.csv`), fixed xmlids so the migration
 | xmlid | name | category | notifiable | active |
 |-------|------|----------|:----------:|:------:|
 | `ems.attendance_status_attended` | Attended | assistance | — | ✓ |
-| `ems.attendance_status_delayed` | Delayed | assistance | — | ✓ |
+| `ems.attendance_status_delayed` | Minor Delay | assistance | — | ✓ |
+| `ems.attendance_status_delayed_severe` | Severe Delay | **absence** | ✓ | ✓ |
 | `ems.attendance_status_miss` | Miss | absence | ✓ | ✓ |
 | `ems.attendance_status_justified` | Justified Miss | absence | — | ✓ |
 | `ems.attendance_status_issue` | Issue | absence | ✓ | **✗ (archived)** |
+
+**Minor vs. severe delay:** originally there was a single "Delayed" status (`category = assistance`,
+never counted as an absence). A severe delay needed to count as an absence and notify the family,
+so a second record (`ems.attendance_status_delayed_severe`) was added instead of adding a new
+mechanism — the existing generic `category`/`notifiable` fields already do the job with no code
+change in any of the absence-rate computations (`_compute_absence_rate`, `_report_data`,
+`_attendance_rates`), which all filter by `category` rather than enumerating specific xmlids. The
+original "Delayed" record was renamed to "Minor Delay" (same xmlid, same behaviour) to read clearly
+alongside the new "Severe Delay". The two are independent statuses a teacher picks directly at
+roll-call — there is no automatic escalation from repeated minor delays. The one place that *does*
+need to know about both xmlids is `_setup_next_session_line_data()` (see below): a severe delay
+resets to "Attended" on the next period's line, exactly like a minor one — a delay of either kind
+only ever applies to the single period it was marked in.
 
 ---
 

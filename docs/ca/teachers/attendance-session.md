@@ -48,20 +48,26 @@ El selector de la dreta llista el que hi ha disponible per a la data triada, sep
 
 Si una assignatura ocupa dos períodes seguits el mateix dia (per exemple, dues classes seguides),
 en iniciar la sessió del segon període es copia automàticament l'estat de cada alumne de la
-primera — un avís t'informa que això ha passat. Un alumne marcat com a **Retard** en el primer
-període es dona per arribat al segon (es mostra com a **Assistència**); una **Falta justificada**
-es manté com a **Falta** no confirmada tret que la data de la justificació cobreixi també el segon
-període. Pots canviar lliurement qualsevol dels estats copiats.
+primera — un avís t'informa que això ha passat. Un alumne marcat com a **Retard lleu** o
+**Retard greu** en el primer període es dona per arribat al segon (es mostra com a
+**Assistència**); una **Falta justificada** es manté com a **Falta** no confirmada tret que la
+data de la justificació cobreixi també el segon període. Pots canviar lliurement qualsevol dels
+estats copiats.
 
 ---
 
 ## Marcar l'assistència
 
 Un cop carregada una sessió, tens una fila per alumne amb un botó per a cada estat d'assistència
-(per exemple, **Assistència**, **Retard**, **Falta**, **Falta justificada** — el conjunt exacte i
-els seus colors els configura l'administració, vegeu el [manual de l'administrador](../admin/attendance-status.md)).
-Fes clic al botó que correspongui a l'estat de l'alumne en aquesta sessió — es desa a l'instant,
-sense necessitat de prémer cap botó de Desar.
+(per exemple, **Assistència**, **Retard lleu**, **Retard greu**, **Falta**, **Falta justificada** —
+el conjunt exacte i els seus colors els configura l'administració, vegeu el
+[manual de l'administrador](../admin/attendance-status.md)). Fes clic al botó que correspongui a
+l'estat de l'alumne en aquesta sessió — es desa a l'instant, sense necessitat de prémer cap botó de
+Desar.
+
+- El **Retard lleu** mai compta com a falta i no notifica la família. El **Retard greu** compta
+  com a falta i notifica la família, exactament igual que una Falta — fes-lo servir per a un
+  retard prou greu com per merèixer el mateix tractament que una sessió no assistida.
 
 - Una icona d'escut al costat del nom de l'alumne indica que la seva absència ja està
   **justificada** (una justificació aprovada o una previsió cobreix aquesta sessió) — el seu estat

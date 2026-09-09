@@ -10,7 +10,7 @@
 
 ## Qué es esto
 
-Cada botón que un profesor puede pulsar para un alumno en la vista de pasar lista (Asistió, Retraso, Falta, Falta justificada...) proviene de una lista configurable en **Asistencia → Configuración → Sesiones → Estados**, en lugar de estar fijada en el código de la aplicación. Puedes añadir uno nuevo, reordenarlos o retirar uno que el centro ya no use.
+Cada botón que un profesor puede pulsar para un alumno en la vista de pasar lista (Asistió, Retraso leve, Retraso grave, Falta, Falta justificada...) proviene de una lista configurable en **Asistencia → Configuración → Sesiones → Estados**, en lugar de estar fijada en el código de la aplicación. Puedes añadir uno nuevo, reordenarlos o retirar uno que el centro ya no use.
 
 ---
 
@@ -25,6 +25,8 @@ Cada estado tiene:
 - **Color** — el color de texto que se usa para este estado en el informe de asistencia por sesión impreso.
 
 **Retira, no borres:** esta lista no tiene acción de borrar por un motivo — un estado puede estar referenciado por años de datos históricos de asistencia. Usa la acción estándar **Archivar** (menú ⚙ del formulario, o selecciona filas en la lista y usa el mismo menú) — las sesiones ya existentes que lo usaban lo siguen mostrando correctamente (en el historial del pasar lista y en los informes); simplemente deja de ofrecerse como nueva opción. Los estados archivados quedan ocultos por defecto; usa **Filtros → Archivado** en la lista para volver a verlos, o para desarchivar uno. El estado "Incidencia" ("Issue") se crea ya archivado de esta forma, ya que `ems.strike` (consulta el manual de Strikes) ahora cubre lo que este estado marcaba.
+
+**Retraso leve vs. Retraso grave:** el centro distingue dos niveles de retraso. "Retraso leve" tiene categoría `Asistencia` y no notifica a la familia — nunca cuenta como falta. "Retraso grave" tiene categoría `Ausencia` y notifica a la familia, exactamente igual que una Falta — un alumno marcado así cuenta como ausente en las tasas e informes de asistencia. Un profesor elige directamente cuál aplica al pasar lista; no hay ningún escalado automático de varios retrasos leves hacia uno grave. Ambos se reinician a "Asistió" en la línea del periodo siguiente — un retraso, sea del tipo que sea, solo se aplica al periodo en que se marcó.
 
 ---
 

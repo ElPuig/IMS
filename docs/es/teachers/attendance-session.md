@@ -48,20 +48,26 @@ El selector de la derecha lista lo disponible para la fecha elegida, separado en
 
 Si una asignatura ocupa dos períodos seguidos el mismo día (por ejemplo, dos clases consecutivas),
 al iniciar la sesión del segundo período se copia automáticamente el estado de cada alumno de la
-primera — un aviso te informa de que esto ha ocurrido. Un alumno marcado como **Retraso** en el
-primer período se da por llegado al segundo (se muestra como **Asistencia**); una **Falta
-justificada** se mantiene como **Falta** no confirmada a menos que la fecha de la justificación
-cubra también el segundo período. Puedes cambiar libremente cualquiera de los estados copiados.
+primera — un aviso te informa de que esto ha ocurrido. Un alumno marcado como **Retraso leve** o
+**Retraso grave** en el primer período se da por llegado al segundo (se muestra como
+**Asistencia**); una **Falta justificada** se mantiene como **Falta** no confirmada a menos que la
+fecha de la justificación cubra también el segundo período. Puedes cambiar libremente cualquiera
+de los estados copiados.
 
 ---
 
 ## Marcar la asistencia
 
 Una vez cargada una sesión, tienes una fila por alumno con un botón para cada estado de asistencia
-(por ejemplo, **Asistencia**, **Retraso**, **Falta**, **Falta justificada** — el conjunto exacto y
-sus colores los configura la administración, ver el [manual del administrador](../admin/attendance-status.md)).
-Haz clic en el botón que corresponda al estado del alumno en esa sesión — se guarda al instante,
-sin necesidad de pulsar ningún botón de Guardar.
+(por ejemplo, **Asistencia**, **Retraso leve**, **Retraso grave**, **Falta**, **Falta justificada**
+— el conjunto exacto y sus colores los configura la administración, ver el
+[manual del administrador](../admin/attendance-status.md)). Haz clic en el botón que corresponda al
+estado del alumno en esa sesión — se guarda al instante, sin necesidad de pulsar ningún botón de
+Guardar.
+
+- El **Retraso leve** nunca cuenta como falta y no notifica a la familia. El **Retraso grave**
+  cuenta como falta y notifica a la familia, exactamente igual que una Falta — úsalo para un
+  retraso lo bastante grave como para merecer el mismo tratamiento que una sesión no asistida.
 
 - Un icono de escudo junto al nombre del alumno indica que su ausencia ya está **justificada** (una
   justificación aprobada o una previsión cubre esta sesión) — su estado y notas quedan bloqueados,
