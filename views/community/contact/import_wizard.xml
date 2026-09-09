@@ -11,6 +11,8 @@
                             <p style="color: #666; font-size: 13px; margin-bottom: 15px;">
                                 <strong>Import Process:</strong><br/>
                                 This wizard will import student data from an Excel file exported from Esfera (SAGA system).
+                                Every sheet of the file holding data is imported, and the student identifier (IDALU/RALC)
+                                is the only column that must be present.
                                 The import will:<br/>
                                 • Create new student records for students not yet in the system (identified by RALC)<br/>
                                 • Update existing student records if found by RALC identifier<br/>
@@ -18,10 +20,14 @@
                                 • Link family members to students using relationship types<br/>
                                 • Deduce family relationships from comments (mother, father, guardian, etc.)<br/>
                                 <br/>
+                                A column that comes empty in the file never erases data already held by EMS, and existing
+                                notes are always kept: each import adds its own notes on top, stamped with its date.<br/>
+                                <br/>
                                 Select an Excel file below and click "Import students" to proceed.
                             </p>
                             <field name="file" widget="binary" filename="file_name"/>
                             <field name="file_name" invisible="1"/>
+                            <field name="overwrite"/>
                         </group>
                         <group invisible="not result_html">
                             <field name="result_html" nolabel="1"/>

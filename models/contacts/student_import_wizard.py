@@ -18,8 +18,24 @@ class EmsStudentImportWizard(models.TransientModel):
     _name = "ems.student_import_wizard"
     _description = "Student import wizard (Esfera/SAGA xlsx)"
 
+    # The only column the file must provide: it is what identifies the student, so it
+    # doubles as the marker _find_headers scans for to locate a sheet's header row.
+    _STUDENT_ID_COLUMN = "Identificador de l'alumne/a"
+    # Import control rather than student data: a returning student must be reactivated
+    # and restored to the 'student' contact type in both modes, whatever EMS holds now.
+    _CONTROL_FIELDS = ('active', 'contact_type')
+
     file = fields.Binary(string="Esfera xlsx file", required=True)
     file_name = fields.Char()
+    overwrite = fields.Boolean(
+        string="Overwrite existing data",
+        default=False,
+        help="Leave it unticked to keep what EMS already holds: only fields that are "
+             "currently empty get filled in, and students missing from EMS are created. "
+             "Tick it to let the file's values replace EMS's ones. In both cases a column "
+             "that comes empty in the file never erases an existing value, and notes are "
+             "always kept.",
+    )
     result_html = fields.Html(string="Import result", readonly=True)
     log_file = fields.Binary(string="Import log (CSV)", readonly=True)
     log_file_name = fields.Char()
@@ -32,29 +48,33 @@ class EmsStudentImportWizard(models.TransientModel):
 
         raw = base64.b64decode(self.file)
         wb = openpyxl.load_workbook(filename=io.BytesIO(raw), read_only=True, data_only=True)
-        ws = wb.active
-
-        header_row_idx, col_map = self._find_headers(ws)
-        if header_row_idx is None:
-            raise UserError(_("Could not find the header row. Make sure the xlsx file contains a column 'Grup Classe'."))
-
-        missing = self._check_required_columns(col_map)
-        if missing:
-            raise UserError(_(
-                "The file is missing required columns:\n• %(columns)s",
-                columns="\n• ".join(missing),
-            ))
 
         stats = {'created': 0, 'updated': 0, 'errors': [], 'warnings': [], 'log': []}
-
-        for row in ws.iter_rows(min_row=header_row_idx + 1, values_only=True):
-            if not any(row):
+        sheets_read = 0
+        for ws in wb.worksheets:
+            header_row_idx, col_map = self._find_headers(ws)
+            if header_row_idx is None:
+                # A sheet with no recognisable header row (an empty or auxiliary tab) is
+                # skipped instead of aborting the whole file: an Esfera export regularly
+                # splits its students across several sheets, and every one of them
+                # holding data has to be imported.
                 continue
-            try:
-                self._process_row(row, col_map, stats)
-            except Exception as e:
-                _logger.warning("Error processing row: %s", e)
-                stats['errors'].append(str(e))
+            sheets_read += 1
+            for row in ws.iter_rows(min_row=header_row_idx + 1, values_only=True):
+                if not any(row):
+                    continue
+                try:
+                    self._process_row(row, col_map, stats)
+                except Exception as e:
+                    _logger.warning("Error processing row: %s", e)
+                    stats['errors'].append(str(e))
+
+        if not sheets_read:
+            raise UserError(_(
+                "Could not find the header row in any sheet of the file. Make sure it "
+                "contains a column '%(column)s'.",
+                column=self._STUDENT_ID_COLUMN,
+            ))
 
         self.log_file = self._build_log_csv(stats['log'])
         self.log_file_name = f"import_esfera_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
@@ -71,61 +91,57 @@ class EmsStudentImportWizard(models.TransientModel):
         def normalize(s):
             return str(s or '').strip().replace('’', "'").replace('‘', "'")
         for idx, row in enumerate(ws.iter_rows(max_row=20, values_only=True), start=1):
-            if row and any(normalize(c) == 'Grup Classe' for c in row):
+            if row and any(normalize(c) == self._STUDENT_ID_COLUMN for c in row):
                 col_map = {normalize(c): i for i, c in enumerate(row) if c}
                 return idx, col_map
         return None, {}
 
-    _REQUIRED_COLUMNS = [
-        'Grup Classe',
-        'Nom',
-        'Primer Cognom',
-        'Segon Cognom',
-        'Identificador de l\'alumne/a',
-        'Número de document d\'identitat',
-        'Tipus de document d\'identitat',
-        'Data naixement',
-        'Nacionalitat',
-        'País naixement',
-        'Telèfon',
-        'Correu electrònic',
-        'Tipus de via',
-        'Nom via',
-        'Número',
-        'Codi postal',
-        'Municipi de residència',
-        'Província de residència',
-        'País de residència',
-        'Tutor 1 - nom',
-        'Tutor 1 - doc. identitat',
-        'Tutor 1 - municipi',
-        'Tutor 1 - provincia',
-        'Tutor 1 - país',
-        'Tutor 1 - CP',
-        'Tutor 2 - nom',
-        'Tutor 2 - doc. identitat',
-        'Tutor 2 - municipi',
-        'Tutor 2 - provincia',
-        'Tutor 2 - país',
-        'Tutor 2 - CP',
-        'Contacte 1er tutor alumne - Valor',
-        'Contacte 1er tutor alumne - Observacions',
-        'Contacte 2on tutor alumne - Valor',
-        'Contacte 2on tutor alumne - Observacions',
-    ]
+    @staticmethod
+    def _is_empty(value):
+        """Whether a value counts as "nothing to write".
 
-    # Columns where Esfera may export with or without trailing space — check at least one variant
-    _REQUIRED_COLUMNS_VARIANTS = [
-        ('Tutor 1 - 1r cognom', 'Tutor 1 - 1r cognom '),
-        ('Tutor 2 - 1r cognom', 'Tutor 2 - 1r cognom '),
-    ]
+        Covers what both sides of the write policy can hold: None/False from an
+        absent column, a blank or whitespace-only cell, and an empty recordset
+        read back from a many2one field.
+        """
+        if isinstance(value, str):
+            return not value.strip()
+        if value is None:
+            return True
+        return not value
 
-    def _check_required_columns(self, col_map):
-        missing = [col for col in self._REQUIRED_COLUMNS if col not in col_map]
-        for variants in self._REQUIRED_COLUMNS_VARIANTS:
-            if not any(v in col_map for v in variants):
-                missing.append(variants[0])
-        return missing
+    def _values_to_write(self, record, vals):
+        """Filter the file's values down to what may actually be written on an
+        existing record. Two rules, applied to students and family contacts alike:
+
+        - a column that came empty in the file never blanks a value EMS already
+          holds (in either mode);
+        - without ``overwrite``, EMS's own data always wins, so only fields that
+          are currently empty get filled in.
+        """
+        to_write = {}
+        for field_name, value in vals.items():
+            if self._is_empty(value):
+                continue
+            if field_name not in self._CONTROL_FIELDS and not self.overwrite and not self._is_empty(record[field_name]):
+                continue
+            to_write[field_name] = value
+        return to_write
+
+    def _prepend_import_notes(self, record, notes):
+        """Stack this import's notes on top of the record's existing ones.
+
+        Notes are never overwritten, in either mode: the new block is stamped with
+        the import date and closed by a horizontal rule, so it stays visible when
+        each block arrived and nothing written by hand is ever lost.
+        """
+        if not notes:
+            return
+        stamp = fields.Datetime.context_timestamp(record, fields.Datetime.now()).strftime('%d/%m/%Y %H:%M')
+        block = Markup('<p><strong>{stamp}</strong></p>{notes}<hr/>').format(
+            stamp=stamp, notes=Markup(notes),
+        )
+        record.comment = block + (record.comment or '')
 
     def _col_get(self, row, col_map, col_name):
         """Read one Esfera column by its exact header name, or None if the
@@ -142,20 +158,27 @@ class EmsStudentImportWizard(models.TransientModel):
         def get(col_name):
             return self._col_get(row, col_map, col_name)
 
-        # Group — search by external_id (Esfera code)
+        # The student identifier is the only mandatory column: it is what matches the
+        # row to a student, so a row without one can be neither found nor created.
+        ralc = get(self._STUDENT_ID_COLUMN)
+        if not ralc:
+            stats['warnings'].append(_(
+                "A row was skipped: it carries no student identifier (%(column)s).",
+                column=self._STUDENT_ID_COLUMN,
+            ))
+            return
+
+        # Group - searched by external_id (Esfera code) whenever the file provides one.
         # Normalize whitespace: Esfera sometimes uses multiple spaces (e.g. "CFPM    IC10201")
         esfera_code = ' '.join((get('Grup Classe') or '').split()) or None
-        if not esfera_code:
-            return
-        group = self.env['ems.group'].search([('external_id', '=', esfera_code)], limit=1)
+        group = self.env['ems.group'].search(
+            [('external_id', '=', esfera_code)], limit=1) if esfera_code else self.env['ems.group']
 
         # Student name
         firstname = get('Nom') or ''
         surname1 = get('Primer Cognom') or ''
         surname2 = get('Segon Cognom') or ''
         name = ' '.join(filter(None, [firstname, surname1, surname2]))
-        if not name:
-            return
 
         # Documents
         doc_nums = get('Número de document d\'identitat')
@@ -163,7 +186,6 @@ class EmsStudentImportWizard(models.TransientModel):
         docs = self._parse_documents(doc_nums, doc_types)
 
         # Personal data
-        ralc = get('Identificador de l\'alumne/a')
         birth_str = get('Data naixement')
         birth_date = self._parse_date(birth_str)
         citizenship = self._find_country(get('Nacionalitat'))
@@ -184,8 +206,8 @@ class EmsStudentImportWizard(models.TransientModel):
         state = self._find_state(get('Província de residència'), country.id if country else False)
 
         # Extra notes
-        comment = self._build_student_notes(get, esfera_code, group)
-        if not group:
+        notes = self._build_student_notes(get, esfera_code, group)
+        if esfera_code and not group:
             # Intentional (not every group may exist in EMS yet at import time), but
             # surfaced in the result summary too, not just the comment note above —
             # see plans/student_import_wizard_data_quality_gaps.md (now resolved).
@@ -212,17 +234,16 @@ class EmsStudentImportWizard(models.TransientModel):
             'state_id': state.id if state else False,
             'citizenship_id': citizenship.id if citizenship else False,
             'birth_country_id': birth_country.id if birth_country else False,
-            'comment': comment or False,
+            'main_group_id': group.id if group else False,
+            'student_id': ralc,
             # Re-admits an ex-student (alumni/withdrawal) archived on exit: without
             # this, an existing-but-inactive match is written but stays archived.
             'active': True,
         }
-        if group:
-            student_data['main_group_id'] = group.id
-        if ralc:
-            student_data['student_id'] = ralc
 
-        student = self._get_or_create_student(ralc, student_data, stats)
+        student = self._get_or_create_student(ralc, student_data, stats, notes=notes)
+        if not student:
+            return
 
         # Tutors
         for prefix in ['Tutor 1', 'Tutor 2']:
@@ -236,7 +257,7 @@ class EmsStudentImportWizard(models.TransientModel):
     # student", which is the whole point of keeping them. See student_import_wizard.md.
     def _build_student_notes(self, get, esfera_code, group):
         lines = []
-        if not group:
+        if esfera_code and not group:
             lines.append(f"Grup Classe (SAGA): {esfera_code}")
         for label, key in [
             ('Província de naixement', 'Província naixement'),
@@ -256,17 +277,31 @@ class EmsStudentImportWizard(models.TransientModel):
                 lines.append(f"{label}: {val}")
         return '<br/>'.join(lines) if lines else False
 
-    def _get_or_create_student(self, ralc, data, stats):
+    def _get_or_create_student(self, ralc, data, stats, notes=None):
         existing = False
         if ralc:
             existing = self.env['res.partner'].with_context(active_test=False).search(
                 [('student_id', '=', ralc)], limit=1)
         if existing:
-            existing.write(data)
+            to_write = self._values_to_write(existing, data)
+            if to_write:
+                existing.write(to_write)
+            self._prepend_import_notes(existing, notes)
             stats['updated'] += 1
             stats['log'].append({'tipus': 'Alumne', 'accio': 'Actualitzat', 'partner_id': existing.id, 'ts': datetime.now()})
             return existing
-        student = self.env['res.partner'].create(data)
+        vals = {name: value for name, value in data.items() if not self._is_empty(value)}
+        if not vals.get('name'):
+            # res.partner.name is required, and a nameless contact would be unusable
+            # anyway — an existing student is unaffected, since their name is never read.
+            stats['warnings'].append(_(
+                "Student '%(ralc)s' was skipped: the row carries no name and no student "
+                "with that identifier exists in EMS yet.",
+                ralc=ralc,
+            ))
+            return False
+        student = self.env['res.partner'].create(vals)
+        self._prepend_import_notes(student, notes)
         stats['created'] += 1
         stats['log'].append({'tipus': 'Alumne', 'accio': 'Creat', 'partner_id': student.id, 'ts': datetime.now()})
         return student
@@ -324,8 +359,8 @@ class EmsStudentImportWizard(models.TransientModel):
             full_name, doc_num, phone, mobile, email,
             {'street': street, 'city': city, 'zip': zip_code,
              'country_id': country.id if country else False,
-             'state_id': state.id if state else False,
-             'comment': '<br/>'.join(tutor_notes) if tutor_notes else False}
+             'state_id': state.id if state else False},
+            notes='<br/>'.join(tutor_notes) if tutor_notes else False,
         )
         if not family:
             return
@@ -351,8 +386,12 @@ class EmsStudentImportWizard(models.TransientModel):
 
         self._link_family_to_student(family, student, relation_type)
 
-    def _get_or_create_family(self, name, doc_num, phone, mobile, email, address_data):
+    def _get_or_create_family(self, name, doc_num, phone, mobile, email, address_data, notes=None):
         """Find or create the family contact for a tutor row.
+
+        Values are filtered through _values_to_write, so a family contact follows
+        exactly the same policy as the student: empty cells never blank anything,
+        and EMS's data wins unless 'overwrite' is ticked.
 
         KNOWN LIMITATION, kept intentionally (see student_import_wizard.md): dedup
         only matches on doc_num (document_id/passport_id). A tutor row with no
@@ -371,18 +410,7 @@ class EmsStudentImportWizard(models.TransientModel):
                 self.env['res.partner'].search(domain + [('document_id', '=', doc_num)], limit=1)
                 or self.env['res.partner'].search(domain + [('passport_id', '=', doc_num)], limit=1)
             )
-        if existing:
-            update_vals = dict(address_data)
-            if phone:
-                update_vals['phone'] = phone
-            if mobile:
-                update_vals['mobile'] = mobile
-            if email:
-                update_vals['email'] = email
-            existing.write(update_vals)
-            return existing, 'Actualitzat'
-
-        vals = dict(address_data, **{
+        family_vals = dict(address_data, **{
             'name': name,
             'contact_type': 'family',
             'document_id': doc_num,
@@ -390,7 +418,17 @@ class EmsStudentImportWizard(models.TransientModel):
             'mobile': mobile,
             'email': email,
         })
-        return self.env['res.partner'].create(vals), 'Creat'
+        if existing:
+            to_write = self._values_to_write(existing, family_vals)
+            if to_write:
+                existing.write(to_write)
+            self._prepend_import_notes(existing, notes)
+            return existing, 'Actualitzat'
+
+        vals = {field: value for field, value in family_vals.items() if not self._is_empty(value)}
+        family = self.env['res.partner'].create(vals)
+        self._prepend_import_notes(family, notes)
+        return family, 'Creat'
 
     def _link_family_to_student(self, family, student, relation_type):
         existing = self.env['res.partner.relation'].search([

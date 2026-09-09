@@ -15,18 +15,42 @@ Bulk-imports/updates student and family-contact records from an **Esfera (SAGA)*
 ```mermaid
 flowchart TD
     A["action_import()"] --> B["decode xlsx, load with openpyxl"]
-    B --> C["_find_headers() — scan first 20 rows\nfor a 'Grup Classe' column"]
-    C -->|not found| X1["UserError"]
-    C --> D["_check_required_columns()\n— 35 required headers +\n2 trailing-space variants"]
-    D -->|missing| X2["UserError, lists them"]
-    D --> E["for each data row:\n_process_row(), wrapped in try/except"]
-    E -->|exception| F["append to stats.errors,\ncontinue with next row"]
-    E --> G["_get_or_create_student()"]
-    G --> H["_process_tutor() × 2\n(Tutor 1, Tutor 2)"]
-    H --> I["_build_log_csv() + _build_result_html()"]
+    B --> C["for each sheet in the workbook"]
+    C --> D["_find_headers() — scan first 20 rows\nfor the student ID column"]
+    D -->|not found| E["skip this sheet"]
+    D --> F["for each data row:\n_process_row(), wrapped in try/except"]
+    F -->|exception| G["append to stats.errors,\ncontinue with next row"]
+    F --> H["_get_or_create_student()\n+ _prepend_import_notes()"]
+    H --> I["_process_tutor() × 2\n(Tutor 1, Tutor 2)"]
+    C -->|no sheet had a header| X1["UserError"]
+    I --> J["_build_log_csv() + _build_result_html()"]
 ```
 
+**Every sheet holding data is imported**, not just the workbook's active one — a real Esfera export regularly splits its students across several sheets, and reading only `wb.active` silently dropped all the others. A sheet whose first 20 rows carry no student-ID column (an empty or auxiliary tab) is skipped rather than aborting the file; the `UserError` fires only when *no* sheet in the workbook has one.
+
 One row failing (a raised exception anywhere in `_process_row`) does **not** abort the batch — it's logged into `stats['errors']` and the loop continues, so a single malformed row can't block importing the rest of the file.
+
+### Required columns — only the student identifier
+
+`_STUDENT_ID_COLUMN` (`Identificador de l'alumne/a`, the RALC/IDALU) is the **only** column a file must carry, and it doubles as the marker `_find_headers` scans for to locate each sheet's header row. Everything else is optional: a row with no `Grup Classe` is imported without a group instead of being silently discarded (which is what a whole file of empty group cells used to hit — 0 imported, no error, no warning), and a row with no identifier is skipped *with a warning*, since nothing could match it to a student.
+
+### Write policy — `overwrite`, `_values_to_write`, `_is_empty`
+
+The wizard asks upfront, through the `overwrite` boolean on its own form, what should happen to a student who is already in EMS. `_values_to_write` applies the answer to students and family contacts alike:
+
+| | `overwrite` unticked (default) | `overwrite` ticked |
+|---|---|---|
+| Field empty in EMS | filled in from the file | filled in from the file |
+| Field already set in EMS | **kept as is** | replaced by the file's value |
+| Cell empty in the file | **never blanks EMS's value** | **never blanks EMS's value** |
+
+The second rule holds in both modes and is the one that matters most in practice: before it existed, `existing.write(data)` wrote the whole dictionary, so a column the export left empty erased whatever EMS held. `_is_empty` is what both rules read — it covers `None`/`False`, blank or whitespace-only strings, and the empty recordset a many2one reads back as.
+
+`_CONTROL_FIELDS` (`active`, `contact_type`) deliberately bypasses the policy: re-importing a withdrawn student must reactivate them and restore their `student` contact type in either mode, since that is import control rather than student data.
+
+### Notes — `_prepend_import_notes`
+
+Notes are **never** overwritten, in either mode. Each import stacks its own block on top of whatever the record already holds, stamped with the import date and closed by a horizontal rule, so it stays visible when each block arrived and nothing written by hand is ever lost. (Odoo's HTML sanitiser rewrites the `<hr/>` the code emits as `<hr>` — worth knowing when asserting on the stored value.)
 
 ### Column mapping — `_col_get`
 
@@ -37,6 +61,8 @@ One row failing (a raised exception anywhere in `_process_row`) does **not** abo
 Matched by `student_id` (RALC, the Catalan student identifier), searched with `active_test=False` — re-importing after a withdrawal (which archives the contact, see [Graduation & withdrawal wizards](exit_wizards.md)) **reactivates** the same record with `active: True` rather than creating a duplicate. This is the one piece of the wizard with dedicated `TransactionCase` coverage from before this DTON pass (create/update/reactivate).
 
 ### Tutor upsert — `_process_tutor` / `_get_or_create_family` / `_deduce_relation_type`
+
+Family contacts follow exactly the same write policy as the student (`_values_to_write` + `_prepend_import_notes`). Before that, they had their own inconsistent one: phone/mobile/email were guarded with `if phone:`-style checks, but address fields and notes were written unconditionally and so could be blanked by an empty cell.
 
 Up to 2 tutors per row (`Tutor 1`/`Tutor 2` column prefixes). For each: parse name/document/contact/address columns, resolve or create a `contact_type='family'` partner, guess the family relationship from a free-text observation column via keyword matching (`_deduce_relation_type`: mare/madre → mother, pare/padre → father, àvia/avia/abuela → grandmother, etc.), defaulting to the generic "Tutor" relation type when no keyword matches — in that fallback case a note is appended to the **student's** own `comment` field quoting the original free text, so a secretary can review and correct the guess later.
 
