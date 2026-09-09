@@ -16,6 +16,10 @@ Deletion only ever applies to departures from now on: students suspended before 
 
 The student list (Educational Community > Students) gains two filters, "Google suspension pending" and "Google deletion pending", a group-by on the suspension date, and both dates as optional columns so they can be sorted. The staff list gains the equivalent suspension filter. All of them are restricted to the roles that can actually act on those accounts, matching the buttons on the forms.
 
+## Clearer wording in the student's leaving notice:
+
+The paragraph explaining what happens between the two dates now spells out all three moments explicitly - the account works as usual until the deactivation date, access is gone from that date onwards (included), and the account is deleted on the deletion date - instead of referring back to "the first date". Reworded in the three languages.
+
 # Fixes
 
 ## Google account schedule no longer visible to teachers:

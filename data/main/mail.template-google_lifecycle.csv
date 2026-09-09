@@ -25,9 +25,14 @@
                        <strong>deleted for good</strong> on
                        <strong><t t-out=""format_date(ctx.get('gw_deletion_date'))"" /></strong>.
                        After that date your email and your Drive files cannot be recovered.</p>
-                    <p>Until the first date the account keeps working normally. Please make
-                       sure you download everything you want to keep before then, and that you
-                       have moved any personal service using this address to another one.</p>
+                    <p>You can use your account as usual before
+                       <t t-out=""format_date(object.google_ws_deactivation_date)"" />; from
+                       <t t-out=""format_date(object.google_ws_deactivation_date)"" /> (included)
+                       you will no longer be able to access it; on
+                       <t t-out=""format_date(ctx.get('gw_deletion_date'))"" /> it will be deleted
+                       for good. Please make sure you download everything you want to keep
+                       before then, and that you have moved any personal service using this
+                       address to another one.</p>
                     <p>If you enrol again at the school before those dates, the account is kept
                        and nothing is lost.</p>
                     <p>Best regards,<br />School Secretariat</p>
