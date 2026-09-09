@@ -106,6 +106,39 @@ attendance status. Fixed in `mails/attendance/attendance_issue_rectification.xml
 
 ---
 
+## The same crash again, on the tutor template (2026-09-09)
+
+The "lesson for future field renames" above was written on 2026-07-28 and did not prevent a
+recurrence: `18.0.0.22.0` renamed `ems.attendance_issue_status.attendance_status` (Selection)
+to `attendance_status_id` (Many2one), updated `mails/attendance/attendance_issue_tutor.xml`,
+and again left both `.po` blocks untouched — so `mail_attendance_issue_tutor`'s `ca_ES`/`es_ES`
+`body_html` kept rendering `t-field="status.attendance_status"` and raising
+`KeyError: 'attendance_status'`.
+
+Diagnosed against a production dump (2026-09-09): job `1855` failed with that error, and no
+`queue.job` for `ems.attendance_issue_tutor` had ever reached `done`. Unlike the 2026-07-28
+occurrence, this one affected **every** recipient rather than only the non-English ones:
+`hr_employee.lang` is empty for all 129 employees, so the template's `{{object.tutor_id.lang}}`
+never resolves and the render falls back to the executing user's language — and all 688 active
+users are `ca_ES`. The correct `en_US` body is unreachable in that deployment.
+
+Two things were needed, because the `.po` correction alone does not repair an existing database:
+
+- `i18n/ca_ES.po`/`i18n/es_ES.po` corrected (`msgid` and `msgstr`), which repairs development —
+  `upgrade.sh` runs with `--i18n-overwrite`, and in that mode the imported value wins.
+- `migrations/18.0.0.23.6/pre-migrate.py`, which repairs production — `deploy.sh` runs *without*
+  that flag, and the importer's no-overwrite branch puts the existing database value last in the
+  jsonb merge, so a broken translation already stored there survives every subsequent deploy.
+
+**Why a documented lesson was not enough, and what replaces it:** matching for a whole
+translatable field's `.po` block is done on its `#:` xmlid reference alone — the `msgid` is
+discarded (`odoo/tools/translate.py`, `TranslationImporter.load`) — so a stale `msgid` produces
+no warning, no import error and no failing test; the only symptom is a queued job failing in a
+language nobody develops in. `tests/test_mail_template_translations.py` now asserts, for every
+EMS mail template, that no translated value uses a QWeb expression or `{{ }}` placeholder absent
+from its English source. That is a mechanical check of the whole class, and it fails in CI on the
+next rename that forgets a `.po`.
+
 ## `_compute_pending`: another real bug — multi-record crash
 
 ```python
