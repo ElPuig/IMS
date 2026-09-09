@@ -5,18 +5,35 @@
             <div class="o_guard_board_header">
                 <h1 class="o_guard_board_title" t-esc="state.courseName ? 'Guard duty schedule (' + state.courseName + ')' : 'Guard duty schedule'"/>
 
+                <!-- Weekday tabs, each carrying its own real date: absences happen on dates, the
+                     timetable repeats by weekday, and this strip is where the two meet. -->
                 <ul class="nav nav-tabs o_guard_board_tabs">
                     <t t-foreach="days" t-as="day" t-key="day.index">
                         <li class="nav-item">
                             <a href="#" class="nav-link" t-att-class="{ active: state.activeDay === day.index }"
-                               t-on-click.prevent="() => this.setActiveDay(day.index)" t-esc="day.label"/>
+                               t-on-click.prevent="() => this.setActiveDay(day.index)">
+                                <span t-esc="day.label"/>
+                                <span class="o_guard_board_tab_date" t-esc="day.dayOfMonth"/>
+                            </a>
                         </li>
                     </t>
                 </ul>
 
-                <!-- Per-day toolbar: shift picker (morning/afternoon are separate shifts, never
-                     shown stacked together) + one PDF per day (both shifts), not the whole week. -->
+                <!-- Per-day toolbar: week navigation + date picker (which week the tabs above
+                     stand for), shift picker (morning/afternoon are separate shifts, never shown
+                     stacked together), the level filter, the two readings of the same day, and
+                     one PDF per day. -->
                 <div class="o_guard_board_toolbar">
+                    <div class="btn-group btn-group-sm o_guard_board_week_nav">
+                        <button type="button" class="btn btn-secondary" t-on-click="() => this.shiftWeek(-1)">
+                            <i class="fa fa-chevron-left"/>
+                        </button>
+                        <button type="button" class="btn btn-secondary" t-on-click="() => this.shiftWeek(1)">
+                            <i class="fa fa-chevron-right"/>
+                        </button>
+                    </div>
+                    <input type="date" class="form-control form-control-sm o_guard_board_date_input"
+                           t-att-value="activeDate" t-on-change="(ev) => this.onDateChange(ev)"/>
                     <select class="form-select form-select-sm o_guard_board_shift_select" t-on-change="(ev) => this.onShiftChange(ev)">
                         <t t-foreach="shifts" t-as="shift" t-key="shift.key">
                             <option t-att-value="shift.key" t-att-selected="shift.key === state.activeShift" t-esc="shift.label"/>
@@ -41,6 +58,14 @@
                             </t>
                         </ul>
                     </div>
+                    <ul class="nav nav-pills o_guard_board_view_tabs">
+                        <t t-foreach="views" t-as="view" t-key="view.key">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link" t-att-class="{ active: state.activeView === view.key }"
+                                   t-on-click.prevent="() => this.setActiveView(view.key)" t-esc="view.label"/>
+                            </li>
+                        </t>
+                    </ul>
                     <button type="button" class="btn btn-sm btn-secondary" t-on-click="() => this.onPdfClick()">
                         <i class="fa fa-file-pdf-o me-1"/>PDF
                     </button>
@@ -49,11 +74,13 @@
 
             <div class="o_guard_board_content">
                 <t t-if="state.loading">
-                    <div class="o_guard_board_loading text-muted">Loading...</div>
+                    <div class="o_guard_board_loading text-muted" t-esc="emptyLabels.loading"/>
                 </t>
                 <t t-else="">
-                    <div t-if="!state.board.lines.length" class="text-muted o_guard_board_empty">No schedule for this shift.</div>
-                    <div t-else="" class="o_guard_board_table_wrap">
+                    <div t-if="!state.board.lines.length" class="text-muted o_guard_board_empty" t-esc="emptyLabels.schedule"/>
+
+                    <!-- Tab 1: the timetable itself, with whoever is away marked in place. -->
+                    <div t-elif="state.activeView === 'schedule'" class="o_guard_board_table_wrap">
                         <table class="table table-bordered o_guard_board_table">
                             <colgroup>
                                 <col class="o_guard_board_col_time"/>
@@ -64,11 +91,11 @@
                             </colgroup>
                             <thead>
                                 <tr>
-                                    <th>Time block</th>
+                                    <th t-esc="columnLabels.time"/>
                                     <t t-foreach="state.board.groups" t-as="group" t-key="group.id">
                                         <th t-esc="group.name"/>
                                     </t>
-                                    <th>Guard duty</th>
+                                    <th t-esc="columnLabels.guard"/>
                                 </tr>
                             </thead>
                             <tbody>
@@ -82,14 +109,64 @@
                                             <td>
                                                 <t t-if="cell.subject">
                                                     <span class="o_guard_board_cell_subject" t-esc="cell.subject"/>
-                                                    <span t-if="cell.teachers.length" class="o_guard_board_cell_teacher" t-esc="cell.teachers.join(', ')"/>
+                                                    <span t-if="cell.teachers.length" class="o_guard_board_cell_teacher">
+                                                        <t t-foreach="cell.teachers" t-as="teacher" t-key="teacher.name">
+                                                            <span t-att-class="absenceClass(teacher.absence)" t-esc="teacher.name"/><t t-if="!teacher_last">, </t>
+                                                        </t>
+                                                    </span>
                                                     <span t-if="cell.room" class="o_guard_board_cell_room" t-esc="cell.room"/>
                                                 </t>
                                             </td>
                                         </t>
                                         <td class="o_guard_board_guard_cell">
-                                            <t t-foreach="line.guards" t-as="guard" t-key="guard">
-                                                <span class="o_guard_board_guard_badge" t-esc="guard"/>
+                                            <t t-foreach="line.guards" t-as="guard" t-key="guard.name">
+                                                <span class="o_guard_board_guard_badge"
+                                                      t-att-class="absenceClass(guard.absence)" t-esc="guard.name"/>
+                                            </t>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Tab 2: the same shift read the other way round - one row per time block,
+                         what has to be covered against who is available to cover it. -->
+                    <div t-else="" class="o_guard_board_table_wrap">
+                        <table class="table table-bordered o_guard_board_table o_guard_board_duty_table">
+                            <colgroup>
+                                <col class="o_guard_board_col_time"/>
+                                <col class="o_guard_board_col_absences"/>
+                                <col class="o_guard_board_col_guard"/>
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th t-esc="columnLabels.time"/>
+                                    <th t-esc="columnLabels.absences"/>
+                                    <th t-esc="columnLabels.guard"/>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="state.board.lines" t-as="line" t-key="line.time_label">
+                                    <tr>
+                                        <td class="o_guard_board_time">
+                                            <span t-esc="line.time_label"/>
+                                            <span t-if="line.is_break" class="o_guard_board_break_label">Break</span>
+                                        </td>
+                                        <td class="o_guard_board_absence_cell">
+                                            <t t-foreach="line.absences" t-as="absence" t-key="absence.teacher + '-' + absence.group">
+                                                <div class="o_guard_board_absence_row">
+                                                    <span t-att-class="absenceClass(absence.state)" t-esc="absence.teacher"/>
+                                                    <span class="o_guard_board_absence_class">
+                                                        <t t-esc="absence.group"/><t t-if="absence.subject"> · <t t-esc="absence.subject"/></t><t t-if="absence.room"> · <t t-esc="absence.room"/></t>
+                                                    </span>
+                                                </div>
+                                            </t>
+                                        </td>
+                                        <td class="o_guard_board_guard_cell">
+                                            <t t-foreach="line.guards" t-as="guard" t-key="guard.name">
+                                                <span class="o_guard_board_guard_badge"
+                                                      t-att-class="absenceClass(guard.absence)" t-esc="guard.name"/>
                                             </t>
                                         </td>
                                     </tr>

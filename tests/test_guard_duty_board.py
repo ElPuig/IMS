@@ -1,9 +1,9 @@
 import json
-from datetime import date
+from datetime import date, timedelta
 
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study, create_level_study_group
+from .common import create_level_study, create_level_study_group, mock_outgoing_email
 
 
 class TestGuardDutyBoard(TransactionCase):
@@ -11,6 +11,9 @@ class TestGuardDutyBoard(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # Approving an absence posts to the chatter and notifies its followers - see
+        # CLAUDE.md's 'Email safety in tests'.
+        mock_outgoing_email(cls)
         cls.teacher_user = cls.env['res.users'].with_context(no_reset_password=True).create({
             'name': 'Test Teacher User (Guard Duty Board)',
             'login': 'test_teacher_for_guard_duty_board',
@@ -248,9 +251,12 @@ class TestGuardDutyBoard(TransactionCase):
         matching_group = next(group for group in data['groups'] if group['id'] == self.group_a.id)
         self.assertIsInstance(matching_group['name'], str)
         matching_line = next(line for line in data['lines'] if line['time_label'] == '09:00-10:00')
-        self.assertIn(self.teacher_guard.display_name, matching_line['guards'])
+        # Every teacher is reported as {'name', 'absence'}, never a bare name - see
+        # _guard_duty_teacher_data(). With no date asked for, nobody can be absent.
+        self.assertIn(self.teacher_guard.display_name,
+                      [guard['name'] for guard in matching_line['guards']])
         cell = next(cell for cell in matching_line['cells'] if cell['group_id'] == self.group_a.id)
-        self.assertEqual(cell['teachers'], [self.teacher_a.display_name])
+        self.assertEqual(cell['teachers'], [{'name': self.teacher_a.display_name, 'absence': False}])
         self.assertEqual(cell['subject'], self.subject.acronym)
 
     def test_get_current_course_data(self):
@@ -636,3 +642,201 @@ class TestGuardDutyBoard(TransactionCase):
 
         self.assertIn(self.group_a.name.encode(), content)
         self.assertNotIn(self.group_c.name.encode(), content)
+
+    # --- Absences on the board --------------------------------------------------------------
+    #
+    # The board is keyed by weekday, absences by real date, so every one of these has to hand
+    # 'get_guard_duty_board_lines' a concrete Monday for the two to meet - see the 'day'
+    # argument's own docstring in models/attendance/guard_duty_board.py.
+
+    def _monday(self):
+        """A Monday inside the current course's window, matching the '0' weekday these fixtures
+        use. Inside the window because the absence form's own health-allowance computation
+        filters on it (see hr.leave._compute_ems_health_allowance)."""
+        window = self.env.company.current_course_id.date_range()
+        day = window[0] + timedelta(days=30)
+        while day.weekday() != 0:
+            day += timedelta(days=1)
+        return day
+
+    def _absence(self, employee, day, hour_from=None, hour_to=None, approve=True):
+        vals = {
+            'employee_id': employee.id,
+            'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
+            'request_date_from': day,
+            'request_date_to': day,
+            # What the "Send request" button does - a request that was never sent cannot be
+            # saved at all (see hr.leave._check_ems_submitted).
+            'ems_submitted': True,
+            'ems_responsible_declaration': True,
+        }
+        if hour_from is None:
+            # 'leave_type_justified' does not seed 'Whole day?' on its own (its
+            # ems_full_day_default is False), and a request that is neither a whole day nor a
+            # span of hours is worth zero - which hr_holidays itself refuses to approve.
+            vals['ems_full_day'] = True
+        else:
+            vals.update({'ems_full_day': False,
+                         'request_hour_from': hour_from, 'request_hour_to': hour_to})
+        leave = self.env['hr.leave'].create(vals)
+        if approve:
+            leave.action_approve()
+        return leave
+
+    def _teaching_line(self, day, hour_from=9, hour_to=10):
+        """The board row for one period of `day`'s weekday, morning shift."""
+        data = self.course.get_guard_duty_board_lines(str(day.weekday()), 'morning', day=day)
+        label = '%02d:00-%02d:00' % (hour_from, hour_to)
+        return next(line for line in data['lines'] if line['time_label'] == label)
+
+    def _schedule_class(self, teacher, group, name, periods=((9, 10),), dayofweek='0'):
+        """One calendar for `teacher` holding exactly `periods` as lessons of `group`.
+
+        Every period in one call: apply_schedule_changes() replaces the calendar's whole Mon-Fri
+        week each time it runs (it is fed the schedule grid's full buffer, see its own
+        docstring), so calling it twice would leave only the second period behind.
+        """
+        calendar = self._new_calendar(teacher, name)
+        calendar.apply_schedule_changes([{
+            'dayofweek': dayofweek, 'hour_from': hour_from, 'hour_to': hour_to,
+            'day_period': 'morning', 'subject_id': self.subject.id,
+            'group_ids': [group.id], 'name': f'{group.acronym}: TGDB',
+        } for hour_from, hour_to in periods])
+        return calendar
+
+    def test_without_a_date_no_absence_is_resolved_at_all(self):
+        """The PDF still calls this with no date (see reports/attendance/report_guard_duty_board.xml),
+        and a weekday on its own can never say who is absent - the board has to keep working,
+        marking nobody, rather than guessing a date of its own."""
+        monday = self._monday()
+        self._schedule_class(self.teacher_a, self.group_a, 'Test Calendar A (No Date)')
+        self._absence(self.teacher_a, monday)
+
+        data = self.course.get_guard_duty_board_lines('0', 'morning')
+
+        line = next(line for line in data['lines'] if line['time_label'] == '09:00-10:00')
+        cell = next(cell for cell in line['cells'] if cell['group'].id == self.group_a.id)
+        self.assertEqual(cell['absences'], {})
+        self.assertEqual(line['absences'], [])
+
+    def test_an_approved_whole_day_absence_marks_the_teacher_in_their_own_cell(self):
+        monday = self._monday()
+        self._schedule_class(self.teacher_a, self.group_a, 'Test Calendar A (Whole Day)')
+        self._absence(self.teacher_a, monday)
+
+        line = self._teaching_line(monday)
+
+        cell = next(cell for cell in line['cells'] if cell['group'].id == self.group_a.id)
+        self.assertEqual(cell['absences'], {self.teacher_a.id: 'approved'})
+
+    def test_a_partial_absence_only_marks_the_periods_it_overlaps(self):
+        """Arriving an hour late leaves the rest of the morning covered."""
+        monday = self._monday()
+        self._schedule_class(self.teacher_a, self.group_a, 'Test Calendar A (Partial)',
+                             periods=((9, 10), (11, 12)))
+        self._absence(self.teacher_a, monday, hour_from=8.5, hour_to=10.5)
+
+        missed = self._teaching_line(monday, 9, 10)
+        covered = self._teaching_line(monday, 11, 12)
+
+        missed_cell = next(cell for cell in missed['cells'] if cell['group'].id == self.group_a.id)
+        covered_cell = next(cell for cell in covered['cells'] if cell['group'].id == self.group_a.id)
+        self.assertEqual(missed_cell['absences'], {self.teacher_a.id: 'approved'})
+        self.assertEqual(covered_cell['absences'], {})
+
+    def test_a_request_still_pending_is_marked_apart_from_an_approved_one(self):
+        """Whoever plans the guards wants to see what is coming, but must not confuse a request
+        nobody has decided on yet with an absence that is going to happen."""
+        monday = self._monday()
+        self._schedule_class(self.teacher_a, self.group_a, 'Test Calendar A (Pending)')
+        leave = self._absence(self.teacher_a, monday, approve=False)
+
+        self.assertEqual(leave.state, 'confirm')
+        line = self._teaching_line(monday)
+
+        cell = next(cell for cell in line['cells'] if cell['group'].id == self.group_a.id)
+        self.assertEqual(cell['absences'], {self.teacher_a.id: 'pending'})
+
+    def test_a_refused_request_marks_nobody(self):
+        monday = self._monday()
+        self._schedule_class(self.teacher_a, self.group_a, 'Test Calendar A (Refused)')
+        leave = self._absence(self.teacher_a, monday, approve=False)
+        leave.action_refuse()
+
+        line = self._teaching_line(monday)
+
+        cell = next(cell for cell in line['cells'] if cell['group'].id == self.group_a.id)
+        self.assertEqual(cell['absences'], {})
+
+    def test_an_absent_guard_teacher_is_marked_in_the_guard_column(self):
+        """The one who was going to cover for somebody else is the one missing - the column has
+        to say so, or the period looks staffed when it is not."""
+        monday = self._monday()
+        calendar = self._new_calendar(self.teacher_guard, 'Test Calendar Guard (Absent)')
+        calendar.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'non_teaching': self.non_teaching_guard.id, 'name': 'Guard',
+        }])
+        self._absence(self.teacher_guard, monday)
+
+        line = self._teaching_line(monday)
+
+        self.assertEqual(line['guard_absences'].get(self.teacher_guard.id), 'approved')
+
+    def test_the_absence_rows_carry_the_class_that_needs_covering(self):
+        """The second tab's whole point: not just who is missing, but what has to be covered -
+        group, subject and room, so a guard can be sent without opening another screen."""
+        monday = self._monday()
+        self._schedule_class(self.teacher_a, self.group_a, 'Test Calendar A (Rows)')
+        self._absence(self.teacher_a, monday)
+
+        line = self._teaching_line(monday)
+
+        row = next(row for row in line['absences'] if row['teacher'] == self.teacher_a)
+        self.assertEqual(row['state'], 'approved')
+        self.assertEqual(row['group'], self.group_a)
+        self.assertEqual(row['subject'], self.subject)
+        self.assertEqual(row['room'], self.space)
+
+    def test_a_guard_teacher_absence_produces_no_row_to_cover(self):
+        """An absent guard has nothing for anyone to cover - they are missing from the guard
+        column (tested above), not a class left without a teacher."""
+        monday = self._monday()
+        calendar = self._new_calendar(self.teacher_guard, 'Test Calendar Guard (No Row)')
+        calendar.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'non_teaching': self.non_teaching_guard.id, 'name': 'Guard',
+        }])
+        self._absence(self.teacher_guard, monday)
+
+        line = self._teaching_line(monday)
+
+        self.assertNotIn(self.teacher_guard, [row['teacher'] for row in line['absences']])
+
+    def test_get_guard_duty_board_data_is_json_safe_with_absences(self):
+        monday = self._monday()
+        self._schedule_class(self.teacher_a, self.group_a, 'Test Calendar A (JSON Absences)')
+        calendar_guard = self._new_calendar(self.teacher_guard, 'Test Calendar Guard (JSON Absences)')
+        calendar_guard.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'non_teaching': self.non_teaching_guard.id, 'name': 'Guard',
+        }])
+        self._absence(self.teacher_a, monday)
+
+        data = self.env['ems.course'].get_guard_duty_board_data(
+            str(monday.weekday()), 'morning', day=str(monday))
+        json.dumps(data)  # raises TypeError if anything isn't JSON-safe (e.g. a stray recordset)
+
+        line = next(line for line in data['lines'] if line['time_label'] == '09:00-10:00')
+        cell = next(cell for cell in line['cells'] if cell['group_id'] == self.group_a.id)
+        absent = next(teacher for teacher in cell['teachers']
+                      if teacher['name'] == self.teacher_a.display_name)
+        self.assertEqual(absent['absence'], 'approved')
+        guard = next(guard for guard in line['guards']
+                     if guard['name'] == self.teacher_guard.display_name)
+        self.assertFalse(guard['absence'])
+        row = next(row for row in line['absences']
+                   if row['teacher'] == self.teacher_a.display_name)
+        self.assertEqual(row['group'], self.group_a.name)
+        self.assertEqual(row['subject'], self.subject.acronym)
+        self.assertEqual(row['room'], self.space.display_name)

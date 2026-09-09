@@ -32,6 +32,7 @@
         'mass_mailing', 
         'survey', 
         'hr_attendance',
+        'hr_holidays',
         'queue_job',
         'sale_management',
         'sale_pdf_quote_builder',
@@ -242,6 +243,10 @@
             'views/attendance/attendance_correction/hr_attendance_form.xml',
 
             'views/attendance/guard_duty_board/menu.xml',
+
+            'views/attendance/absence/leave.xml',
+            'views/attendance/absence/menu.xml',
+            'views/attendance/absence/monthly_report.xml',
             'reports/attendance/report_guard_duty_board.xml',
 
             'views/attendance/attendance_issue/menu.xml',
@@ -384,6 +389,7 @@
         'data/cat/ems.role.csv',
         'data/cat/ems.workgroup.csv',
         'data/cat/hr.job.csv',
+        'data/cat/hr.leave.type.csv',
         'data/cat/product.template-generic.csv',
         'data/cat/ems_enrollment_template_data.xml',
         

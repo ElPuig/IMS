@@ -18,9 +18,26 @@ El cuadro se abre directamente con el día y el turno de ahora mismo (mañana an
 
 ---
 
-## Leer el cuadro
+## Elegir el día y la semana
 
-Haz clic en **Lunes** a **Viernes** en la parte superior para cambiar de día. La mañana y la tarde son turnos distintos — usa el desplegable junto al botón PDF para cambiar entre ellos; solo se muestra uno a la vez.
+Haz clic en **Lunes** a **Viernes** en la parte superior para cambiar de día. Cada pestaña muestra también el día del mes que le corresponde dentro de la semana que tienes en pantalla.
+
+Usa las flechas **‹** y **›** para ir a la semana anterior o siguiente, o la casilla de fecha de al lado para saltar a cualquier fecha — las pestañas se mueven a la semana de esa fecha y el cuadro se abre por su día.
+
+La mañana y la tarde son turnos distintos — usa el desplegable para cambiar entre ellos; solo se muestra uno a la vez.
+
+---
+
+## Las dos vistas
+
+Los dos botones de la derecha de la barra de herramientas cambian entre las dos maneras de leer el mismo día y turno:
+
+- **Horario de guardias** — el horario, con todo el que falta marcado encima.
+- **Tabla de guardias** — una fila por franja horaria: quién falta y qué hay que cubrir, frente a quién está de guardia para cubrirlo.
+
+---
+
+## Leer el horario
 
 Las columnas de la tabla son los grupos que tienen clase en ese turno; cada fila es una franja horaria. Una celda muestra la asignatura (con su código corto, p. ej. "MP 0440"), el o los docentes — más de uno si la clase es compartida — y el aula de la clase de ese grupo en esa hora. Una celda vacía simplemente significa que no hay nada programado para ese grupo en ese momento.
 
@@ -36,6 +53,32 @@ Una vez marcas uno o más niveles:
 - Solo se muestran las columnas de los grupos de ese/esos nivel(es) — el resto de grupos desaparecen de la tabla.
 - La columna **Guardia** solo muestra un docente si ese mismo día también da clase en alguno de los niveles marcados — una guardia sin relación con los niveles que estás mirando queda fuera, para que la columna se mantenga centrada en tu mitad del centro. Vuelve a aparecer si regresas a "All levels".
 - Una guardia que coincide con el patio de ese nivel obtiene su propia fila etiquetada **Patio**, para que una franja que parece vacía no se lea como un hueco en el horario.
+
+---
+
+## Leer la tabla de guardias
+
+Cada fila es una franja horaria del turno que tienes en pantalla:
+
+- **Ausencias** — una línea por cada clase que se queda sin docente: quién falta, y el grupo, la asignatura y el aula que hay que cubrir.
+- **Guardia** — los docentes de guardia en esa franja, los mismos que muestra el horario.
+
+Una franja donde no falta nadie tiene la columna de ausencias vacía.
+
+---
+
+## Ausencias
+
+Un docente que falta aparece en rojo allá donde salga su nombre — en su propia celda del horario, y en la columna de guardia si era quien estaba de guardia:
+
+- **Rojo y negrita** — la ausencia está aprobada.
+- **Rojo más suave y cursiva** — la ausencia se ha solicitado y todavía está pendiente de aprobación.
+
+Las solicitudes denegadas y canceladas no se muestran.
+
+Un docente de guardia que falta queda marcado en la columna de guardia y no genera ninguna línea en la columna de ausencias: no tiene ninguna clase propia que nadie deba cubrir.
+
+Aquí solo se muestra que la persona falta. El tipo de ausencia, el motivo y el justificante, no.
 
 ---
 

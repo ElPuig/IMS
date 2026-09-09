@@ -23,6 +23,7 @@ Esta sección contiene los manuales para los **profesores**.
 | [Informes de asistencia](attendance-reports.md) | Imprimir los 3 informes PDF de asistencia (por grupo/alumno/asignatura) y explorar los datos tú mismo con la pantalla de Análisis de asistencia |
 | [El horario semanal de un grupo](../admin/group-schedule.md) | Consultar el horario agregado de un grupo (asignaturas, docentes, aulas, patios) y exportarlo a PDF |
 | [Consultar los datos académicos de un alumno](student-academic-data.md) | Dónde consultar el historial académico de cualquier alumno, y qué datos pueden leer los roles de Orientación y Convivencia |
+| [Solicitar una ausencia](absences.md) | Pedir una ausencia: elegir el tipo, día entero o unas horas, la declaración responsable, el justificante y enviarla |
 
 ## Temas previstos
 

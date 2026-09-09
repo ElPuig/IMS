@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from odoo import api, models
+from collections import defaultdict
+
+from odoo import api, fields, models
 
 from ..shared.schedule_report_mixin import HOUR_EPSILON
 
@@ -12,6 +14,22 @@ SHIFT_HOURS = {
     'morning': (8, 15),
     'afternoon': (15, 22),
 }
+
+# Which absence requests are worth putting on the board, and how each one is reported to the
+# screen. 'approved' is a fact to plan around; 'pending' is a warning that one may be coming -
+# hr_holidays' two pre-approval states are deliberately collapsed into a single one here,
+# because the difference between "waiting for the first approver" and "waiting for the second"
+# changes nothing for whoever is assigning guards. Refused and cancelled requests are absent
+# from this mapping entirely, which is what keeps them off the board.
+ABSENCE_STATES = {
+    'confirm': 'pending',
+    'validate1': 'pending',
+    'validate': 'approved',
+}
+
+# A whole-day absence, as an hour interval, so it can be compared against a schedule period the
+# same way a partial one is - no special case anywhere downstream.
+WHOLE_DAY = (0.0, 24.0)
 
 
 def _period_contains(container, period):
@@ -122,7 +140,56 @@ class EmsCourseGuardDutyBoard(models.Model):
             ('dayofweek', 'in', WEEKDAYS),
         ])
 
-    def get_guard_duty_board_lines(self, weekday, shift, level_ids=None):
+    def _get_guard_duty_absence_intervals(self, day, employees):
+        """`{employee.id: [(hour_from, hour_to, state)]}` - the absences covering `day`.
+
+        Resolved on demand rather than stored anywhere: an absence is an 'hr.leave' keyed to a
+        real date, the board is keyed to a weekday, and nothing joins the two until a date is
+        actually asked for. Returns `{}` for no date at all, which is what lets the PDF (and any
+        other weekday-only caller) keep working unchanged.
+
+        sudo() because a guard-duty absence is not private to its own approval chain: whoever
+        reads this board legitimately needs to know that a colleague is not coming, which is
+        exactly the same justification 'get_guard_sessions()' carries for reading schedules that
+        are not the reader's own. Only the fact and the interval are ever exposed - never the
+        absence type, its reason, or its attachments.
+        """
+        if not day or not employees:
+            return {}
+        leaves = self.env['hr.leave'].sudo().search([
+            ('employee_id', 'in', employees.ids),
+            ('state', 'in', list(ABSENCE_STATES)),
+            ('request_date_from', '<=', day),
+            ('request_date_to', '>=', day),
+        ])
+        intervals = defaultdict(list)
+        for leave in leaves:
+            # 'request_unit_hours' rather than 'ems_full_day': it is the field that actually
+            # decides whether request_hour_from/to carry anything (see hr.leave's own
+            # _compute_request_unit_hours and EMS's override of it), and a multi-day request is
+            # a whole day on each of its days regardless of how it was filled in.
+            partial = leave.request_unit_hours and leave.request_date_from == leave.request_date_to
+            hours = (leave.request_hour_from, leave.request_hour_to) if partial else WHOLE_DAY
+            intervals[leave.employee_id.id].append((*hours, ABSENCE_STATES[leave.state]))
+        return intervals
+
+    @staticmethod
+    def _guard_duty_absence_state(intervals, employees, hour_from, hour_to):
+        """`{employee.id: 'approved'|'pending'}` for those of `employees` absent in the period.
+
+        An approved absence outranks a pending one when the same teacher has both overlapping
+        the same period: the period is going to need covering either way, so reporting it as
+        merely "requested" would understate it.
+        """
+        states = {}
+        for employee in employees:
+            overlapping = {state for start, stop, state in intervals.get(employee.id, ())
+                           if start < hour_to and stop > hour_from}
+            if overlapping:
+                states[employee.id] = 'approved' if 'approved' in overlapping else 'pending'
+        return states
+
+    def get_guard_duty_board_lines(self, weekday, shift, level_ids=None, day=None):
         """Board rows for one weekday + shift: the ordered list of group columns actually taught in
         that slot, one row per distinct time period (chronological), each with one cell per group
         (teacher(s) + room, or empty) plus the guard-duty teacher(s) for that period. A guard row
@@ -167,16 +234,25 @@ class EmsCourseGuardDutyBoard(models.Model):
         rule above, a level-filtered view only ever builds rows from teaching entries (never from
         a guard-only or "reinforcement"-group period the way the unfiltered path's own 'entries'-
         wide 'periods' does) - checking literally every level is meant to mean "show everything",
-        indistinguishable from checking none at all."""
+        indistinguishable from checking none at all.
+
+        `day`, when given, is the concrete date the weekday stands for, and is what adds the
+        absence information: every cell gains an 'absences' map of which of its own teachers are
+        away, each row gains 'guard_absences' for the same question asked of the guard column,
+        and 'absences' - the list of classes actually left without a teacher, which is what the
+        board's second tab is built from. Without a date none of that can be resolved at all, so
+        every one of those comes back empty and the board is the plain timetable it was before."""
         self.ensure_one()
         if level_ids and set(level_ids) >= set(self.env['ems.level'].search([]).ids):
             level_ids = None
+        day = fields.Date.to_date(day)
         shift_start, shift_end = SHIFT_HOURS[shift]
         entries = self._get_guard_duty_board_attendance_ids().filtered(
             lambda attendance: attendance.dayofweek == weekday
                 and attendance.hour_from >= shift_start and attendance.hour_to <= shift_end)
         teaching_entries = entries.filtered(lambda attendance: attendance.subject_id or attendance.group_ids)
         guard_entries = entries.filtered(lambda attendance: attendance.non_teaching_is_guard)
+        intervals = self._get_guard_duty_absence_intervals(day, entries.employee_id)
 
         if level_ids:
             teaching_entries = teaching_entries.filtered(
@@ -195,20 +271,36 @@ class EmsCourseGuardDutyBoard(models.Model):
                 continue  # absorbed - already folded into its container's row below
             member_periods = period_members[(hour_from, hour_to)]
             cells = []
+            covering = []
             for group in groups:
                 cell_entries = teaching_entries.filtered(
                     lambda attendance, group=group, member_periods=member_periods:
                         group in attendance.group_ids and (attendance.hour_from, attendance.hour_to) in member_periods
                 )
+                # Every co-teacher for this cell, deduped (a plain recordset union already
+                # does that) - a co-taught slot has one 'resource.calendar.attendance' row
+                # per teacher, all sharing the same group/period, so 'entries' alone would
+                # silently drop every name but the first one picked for display.
+                cell_teachers = cell_entries.mapped('employee_id')
+                cell_absences = self._guard_duty_absence_state(
+                    intervals, cell_teachers, hour_from, hour_to)
                 cells.append({
                     'group': group,
                     'entries': cell_entries,
-                    # Every co-teacher for this cell, deduped (a plain recordset union already
-                    # does that) - a co-taught slot has one 'resource.calendar.attendance' row
-                    # per teacher, all sharing the same group/period, so 'entries' alone would
-                    # silently drop every name but the first one picked for display.
-                    'teachers': cell_entries.mapped('employee_id'),
+                    'teachers': cell_teachers,
+                    'absences': cell_absences,
                 })
+                # One row per absent teacher AND per class of theirs in this period: a teacher
+                # splitting the period across two groups leaves two classes uncovered, and each
+                # one has to be assigned its own guard.
+                first = cell_entries[:1]
+                covering += [{
+                    'teacher': teacher,
+                    'state': cell_absences[teacher.id],
+                    'group': group,
+                    'subject': first.subject_id,
+                    'room': first.space_id,
+                } for teacher in cell_teachers if teacher.id in cell_absences]
             if level_ids:
                 # A guard's own period is no longer necessarily one of 'periods' above (those now
                 # only come from teaching_entries) - fold it into whichever row's range genuinely
@@ -227,15 +319,21 @@ class EmsCourseGuardDutyBoard(models.Model):
                 'time_label': "%s-%s" % (self._format_report_time(hour_from), self._format_report_time(hour_to)),
                 'cells': cells,
                 'guards': guards,
+                # Not folded into 'absences' below: an absent guard has no class of their own for
+                # anyone to cover, they are simply one fewer person available to cover somebody
+                # else's - a subtraction from the guard column, not an addition to the work.
+                'guard_absences': self._guard_duty_absence_state(
+                    intervals, guards.mapped('employee_id'), hour_from, hour_to),
+                'absences': covering,
             }))
 
         if level_ids:
             dated_lines += self._get_guard_duty_board_break_lines(
-                level_ids, weekday, shift_start, shift_end, groups, remaining_guards)
+                level_ids, weekday, shift_start, shift_end, groups, remaining_guards, intervals)
             dated_lines.sort(key=lambda dated_line: (dated_line[0], dated_line[1]))
         return {'groups': groups, 'lines': [line for _hour_from, _hour_to, line in dated_lines]}
 
-    def _get_guard_duty_board_break_lines(self, level_ids, weekday, shift_start, shift_end, groups, unmatched_guards):
+    def _get_guard_duty_board_break_lines(self, level_ids, weekday, shift_start, shift_end, groups, unmatched_guards, intervals):
         """Once a level filter is active, that level's own break ("Patio") period has no real
         teaching entry of its own to build a row from (a teacher's own calendar spans one
         continuous block across it - see hr.employee._get_derived_break_entries' own docstring),
@@ -249,7 +347,11 @@ class EmsCourseGuardDutyBoard(models.Model):
         other row already follows. Not meaningful under "All levels" - a break's own hours differ
         per level (see docs/en/developers/attendance/guard_duty_board.md's own "Level filter"
         section), so the caller only ever invokes this once a level filter narrows down which
-        break(s) apply."""
+        break(s) apply.
+
+        'intervals' is forwarded straight from the caller so a guard's own absence still shows up
+        on their dedicated break row exactly like it would on any other row - see
+        get_guard_duty_board_lines()'s own 'guard_absences'."""
         frameworks = self.env['resource.calendar'].search([
             ('is_framework', '=', True), ('level_id', 'in', level_ids),
         ])
@@ -275,23 +377,30 @@ class EmsCourseGuardDutyBoard(models.Model):
             unmatched_guards -= guards
             dated_lines.append((hour_from, hour_to, {
                 'time_label': "%s-%s" % (self._format_report_time(hour_from), self._format_report_time(hour_to)),
-                'cells': [{'group': group, 'entries': empty_entries, 'teachers': empty_entries.employee_id} for group in groups],
+                'cells': [{
+                    'group': group, 'entries': empty_entries, 'teachers': empty_entries.employee_id, 'absences': {},
+                } for group in groups],
                 'guards': guards,
+                'guard_absences': self._guard_duty_absence_state(
+                    intervals, guards.mapped('employee_id'), hour_from, hour_to),
+                'absences': [],
                 'is_break': True,
             }))
         return dated_lines
 
     @api.model
-    def get_guard_duty_board_data(self, weekday, shift, level_ids=None):
+    def get_guard_duty_board_data(self, weekday, shift, level_ids=None, day=None):
         """JSON-safe wrapper around get_guard_duty_board_lines(), for the guard duty board client
         action's own RPC call (static/src/js/backend/guard_duty_board.js). @api.model: resolves
         "the current course" itself (env.company.current_course_id), so the JS side never needs
         to know or pass a specific ems.course id — matches how the aggregation itself is scoped
         (see _get_guard_duty_board_attendance_ids' own NOTE: not actually course-filtered).
-        'level_ids' (issue #390) is forwarded as-is - see get_guard_duty_board_lines()'s own
-        docstring."""
+        'level_ids' (issue #390) and 'day' are forwarded as-is - see get_guard_duty_board_lines()'s
+        own docstring. Every teacher is reported as {'name', 'absence'} rather than a bare name,
+        so both of the screen's tabs read absences the same way, off the same payload, instead of
+        the client having to match names back against a separate list."""
         course = self.env.company.get_current_course_or_raise()
-        data = course.get_guard_duty_board_lines(weekday, shift, level_ids=level_ids)
+        data = course.get_guard_duty_board_lines(weekday, shift, level_ids=level_ids, day=day)
         groups = [{'id': group.id, 'name': group.name} for group in data['groups']]
         lines = []
         for line in data['lines']:
@@ -304,16 +413,30 @@ class EmsCourseGuardDutyBoard(models.Model):
                 cells.append({
                     'group_id': cell['group'].id,
                     'subject': first.subject_id.acronym if first else False,
-                    'teachers': cell['teachers'].mapped('display_name'),
+                    'teachers': self._guard_duty_teacher_data(cell['teachers'], cell['absences']),
                     'room': first.space_id.display_name if first and first.space_id else False,
                 })
             lines.append({
                 'time_label': line['time_label'],
                 'cells': cells,
-                'guards': line['guards'].mapped('employee_id.display_name'),
+                'guards': self._guard_duty_teacher_data(
+                    line['guards'].mapped('employee_id'), line['guard_absences']),
+                'absences': [{
+                    'teacher': row['teacher'].display_name,
+                    'state': row['state'],
+                    'group': row['group'].name,
+                    'subject': row['subject'].acronym if row['subject'] else False,
+                    'room': row['room'].display_name if row['room'] else False,
+                } for row in line['absences']],
                 'is_break': line.get('is_break', False),
             })
         return {'groups': groups, 'lines': lines}
+
+    @staticmethod
+    def _guard_duty_teacher_data(teachers, absences):
+        """Teachers as `[{'name', 'absence'}]` - 'absence' being False, 'approved' or 'pending'."""
+        return [{'name': teacher.display_name, 'absence': absences.get(teacher.id, False)}
+                for teacher in teachers]
 
     @api.model
     def get_guard_duty_board_levels(self):
