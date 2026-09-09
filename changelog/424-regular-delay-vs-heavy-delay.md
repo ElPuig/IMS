@@ -1,7 +1,0 @@
-# What's new:
-
-## Minor vs. severe delay in attendance:
-- `ems.attendance_status` gained a new seeded status, "Severe Delay" (`ems.attendance_status_delayed_severe`, `category=absence`, `notifiable=True`), alongside the renamed "Minor Delay" (formerly "Delayed", same xmlid `ems.attendance_status_delayed`, unchanged behaviour). A minor delay never counts as an absence; a severe delay counts as an absence in every attendance rate/report and notifies the family, exactly like a Miss. Teachers pick either directly at roll-call - there is no automatic escalation from repeated minor delays.
-- `_setup_next_session_line_data()` (`models/attendance/attendance_session.py`) resets a severe delay to "Attended" on the next period's line, the same auto-reset rule minor delays already had - a delay of either kind only applies to the single period it was marked in.
-- No code change was needed in the absence-rate computations (`_compute_absence_rate`, `_report_data`/`_default_detail_status_ids`, `_attendance_rates`) - they already read the generic `category`/`notifiable` fields rather than a hardcoded list of statuses, so the new status is picked up automatically everywhere (including the tutor/head of studies/secretary attendance-report "Detail statuses" default).
-- Admin, teacher and attendance-report user manuals updated (EN/CA/ES) to explain the two delay levels; dev doc (`docs/en/developers/attendance/attendance_status.md`) updated with the new seed row and the rationale for reusing the existing `category` mechanism instead of a new one.
