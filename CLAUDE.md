@@ -243,6 +243,49 @@ echo "$(date +%H:%M:%S) EMS: waiting on you — <short summary of what's being a
 
 **Redirect `./test.sh`/`./upgrade.sh` output to a file before inspecting it — never pipe a live run straight into `tail`/`grep` as the only way you look at it.** E.g. `./test.sh TestClassName 2>&1 | tee /path/to/scratchpad/test_output.log`, then `tail`/`grep` against that file for an efficient first pass. Piping directly into `tail`/`grep` on the live command risks silently missing something further up the output, and if that happens the only way to look again is re-running the (slow) run — exactly the redundant-run problem the "don't run the full suite more than necessary" rule above is trying to avoid. With the output already saved to a file, re-reading it (in full, or with a different `tail`/`grep`) costs nothing — only re-run the actual command if the file genuinely doesn't have what's needed (aborted run, or a subsequent code change invalidates it).
 
+## "Piloto automático" mode — explicit, scoped, developer-invoked autonomy
+
+Any developer working with an AI agent on this repo can put the session in "piloto automático"
+(autopilot) mode for a specific stretch of work — typically because they're about to be
+unavailable to answer questions (going to sleep, stepping into a meeting, leaving for the day) but
+want the agent to keep making real progress rather than stall on the first decision that would
+otherwise need a question asked. First used 2026-09-08/09 (bottom-up sync redesign session,
+overnight while the developer slept) and confirmed to work well.
+
+**Must be started and ended explicitly — never assumed, never left open-ended.** This is not a
+standing default; it only applies for the exact stretch the developer scoped it to.
+- **Starting it:** the developer says so directly ("te dejo en piloto automático", "activo el
+  piloto automático", or similar unambiguous wording) and should say what it's scoped to — e.g.
+  "hasta que termines el gate de tests y seguido de la funcionalidad de grupos". If the scope
+  wasn't stated clearly, ask before assuming what it covers.
+- **Ending it:** either the developer says so, or the agent finishes everything the mode was
+  scoped to and then explicitly declares the mode over as part of its own summary (see below) —
+  never trail off and quietly keep making autonomous calls past the point the work was actually
+  finished. **No "piloto automático ad-eternum"** — it always has a defined end, one way or the
+  other, not an indefinite standing grant.
+
+**While active:**
+- For any decision that would otherwise warrant `AskUserQuestion`, pick the option that would
+  normally be marked "(Recomendado)" and keep going — never block waiting for an answer.
+- When genuinely unsure and there's no clearly-recommended option, infer the most sensible
+  approach and verify it empirically (run the actual tests, check the actual behavior) rather than
+  guessing blind or stalling on it. If it doesn't hold up, try a different approach and re-verify —
+  iterate until it's actually right, not just until something compiles.
+- Git commits (never destructive operations) are allowed as checkpoints during the session, as an
+  explicit, scoped exception to "the user manages commits himself" — useful for marking a clean,
+  verified state before continuing into the next piece of work. **`git push`/`git pull` remain
+  forbidden even in this mode, with no exception** — regardless of how confident the state is.
+- Every other standing rule in this file (testing conventions, migration rules, i18n, notification
+  policy, etc.) still applies unchanged — this mode only changes who resolves an
+  otherwise-blocking judgment call, not what's safe to do.
+
+**Always ends with a decision summary, not just a "done" message.** Every autonomous choice made
+and every question the agent answered on the developer's behalf during the mode must be reported
+back clearly when the mode ends, so the developer can review and correct anything that went the
+wrong way on waking up/returning — this is the substitute for the questions that would otherwise
+have been asked live, not optional. State plainly which mode-scoped tasks got finished and which
+(if any) are still open.
+
 ## Testing conventions
 
 **Backend tests** — `tests/test_<model>.py`, using `odoo.tests.common.TransactionCase`:

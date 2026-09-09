@@ -41,6 +41,8 @@ graph TD
 | `enrolled_student_ids` | `Many2many → res.partner` (computed) | — | No | See below. For a `reinforcement` group, this is that group's only notion of "membership" — see the removal note below |
 | `enrollment_view_ids` | `One2many → ems.enrollment_view` (computed) | — | No | See below |
 | `notes` | `Text` | No | Yes | — |
+| `pending_classroom_conflict_count` | `Integer` (computed) | — | No | See "Classroom change propagation to the schedule" below |
+| `suggested_space_id` | `Many2one → ems.space` (computed, `search=`) | — | No | See "Classroom drift suggestion" below |
 
 ### `_compute_name`
 
@@ -219,6 +221,121 @@ Regression tests: `test_group.py::test_archive_group_with_active_main_students_r
 Browser tour: `ems_group_archive_confirmation` (`group_tour.js`) exercises both the accept
 ("Proceed") and decline ("Close") paths through the real Action menu.
 
+### Classroom change propagation to the schedule (issue #405)
+
+Changing `space_id` used to have zero effect on a group's already-generated schedule — the
+teacher's editable weekly calendar (`resource.calendar.attendance`) and the derived, official
+model behind real attendance-taking (`ems.attendance_schedule`) kept using whatever room they
+were created with, silently diverging from the group's own "current" classroom. `write()` now
+propagates the change, but **never at the cost of aborting the save** — a room collision is
+resolved later via a wizard, not by rolling back the edit that was just made (including any other
+field changed in the same save).
+
+```mermaid
+flowchart TD
+    A["write({'space_id': new, ...other fields...})"] --> B["super().write(vals) - ALWAYS runs\nand ALWAYS succeeds as requested"]
+    B --> C["_propagate_classroom_change(old_space, new_space)\n(best-effort, never raises)"]
+    C --> D{"Teaching blocks (resource.calendar.attendance)\nfor this group currently in old_space?"}
+    D -- none --> E[Nothing else to do]
+    D -- some --> F["For each block (always has an\nattendance_schedule_id - bottom-up sync\nredesign's invariant): find_room_conflicts(new_space)"]
+    F -- "no conflict" --> G["attendance_schedule_id._relocate_via_calendar_blocks(new_space)\n- moves the calendar block(s), the automatic\nsync hook keeps the schedule line in sync"]
+    F -- "conflict" --> H["Leave the block in old_space\nspace_pending_group_sync = True"]
+```
+
+**Bottom-up sync redesign (2026-09-08):** the "no conflict" path used to write
+`ems.attendance_schedule.space_id` directly (`_write_or_new_version`), then re-point the block's
+own `attendance_schedule_id` by hand — this had a real latent bug (fixed the same day): if that
+write cloned the line (a co-teacher's line with real session history), any OTHER teacher sharing
+that same line was left pointing at the now-archived id. It now calls
+`schedule._relocate_via_calendar_blocks(new_space)` instead - moves every calendar block deriving
+that line (not just this one), and the automatic sync hook keeps `ems.attendance_schedule` correct
+as a natural consequence, exactly the same shared method `ems.group_classroom_change_wizard` and
+the working-schedules import wizard's own conflict resolution use (see
+`docs/en/developers/attendance/attendance_template.md`'s "Bottom-up sync redesign" section).
+
+`ems.attendance_schedule.find_room_conflicts(new_space_id)` is `check_overlap()`'s own
+candidate-search extracted into a reusable, non-raising method — `check_overlap()` now calls it
+with `self.space_id` (identical behavior), and this feature calls it with a hypothetical room
+before ever writing anything, to decide whether a block can move safely.
+
+**Why a persisted flag (`space_pending_group_sync` on `resource.calendar.attendance`) instead of
+comparing `block.space_id != group.space_id` on the fly:** a block's room is documented
+(`space_id`'s own comment above) to legitimately and permanently diverge from its group's default
+— e.g. a one-off reassignment made resolving a schedule-import conflict. Treating every such
+divergence as "pending" would misfire on data that was never meant to track the group's room
+1:1. The flag is only ever set by `_propagate_classroom_change` (a real, unresolved collision from
+*this* feature) and only ever cleared by the wizard's confirmation (paths below) — a block moved
+back into agreement with its group's room by any other means stays flagged until someone actually
+visits the wizard, since nothing else is in a position to know the mismatch was ever accepted.
+
+`ems.group.pending_classroom_conflict_count` (computed: count of this group's
+`resource.calendar.attendance` rows with `space_pending_group_sync = True`) drives a persistent
+banner on the group form (`views/community/group/form.xml`, next to `space_id`) — never a
+one-shot dialog that could be dismissed and forgotten — with a button opening
+`ems.group_classroom_change_wizard` (`models/contacts/group_classroom_change_wizard.py`).
+
+The wizard reuses, unmodified, the conflict-resolution infrastructure already built for the
+working-schedules import wizard (`docs/en/developers/employees/working_schedule.md`'s "Import
+wizard" section): `ems.group_classroom_change_wizard_conflict_line` inherits
+`ems.working_schedules_import_wizard.conflict_mixin` (`kind`/`resolution`/`left_space_id`/
+`right_space_id`) and its view uses the same `widget="ems_grouped_conflict_lines"` OWL field
+(dual `AutoComplete` room pickers, grouped cards) already driving the import wizard's own
+conflict screens — no client-side code was added for this feature. `kind` is always
+`plain_conflict` here (legitimate co-teaching is already excluded by `find_room_conflicts`, the
+same way `check_overlap` excludes it). All three of the mixin's resolutions apply, with the same
+meaning the import wizard already gives them: `reassign_rooms` (pick a room for either/both
+sides), `prevail_left` (the pending block takes the new room; the already-existing colliding
+session is archived, exactly like `_continue_from_db_conflicts`'s own handling), `prevail_right`
+(the pending block keeps its current room for that slot — the divergence becomes a deliberate,
+accepted one; the existing session is untouched). Confirming any resolution clears
+`space_pending_group_sync` on the resolved block.
+
+### Classroom drift suggestion (last deferred follow-up of issue #405, 2026-09-09)
+
+`space_id` can silently drift from reality even without ever hitting a collision: a room change
+gets resolved elsewhere (the wizard above, or a teacher editing their own calendar directly) by
+moving the group's actual classes to a different room, but nobody goes back and updates the
+group's own `space_id` to match. `suggested_space_id` (computed, non-stored,
+`search="_search_suggested_space_id"`) surfaces this: it looks at the group's active teaching
+blocks (`resource.calendar.attendance`: `group_ids` contains the group, `subject_id` set, owning
+`calendar_id.active` — the same domain `_propagate_classroom_change` already uses above) and, if
+the group's CURRENT `space_id` (including unset — a group with no room at all is drift too, and
+arguably the most useful case to flag) accounts for zero of those hours, suggests the room with
+the most total hours. Ties are broken by room name, then id, so the result is always deterministic.
+`False` when the group has no active teaching blocks at all (nothing to suggest — an unused group,
+not drift) or its current room already accounts for at least some of its real hours (drift is
+specifically "zero hours in the CURRENT room", not "not the majority room").
+
+Non-stored with `search=` rather than `store=True`/`@api.depends`, same reasoning as
+`pending_classroom_conflict_count` above and the same pattern already used by
+`ems.study.uses_enrollment_flow` (`models/curriculum/study.py`) — the real dependency runs through
+`resource.calendar.attendance.group_ids`, a reverse M2M `@api.depends` can't express cleanly. It
+does still declare `@api.depends('space_id')` — not because that's the *whole* dependency, but
+because it's the one part Odoo's own cache invalidation CAN track, and skipping it left this
+field's cached value stale within the same transaction right after applying a suggestion (found via
+`tests/test_group_classroom_suggestion.py::test_apply_suggestion_updates_space_and_propagates`). A
+caller that changes the calendar elsewhere and needs a fresh read without reloading the record
+still needs an explicit `invalidate_recordset()`, same as `pending_classroom_conflict_count`.
+
+Surfaced two ways:
+- A banner on the group form (`views/community/group/form.xml`, `alert-info` — deliberately
+  distinct from the pending-conflict banner's `alert-warning` above: this is a suggestion, not an
+  unresolved error) with a one-click "Apply suggested classroom" button
+  (`action_apply_suggested_space`).
+- A "Classroom drift" filter (`views/community/group/search.xml` — the first dedicated search view
+  this model has ever had; before this it relied on Odoo's auto-generated default) and an optional
+  `suggested_space_id` column on the group list (`views/community/group/list.xml`), for reviewing
+  several groups at once instead of one at a time.
+
+**Applying is provably conflict-free, not just usually fine.** `action_apply_suggested_space()`
+does a plain `self.space_id = self.suggested_space_id` — a field assignment on a persisted record
+goes through `write()` the same way an external caller's `write()` call does — relying entirely on
+`write()`'s own `_propagate_classroom_change` (above) to do the real work.
+`_propagate_classroom_change` only ever moves blocks currently sitting in the group's OLD room; by
+construction, `suggested_space_id` is only ever set when that old room already has zero blocks to
+move. This can never reach `_resolve_or_flag_pending_block`'s own conflict branch — no new
+conflict-handling logic was needed for this feature at all.
+
 ### Tutor role sync — `create()`/`write()` share `_sync_tutor_role()`
 
 **Fixed bug (2026-07-27, ahead of this model's own DTON turn, at the user's explicit request once the gap was found while DTON-ing `hr.employee`):** `write()` already called `update_tutor_role()`/`_sync_security_groups()` on `hr.employee` whenever `tutor_id` changed; `create()` didn't — a group created with `tutor_id` already set in the creation vals left the employee's `tutorship_ids` relation correct (it's just `tutor_id`'s inverse) but never granted `ems.role_tutor` or synced their security groups, until someone happened to re-save the field later. Both paths now share one `_sync_tutor_role(employees)` helper. Regression test: `test_group.py::test_create_with_tutor_already_set_syncs_role`.
@@ -287,6 +404,8 @@ Note: the admin-equivalent group here is `group_department_chief`, not `group_ac
 |------|------|-------|
 | List | `views/community/group/list.xml` | — |
 | Form | `views/community/group/form.xml` | Main data (radio `group_type`) + Students (`main` only) / Enrolled (both types) / Schedule / Notes tabs |
+| Search | `views/community/group/search.xml` | "Classroom drift" filter — see "Classroom drift suggestion" above |
 | Action + Menu | `views/community/group/menu.xml` | `action_group_tree`, "Groups (for students)" |
+| Classroom change wizard | `views/community/group/classroom_change_wizard.xml` | Opened from the group form's pending-conflicts banner — see "Classroom change propagation to the schedule" above |
 
 The Schedule tab is documented separately — see [Group schedule](group_schedule.md).

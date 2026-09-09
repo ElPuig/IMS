@@ -11021,8 +11021,8 @@ msgstr "És un pati"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__is_fixed
-msgid "Always a fixed-schedule commitment"
-msgstr "Sempre és un compromís d'horari fix"
+msgid "Fixed schedule"
+msgstr "Horari fix"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_non_teaching_type_list model:ir.ui.menu,name:ems.menu_non_teaching_types

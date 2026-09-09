@@ -63,9 +63,16 @@ and letting the sync pipeline reconcile it.
 (`models/shared/attendance_mixin.py`), was NOT removed** - it's still used internally by the
 schedule-sync pipeline (`ems.attendance_template._archive_stale_schedule_sync`/
 `_write_schedule_sync`, see that model's "CRUD flow", which shares the exact same `has_sessions`
-predicate for its own per-line decisions) and by the import wizard's own room-reassignment
-conflict resolution (`working_schedule.py`, `line.right_schedule_id._write_or_new_version(...)`).
-Only the direct, button-driven entry point on this model and `ems.attendance_template` is gone.
+predicate for its own per-line decisions). Only the direct, button-driven entry point on this
+model and `ems.attendance_template` is gone. The import wizard's own room-reassignment conflict
+resolution (`working_schedule.py`'s `_continue_from_db_conflicts`) used to call
+`line.right_schedule_id._write_or_new_version(...)` directly too - the bottom-up sync redesign's
+Phase 6 (2026-09-08) replaced that with two new shared methods on this model,
+`_relocate_via_calendar_blocks(space)`/`_archive_via_calendar_blocks()` (see their own docstrings
+in `models/attendance/attendance_schedule.py`), which move/archive the calendar block instead and
+let the automatic sync hook keep this model in sync as a consequence - see
+`docs/en/developers/attendance/attendance_template.md`'s "Bottom-up sync redesign" section for the
+full picture.
 
 ---
 
@@ -144,25 +151,22 @@ Called on the model itself, not a specific record — there is no natural `self`
 this: `self.env['ems.attendance_schedule'].find_schedule_lines_for_teaching(...)`.
 
 **Why it exists:** `resource.calendar.attendance` (a teacher's weekly calendar block) and
-`ems.attendance_schedule` (the recurring class-session line) have no direct FK between them — the
-link has always been purely inferred by matching (subject, group, weekday, time). The
-course-transition archival cascade (`course_transition_wizard._apply_calendar_archival()`, see
-[`course_transition_wizard.md`](../settings/course_transition_wizard.md)) needs exactly this
-reverse lookup: given a calendar block being archived at transition, find which schedule line(s)
-it backs, so the wizard can decide whether to archive that line (and its sessions) outright or
-just drop this one teacher from a shared co-taught line.
+`ems.attendance_schedule` (the recurring class-session line) have no direct FK between them by
+default — the link is inferred by matching (subject, group, weekday, time), which is exactly what
+this lookup does. Historically, `course_transition_wizard._apply_calendar_archival()` was this
+method's main external caller — that's no longer true (see below); its only remaining caller is
+`ems.attendance_template._link_calendar_attendance()`, internal to the sync pipeline itself.
 
-**A genuinely bigger structural fix for this same inferred-link problem — replacing it with a real
-FK from `resource.calendar.attendance` straight to `ems.attendance_schedule` — was proposed by the
-developer the same day and written up in `plans/calendar_driven_attendance_templates.md`.** That
-plan bundles four changes; only the FK (its point 4) has been built so far — see
-`resource.calendar.attendance.attendance_schedule_id` below. The other three (moving `student_ids`
-down to this model, locking template creation/archival to be calendar-driven only, and a
-`(teacher_ids, group_ids, subject_id)` uniqueness constraint) remain proposed, not implemented —
-this lookup is still the only way to answer "which line does this OLDER calendar block back" for
-any block written before the FK existed, and still the fallback this method's own callers should
-reach for if `attendance_schedule_id` is ever empty on a block that should have one (a bug, not
-the normal case going forward).
+**The genuinely bigger structural fix this inferred-link problem called for — moving `student_ids`
+down to this model, locking template creation/archival to be calendar-driven only, and adding a
+real FK — was proposed by the developer the same day, written up in
+`plans/calendar_driven_attendance_templates.md`, and is now fully built** (the FK below, 2026-08-11;
+the calendar-driven-only lock, via the bottom-up sync redesign's automatic hook, 2026-09-08 — see
+[`attendance_template.md`](attendance_template.md)'s "Bottom-up sync redesign" section for the
+whole arc). This method itself is not obsolete - it's still the general (teacher, subject, groups,
+weekday, time) → line lookup the sync pipeline's own internal linking step reuses - but external
+callers reaching for it as a "the FK might be missing" fallback should not exist anymore; if one
+turns up, that's a bug (a gap in the invariant), not a normal case to code around.
 
 ## `resource.calendar.attendance.attendance_schedule_id`: the real FK (2026-08-11)
 
@@ -193,23 +197,28 @@ match is still ambiguous (`!= 1` line) the FK is simply left unset on that row r
 (`migrations/18.0.0.22.0/post-migrate.py`) already established for this same model's `employee_id`/
 `course_id` backfill.
 
-**No historical backfill.** Every `resource.calendar.attendance` row written before this phase
-keeps `attendance_schedule_id` empty — populating it retroactively would mean re-running the exact
-broad, ambiguity-prone inference this FK exists to stop needing, on data that's already had time to
-drift (the same risk `find_schedule_lines_for_teaching`'s own docstring warns about). Any code that
-still needs an older block's schedule line falls back to that lookup, unchanged, until the block
-itself gets rewritten by a live edit or a re-import (which populates the FK from then on).
+**Historical backfill, done (`migrations/18.0.0.24.0/post-migrate.py`'s
+`_backfill_calendar_to_schedule_link`, 2026-09-08).** Every
+`resource.calendar.attendance` row written before this FK existed (or before the automatic sync
+hook did) originally kept `attendance_schedule_id` empty, by design at the time — populating it
+retroactively would have meant re-running the exact broad, ambiguity-prone inference this FK exists
+to stop needing, on data that had already had time to drift. The bottom-up sync redesign's own
+design invariant (every active line always has a real calendar block behind it, see
+[`attendance_template.md`](attendance_template.md)) made that acceptable to finally do: the
+migration reruns `ems.attendance_template.regenerate_all_from_calendars()` (already existing since
+2026-08-11) once more, which rebuilds every active template/line straight from each teacher's
+current calendar and links the FK as a natural consequence - no new matching logic needed, and no
+unresolved room conflicts turned up doing it. Every calendar write since goes through the automatic
+hook, which keeps the FK correctly set going forward without any further backfill ever being
+needed.
 
-**`course_transition_wizard._apply_calendar_archival()` now reads the FK first (2026-09-02)** — see
-[`course_transition_wizard.md`](../settings/course_transition_wizard.md). It prefers
-`block.attendance_schedule_id` (a direct Many2one field read, so it finds an already-archived line
-just as reliably as an active one — no `active_test` filtering applies to a plain field access, only
-to `search()`) and only falls back to `find_schedule_lines_for_teaching` for a block whose FK is
-still empty (a legacy, pre-2026-08-11 calendar row never resynced since). This was the first of a
-staged set of simplifications identified while auditing the whole calendar → template/schedule →
-teaching pipeline — see `plans/calendar_pipeline_simplification.md` for the fuller picture (a
-`plans/` file only, not yet folded in here, since the later phases it describes are not yet
-implemented).
+**`course_transition_wizard._apply_calendar_archival()` no longer touches this FK, or these two
+models, at all (bottom-up sync redesign, Phase 7, 2026-09-08)** — see
+[`course_transition_wizard.md`](../settings/course_transition_wizard.md). It simply archives the
+migrating `resource.calendar.attendance` rows and lets the automatic sync hook (Phase 4 of the same
+redesign) resync the affected teacher(s), the same way any other calendar change does. This
+replaced the FK-then-fallback lookup this section used to describe (added 2026-09-02) - kept here
+in git history only, not as a still-current design.
 
 ## `unlink()`: history guard
 

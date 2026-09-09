@@ -14,6 +14,6 @@ class EmsNonTeachingType(models.Model):
     code = fields.Char(string="Code", required=True)
     name = fields.Char(string="Name", translate=True, required=True)
     is_break = fields.Boolean(string="Is a break", help="Dropped from both hours-summary columns on the working schedule (e.g. lunch/patio break).")
-    is_fixed = fields.Boolean(string="Always a fixed-schedule commitment", help="Counted in the 'Other fixed-schedule hours' column every day (e.g. guard duties).")
+    is_fixed = fields.Boolean(string="Fixed schedule", help="Counted in the 'Other fixed-schedule hours' column every day (e.g. guard duties).")
     is_guard = fields.Boolean(string="Is guard duty", help="Counted as guard duty on the guard duty schedule board (Employee Attendances > Guard duty schedule).")
     active = fields.Boolean(string="Active", default=True)

@@ -11,6 +11,16 @@ EXCLUDED_DIRS = {'docs', '.git', 'temp'}
 # Suffix must start with a letter so this doesn't also match ems.group_<N>
 # xmlids, which are demo records of the unrelated ems.group (class group) model.
 GROUP_REF_RE = re.compile(r'ems\.group_[A-Za-z][A-Za-z0-9_]*')
+# .py/.xml files can mention an ems.group_* TOKEN without it being a security-group reference
+# at all - e.g. a model literally named 'ems.group_classroom_change_wizard' (an unrelated
+# collision with this convention: it's about ems.group the CLASS-GROUP model, not a res.groups
+# ACCESS group), mentioned in a docstring, a '_name' declaration, or a view's own 'name' field.
+# Only trust a match in one of those two extensions when the same LINE also looks like one of
+# this test's own documented reference shapes: 'groups="..."'/'groups_id' (XML), 'has_group(',
+# or a '.ref(' call (Python's 'env.ref(...)'/'self.env.ref(...)', or XML's 'ref(...)' inside an
+# eval). A .csv row's 'group_id:id' column is trusted unconditionally - a CSV data row IS the
+# reference, by construction, never free-text prose that could coincidentally match.
+REFERENCE_CONTEXT_RE = re.compile(r'groups\s*=|groups_id|has_group\(|\bref\(')
 
 
 @tagged('post_install', '-at_install')
@@ -34,8 +44,11 @@ class TestSecurityGroupReferences(TransactionCase):
                 path = os.path.join(dirpath, filename)
                 if os.path.abspath(path) == os.path.abspath(__file__):
                     continue
+                trust_any_match = filename.endswith('.csv')
                 with open(path, encoding='utf-8') as source_file:
                     for lineno, line in enumerate(source_file, start=1):
+                        if not trust_any_match and not REFERENCE_CONTEXT_RE.search(line):
+                            continue
                         for token in GROUP_REF_RE.findall(line):
                             seen_tokens.setdefault(token, '%s:%d' % (os.path.relpath(path, MODULE_ROOT), lineno))
 

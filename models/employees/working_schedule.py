@@ -12,7 +12,7 @@ import math
 import re
 from datetime import datetime
 
-from ..shared.attendance_mixin import EMS_BYPASS_TEMPLATE_LOCK_KEY
+from ..shared.attendance_mixin import EMS_SKIP_AUTO_SCHEDULE_SYNC
 
 
 def _m2m_command_ids(commands):
@@ -119,18 +119,28 @@ class ems_working_schedule(models.Model):
 		slots are never included, only real subject/non-teaching entries), then re-derive the teacher's
 		'teaching_ids' from the same cells so both stay in sync. 'source_framework_id' is only passed
 		when "New" picked a different reference framework (directly, or inherited by copying a
-		colleague), so future edits keep showing the right blank slots."""
+		colleague), so future edits keep showing the right blank slots.
+
+		Bottom-up sync redesign, Phase 5 (2026-09-08): the unlink+write below is a single-teacher
+		operation, so - unlike the import wizard's own per-teacher loop - it never risks the
+		cross-teacher false-collision 'sync_from_schedule_batch' guards against; suppressing the
+		automatic hook here is purely to avoid syncing the SAME teacher redundantly (once per
+		hook-triggered write, once explicitly below) rather than a correctness requirement. The
+		explicit sync at the end now reuses 'hr.employee._ems_sync_schedule_from_calendar()' (Phase
+		3) - reading the calendar back fresh from the DB post-write, instead of the in-memory
+		'cells' buffer this used to pass straight through, matching the exact same "the write
+		already happened, so the calendar is now trustworthy" pattern already used by the working-
+		schedules import wizard's own '_apply_import'."""
 		self.ensure_one()
-		self.attendance_ids.filtered(lambda attendance: attendance.dayofweek in ('0', '1', '2', '3', '4')).unlink()
-		self.write({'attendance_ids': [(0, 0, cell) for cell in cells]})
+		suppressed = self.with_context(**{EMS_SKIP_AUTO_SCHEDULE_SYNC: True})
+		suppressed.attendance_ids.filtered(lambda attendance: attendance.dayofweek in ('0', '1', '2', '3', '4')).unlink()
+		suppressed.write({'attendance_ids': [(0, 0, cell) for cell in cells]})
 		if source_framework_id:
 			self.source_framework_id = source_framework_id
 
 		teacher = self.get_employee()
 		if teacher:
-			entries = [cell for cell in cells if cell.get('subject_id')]
-			self.env['ems.teaching'].sync_from_schedule(teacher, entries)
-			self.env['ems.attendance_template'].sync_from_schedule(teacher, entries, start_date=fields.Date.today())
+			teacher._ems_sync_schedule_from_calendar()
 
 	def get_employee(self):
 		"""The teacher this calendar belongs to (a documented 1:1 assumption: one personal calendar
@@ -327,6 +337,19 @@ class ems_working_schedule_assignation(models.Model):
 	# PERSONAL calendar carries its own row for the same shared class, and all of them point at the
 	# same single schedule line - see ems.attendance_template's own "Co-teaching" docs.
 	attendance_schedule_id = fields.Many2one(string="Attendance schedule", comodel_name="ems.attendance_schedule")
+	# NOTE: added for issue #405 (group classroom change propagation, see
+	# docs/en/developers/contacts/group.md's "Classroom change propagation" section). Only ever set
+	# True by 'ems.group._propagate_classroom_change()' when a room collision keeps it from moving
+	# this block to the group's new classroom automatically, and only ever cleared by
+	# 'ems.group_classroom_change_wizard's confirmation - deliberately NOT derived from comparing
+	# 'space_id' against the group's own (see that same doc section for why a live comparison would
+	# misfire on a block whose room legitimately diverges from its group's on purpose, e.g. one
+	# already resolved via the working-schedules import wizard).
+	space_pending_group_sync = fields.Boolean(
+		default=False,
+		help="This block's classroom no longer matches its group's main classroom because of a "
+			"collision detected when the group's classroom changed - resolve it from the group's "
+			"pending-classrooms notice.")
 	# NOTE: 'date_from'/'date_to' are NOT new fields - they already exist on core
 	# 'resource.calendar.attendance' (odoo/addons/resource/models/resource_calendar_attendance.py),
 	# reused here as-is rather than adding EMS-specific duplicates (2026-08-11, see plans/
@@ -359,6 +382,17 @@ class ems_working_schedule_assignation(models.Model):
 	# out a guard-duty row without a separate 'ems.non_teaching_type' fetch.
 	non_teaching_is_guard = fields.Boolean(related="non_teaching.is_guard", store=True)
 
+	# NOTE: Phase 4 of the bottom-up sync redesign (2026-09-08, see EMS_SKIP_AUTO_SCHEDULE_SYNC's
+	# own docstring in ems.attendance_mixin) - only these fields can actually change what
+	# 'hr.employee._teaching_entries_from_calendar()' reads back, so only a write() touching one of
+	# them needs to re-sync anything. 'calendar_id' is included even though it should never
+	# genuinely change on an existing row (a block belongs to the calendar it was created on) -
+	# included anyway as a defensive, cheap safety net rather than assuming that invariant holds.
+	_SYNC_TRIGGER_FIELDS = {
+		'active', 'subject_id', 'group_ids', 'dayofweek', 'hour_from', 'hour_to', 'space_id',
+		'date_from', 'date_to', 'non_teaching', 'calendar_id',
+	}
+
 	@api.model_create_multi
 	def create(self, vals_list):
 		for vals in vals_list:
@@ -366,7 +400,30 @@ class ems_working_schedule_assignation(models.Model):
 				group_ids = _m2m_command_ids(vals.get('group_ids'))
 				if group_ids:
 					vals['space_id'] = self.env['ems.group'].browse(group_ids[0]).space_id.id
-		return super().create(vals_list)
+		records = super().create(vals_list)
+		# NOTE: derives WHO is affected only - whether/how to actually sync them (and the
+		# EMS_SKIP_AUTO_SCHEDULE_SYNC suppression check) lives entirely in
+		# 'hr.employee._ems_sync_schedule_from_calendar_unless_suppressed()', the one place that
+		# decision is made, regardless of which of the three overrides below reached it.
+		records.mapped('employee_id')._ems_sync_schedule_from_calendar_unless_suppressed()
+		return records
+
+	def write(self, vals):
+		trigger = bool(vals.keys() & self._SYNC_TRIGGER_FIELDS)
+		# 'calendar_id' should never actually change here (see the field set's own note above), but
+		# capturing the PRE-write teacher(s) too costs nothing and closes that edge case for real,
+		# rather than only trusting it never happens.
+		before = self.mapped('employee_id') if trigger else self.env['hr.employee']
+		res = super().write(vals)
+		if trigger:
+			(before | self.mapped('employee_id'))._ems_sync_schedule_from_calendar_unless_suppressed()
+		return res
+
+	def unlink(self):
+		before = self.mapped('employee_id')
+		res = super().unlink()
+		before._ems_sync_schedule_from_calendar_unless_suppressed()
+		return res
 
 	@api.depends("calendar_id")
 	def _compute_employee_id(self):
@@ -1504,18 +1561,25 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				# was the template's only active line, the now-empty template is
 				# archived-or-deleted outright too ("archives") rather than left as an orphaned,
 				# lineless record - deleted instead of archived when it has no real sessions
-				# (2026-09-07, see 'ems.attendance_template._archive_or_delete').
-				template = line.right_schedule_id.attendance_template_id
-				line.right_schedule_id.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
-				if not template.attendance_schedule_ids:
-					template._archive_or_delete()
+				# (2026-09-07, see 'ems.attendance_template._archive_or_delete'). Bug fixed
+				# 2026-09-08 (bottom-up sync redesign, Phase 6): this used to archive
+				# 'right_schedule_id' directly, leaving the teacher's own calendar block silently
+				# pointing at a now-archived session - '_archive_via_calendar_blocks' instead
+				# archives the CALENDAR block(s) behind it, and the automatic hook archives the
+				# schedule line (and its template, if left empty) as a natural consequence, exactly
+				# like 'ems.group_classroom_change_wizard''s own equivalent fix the same day.
+				line.right_schedule_id._archive_via_calendar_blocks()
 			elif line.resolution == 'prevail_right':
 				indices_to_remove.setdefault(line.left_item_index, set()).add(line.left_entry_index)
 			elif line.resolution == 'reassign_rooms':
 				node_cache[line.left_item_index]['entries'][line.left_entry_index]['space_id'] = line.left_space_id.id
 				node_cache[line.left_item_index]['attendance_ids'][line.left_entry_index + 1][2]['space_id'] = line.left_space_id.id
 				if line.right_schedule_id.space_id != line.right_space_id:
-					line.right_schedule_id._write_or_new_version({'space_id': line.right_space_id.id})
+					# NOTE: same 2026-09-08 fix as the 'prevail_left' branch above - moves the
+					# CALENDAR block(s) behind 'right_schedule_id', letting the automatic hook keep
+					# the schedule line itself correctly in sync, instead of writing it directly and
+					# leaving the calendar stale.
+					line.right_schedule_id._relocate_via_calendar_blocks(line.right_space_id)
 
 		for item_index, entry_indices in indices_to_remove.items():
 			for entry_index in sorted(entry_indices, reverse=True):
@@ -1615,7 +1679,16 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		different days) - found while investigating a bigger pipeline-simplification effort, not a
 		hypothetical."""
 		entries = [command[2] for command in attendance_ids if command != [5]]
-		calendar = teacher.resource_calendar_id
+		# NOTE: bottom-up sync redesign (2026-09-08, EMS_SKIP_AUTO_SCHEDULE_SYNC's own docstring,
+		# ems.attendance_mixin) - this method runs ONCE PER TEACHER in a loop ('_apply_import'
+		# below), and the automatic resource.calendar.attendance hook would otherwise try to
+		# re-sync each one immediately, in isolation - exactly the false cross-teacher room-
+		# collision 'sync_from_schedule_batch's own docstring warns about (a teacher already
+		# resynced here colliding against another teacher's still-stale line, simply because that
+		# other teacher's own turn in this loop hasn't happened yet). Suppressed for this whole
+		# method; '_apply_import' still runs its own explicit, correctly-ordered
+		# 'sync_from_schedule_batch' across every teacher together, unchanged, right after.
+		calendar = teacher.with_context(**{EMS_SKIP_AUTO_SCHEDULE_SYNC: True}).resource_calendar_id
 		existing = calendar.attendance_ids.filtered(lambda attendance: attendance.dayofweek in ('0', '1', '2', '3', '4'))
 		new_slots = {(entry['dayofweek'], entry['hour_from'], entry['hour_to']) for entry in entries}
 		superseded = existing.filtered(

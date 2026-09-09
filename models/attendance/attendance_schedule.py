@@ -127,38 +127,13 @@ class EmsAttendanceSchedule(models.Model):
     @api.constrains('weekday', 'start_time', 'end_time', 'space_id')
     def check_overlap(self):
         for schedule in self:
-            template = schedule.attendance_template_id
-            if not template.active or not (template.start_date and template.end_date):
-                continue
-
-            candidates = self.search([
-                ('id', '!=', schedule.id),
-                ('weekday', '=', schedule.weekday),
-                ('attendance_template_id.active', '=', True),
-                ('attendance_template_id.start_date', '<=', template.end_date),
-                ('attendance_template_id.end_date', '>=', template.start_date),
-                '|',
-                    ('teacher_ids', 'in', template.teacher_ids.ids),
-                    ('space_id', '=', schedule.space_id.id),
-            ])
-
-            for other in candidates:
-                if not schedule.ranges_overlap(schedule.start_time, schedule.end_time, other.start_time, other.end_time):
-                    continue
-
-                same_teacher = bool(set(other.teacher_ids.ids) & set(template.teacher_ids.ids))
-                if not same_teacher and schedule.is_co_teaching_with(other):
-                    # NOTE: same subject, sharing at least one group, different teacher, same room/time
-                    # — this is the SAME class session co-taught by more than one teacher, a legitimate
-                    # setup, not a genuine double-booking of the room by two unrelated sessions.
-                    continue
-
+            for other, same_teacher in schedule.find_room_conflicts(schedule.space_id.id):
                 reason = _("the same teacher") if same_teacher else _("the same space")
                 raise ValidationError(_(
                     "This session (%(this)s — %(this_teacher)s, %(this_space)s, %(this_time)s) overlaps with "
                     "another one (%(other)s — %(other_teacher)s, %(other_space)s, %(other_time)s): both fall on "
                     "%(weekday)s with overlapping times for %(reason)s.",
-                    this=template.display_name,
+                    this=schedule.attendance_template_id.display_name,
                     this_teacher=", ".join(schedule.teacher_ids.mapped('display_name')),
                     this_space=schedule.space_id.display_name,
                     this_time=schedule.time_range,
@@ -169,6 +144,89 @@ class EmsAttendanceSchedule(models.Model):
                     weekday=dict(schedule.weekdays_selection).get(schedule.weekday),
                     reason=reason,
                 ))
+
+    def find_room_conflicts(self, new_space_id):
+        """Every already-active 'ems.attendance_schedule' line that would collide with 'self' if it
+        moved to 'new_space_id' (same weekday, overlapping template date range, overlapping time),
+        excluding legitimate co-teaching (see 'is_co_teaching_with'). Never writes anything - a pure
+        "what if" check, so it can be reused both by 'check_overlap' (called with 'self.space_id',
+        identical behavior to before this was extracted) and by a caller proposing a room the
+        record does NOT hold yet (e.g. the group classroom-change wizard, see
+        'ems.group._propagate_classroom_change'), which needs to know about a collision before ever
+        writing 'space_id'. Returns a list of (conflicting_record, same_teacher) pairs - 'same_teacher'
+        is already known here (it decides which reason 'check_overlap' reports) and would otherwise
+        have to be recomputed by every caller."""
+        self.ensure_one()
+        template = self.attendance_template_id
+        if not template.active or not (template.start_date and template.end_date):
+            return []
+
+        candidates = self.search([
+            ('id', '!=', self.id),
+            ('weekday', '=', self.weekday),
+            ('attendance_template_id.active', '=', True),
+            ('attendance_template_id.start_date', '<=', template.end_date),
+            ('attendance_template_id.end_date', '>=', template.start_date),
+            '|',
+                ('teacher_ids', 'in', template.teacher_ids.ids),
+                ('space_id', '=', new_space_id),
+        ])
+
+        conflicts = []
+        for other in candidates:
+            if not self.ranges_overlap(self.start_time, self.end_time, other.start_time, other.end_time):
+                continue
+
+            same_teacher = bool(set(other.teacher_ids.ids) & set(template.teacher_ids.ids))
+            if not same_teacher and self.is_co_teaching_with(other):
+                # NOTE: same subject, sharing at least one group, different teacher, same room/time
+                # — this is the SAME class session co-taught by more than one teacher, a legitimate
+                # setup, not a genuine double-booking of the room by two unrelated sessions.
+                continue
+
+            conflicts.append((other, same_teacher))
+        return conflicts
+
+    def _relocate_via_calendar_blocks(self, space):
+        """Bottom-up sync redesign, Phase 6 (2026-09-08, docs/en/developers/attendance/
+        attendance_template.md's "Bottom-up sync redesign" section) - moves every
+        'resource.calendar.attendance' row deriving THIS line (via its own 'attendance_schedule_id'
+        FK) to 'space'. The automatic hook on that model then re-syncs the affected teacher(s),
+        correctly updating this very line (writing it in place, or cloning a fresh version if it
+        'has_sessions') as a natural consequence - callers resolving a room conflict should call
+        this instead of writing 'space_id'/'_write_or_new_version' on this model directly, exactly
+        the bug found and fixed in 'ems.group_classroom_change_wizard'/'ems.group.
+        _resolve_or_flag_pending_block' and in this model's own former callers in the
+        working-schedules import wizard's '_continue_from_db_conflicts'
+        (models/employees/working_schedule.py) - all three left the teacher's own calendar
+        silently pointing at the old room, ready to put the very collision being "resolved" right
+        back the next time anything re-read the calendar.
+
+        DESIGN INVARIANT (2026-09-08, closed for good by Phase 7, 2026-09-08): every active line
+        always has at least one real calendar block behind it - a one-off migration backfilled
+        every legacy block that predated the 'attendance_schedule_id' FK (added 2026-08-11), the
+        automatic hook keeps it true for every calendar write since, and Phase 7 removed the last
+        direct writer ('course_transition_wizard.py') that could still create a line without one.
+        No fallback needed anymore - see docs/en/developers/attendance/attendance_template.md's
+        "Bottom-up sync redesign" section for the full history."""
+        self.ensure_one()
+        blocks = self.env['resource.calendar.attendance'].search([('attendance_schedule_id', '=', self.id)])
+        blocks.write({'space_id': space.id})
+
+    def _archive_via_calendar_blocks(self):
+        """Bottom-up sync redesign, Phase 6 (2026-09-08) - archives every 'resource.calendar.
+        attendance' row deriving THIS line, the counterpart to '_relocate_via_calendar_blocks' above
+        for the "this session should go away entirely" case (e.g. a room-conflict resolution where
+        this side loses). The automatic hook then naturally archives this line - and, if nothing
+        else backs its template, the template itself too - as a consequence, the exact same way it
+        archives any other now-orphaned line; callers never need to touch 'ems.attendance_template'/
+        'ems.attendance_schedule' directly for this.
+
+        Same design invariant as '_relocate_via_calendar_blocks' above (see its docstring) - closed
+        for good by Phase 7, no fallback needed anymore."""
+        self.ensure_one()
+        blocks = self.env['resource.calendar.attendance'].search([('attendance_schedule_id', '=', self.id)])
+        blocks.action_archive()
 
     def is_co_teaching_with(self, other):
         """True if 'self' and 'other' represent the SAME class session co-taught by more than one

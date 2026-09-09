@@ -21,6 +21,11 @@ class TestTeaching(TransactionCase):
             'login': 'test_secretary_for_teaching',
             'groups_id': [(4, cls.env.ref('ems.group_secretary').id)],
         })
+        cls.hos_user = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Head of Studies (Teaching)',
+            'login': 'test_hos_for_teaching',
+            'groups_id': [(4, cls.env.ref('ems.group_head_of_studies').id)],
+        })
         cls.teacher = cls.env['hr.employee'].create({
             'name': 'Test Teaching Teacher', 'employee_type': 'teacher',
         })
@@ -110,6 +115,26 @@ class TestTeaching(TransactionCase):
             self.env['ems.teaching'].with_user(self.secretary_user).create({
                 'teacher_id': self.teacher.id, 'group_id': self.group.id, 'subject_id': self.subject.id,
             })
+
+    def test_hos_can_create(self):
+        group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'TT4', 'level_id': self.level.id, 'study_id': self.study.id,
+        })
+        teaching = self.env['ems.teaching'].with_user(self.hos_user).create({
+            'teacher_id': self.teacher.id, 'group_id': group.id, 'subject_id': self.subject.id,
+        })
+        self.assertTrue(teaching.id)
+
+    def test_hos_can_write(self):
+        other_group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'TT5', 'level_id': self.level.id, 'study_id': self.study.id,
+        })
+        self.test_teaching.with_user(self.hos_user).write({'group_id': other_group.id})
+        self.assertEqual(self.test_teaching.group_id, other_group)
+
+    def test_hos_cannot_unlink(self):
+        with self.assertRaises(AccessError):
+            self.test_teaching.with_user(self.hos_user).unlink()
 
     # --- unlink() clearing a stale ems.group.tutor_id (2026-09-01) ---------------------------
     # See plans/course_transition_stale_teacher_assignments.md - a group's tutoring is itself

@@ -372,12 +372,25 @@ class TestWorkingSchedulesImportWizardTour(HttpCase):
             'start_date': '2026-01-01',
             'end_date': '2026-06-30',
         })
-        self.env['ems.attendance_schedule'].create({
+        existing_schedule = self.env['ems.attendance_schedule'].create({
             'attendance_template_id': template.id,
             'weekday': '0',
             'start_time': 9.0,
             'end_time': 13.0,
             'space_id': shared_space.id,
+        })
+        # Bottom-up sync redesign (2026-09-08): every active line always has a real calendar block
+        # behind it (see docs/en/developers/attendance/attendance_template.md's "Bottom-up sync
+        # redesign" section) - without this, the 'db_conflicts' screen's own 'reassign_rooms'
+        # resolution (ems.attendance_schedule._relocate_via_calendar_blocks) has no block to move,
+        # so the room never actually changes and Import correctly re-detects the same collision.
+        # Mirrors TestGroupClassroomChange._create_synced_block's own pattern.
+        self.env['resource.calendar.attendance'].create({
+            'calendar_id': teacher_a.resource_calendar_id.id,
+            'name': "%s: %s" % (teacher_a.name, subject.name),
+            'dayofweek': '0', 'hour_from': 9.0, 'hour_to': 13.0, 'day_period': 'morning',
+            'group_ids': [group_a.id], 'subject_id': subject.id, 'space_id': shared_space.id,
+            'attendance_schedule_id': existing_schedule.id,
         })
         self.start_tour("/odoo", "ems_working_schedules_import_resolve_db_conflict", login="admin")
 

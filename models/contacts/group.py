@@ -34,6 +34,23 @@ class EmsGroup(models.Model):
 	enrolled_student_ids = fields.Many2many(string="Enrolled", comodel_name="res.partner", compute="_compute_enrolled_student_ids")
 	enrollment_view_ids = fields.One2many(string="Enrollment", comodel_name="ems.enrollment_view", inverse_name="group_id", compute="_compute_enrollment_ids") # Contains the same data as enrolled_student_ids but filtered for the current group (sadly, it cannot be filtered on view...)
 	shift = fields.Selection(selection=[('morning', 'Morning'),('afternoon', 'Afternoon'),],string="Shift",help="Morning or afternoon shift for this group.")
+	# NOTE: issue #405 - see docs/en/developers/contacts/group.md's "Classroom change propagation"
+	# section. Counts this group's 'resource.calendar.attendance' rows still flagged
+	# 'space_pending_group_sync' (a room collision write() couldn't resolve on its own when the
+	# group's own classroom last changed) - drives a persistent banner on the form with a button
+	# opening 'ems.group_classroom_change_wizard', instead of a one-shot dialog that could be missed.
+	pending_classroom_conflict_count = fields.Integer(string="Pending classroom conflicts", compute="_compute_pending_classroom_conflict_count")
+	# NOTE: last deferred follow-up of issue #405 - see docs/en/developers/contacts/group.md's
+	# "Classroom drift suggestion" section. 'space_id' can silently drift from where the group
+	# actually meets (a collision gets resolved elsewhere but nobody updates the group's own
+	# field) - this suggests the correct room whenever the CURRENT one has zero real teaching
+	# hours. Computed, not stored (same reasoning as 'pending_classroom_conflict_count' above -
+	# the real dependency runs through 'resource.calendar.attendance.group_ids', a reverse M2M
+	# that @api.depends can't express cleanly); 'search=' is what still makes it usable in a list
+	# filter despite not being stored - same pattern as 'ems.study.uses_enrollment_flow'.
+	suggested_space_id = fields.Many2one(
+		string="Suggested classroom", comodel_name="ems.space",
+		compute="_compute_suggested_space_id", search="_search_suggested_space_id")
 
 	@api.depends("group_type", "study_id.acronym", "course", "acronym")
 	def _compute_name(self):
@@ -111,6 +128,53 @@ class EmsGroup(models.Model):
 					"student_id": sid,
 					"subject_ids": subs,
 				})
+
+	def _compute_pending_classroom_conflict_count(self):
+		Attendance = self.env['resource.calendar.attendance']
+		for group in self:
+			group.pending_classroom_conflict_count = Attendance.search_count([
+				('group_ids', '=', group.id),
+				('space_pending_group_sync', '=', True),
+			])
+
+	@api.depends('space_id')
+	def _compute_suggested_space_id(self):
+		# NOTE: 'space_id' is the only real dependency Odoo's own cache invalidation can track -
+		# the rest of the real dependency (every resource.calendar.attendance row referencing this
+		# group) lives on a different model via a reverse M2M, which @api.depends can't express.
+		# Declaring 'space_id' still matters: without it, applying a suggestion in the same
+		# transaction (action_apply_suggested_space) would leave this field's cached value stale
+		# (found the hard way - see tests/test_group_classroom_suggestion.py's own
+		# test_apply_suggestion_updates_space_and_propagates). A caller that changes the calendar
+		# elsewhere and needs a fresh read without reloading the record should still
+		# invalidate_recordset() explicitly, same as 'pending_classroom_conflict_count' above.
+		Attendance = self.env['resource.calendar.attendance']
+		for group in self:
+			blocks = Attendance.search([
+				('group_ids', '=', group.id),
+				('subject_id', '!=', False),
+				('calendar_id.active', '=', True),
+			])
+			hours_by_space = {}
+			for block in blocks.filtered('space_id'):
+				hours_by_space[block.space_id] = hours_by_space.get(block.space_id, 0.0) \
+					+ (block.hour_to - block.hour_from)
+			if not hours_by_space or hours_by_space.get(group.space_id, 0.0) > 0:
+				# Nothing to suggest: either the group has no real teaching anywhere yet, or its
+				# own current room already accounts for at least some of its real hours (drift is
+				# specifically "zero hours in the CURRENT room", not "not the majority room").
+				group.suggested_space_id = False
+				continue
+			# Most hours wins; ties broken by room name then id, so the result is deterministic.
+			group.suggested_space_id = sorted(
+				hours_by_space.items(), key=lambda item: (-item[1], item[0].name or '', item[0].id)
+			)[0][0]
+
+	def _search_suggested_space_id(self, operator, value):
+		if operator not in ('=', '!=') or value is not False:
+			raise NotImplementedError(_("Unsupported search on suggested_space_id"))
+		drifted = self.search([]).filtered('suggested_space_id')
+		return [('id', 'in' if operator == '!=' else 'not in', drifted.ids)]
 
 	def _sanitize_group_type_vals(self, vals):
 		# NOTE: '_onchange_group_type' already does this client-side, purely so the user SEES the fields
@@ -226,6 +290,9 @@ class EmsGroup(models.Model):
 		if vals.get("active") is False:
 			self._raise_if_archiving_active_students()
 		old_tutor = self.tutor_id
+		# NOTE: captured before super().write() - need each group's OWN previous room to detect who
+		# actually changed and what to move away from (see _propagate_classroom_change below).
+		old_space_by_group = {group.id: group.space_id for group in self} if 'space_id' in vals else {}
 		name_affecting = vals.keys() & {"name", "course", "acronym", "study_id", "group_type", "external_id"}
 		with self.env.cr.savepoint():
 			res = super(EmsGroup, self).write(vals)
@@ -237,6 +304,16 @@ class EmsGroup(models.Model):
 			# NOTE: tutor_id field changes when the tutor is assigned from the teacher form, but the old tutor's role
 			# should be updated and must be done from here once changed.
 			self._sync_tutor_role(old_tutor | new_tutor)
+		if 'space_id' in vals:
+			# NOTE: best-effort, issue #405 - deliberately AFTER super().write() has already fully
+			# succeeded (see docs/en/developers/contacts/group.md's "Classroom change propagation"
+			# section for why this never raises/rolls back: an earlier design used RedirectWarning
+			# here and discarded every other field change made in the same save whenever a room
+			# collision showed up, which is not acceptable).
+			for group in self:
+				old_space = old_space_by_group[group.id]
+				if old_space and old_space != group.space_id:
+					group._propagate_classroom_change(old_space, group.space_id)
 		return res
 
 	def action_reactivate(self):
@@ -256,6 +333,82 @@ class EmsGroup(models.Model):
 			"type": "ir.actions.client",
 			"tag": "soft_reload",
 		}
+
+	def action_open_classroom_change_wizard(self):
+		"""Opens 'ems.group_classroom_change_wizard' for this group's pending classroom conflicts
+		(see 'pending_classroom_conflict_count' and the banner button on the form). Creates the
+		wizard record here, before ever opening the form - see that model's own create() override
+		for why its conflict lines must already be real, persisted records rather than staged via
+		context defaults on a not-yet-created one."""
+		self.ensure_one()
+		wizard = self.env['ems.group_classroom_change_wizard'].create({'group_id': self.id})
+		return {
+			"type": "ir.actions.act_window",
+			"res_model": "ems.group_classroom_change_wizard",
+			"res_id": wizard.id,
+			"view_mode": "form",
+			"target": "new",
+		}
+
+	def action_apply_suggested_space(self):
+		"""Applies 'suggested_space_id' to 'space_id' - a plain field write, relying entirely on
+		write()'s own '_propagate_classroom_change' below to do the real work (a field assignment
+		on a persisted record goes through write() the same way an external caller's write() call
+		does). Provably conflict-free: 'suggested_space_id' is only ever set when the group's
+		CURRENT room already has zero active teaching hours (see '_compute_suggested_space_id'),
+		so '_propagate_classroom_change' will always find zero blocks left in the old room to
+		move - it can never reach '_resolve_or_flag_pending_block's own conflict branch. See
+		docs/en/developers/contacts/group.md's "Classroom drift suggestion" section."""
+		self.ensure_one()
+		if self.suggested_space_id:
+			self.space_id = self.suggested_space_id
+
+	def _propagate_classroom_change(self, old_space, new_space):
+		"""Best-effort propagation of a group's classroom change to its own teaching schedule (issue
+		#405) - moves every currently-active teaching block ('resource.calendar.attendance') still
+		using 'old_space' to 'new_space' (see '_resolve_or_flag_pending_block'). NEVER raises - see
+		write()'s own comment for why (nothing here may ever cause the group's own save to roll
+		back). Guard-duty/break/meeting blocks ('non_teaching' set, 'subject_id' empty) are out of
+		scope - the user-facing ask is specifically about "the classroom for some subject", not
+		every use of a room."""
+		self.ensure_one()
+		blocks = self.env['resource.calendar.attendance'].search([
+			('group_ids', '=', self.id),
+			('subject_id', '!=', False),
+			('space_id', '=', old_space.id),
+			('calendar_id.active', '=', True),
+		])
+		for block in blocks:
+			self._resolve_or_flag_pending_block(block, new_space)
+
+	def _resolve_or_flag_pending_block(self, block, new_space):
+		"""Attempts to move 'block' (and its derived 'ems.attendance_schedule' line, if it has one)
+		to 'new_space'. Moves it and clears 'space_pending_group_sync' when there is no collision;
+		otherwise (re)flags it as pending and returns the conflicts found, as
+		'ems.attendance_schedule.find_room_conflicts' returns them - shared by
+		'_propagate_classroom_change' (a block just left in 'old_space') and
+		'ems.group_classroom_change_wizard' (re-checking an already-flagged block when the wizard
+		opens, in case the collision it was flagged for has since resolved itself)."""
+		self.ensure_one()
+		# 'schedule' is never empty here: 'block' is a genuine teaching block (subject_id set, see
+		# '_propagate_classroom_change's own domain), and the bottom-up sync redesign's invariant
+		# (closed for good by Phase 7, 2026-09-08 - see ems.attendance_schedule.
+		# '_relocate_via_calendar_blocks's own docstring) guarantees one always exists.
+		schedule = block.attendance_schedule_id
+		conflicts = schedule.find_room_conflicts(new_space.id)
+		if conflicts:
+			block.space_pending_group_sync = True
+			return conflicts
+		# Bottom-up sync redesign (2026-09-08) - moves EVERY calendar block deriving 'schedule'
+		# (not just 'block'), letting the automatic hook keep 'ems.attendance_schedule' in sync as
+		# a consequence, exactly like 'ems.group_classroom_change_wizard'/the import wizard's own
+		# conflict resolutions. Fixes a real latent bug the previous direct-write version had: if
+		# 'schedule' is shared by a co-teacher (has_sessions clones it under a new id),
+		# only 'block' itself got re-pointed at the new id - any OTHER teacher's own block still
+		# sharing this same line was left pointing at the now-archived one.
+		schedule._relocate_via_calendar_blocks(new_space)
+		block.space_pending_group_sync = False
+		return []
 
 	def _ems_equivalent_for_course(self, course):
 		"""The group where a subject of a different `course` is actually taught for a

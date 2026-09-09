@@ -1316,29 +1316,31 @@ not engineered further for a scenario this unlikely.
 - **`_continue_from_db_conflicts()`**, per resolution:
   - `co_teaching`: no-op, same as screen 4 - `_reconcile_fresh_import`'s own merge already folds an
     external teacher's exact-match slot into the shared group correctly on its own.
-  - `prevail_left` (the new entry wins): `right_schedule_id.action_archive()` - archiving a single
-    schedule line is always allowed regardless of `has_sessions` (only in-place field edits on a
-    line with real history are locked - see `ems.attendance_mixin`), freeing the slot for the new
-    entry to be written into on Import. Matches the plan's own "archives/trims the existing DB
-    session's template" wording literally: archiving the one line is the "trim"; if that was the
-    template's *only* active line, the now-empty template is archived too (checked via
-    `template.attendance_schedule_ids`, which - like any One2many - only ever lists active records
-    unless the context says otherwise) rather than left behind as an orphaned, lineless record -
-    found empirically while testing the self-conflict scenario below, where the first version of
-    this code only archived the line and left the (now pointless) parent template active.
+  - `prevail_left` (the new entry wins): `right_schedule_id._archive_via_calendar_blocks()` -
+    archives every calendar block deriving that line, letting the automatic sync hook archive the
+    line (and its now-empty template, if nothing else backs it) as a natural consequence. Matches
+    the plan's own "archives/trims the existing DB session's template" wording literally: archiving
+    the line is the "trim". **Changed by the bottom-up sync redesign's Phase 6 (2026-09-08)** - a
+    bare `right_schedule_id.action_archive()` used to do this directly; found and fixed the same
+    day as a real bug (SMX1D/SMX2D on real data): archiving only the schedule line left the
+    teacher's own calendar block still pointing at it, ready to silently resurrect the conflict on
+    the next calendar resync. `_archive_via_calendar_blocks()` (`ems.attendance_schedule`) is the
+    shared method that now fixes this everywhere a caller needs to archive a session this way - see
+    `docs/en/developers/attendance/attendance_template.md`'s "Bottom-up sync redesign" section.
   - `prevail_right` (the existing session wins): deletes the new entry, exactly like screen 4's own
     `prevail_left`/`prevail_right` (same index-collection-then-reverse-delete mechanism, shared
     with `_continue_from_internal_conflicts`).
   - `reassign_rooms`: the **left** (new entry) side writes `space_id` into `node_cache` exactly like
     screen 4. The **right** (existing DB record) side calls
-    `right_schedule_id._write_or_new_version({'space_id': ...})` directly - **not** its
-    `action_new_version()` button wrapper (that one is hardcoded to no field changes, since it only
-    ever exists for the manual "make this locked line editable again" action) - the shared mixin
-    method already does exactly what's needed here: write in place if `not has_sessions`, or
-    archive-and-clone with the new room if a real session history already exists. This was the one
-    piece of real forward-planning from an earlier same-day session (see the plan's "Interaction
-    with the `has_sessions` lock" note) that made this screen's own Green phase noticeably
-    smaller than it would otherwise have been.
+    `right_schedule_id._relocate_via_calendar_blocks(right_space_id)` - moves every calendar block
+    deriving that line to the new room, letting the automatic sync hook keep the schedule line
+    itself in sync (writing it in place, or cloning a fresh version if it `has_sessions`) as a
+    consequence. **Changed by the bottom-up sync redesign's Phase 6 (2026-09-08)** for the same
+    reason as `prevail_left` above - a direct `right_schedule_id._write_or_new_version({'space_id':
+    ...})` call used to leave the teacher's own calendar silently pointing at the old room. The
+    underlying `has_sessions`-aware write-in-place-or-clone decision is unchanged, just made by the
+    calendar-driven pipeline now instead of this call site reaching for `_write_or_new_version`
+    directly.
 
 View/`continue_disabled`: same shape as screen 4, `internal_conflicts` excluded state on the
 placeholder alert becomes `db_conflicts`, `right_space_id`/column visibility identical.
