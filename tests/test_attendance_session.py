@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from unittest.mock import patch
 
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
@@ -83,6 +84,48 @@ class TestAttendanceSessionHeader(TransactionCase):
         self.assertEqual(session.subject_id, self.subject)
         self.assertEqual(session.space_id, self.space)
         self.assertEqual(session.template_teacher_ids, self.teacher)
+
+    # --- auto check-in of the session's own teacher -----------------------------------
+
+    def test_auto_checkin_failure_does_not_block_the_session(self):
+        """A failure auto-checking-in the teacher (e.g. an issue #422-class collision on a
+        stale record from before that fix was deployed, or literally anything else) must
+        never block the roll-call itself - taking attendance is the teacher's primary action,
+        checking them in is only ever a side effect of it (developer feedback, 2026-09-09,
+        after exactly this class of failure blocked a real teacher's roll-call in production).
+        """
+        self.env.company.auto_checkin_mode = 'current'
+
+        def _boom(self, vals_list):
+            self.env.cr.execute("SELECT * FROM ems_test_nonexistent_table_422")
+
+        with patch.object(type(self.env['hr.attendance']), 'create', _boom), \
+             patch.object(type(self.env['ems.attendance_session_header']),
+                          '_notify_auto_checkin_failure', autospec=True) as notify_mock:
+            session = self.env['ems.attendance_session_header'].create({
+                'attendance_schedule_id': self.schedule.id, 'date': date.today(),
+                'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
+            })
+
+        self.assertTrue(session.exists(), "the session itself must still be created")
+        notify_mock.assert_called_once()
+        self.assertFalse(
+            self.env['hr.attendance'].search([('employee_id', '=', self.teacher.id)]),
+            "the failed check-in must not leave a half-written record behind")
+
+    def test_auto_checkin_creates_a_real_attendance_on_success(self):
+        """The success path, so the failure-isolation test above isn't the only proof this
+        still actually checks the teacher in when nothing goes wrong."""
+        self.env.company.auto_checkin_mode = 'current'
+
+        self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': self.schedule.id, 'date': date.today(),
+            'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
+        })
+
+        attendance = self.env['hr.attendance'].search([('employee_id', '=', self.teacher.id)])
+        self.assertEqual(len(attendance), 1)
+        self.assertEqual(attendance.in_mode, 'auto_check_in')
 
     def test_space_id_comes_from_schedule_line_not_template(self):
         # Regression guard for the 2026-08-01 room-granularity change: a schedule line's own room

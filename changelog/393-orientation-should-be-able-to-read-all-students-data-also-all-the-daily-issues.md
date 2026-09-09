@@ -23,6 +23,20 @@ The student form's Secretary tab (bonifications, exemptions and enrolment author
 ## User documentation:
 The teacher manuals gain "Consulting a Student's Academic Data" in Catalan, Spanish and English, covering the academic history now open to every teacher and the centre-wide read access of the Guidance and Coexistence roles. The administrator's "Teacher Roles and Permission Levels" manual gains the new Guidance coordinator role in its permission table, with a note on what it grants and on Coexistence now matching it, also in the three languages.
 
+# Fixes
+
+## Shared test fixture picked a course that never matched what the Secretary tab resolves to:
+
+`tests/common.py::create_student_academic_file` (used by both `TestStudentDataReader` and its
+tour) fell back to "the first course found" when none is current - which, under `ems.course`'s
+own default ordering, is the *latest* one. `res.partner._ems_enrollment_in_force()` falls back to
+whichever course is flagged `is_enrollment_default` instead - seeded onto the *earliest* course
+when none is current (see `_ems_seed_enrollment_default`). The two never agreed on a clean
+install with no current course configured, so the fixture's own enrolment order never matched
+what the lookup resolved to, and the Secretary tab rendered empty in the test - passing on a dev
+database that already had a current course, and failing on CI. The fixture now mirrors the same
+two-tier fallback the production lookup itself uses.
+
 # Internal changes
 
 ## Shared technical group instead of duplicated record rules:

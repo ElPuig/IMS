@@ -85,8 +85,17 @@ def create_student_academic_file(cls, prefix, group, course=None, student=None):
     Extracted after issue #393 needed the exact same fixture in a TransactionCase and in a tour.
     """
     Course = cls.env['ems.course']
+    # Mirrors _ems_enrollment_in_force()'s own two-tier fallback exactly (is_current, then
+    # is_enrollment_default) - a plain "first course found" fallback picked whichever course
+    # sorts first under ems.course's own _order ('start desc', the LATEST one), which silently
+    # never matches what that method falls back to (is_enrollment_default, seeded onto the
+    # EARLIEST course when no course is current - see _ems_seed_enrollment_default) on a fresh
+    # install with no current course configured. Found 2026-09-09 via CI: this enrolment's own
+    # course never matched the one the Secretary tab's lookup resolved to, so it rendered empty
+    # on a clean install despite passing on a dev database that already had a current course.
     course = course or Course.search([('is_current', '=', True)], limit=1) \
-        or Course.search([], limit=1) or Course.create({'start': 2098, 'end': 2099})
+        or Course.search([('is_enrollment_default', '=', True)], limit=1) \
+        or Course.create({'start': 2098, 'end': 2099})
 
     student = student or cls.env['res.partner'].create({
         'name': f'Test {prefix} Student', 'contact_type': 'student',

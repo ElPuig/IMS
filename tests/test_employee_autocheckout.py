@@ -1,6 +1,8 @@
 from datetime import datetime, time, timedelta, timezone
 from unittest.mock import patch
 
+import pytz
+
 from odoo.tests.common import TransactionCase
 
 from .common import mock_outgoing_email
@@ -35,6 +37,23 @@ class TestEmployeeAutocheckout(TransactionCase):
             'day_period': 'morning',
         })
 
+    def _expected_utc(self, hour_float):
+        """The naive UTC datetime '_get_last_working_hour' itself would produce for a plain
+        local hour on 'self.today', as a fixed point of comparison for these tests.
+
+        Deliberately mirrors that method's own timezone resolution ('employee._get_tz()':
+        the employee's own tz, then their calendar's, then the company calendar's, then UTC -
+        see hr.employee._get_tz()) rather than going through 'ems.datetime_utils' (which
+        resolves a *company-wide* tz instead, for an unrelated purpose - the auto-checkout
+        cron's own retry window). The two only happen to agree on a box where an admin's
+        personal timezone was manually set to match the company's; a fresh install has no
+        reason to do that, and asserting through the wrong one intermittently failed by
+        exactly that offset (found 2026-09-09 via CI, where they diverge)."""
+        tz = pytz.timezone(self.teacher._get_tz())
+        hour, minute = int(hour_float), round((hour_float % 1) * 60)
+        local = tz.localize(datetime.combine(self.today, time(hour, minute)))
+        return local.astimezone(pytz.utc).replace(tzinfo=None)
+
     def test_get_last_working_hour_none_without_calendar(self):
         employee = self.env['hr.employee'].create({
             'name': 'Test No Calendar Employee', 'employee_type': 'asp',
@@ -52,9 +71,7 @@ class TestEmployeeAutocheckout(TransactionCase):
         self._add_slot(10.0, 13.5)
         attendance_model = self.env['hr.attendance']
         result = attendance_model._get_last_working_hour(self.teacher, self.today)
-        utils = self.env['ems.datetime_utils']
-        expected = utils.datetime_to_odoo(utils.time_float_to_utc_datetime(self.today, 13.5))
-        self.assertEqual(result, expected)
+        self.assertEqual(result, self._expected_utc(13.5))
 
     def test_auto_close_attendance_closes_after_scheduled_hour(self):
         # 'dayofweek' must match 'check_in' 's own date, not 'self.weekday' (cached at
@@ -299,9 +316,7 @@ class TestEmployeeAutocheckout(TransactionCase):
 
         result = self.env['hr.attendance']._get_last_working_hour(self.teacher, self.today)
 
-        utils = self.env['ems.datetime_utils']
-        self.assertEqual(result, utils.datetime_to_odoo(
-            utils.time_float_to_utc_datetime(self.today, 14.0)),
+        self.assertEqual(result, self._expected_utc(14.0),
             "the afternoon was approved off, so 14:00 is the last hour actually expected")
 
     def test_without_any_absence_the_whole_timetable_still_counts(self):
@@ -311,9 +326,7 @@ class TestEmployeeAutocheckout(TransactionCase):
 
         result = self.env['hr.attendance']._get_last_working_hour(self.teacher, self.today)
 
-        utils = self.env['ems.datetime_utils']
-        self.assertEqual(result, utils.datetime_to_odoo(
-            utils.time_float_to_utc_datetime(self.today, 18.0)))
+        self.assertEqual(result, self._expected_utc(18.0))
 
     def test_a_whole_day_absence_leaves_nothing_to_close_at(self):
         """Nothing was expected of them at all, so there is no scheduled hour to close at and
@@ -340,6 +353,4 @@ class TestEmployeeAutocheckout(TransactionCase):
 
         result = self.env['hr.attendance']._get_last_working_hour(self.teacher, self.today)
 
-        utils = self.env['ems.datetime_utils']
-        self.assertEqual(result, utils.datetime_to_odoo(
-            utils.time_float_to_utc_datetime(self.today, 18.0)))
+        self.assertEqual(result, self._expected_utc(18.0))
