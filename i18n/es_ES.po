@@ -2359,7 +2359,9 @@ msgid "Categorize your Employees by type. This field also has an impact on contr
 msgstr "Categorice sus empleados por tipo. Este campo también afectará a sus contactos, solo los Empleados, Estudiantes y Aprendices tendrán historial de contracto."
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_student_benefit__category model:ir.model.fields,field_description:ems.field_ems_attendance_status__category model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_form
+#: code:addons/ems/models/employees/working_schedule.py:0
 msgid "Category"
 msgstr "Categoría"
 
@@ -3624,7 +3626,10 @@ msgid "Field to store the color that will be used for calendar view"
 msgstr "Campo para almacenar el color que se utilizará en la vista de calendarioCampo para almacenar el color del calendarioCampo para almacenar el color que se utilizará para la vista de calendario."
 
 #. module: ems
+#. odoo-javascript
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__doc_file model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
 msgid "File"
 msgstr "Archivo"
 
@@ -8102,14 +8107,6 @@ msgid "Identifier found in file"
 msgstr "Identificador encontrado en el fichero"
 
 #. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/xml/backend/absence_dashboard.xml:0
-#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
-#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__create_new
-msgid "New"
-msgstr "Nuevo"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
 msgid "Every teacher mentioned in the file was recognized."
 msgstr "Se han reconocido todos los docentes mencionados en el fichero."
@@ -8173,42 +8170,66 @@ msgid "Right classroom"
 msgstr "Aula derecha"
 
 #. module: ems
+#. odoo-javascript
 #: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__kind__co_teaching_eligible model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__kind__co_teaching_eligible
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
 msgid "Co-teaching"
 msgstr "Co-docencia"
 
 #. module: ems
+#. odoo-javascript
 #: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__kind__join_session model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__kind__join_session
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
 msgid "Join session"
 msgstr "Sesión conjunta"
 
 #. module: ems
+#. odoo-javascript
 #: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__kind__plain_conflict model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__kind__plain_conflict
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
 msgid "Room conflict"
 msgstr "Conflicto de aula"
 
 #. module: ems
+#. odoo-javascript
 #: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__kind__self_conflict model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__kind__self_conflict
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
 msgid "Same teacher, different room"
 msgstr "Mismo docente, aula diferente"
 
 #. module: ems
+#. odoo-javascript
 #: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__resolution__co_teaching model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__resolution__co_teaching
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
 msgid "Confirm"
 msgstr "Confirmar"
 
 #. module: ems
+#. odoo-javascript
 #: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__resolution__prevail_left model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__resolution__prevail_left
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
 msgid "Left prevails"
 msgstr "Prevalece la izquierda"
 
 #. module: ems
+#. odoo-javascript
 #: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__resolution__prevail_right model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__resolution__prevail_right
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
 msgid "Right prevails"
 msgstr "Prevalece la derecha"
 
 #. module: ems
+#. odoo-javascript
 #: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__resolution__reassign_rooms model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__resolution__reassign_rooms
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
 msgid "Reassign rooms"
 msgstr "Reasignar aulas"
 
@@ -8314,12 +8335,6 @@ msgstr "Su horario semanal se sincronizará con el contenido de este archivo. Ca
 #: code:addons/ems/models/employees/working_schedule.py:0
 msgid "These are placeholder employees, created now so their schedule and subjects are ready immediately. Afterwards, open each one's own record to replace the placeholder name with the real one, fill in their personal e-mail, and click Generate Google account - exactly like any other new teacher."
 msgstr "Son empleados provisionales, creados ahora para que su horario y asignaturas estén listos de inmediato. Después, abre la ficha de cada uno para sustituir el nombre provisional por el real, rellenar su correo personal y hacer clic en Generar cuenta Google - exactamente igual que para cualquier otro docente nuevo."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/employees/working_schedule.py:0
-msgid "Category"
-msgstr "Categoría"
 
 #. module: ems
 #. odoo-python
@@ -12331,62 +12346,6 @@ msgstr "Importando el horario, por favor espere..."
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
 #, python-format
-msgid "Co-teaching"
-msgstr "Co-docencia"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
-#, python-format
-msgid "Join session"
-msgstr "Sesión conjunta"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
-#, python-format
-msgid "Room conflict"
-msgstr "Conflicto de aula"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
-#, python-format
-msgid "Same teacher, different room"
-msgstr "Mismo docente, aula diferente"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
-#, python-format
-msgid "Confirm"
-msgstr "Confirmar"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
-#, python-format
-msgid "Left prevails"
-msgstr "Prevalece la izquierda"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
-#, python-format
-msgid "Right prevails"
-msgstr "Prevalece la derecha"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
-#, python-format
-msgid "Reassign rooms"
-msgstr "Reasignar aulas"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
-#, python-format
 msgid "— apply to all —"
 msgstr "— aplicar a todos —"
 
@@ -12396,13 +12355,6 @@ msgstr "— aplicar a todos —"
 #, python-format
 msgid "Classroom…"
 msgstr "Aula…"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
-#, python-format
-msgid "File"
-msgstr "Archivo"
 
 #. module: ems
 #. odoo-javascript
