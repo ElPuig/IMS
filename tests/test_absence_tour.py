@@ -26,7 +26,14 @@ class TestAbsenceTour(HttpCase):
         employee = cls.env['hr.employee'].create({
             'name': 'Tour Absent Teacher', 'employee_type': 'teacher',
         })
-        window = cls.env.company.current_course_id.date_range()
+        # A fresh DB (CI, unlike this box's own dev DB) has no "current course" configured at
+        # all, so this must be set explicitly rather than assumed - see test_absence.py's
+        # TestAbsenceRequest.setUpClass for the same fix.
+        course = cls.env.company.current_course_id
+        if not course:
+            course = cls.env['ems.course'].create({'start': 1999, 'end': 2000})
+        cls.env.company.current_course_id = course
+        window = course.date_range()
         day = window[0] + timedelta(days=30)
         while day.weekday() != 0:
             day += timedelta(days=1)

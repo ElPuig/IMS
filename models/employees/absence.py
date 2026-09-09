@@ -41,6 +41,7 @@ APPROVAL_ACTIVITY_CA_NAMES = {
 RESPONSIBLE_GROUP_XMLID = 'hr_holidays.group_hr_holidays_responsible'
 
 TIME_OFF_GROUP_XMLIDS = (
+    'hr.group_hr_manager',
     'hr_holidays.group_hr_holidays_manager',
     'hr_holidays.group_hr_holidays_user',
     RESPONSIBLE_GROUP_XMLID,
@@ -354,10 +355,24 @@ class EmsAbsenceLeave(models.Model):
     @api.onchange('request_date_from', 'ems_full_day')
     def _onchange_ems_full_day_dates(self):
         """A whole-day absence is usually a single day, so the end date follows the start until
-        the employee says otherwise - they only have to touch it to ask for several days."""
+        the employee says otherwise - they only have to touch it to ask for several days.
+
+        Unconditional once the two guard conditions hold, deliberately not also checking
+        whether 'request_date_to' already looks "set" or "later": this onchange only ever fires
+        from a 'request_date_from'/'ems_full_day' change (see the decorator), never from editing
+        'request_date_to' itself, so there is no risk of clobbering a deliberate multi-day
+        choice - that edit happens afterwards, on a field this onchange never re-triggers on.
+        A previous version tried to detect "already deliberately set" via 'not to or to < from',
+        which broke for a past 'request_date_from' (a retroactively-filed absence, common for
+        sick/health leave): native hr_holidays' own default_get() seeds a brand-new request's
+        'request_date_to' at today regardless of what 'request_date_from' becomes, so 'to' (today)
+        was never "less than" a 'from' set to a past date, and the stale today's-date default
+        silently survived instead of collapsing to the single day requested (found 2026-09-09,
+        via a genuinely clean install - test_whole_day_copies_the_start_date_to_the_end_date only
+        exercises this onchange directly, every other test builds the record via create() with
+        both dates given explicitly, which is why this went unnoticed until now)."""
         for leave in self:
-            if leave.ems_full_day and leave.request_date_from and (
-                    not leave.request_date_to or leave.request_date_to < leave.request_date_from):
+            if leave.ems_full_day and leave.request_date_from:
                 leave.request_date_to = leave.request_date_from
 
     @api.depends(
@@ -663,6 +678,18 @@ class EmsAbsenceUsers(models.Model):
         'hr.group_hr_user' - so every teacher could read every colleague's absence reason and
         supporting document, which is exactly what the confidentiality rule forbids (see
         docs/en/developers/employees/absence.md), and every employee record besides.
+
+        Plain 'hr' does the exact same thing independently of hr_holidays -
+        'hr/security/hr_security.xml' grants 'hr.group_hr_manager' to 'base.default_user' at
+        install time too (noupdate="1", so it is not something a .po/data fix can touch), which
+        by implication also carries 'hr.group_hr_user'. Found 2026-09-09 via a genuinely clean
+        install (this centre's own dev database predates the fix and never surfaced it):
+        'hr.group_hr_manager' is 'hr.group_hr_user's other source of unearned entitlement, on top
+        of hr_holidays' own groups, and every new account was silently born an HR Administrator
+        - full read/write on every colleague's personal HR record - regardless of role. It is now
+        in 'TIME_OFF_GROUP_XMLIDS' for the same reason 'hr.group_hr_user' already was: EMS's own
+        'ems.group_secretary_admin' is the one legitimate holder (security/groups.xml), so the
+        same "revoke unless some other group still implies it" rule applies to it unchanged.
 
         The rule applied is Odoo's own implication semantics rather than a hardcoded list: a
         user keeps one of these groups only if they hold some *other* group that transitively

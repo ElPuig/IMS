@@ -330,6 +330,14 @@ class TestAbsenceRequest(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         mock_outgoing_email(cls)
+        # _monday() below needs a real course window - a fresh DB (CI, unlike this box's own dev
+        # DB) has no "current course" configured at all, so this must be set explicitly rather
+        # than assumed, matching every other test that needs one (test_guard_duty_board.py,
+        # test_course_transition.py, test_year_record.py...).
+        cls.course = cls.env.company.current_course_id
+        if not cls.course:
+            cls.course = cls.env['ems.course'].create({'start': 1999, 'end': 2000})
+        cls.env.company.current_course_id = cls.course
         cls.type_health = cls.env.ref('ems.leave_type_health')
         cls.type_sick_leave = cls.env.ref('ems.leave_type_sick_leave')
         cls.type_training = cls.env.ref('ems.leave_type_training')

@@ -309,6 +309,24 @@ several Chiefs could read the reason and the supporting document of every absenc
 The permission is now cleaned up whenever the hierarchy changes, and the upgrade works out the
 real approvers before handing anything out.
 
+## HR Administrator access was also granted at install, missed by the earlier fix:
+
+The previous fix only accounted for the groups Odoo's Time Off app hands out at install time.
+Plain `hr` does the exact same thing independently, on its own "Administrator" group - found via
+a genuinely clean install (issue #426's failing CI run), since this centre's own database
+predates the gap and never surfaced it. Every new account was silently born able to read and
+edit every colleague's personal HR record on top of the Time Off access already fixed. Taken
+back the same way, and left to whoever the centre's own Secretary Administrator role already
+grants it to.
+
+## A retroactively-filed whole-day absence kept today's date as its end date:
+
+Filing a whole-day absence for a date in the past (a sick leave reported after returning, for
+example) left the request spanning from that past date all the way to today instead of
+collapsing to the single day asked for - the end date only followed the start when the start
+moved to a *later* date than whatever the end date already held, which is never true for a past
+start next to today's own default end date. Found the same way as the fix above.
+
 ## Translations that never reached the screen:
 
 Fifteen translated strings in the absence feature were rendering in English despite being
@@ -347,3 +365,12 @@ by an intermediate Department Chief.
 New helper returning a course's real calendar window (1 September to 31 August). The model only
 stores the two years, but anything counting per course - the staff health allowance, for one -
 needs real dates to filter on.
+
+## Two test classes assumed a "current course" always exists:
+
+`TestAbsenceRequest`/`TestAbsenceTour` read `env.company.current_course_id.date_range()` directly
+without checking it was set first, unlike every other test class that needs one. This box's own
+dev database always has a real current course configured, so it never caught it; a genuinely
+clean install (CI) has none, and `date_range()` returns `False` for an empty recordset, which
+broke every test in both classes with `TypeError: 'bool' object is not subscriptable`. Both now
+create a fallback course the same way `test_guard_duty_board.py` already does.
