@@ -99,6 +99,17 @@ class ems_attendance(models.Model):
         )
         return True
 
+    def _get_day_start_and_day(self, employee, dt):
+        """Odoo core's own version leaves microseconds untouched, so a check_in
+        stamped via datetime.now() (has microseconds) and a check_out set to a
+        'clean' value (none) on the same calendar day produce two distinct
+        day-start instants for the exact same date. hr.attendance.overtime's
+        create() then self-collides against its own UNIQUE(employee_id, date)
+        index trying to insert both in the same statement. Normalizing here fixes
+        it at the single source create()/write()/both crons all go through."""
+        day_start, day = super()._get_day_start_and_day(employee, dt)
+        return day_start.replace(microsecond=0), day
+
     def _get_last_working_hour(self, employee, work_date):
         """Return the last hour_to (as naive UTC datetime) for the employee on work_date.
         Returns None if the employee has no working schedule for that day."""
@@ -156,10 +167,34 @@ class ems_attendance(models.Model):
 
         for attendance in open_attendances:
             try:
-                attendance._auto_close_attendance()
+                with self.env.cr.savepoint():
+                    attendance._auto_close_attendance()
             except Exception:
                 _logger.exception(
                     "EMS auto-checkout: unexpected error processing attendance id=%d "
                     "for employee %s — skipping.",
                     attendance.id, attendance.employee_id.name,
                 )
+                try:
+                    attendance._notify_close_failure()
+                except Exception:
+                    _logger.exception(
+                        "EMS auto-checkout: could not notify about the failure above "
+                        "for attendance id=%d.", attendance.id,
+                    )
+
+    def _notify_close_failure(self):
+        """A close failing silently is exactly how this went unnoticed for days
+        (issue #422) - post a visible chatter message to the Academic Admins so a
+        stuck-open attendance surfaces immediately instead of only in the server log."""
+        self.ensure_one()
+        admins = self.env['res.users'].sudo().search([
+            ('groups_id', '=', self.env.ref('ems.group_academic_admin').id),
+        ])
+        self.sudo().message_post(
+            body=_(
+                'Automatic check-out failed for this attendance due to an unexpected error. '
+                'Please review and close it manually.'
+            ),
+            partner_ids=admins.partner_id.ids,
+        )

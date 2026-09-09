@@ -2114,6 +2114,12 @@ msgid "Automatic check-out could not use the scheduled working hours because the
 msgstr ""
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee_autocheckout.py:0
+msgid "Automatic check-out failed for this attendance due to an unexpected error. Please review and close it manually."
+msgstr "El cierre automático de este fichaje ha fallado por un error inesperado. Por favor, revísalo y ciérralo manualmente."
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__available_template_ids
 msgid "Available templates"
 msgstr "Plantillas disponibles"

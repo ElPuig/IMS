@@ -1,4 +1,5 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, time, timedelta, timezone
+from unittest.mock import patch
 
 from odoo.tests.common import TransactionCase
 
@@ -127,6 +128,77 @@ class TestEmployeeAutocheckout(TransactionCase):
         })
 
         self.assertTrue(stale.check_out)
+
+    def test_write_check_out_same_day_mismatched_microseconds_does_not_crash(self):
+        # Regression test (issue #422): a check_in stamped with microseconds (e.g.
+        # datetime.now(), how a real kiosk/systray punch is stored) and a check_out
+        # set without microseconds (e.g. typed by hand in the form, or computed by
+        # _auto_close_attendance()) on the SAME calendar day used to make Odoo's
+        # hr.attendance.overtime engine treat check_in's and check_out's "day start"
+        # as two distinct instants for the exact same date (native
+        # hr.attendance._get_day_start_and_day()'s replace(hour=0, minute=0,
+        # second=0) never resets microsecond) — two INSERTs for the same
+        # (employee_id, date) key in one statement, self-colliding against
+        # hr_attendance_overtime's own UNIQUE(employee_id, date) index.
+        check_in = datetime.combine(self.today, time(8, 0, 0, 123456))
+        attendance = self.env['hr.attendance'].create({
+            'employee_id': self.teacher.id, 'check_in': check_in,
+        })
+        check_out = datetime.combine(self.today, time(16, 0, 0))
+
+        attendance.write({'check_out': check_out})
+
+        overtime = self.env['hr.attendance.overtime'].search([
+            ('employee_id', '=', self.teacher.id), ('date', '=', self.today),
+        ])
+        self.assertLessEqual(len(overtime), 1)
+
+    def test_cron_auto_check_out_savepoint_isolates_failures(self):
+        # A failure closing one employee's attendance must not abort the whole
+        # transaction and take every other employee's close down with it (found
+        # 2026-09: a bare try/except around a raised exception doesn't undo Postgres's
+        # own "transaction aborted" state — only a savepoint rollback does). The
+        # injected failure below runs real (invalid) SQL, so it genuinely poisons the
+        # cursor the same way the production bug did — a plain Python-level
+        # exception wouldn't exercise this at all.
+        self.env.company.auto_check_out = True
+        self.env.company.auto_checkout_mode = 'ems'
+        self.env.company.auto_checkout_time = 0.0
+        self.env.company.auto_checkout_retry_until = 24.0
+        self.calendar.flexible_hours = False
+        other_teacher = self.env['hr.employee'].create({
+            'name': 'Test Autocheckout Teacher 2', 'employee_type': 'teacher',
+        })
+        other_teacher.resource_calendar_id.flexible_hours = False
+        # '_order = "check_in desc"' on hr.attendance: 'failing' must sort before
+        # 'healthy' for an unisolated abort to actually reach 'healthy' too.
+        failing_check_in = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=2)
+        healthy_check_in = failing_check_in - timedelta(minutes=1)
+        self._add_slot(0.0, 0.02, dayofweek=str(failing_check_in.weekday()))
+        self.env['resource.calendar.attendance'].create({
+            'calendar_id': other_teacher.resource_calendar_id.id,
+            'name': 'Test Slot', 'dayofweek': str(healthy_check_in.weekday()),
+            'hour_from': 0.0, 'hour_to': 0.02, 'day_period': 'morning',
+        })
+        failing = self.env['hr.attendance'].create({
+            'employee_id': self.teacher.id, 'check_in': failing_check_in,
+        })
+        healthy = self.env['hr.attendance'].create({
+            'employee_id': other_teacher.id, 'check_in': healthy_check_in,
+        })
+
+        original_close = type(failing)._auto_close_attendance
+
+        def _boom(self):
+            if self.id == failing.id:
+                self.env.cr.execute("SELECT * FROM ems_test_nonexistent_table_422")
+            return original_close(self)
+
+        with patch.object(type(failing), '_auto_close_attendance', _boom):
+            self.env['hr.attendance']._cron_auto_check_out()
+
+        self.assertFalse(failing.check_out)
+        self.assertTrue(healthy.check_out)
 
     def test_create_leaves_stale_attendance_when_auto_check_out_disabled(self):
         # With auto_check_out off, EMS never auto-closes the stale attendance, so Odoo's
