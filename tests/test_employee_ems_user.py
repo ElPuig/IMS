@@ -2,6 +2,7 @@
 
 from unittest.mock import MagicMock, patch
 
+from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
 
 from .common import mock_outgoing_email
@@ -206,6 +207,104 @@ class TestEmployeeEmsUser(TransactionCase):
         self.assertEqual(teacher.user_id, user)
         self.assertEqual(user.oauth_uid, '103000000000000000002')
         self.assertEqual(user.oauth_provider_id, self.google_provider)
+
+    # --- Google sign-in repair (issue #420) --------------------------------
+    def _linked_teacher(self, email, google_id=False):
+        """Teacher in the 'active' state whose user may or may not have OAuth."""
+        teacher = self._new_employee(work_email=email)
+        teacher._ems_create_user(google_id=google_id)
+        return teacher
+
+    def test_signin_missing_when_user_has_no_oauth(self):
+        teacher = self._linked_teacher('berta.broken@elpuig.xeill.net')
+        self.assertEqual(teacher.google_ws_state, 'active')
+        self.assertTrue(teacher.google_signin_missing)
+
+    def test_signin_not_missing_when_user_is_linked(self):
+        teacher = self._linked_teacher('berta.ok@elpuig.xeill.net',
+                                       google_id='103000000000000000010')
+        self.assertFalse(teacher.google_signin_missing)
+
+    def test_signin_not_missing_without_ems_user(self):
+        teacher = self._new_employee(work_email='berta.nouser@elpuig.xeill.net')
+        self.assertEqual(teacher.google_ws_state, 'pending_user')
+        self.assertFalse(teacher.google_signin_missing)
+
+    def test_signin_not_missing_while_suspended(self):
+        teacher = self._linked_teacher('berta.susp@elpuig.xeill.net')
+        teacher.google_ws_suspended = True
+        self.assertEqual(teacher.google_ws_state, 'suspended')
+        self.assertFalse(teacher.google_signin_missing)
+
+    def test_relink_writes_oauth_fields(self):
+        teacher = self._linked_teacher('berta.relink@elpuig.xeill.net')
+        with patch.object(type(teacher), '_gw_google_user_id',
+                          return_value='103000000000000000011'):
+            teacher.action_relink_google_signin()
+        self.assertEqual(teacher.user_id.oauth_uid, '103000000000000000011')
+        self.assertEqual(teacher.user_id.oauth_provider_id, self.google_provider)
+        self.assertFalse(teacher.google_signin_missing)
+
+    def test_relink_does_not_touch_google_account(self):
+        teacher = self._linked_teacher('berta.relink2@elpuig.xeill.net')
+        with patch.object(type(teacher), '_gw_google_user_id',
+                          return_value='103000000000000000012'), \
+                patch.object(type(teacher), 'action_create_google_account') as create_account, \
+                patch.object(type(teacher), '_gw_deliver_credentials') as deliver:
+            teacher.action_relink_google_signin()
+        create_account.assert_not_called()
+        deliver.assert_not_called()
+
+    def test_relink_never_overwrites_an_existing_link(self):
+        teacher = self._linked_teacher('berta.keep@elpuig.xeill.net',
+                                       google_id='103000000000000000013')
+        with patch.object(type(teacher), '_gw_google_user_id') as resolve:
+            teacher.action_relink_google_signin()
+        resolve.assert_not_called()
+        self.assertEqual(teacher.user_id.oauth_uid, '103000000000000000013')
+
+    def test_relink_raises_when_uid_belongs_to_another_user(self):
+        other = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Cornelius Wimplethorpe',
+            'login': 'cornelius.wimplethorpe@elpuig.xeill.net',
+            'email': 'cornelius.wimplethorpe@elpuig.xeill.net',
+            'oauth_provider_id': self.google_provider.id,
+            'oauth_uid': '103000000000000000014',
+        })
+        teacher = self._linked_teacher('berta.taken@elpuig.xeill.net')
+        with patch.object(type(teacher), '_gw_google_user_id',
+                          return_value='103000000000000000014'), \
+                self.assertRaises(UserError) as caught:
+            teacher.action_relink_google_signin()
+        self.assertIn(other.login, str(caught.exception))
+        self.assertFalse(teacher.user_id.oauth_uid)
+
+    def test_relink_raises_in_dry_run(self):
+        teacher = self._linked_teacher('berta.dry@elpuig.xeill.net')
+        with self.assertRaises(UserError):
+            teacher.action_relink_google_signin()
+        self.assertFalse(teacher.user_id.oauth_uid)
+
+    def test_relink_raises_when_google_lookup_fails(self):
+        self.company.google_ws_dry_run = False
+        service = MagicMock()
+        service.users.return_value.get.return_value.execute.side_effect = Exception('403')
+        teacher = self._linked_teacher('berta.fail@elpuig.xeill.net')
+        mixin_cls = type(self.env['google.workspace.mixin'])
+        with patch.object(mixin_cls, '_gw_get_service', return_value=service), \
+                self.assertRaises(UserError):
+            teacher.action_relink_google_signin()
+        self.assertFalse(teacher.user_id.oauth_uid)
+
+    def test_google_user_id_stays_silent_for_automatic_callers(self):
+        """The queue jobs/creation paths rely on a False, never an exception."""
+        self.company.google_ws_dry_run = False
+        service = MagicMock()
+        service.users.return_value.get.return_value.execute.side_effect = Exception('403')
+        teacher = self._linked_teacher('berta.silent@elpuig.xeill.net')
+        mixin_cls = type(self.env['google.workspace.mixin'])
+        with patch.object(mixin_cls, '_gw_get_service', return_value=service):
+            self.assertFalse(teacher._gw_google_user_id())
 
     # --- lifecycle ----------------------------------------------------------
     def test_archive_employee_archives_user(self):

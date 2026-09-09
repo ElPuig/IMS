@@ -12682,3 +12682,60 @@ msgstr ""
 "El canvi d'estudi ha actualitzat les matrícules d'aquest alumne a partir "
 "de la plantilla %(template)s, però les següents assignatures ja tenen "
 "notes i s'han mantingut tal com estaven:"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__google_signin_missing
+msgid "Google sign-in not linked"
+msgstr "Accés amb Google no vinculat"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_employee__google_signin_missing
+msgid "True when the employee has an active account and an EMS user, but that user has lost its OAuth data and can no longer sign in with Google."
+msgstr "Cert quan l'empleat té un compte actiu i un usuari EMS, però aquest usuari ha perdut les seves dades d'OAuth i ja no pot iniciar sessió amb Google."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Re-link Google sign-in"
+msgstr "Tornar a vincular l'accés amb Google"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "Google did not return a user id for %s. The account may not exist, or it may live outside the organizational units this service account is allowed to read. Check the server log for the exact Google error."
+msgstr "Google no ha retornat cap identificador d'usuari per a %s. Pot ser que el compte no existeixi o que estigui fora de les unitats organitzatives que aquest compte de servei pot llegir. Consulta el registre del servidor per veure l'error exacte de Google."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "Google returned no user id for %s."
+msgstr "Google no ha retornat cap identificador d'usuari per a %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "Google sign-in could not be linked. Check that the \"Google OAuth2\" provider exists and is enabled."
+msgstr "No s'ha pogut vincular l'accés amb Google. Comprova que el proveïdor «Google OAuth2» existeix i està activat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "Sign in with Google re-linked for %s."
+msgstr "S'ha tornat a vincular l'accés amb Google per a %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "The Google account of %(employee)s is already linked to the EMS user %(login)s. Clear the Google sign-in on that user first, then try again."
+msgstr "El compte de Google de %(employee)s ja està vinculat a l'usuari EMS %(login)s. Elimina primer l'accés amb Google d'aquest usuari i torna-ho a provar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "The Google user id cannot be resolved: this environment runs the Google Workspace integration in dry-run mode (Settings > Company)."
+msgstr "No es pot obtenir l'identificador d'usuari de Google: aquest entorn executa la integració amb Google Workspace en mode de simulació (Configuració > Companyia)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "This employee has no corporate email address."
+msgstr "Aquest empleat no té adreça de correu corporatiu."

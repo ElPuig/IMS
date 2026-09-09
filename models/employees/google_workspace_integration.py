@@ -49,6 +49,10 @@ class HrEmployeeGoogleWorkspace(models.Model):
         string="Google account status", compute='_compute_google_ws_state', store=True,
         help="Single source of truth for the header buttons: which Google Workspace "
              "/ EMS user action, if any, applies to this employee right now.")
+    google_signin_missing = fields.Boolean(
+        string="Google sign-in not linked", compute='_compute_google_signin_missing',
+        help="True when the employee has an active account and an EMS user, but that "
+             "user has lost its OAuth data and can no longer sign in with Google.")
 
     # ------------------------------------------------------------------
     # Compute
@@ -66,6 +70,15 @@ class HrEmployeeGoogleWorkspace(models.Model):
                 employee.google_ws_state = 'pending_user'
             else:
                 employee.google_ws_state = 'active'
+
+    @api.depends('google_ws_state', 'user_id', 'user_id.oauth_uid')
+    def _compute_google_signin_missing(self):
+        for employee in self:
+            # sudo(): an hr.group_hr_user who is not an Odoo administrator cannot read
+            # res.users' OAuth fields, and the header button must still render for them.
+            user = employee.user_id.sudo()
+            employee.google_signin_missing = bool(
+                employee.google_ws_state == 'active' and user and not user.oauth_uid)
 
     # ------------------------------------------------------------------
     # Helpers
@@ -413,27 +426,86 @@ class HrEmployeeGoogleWorkspace(models.Model):
             return
         self._ems_create_user(google_id=self._gw_google_user_id())
 
-    def _gw_google_user_id(self):
+    def action_relink_google_signin(self):
+        """Repair "Sign in with Google" for a user that lost its OAuth data.
+
+        auth_oauth matches an incoming login only by (oauth_uid,
+        oauth_provider_id), and its signup fallback fails on an existing login,
+        so a user whose OAuth fields were emptied gets a plain "Access Denied"
+        with no way back through the UI. This resolves the Google id again and
+        hands it to the same _ems_link_google_signin() the creation paths use.
+
+        Never overwrites an existing link (the button is hidden then) and never
+        touches the Google Workspace account itself.
+        """
+        self.ensure_one()
+        if not self.google_signin_missing:
+            return False
+        user = self.sudo().user_id
+        google_id = self._gw_google_user_id(raise_on_error=True)
+        if not self._ems_link_google_signin(user, google_id):
+            provider = self.env.ref('auth_oauth.provider_google', raise_if_not_found=False)
+            owner = self.env['res.users'].sudo().with_context(active_test=False).search([
+                ('oauth_provider_id', '=', provider.id),
+                ('oauth_uid', '=', str(google_id)),
+            ], limit=1) if provider else False
+            if owner:
+                raise UserError(_(
+                    "The Google account of %(employee)s is already linked to the EMS "
+                    "user %(login)s. Clear the Google sign-in on that user first, then "
+                    "try again."
+                ) % {'employee': self.name, 'login': owner.login})
+            raise UserError(_(
+                "Google sign-in could not be linked. Check that the "
+                "\"Google OAuth2\" provider exists and is enabled."))
+        self.message_post(body=_(
+            "Sign in with Google re-linked for %s.") % user.login)
+        return False
+
+    def _gw_google_user_id(self, raise_on_error=False):
         """Numeric Google user id of ``work_email`` via the Directory API.
 
         Returns False when it cannot be resolved (dry-run, API error, libs
         missing): the EMS user is then created without the OAuth pre-link.
         Note that the OU-scoped admin role answers 403 - not 404 - for unknown
         users, so errors are swallowed here, never re-raised.
+
+        ``raise_on_error`` flips that for the callers a person is waiting on
+        (action_relink_google_signin): a button that reports nothing when it
+        fails is worse than an error message. The automatic paths (account
+        creation, queue jobs) keep the silent default.
         """
         self.ensure_one()
         emp = self.sudo()
         if not emp.work_email or self.env.company.google_ws_dry_run:
+            if raise_on_error:
+                raise UserError(_(
+                    "The Google user id cannot be resolved: this environment runs the "
+                    "Google Workspace integration in dry-run mode (Settings > Company)."
+                ) if self.env.company.google_ws_dry_run else _(
+                    "This employee has no corporate email address."))
             return False
         try:
             service = self._gw()._gw_get_service()
             info = service.users().get(userKey=emp.work_email).execute()
-            return info.get('id') or False
+            google_id = info.get('id') or False
         except Exception:
             _logger.warning(
                 "Google Workspace: could not resolve the Google user id for %s",
                 emp.work_email, exc_info=True)
+            if raise_on_error:
+                # 403, not 404, is what an out-of-scope account answers, so "missing"
+                # and "outside the managed OUs" cannot be told apart from the response.
+                raise UserError(_(
+                    "Google did not return a user id for %s. The account may not exist, "
+                    "or it may live outside the organizational units this service "
+                    "account is allowed to read. Check the server log for the exact "
+                    "Google error."
+                ) % emp.work_email)
             return False
+        if not google_id and raise_on_error:
+            raise UserError(_("Google returned no user id for %s.") % emp.work_email)
+        return google_id
 
     def _ems_user_groups(self):
         """Security groups granted to the auto-created EMS user.

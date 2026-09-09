@@ -85,6 +85,8 @@ El botón **Crear cuenta de Google**, en la parte superior de la ficha, permite 
 - **Baja (archivar la ficha):** además de suspender la cuenta de Google, archivar al empleado **desactiva inmediatamente su usuario EMS**, de modo que ya no puede iniciar sesión. Desarchivarlo restaura ambas cosas.
 - **La ficha ya existía como marcador "Pendiente de identificar":** si una importación de horarios creó a este docente automáticamente antes de conocer su identidad (ver "Docentes aún no contratados (pendientes de identificar)" en [Horarios de trabajo del profesorado y marcos de horario](working-schedules.md)), la ficha ya tiene el horario, las asignaturas y las listas de asistencia configurados — solo hacen falta los **Paso 2** y **Paso 3** anteriores (sustituir el nombre provisional, rellenar el correo personal) y luego **Generar cuenta Google**. Ese único clic también hace desaparecer la etiqueta "Pendiente de identificar"; no hace falta rehacer nada del horario ya importado.
 
+- **El profesor tiene usuario EMS pero no puede entrar con Google:** si se pierde la conexión entre el usuario de EMS y su cuenta de Google, Google acepta el acceso pero EMS responde *Acceso denegado*, y no se arregla restableciendo la contraseña. Entonces aparece el botón **Volver a vincular el acceso con Google** en la parte superior de la ficha, junto a **Suspender la cuenta de Google**. Al pulsarlo, se vuelve a pedir a Google el identificador de la cuenta y se restablece la conexión; el profesor ya puede entrar. No cambia nada más — ni la cuenta de Google, ni la contraseña, ni el correo corporativo — y no aparece mientras la conexión funciona.
+
 ---
 
 [← Volver al índice de Administrador](index.md)

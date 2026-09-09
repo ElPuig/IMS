@@ -85,6 +85,8 @@ El botó **Crear compte de Google**, a la part superior de la fitxa, permet for�
 - **Baixa (arxivar la fitxa):** a més de suspendre el compte de Google, arxivar l'empleat **desactiva immediatament el seu usuari EMS**, de manera que ja no pot iniciar sessió. Desarxivar-lo restaura totes dues coses.
 - **La fitxa ja existia com a placeholder "Pendent d'identificar":** si una importació d'horaris va crear aquest docent automàticament abans de conèixer-ne la identitat (vegeu "Docents encara no contractats (pendents d'identificar)" a [Horaris de treball del professorat i marcs d'horari](working-schedules.md)), la fitxa ja té l'horari, les assignatures i les llistes d'assistència configurats — només calen els **Pas 2** i **Pas 3** anteriors (substituir el nom provisional, omplir el correu personal) i després **Generar compte Google**. Aquest únic clic també fa desaparèixer l'etiqueta "Pendent d'identificar"; no cal refer res de l'horari ja importat.
 
+- **El professor té usuari EMS però no pot entrar amb Google:** si es perd la connexió entre l'usuari d'EMS i el seu compte de Google, Google accepta l'accés però EMS respon *Accés denegat*, i no es resol restablint la contrasenya. Llavors apareix el botó **Tornar a vincular l'accés amb Google** a la part superior de la fitxa, al costat de **Suspendre el compte de Google**. En prémer-lo, es torna a demanar a Google l'identificador del compte i es restableix la connexió; el professor ja pot entrar. No canvia res més — ni el compte de Google, ni la contrasenya, ni el correu corporatiu — i no apareix mentre la connexió funciona.
+
 ---
 
 [← Tornar a l'índex d'Administrador](index.md)

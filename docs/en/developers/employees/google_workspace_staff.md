@@ -85,6 +85,34 @@ internally, so there is a single implementation either way.
 In **dry-run** (`company.google_ws_dry_run`) no API call is made, so there is no
 Google id: the EMS user is created without OAuth fields.
 
+### `action_relink_google_signin()`
+
+Repairs "Sign in with Google" for an employee who **already has** an EMS user whose
+OAuth fields were lost (`oauth_uid` / `oauth_provider_id` emptied by hand, by a bad
+import, or by a partial restore). Without them the user cannot log in at all:
+`auth_oauth` matches an incoming login exclusively by `(oauth_uid,
+oauth_provider_id)`, and its fallback path (`signup`) fails because the login already
+exists — so Google answers correctly and Odoo still returns *Access Denied*. There is
+no e-mail-based fallback.
+
+The action resolves the numeric Google id through the Directory API
+(`_gw_google_user_id(raise_on_error=True)`) and hands it to the same
+`_ems_link_google_signin()` used by the creation paths, so there is one implementation
+of the link itself. It never overwrites a link that is already there — the button is
+hidden in that case — and it never touches the Google account.
+
+Unlike the automatic paths, every failure is raised instead of swallowed: pressing a
+button and getting no feedback is worse than an error message. `_gw_google_user_id()`
+therefore takes a `raise_on_error` flag (default `False`, preserving the silent
+behaviour the queue jobs rely on) and, when set, reports dry-run and API failure as
+distinct errors. It deliberately does **not** try to tell "no such account" from
+"account outside my scope": the service-account role is scoped to the managed OUs and
+Google answers **403, not 404**, for anything outside them, so the two are not
+reliably distinguishable from the response — the message names both causes instead. A
+`oauth_uid` already claimed
+by a different `res.users` (the `auth_oauth` unique constraint) is reported naming
+that user, since the fix there is to clear the stale record first.
+
 ## Lifecycle
 
 | Employee event | Google account | EMS user (`res.users`) |
@@ -127,8 +155,17 @@ stateDiagram-v2
 | `none` | Create Google account | No corporate email yet |
 | `manual_pending` | *(none)* | `google_ws_manual_email` ticked, waiting for the email to be typed in |
 | `pending_user` | Create EMS User | Corporate email exists, no `res.users` linked (adopt / migration gap) |
-| `active` | Suspend Google account | Fully set up |
+| `active` | Suspend Google account (+ Re-link Google sign-in when `google_signin_missing`) | Fully set up |
 | `suspended` | Reactivate Google account | `google_ws_suspended = True` |
+
+The one button that is **not** part of that mutually-exclusive set is **Re-link Google
+sign-in**, driven by its own non-stored computed boolean, `google_signin_missing`
+(`google_ws_state == 'active'` and the linked user has no `oauth_uid`). It is a repair
+offered *alongside* Suspend rather than another state of its own: the account is
+genuinely active and fully set up, only the sign-in link is broken, so hiding Suspend
+while it shows would misrepresent the account. The compute reads `user_id.oauth_uid`
+through `sudo()` — an `hr.group_hr_user` who is not an Odoo administrator cannot read
+`res.users` OAuth fields, and the button must still render for them.
 
 `res.partner` (students) has the analogous `google_ws_state` in
 `models/contacts/google_workspace_integration.py` — see
