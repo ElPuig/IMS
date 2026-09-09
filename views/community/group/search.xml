@@ -1,0 +1,15 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_group_search">
+            <field name="name">ems.group.search</field>
+            <field name="model">ems.group</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name" string="Group"/>
+                    <filter name="classroom_drift" string="Classroom drift"
+                            domain="[('suggested_space_id', '!=', False)]"/>
+                </search>
+            </field>
+        </record>
+    </data>
+</odoo>

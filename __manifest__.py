@@ -107,8 +107,9 @@
 
             'views/community/group/list.xml',
             'views/community/group/form.xml',
+            'views/community/group/search.xml',
             'views/community/group/menu.xml',
-            'views/community/group/classroom_change_wizard.xml',  
+            'views/community/group/classroom_change_wizard.xml',
 
             'views/community/enrollment/list.xml',
             'views/community/enrollment/form.xml',

@@ -14,7 +14,13 @@ Editing a group's main classroom (`ems.group.space_id`) no longer leaves the gro
 ## Bulk classroom picker on the conflict-resolution widget's card header:
 Each conflict card's sub-group (already able to bulk-apply a resolution type to every row at once) can now also bulk-apply a classroom to every row's left or right side in one pick, instead of picking it row by row - developer feedback after resolving a real 20-row batch by hand. Shared by both the working-schedules import wizard and the new group-classroom-change wizard above, since both use the same widget.
 
+## Suggests fixing a group's outdated classroom (last deferred follow-up of issue #405):
+A group's assigned classroom can quietly stop matching where it actually meets - a room collision gets resolved elsewhere but nobody updates the group's own classroom field to match. Groups now get a suggestion instead of staying wrong indefinitely: whenever a group's own classroom accounts for none of its real teaching hours, a banner on the group's form suggests the room it actually spends the most time in, with a one-click button to apply it - and, for reviewing several groups at once, a new "Classroom drift" filter and an optional column on the groups list. Applying a suggestion can never trigger a room conflict, by construction, so it's always a single click with no wizard needed. Covered by `tests/test_group_classroom_suggestion.py` (TransactionCase) and a new browser tour (`ems_group_classroom_suggestion`).
+
 # Fixes
+
+## Head of Studies / Deputy Head of Studies had no access at all to subject assignations:
+`ems.teaching` ("Subject assignation": the teacher × group × subject record) had no access rule for Head of Studies/Deputy Head of Studies at all - not even read - so they couldn't view or create these from that menu, despite already having full access to the underlying calendar data it's derived from. Given create/read/write access (not delete, matching this role's own access to the teacher calendar elsewhere).
 
 ## Room conflict resolution left the teacher's own calendar out of sync (issue #405):
 Resolving a room conflict via the new group-classroom-change wizard only updated the "official" schedule record, not the teacher's own editable calendar block it derives from - so the group's Schedule tab (and any later re-sync of that teacher's calendar) kept showing the old, colliding room, silently undoing the resolution. Found on real data (SMX1D/SMX2D) right after building the feature; fixed so both sides always move together, and the 20 real rows already affected on this box were corrected.

@@ -107,6 +107,7 @@ ems.access_ems_teaching_reduction_type_teacher,ems.access_ems_teaching_reduction
 ems.access_ems_teaching_reduction_type_secretary,ems.access_ems_teaching_reduction_type_secretary,ems.model_ems_teaching_reduction_type,ems.group_secretary,1,0,0,0
 
 ems.access_ems_teaching_admin,ems.access_ems_teaching_admin,ems.model_ems_teaching,ems.group_academic_admin,1,1,1,1
+ems.access_ems_teaching_hos,ems.access_ems_teaching_hos,ems.model_ems_teaching,ems.group_head_of_studies,1,1,1,0
 ems.access_ems_teaching_teacher,ems.access_ems_teaching_teacher,ems.model_ems_teaching,ems.group_teacher,1,0,0,0
 ems.access_ems_teaching_secretary,ems.access_ems_teaching_secretary,ems.model_ems_teaching,ems.group_secretary,1,0,0,0
 
