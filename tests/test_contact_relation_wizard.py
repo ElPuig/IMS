@@ -38,6 +38,15 @@ class TestContactRelationWizard(TransactionCase):
             'groups_id': [(4, cls.env.ref('ems.group_teacher').id), (4, cls.env.ref('base.group_user').id)],
         })
         cls.other_teacher_employee.user_id = cls.other_teacher_user
+        # A pure secretary user (ems.group_secretary only, no teacher/tutor group):
+        # Mireia's and Jenifer's real profile. Pau, the secretary who could use the
+        # wizard, also holds ems.group_teacher - which is what masked the missing
+        # ems.group_secretary line in security/ir.model.access.csv (issue #423).
+        cls.secretary_user = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Secretary User (Relation Wizard)', 'login': 'test_secretary_relation_wizard',
+            'lang': 'en_US',
+            'groups_id': [(4, cls.env.ref('ems.group_secretary').id), (4, cls.env.ref('base.group_user').id)],
+        })
         cls.level, cls.study, cls.group = create_level_study_group(
             cls, 'TCRW', level={'name': 'Test Contact Relation Wizard Level'}, study={
                 'code': 'TCRW001', 'acronym': 'TCRW', 'name': 'Test Contact Relation Wizard Study',
@@ -156,3 +165,28 @@ class TestContactRelationWizard(TransactionCase):
         })
         with self.assertRaises(AccessError):
             wizard.action_save()
+
+    def test_save_as_secretary_succeeds(self):
+        # Reproduces issue #423: a secretary saw the "Add contact" button (the form's
+        # read_only_user condition already clears ems.group_secretary, as does
+        # action_save()'s own guard), but opening the wizard raised an AccessError -
+        # ems.contact.relation.wizard granted access to group_academic_admin and
+        # group_teacher only.
+        wizard = self.env['ems.contact.relation.wizard'].with_user(self.secretary_user).create({
+            'student_id': self.student.id, 'type_selection_id': self.relation_father.id,
+            'is_new_contact': True, 'firstname': 'Secretary', 'lastname': 'Saved', 'phone': '600000000',
+        })
+        wizard.action_save()
+        new_partner = self.env['res.partner'].search([('lastname', '=', 'Saved'), ('firstname', '=', 'Secretary')])
+        self.assertTrue(new_partner)
+        relation = self.env['res.partner.relation'].search([
+            ('left_partner_id', '=', new_partner.id), ('right_partner_id', '=', self.student.id)])
+        self.assertTrue(relation)
+
+    def test_secretary_can_read_wizard_action(self):
+        # The failure reported in issue #423 happened on opening the wizard, before
+        # action_save() ever ran: contact.py's action_open_relation_wizard() creates
+        # the transient record as the current user.
+        action = self.student.with_user(self.secretary_user).action_open_relation_wizard()
+        self.assertEqual(action['res_model'], 'ems.contact.relation.wizard')
+        self.assertTrue(action['res_id'])

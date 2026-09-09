@@ -2,6 +2,7 @@ import base64
 import io
 from datetime import date, datetime
 
+from odoo import fields as odoo_fields
 from odoo.tests.common import TransactionCase
 
 from .common import create_level_study_group
@@ -12,9 +13,10 @@ class TestStudentImportWizard(TransactionCase):
     logic touched by the archive-on-withdrawal change, not a full xlsx
     column-mapping suite (see action_import / _process_row for that)."""
 
-    def _wizard(self):
+    def _wizard(self, overwrite=False):
         return self.env['ems.student_import_wizard'].create({
             'file': base64.b64encode(b'placeholder'), 'file_name': 'esfera.xlsx',
+            'overwrite': overwrite,
         })
 
     def _stats(self):
@@ -31,10 +33,10 @@ class TestStudentImportWizard(TransactionCase):
         self.assertTrue(student.active)
         self.assertEqual(stats['created'], 1)
 
-    def test_updates_existing_student(self):
+    def test_updates_existing_student_when_overwriting(self):
         existing = self.env['res.partner'].create({
             'name': 'Old Name', 'contact_type': 'student', 'student_id': '8000002'})
-        wizard = self._wizard()
+        wizard = self._wizard(overwrite=True)
         stats = self._stats()
         student = wizard._get_or_create_student('8000002', {
             'name': 'New Name', 'contact_type': 'student',
@@ -43,6 +45,62 @@ class TestStudentImportWizard(TransactionCase):
         self.assertEqual(student, existing)
         self.assertEqual(student.name, 'New Name')
         self.assertEqual(stats['updated'], 1)
+
+    def test_keeps_ems_value_when_not_overwriting(self):
+        # Default mode: EMS's own data wins, so a field that already holds something
+        # is left exactly as it was, even though the file carries a different value.
+        existing = self.env['res.partner'].create({
+            'name': 'Old Name', 'contact_type': 'student', 'student_id': '8000012',
+            'email': 'kept@example.com'})
+        wizard = self._wizard()
+        stats = self._stats()
+        student = wizard._get_or_create_student('8000012', {
+            'name': 'New Name', 'contact_type': 'student', 'student_id': '8000012',
+            'email': 'from.file@example.com', 'active': True,
+        }, stats)
+        self.assertEqual(student.name, 'Old Name')
+        self.assertEqual(student.email, 'kept@example.com')
+        self.assertEqual(stats['updated'], 1)
+
+    def test_fills_only_empty_fields_when_not_overwriting(self):
+        # The other half of the default mode: a field EMS has left empty still gets
+        # filled in from the file.
+        existing = self.env['res.partner'].create({
+            'name': 'Has No Email', 'contact_type': 'student', 'student_id': '8000013'})
+        wizard = self._wizard()
+        stats = self._stats()
+        wizard._get_or_create_student('8000013', {
+            'name': 'Other Name', 'contact_type': 'student', 'student_id': '8000013',
+            'email': 'filled.in@example.com', 'active': True,
+        }, stats)
+        self.assertEqual(existing.email, 'filled.in@example.com')
+        self.assertEqual(existing.name, 'Has No Email')
+
+    def test_empty_file_value_never_blanks_existing_data(self):
+        # The rule that holds in BOTH modes: a column that came empty in the file must
+        # never erase what EMS already holds. Checked under overwrite=True, the mode
+        # where the file is otherwise allowed to win.
+        existing = self.env['res.partner'].create({
+            'name': 'Keep Me', 'contact_type': 'student', 'student_id': '8000014',
+            'email': 'keep@example.com', 'phone': '900111222'})
+        wizard = self._wizard(overwrite=True)
+        stats = self._stats()
+        wizard._get_or_create_student('8000014', {
+            'name': 'Keep Me', 'contact_type': 'student', 'student_id': '8000014',
+            'email': None, 'phone': '', 'mobile': False, 'active': True,
+        }, stats)
+        self.assertEqual(existing.email, 'keep@example.com')
+        self.assertEqual(existing.phone, '900111222')
+
+    def test_skips_new_student_without_name(self):
+        wizard = self._wizard()
+        stats = self._stats()
+        student = wizard._get_or_create_student('8000015', {
+            'name': '', 'contact_type': 'student', 'student_id': '8000015', 'active': True,
+        }, stats)
+        self.assertFalse(student)
+        self.assertEqual(stats['created'], 0)
+        self.assertTrue(stats['warnings'])
 
     def test_reactivates_archived_withdrawal_instead_of_duplicating(self):
         # A withdrawal is archived (active=False) as part of the exit, mirroring
@@ -67,18 +125,27 @@ class TestStudentImportWizard(TransactionCase):
 
     # --- _find_headers / _check_required_columns --------------------------------
 
-    def test_find_headers_locates_grup_classe_row(self):
+    def test_find_headers_locates_student_id_row(self):
         wizard = self._wizard()
         ws = self._sheet([
             ['Some export title'],
             [],
-            ['Grup Classe', 'Nom', 'Primer Cognom'],
-            ['TSIW A', 'Test', 'Student'],
+            ["Identificador de l'alumne/a", 'Nom', 'Primer Cognom'],
+            ['9000100', 'Test', 'Student'],
         ])
         idx, col_map = wizard._find_headers(ws)
         self.assertEqual(idx, 3)
-        self.assertEqual(col_map['Grup Classe'], 0)
+        self.assertEqual(col_map["Identificador de l'alumne/a"], 0)
         self.assertEqual(col_map['Nom'], 1)
+
+    def test_find_headers_ignores_a_grup_classe_only_header(self):
+        # 'Grup Classe' used to be the marker; it is no longer enough on its own,
+        # since the student identifier is the only column actually required.
+        wizard = self._wizard()
+        ws = self._sheet([['Grup Classe', 'Nom'], ['TSIW A', 'Test']])
+        idx, col_map = wizard._find_headers(ws)
+        self.assertIsNone(idx)
+        self.assertEqual(col_map, {})
 
     def test_find_headers_returns_none_when_absent(self):
         wizard = self._wizard()
@@ -86,20 +153,6 @@ class TestStudentImportWizard(TransactionCase):
         idx, col_map = wizard._find_headers(ws)
         self.assertIsNone(idx)
         self.assertEqual(col_map, {})
-
-    def test_check_required_columns_reports_missing(self):
-        wizard = self._wizard()
-        missing = wizard._check_required_columns({'Grup Classe': 0, 'Nom': 1})
-        self.assertIn('Primer Cognom', missing)
-        self.assertNotIn('Grup Classe', missing)
-
-    def test_check_required_columns_accepts_either_trailing_space_variant(self):
-        wizard = self._wizard()
-        full_map = {col: i for i, col in enumerate(wizard._REQUIRED_COLUMNS)}
-        full_map['Tutor 1 - 1r cognom'] = len(full_map)
-        full_map['Tutor 2 - 1r cognom '] = len(full_map)
-        missing = wizard._check_required_columns(full_map)
-        self.assertEqual(missing, [])
 
     # --- parsing helpers ---------------------------------------------------------
 
@@ -329,12 +382,43 @@ class TestStudentImportWizard(TransactionCase):
     def test_process_row_without_name_is_noop(self):
         row, col_map = self._row_and_col_map({
             'Grup Classe': 'SOME-CODE', 'Nom': '', 'Primer Cognom': '', 'Segon Cognom': '',
+            "Identificador de l'alumne/a": '9000020',
         })
         wizard = self._wizard()
         stats = self._stats()
         wizard._process_row(row, col_map, stats)
         self.assertEqual(stats['created'], 0)
         self.assertEqual(stats['updated'], 0)
+        self.assertTrue(stats['warnings'])
+
+    def test_process_row_without_student_id_is_skipped(self):
+        # The identifier is the only mandatory column: without it the row cannot be
+        # matched to a student, so it is skipped and reported instead of imported.
+        row, col_map = self._row_and_col_map({
+            'Grup Classe': 'SOME-CODE', 'Nom': 'No', 'Primer Cognom': 'Identifier',
+        })
+        wizard = self._wizard()
+        stats = self._stats()
+        wizard._process_row(row, col_map, stats)
+        self.assertEqual(stats['created'], 0)
+        self.assertEqual(stats['updated'], 0)
+        self.assertTrue(stats['warnings'])
+
+    def test_process_row_without_group_still_imports(self):
+        # 'Grup Classe' is no longer mandatory, and an empty one must not silently
+        # discard the row the way it used to.
+        row, col_map = self._row_and_col_map({
+            'Grup Classe': '', 'Nom': 'Groupless', 'Primer Cognom': 'ByDesign',
+            "Identificador de l'alumne/a": '9000021',
+        })
+        wizard = self._wizard()
+        stats = self._stats()
+        wizard._process_row(row, col_map, stats)
+        student = self.env['res.partner'].search([('student_id', '=', '9000021')])
+        self.assertTrue(student)
+        self.assertEqual(stats['created'], 1)
+        # No group code was exported, so there is nothing to warn about either.
+        self.assertEqual(stats['warnings'], [])
 
     def test_process_tutor_links_family_with_deduced_relation(self):
         student = self.env['res.partner'].create({'name': 'Tutor Link Student', 'contact_type': 'student'})
@@ -481,9 +565,6 @@ class TestStudentImportWizard(TransactionCase):
             'code': 'TSIWE01', 'name': 'Test Import E2E Study',
         }, group={'external_id': 'ESFERA-E2E-A'})
         wizard_model = self.env['ems.student_import_wizard']
-        headers = list(wizard_model._REQUIRED_COLUMNS)
-        # Cover the trailing-space variant column too, and match all required headers.
-        headers += ['Tutor 1 - 1r cognom ', 'Tutor 2 - 1r cognom ']
         values_by_header = {
             'Grup Classe': 'ESFERA-E2E-A',
             'Nom': 'E2E',
@@ -501,7 +582,10 @@ class TestStudentImportWizard(TransactionCase):
             'Contacte 1er tutor alumne - Valor': '611222333 - anna.serra@example.com',
             'Contacte 1er tutor alumne - Observacions': 'Mare',
         }
-        data_row = [values_by_header.get(h, '') for h in headers]
+        # Only the columns this row actually fills in: the file no longer has to carry
+        # a fixed set of headers, so the test builds them from the values themselves.
+        headers = list(values_by_header)
+        data_row = [values_by_header[h] for h in headers]
         wizard = wizard_model.create({
             'file': self._build_xlsx_b64(headers, data_row),
             'file_name': 'esfera_e2e.xlsx',
@@ -522,7 +606,7 @@ class TestStudentImportWizard(TransactionCase):
         self.assertIn('Students created:', wizard.result_html)
         self.assertTrue(wizard.log_file)
 
-    def test_action_import_raises_on_missing_required_columns(self):
+    def test_action_import_raises_when_student_id_column_is_absent(self):
         from odoo.exceptions import UserError
         wizard = self.env['ems.student_import_wizard'].create({
             'file': self._build_xlsx_b64(['Grup Classe', 'Nom'], ['CODE', 'Test']),
@@ -531,8 +615,18 @@ class TestStudentImportWizard(TransactionCase):
         with self.assertRaises(UserError):
             wizard.action_import()
 
+    def test_action_import_accepts_a_file_with_only_the_student_id(self):
+        # The identifier alone is a valid file: every other column is optional now.
+        wizard = self.env['ems.student_import_wizard'].create({
+            'file': self._build_xlsx_b64(
+                ["Identificador de l'alumne/a", 'Nom'], ['9000030', 'Minimal File']),
+            'file_name': 'minimal.xlsx',
+        })
+        wizard.action_import()
+        self.assertTrue(self.env['res.partner'].search([('student_id', '=', '9000030')]))
+
     def test_action_import_tolerates_full_real_column_set(self):
-        # The real Esfera/SAGA export has 86 columns, not just the 35 _REQUIRED_COLUMNS this
+        # The real Esfera/SAGA export has 86 columns, far more than the handful this
         # wizard actually reads (confirmed against a real, anonymized export - see
         # plans/student_import_wizard_esfera_gaps.md). Never verified before that the ~50
         # extra columns it doesn't use (address sub-fields, tutor legal/notification flags,
@@ -604,3 +698,118 @@ class TestStudentImportWizard(TransactionCase):
         })
         with self.assertRaises(UserError):
             wizard.action_import()
+
+
+    # --- every sheet is imported, not just the active one -------------------------
+
+    def _build_multi_sheet_xlsx_b64(self, sheets):
+        """Build a workbook from a list of (title, rows) pairs."""
+        import openpyxl
+        wb = openpyxl.Workbook()
+        wb.remove(wb.active)
+        for title, rows in sheets:
+            ws = wb.create_sheet(title=title)
+            for row in rows:
+                ws.append(row)
+        buf = io.BytesIO()
+        wb.save(buf)
+        return base64.b64encode(buf.getvalue())
+
+    def test_action_import_reads_every_sheet(self):
+        # A real Esfera export splits its students across several sheets; only the
+        # active one used to be read, silently dropping all the others.
+        headers = ["Identificador de l'alumne/a", 'Nom', 'Primer Cognom']
+        wizard = self.env['ems.student_import_wizard'].create({
+            'file': self._build_multi_sheet_xlsx_b64([
+                ('First', [headers, ['9000050', 'Sheet', 'One']]),
+                ('Second', [headers, ['9000051', 'Sheet', 'Two']]),
+            ]),
+            'file_name': 'two_sheets.xlsx',
+        })
+        wizard.action_import()
+        self.assertTrue(self.env['res.partner'].search([('student_id', '=', '9000050')]))
+        self.assertTrue(self.env['res.partner'].search([('student_id', '=', '9000051')]))
+
+    def test_action_import_skips_sheets_without_a_header(self):
+        # An auxiliary or empty tab must be ignored, not abort the file.
+        headers = ["Identificador de l'alumne/a", 'Nom']
+        wizard = self.env['ems.student_import_wizard'].create({
+            'file': self._build_multi_sheet_xlsx_b64([
+                ('Notes', [['just some text'], []]),
+                ('Data', [headers, ['9000052', 'Valid Row']]),
+            ]),
+            'file_name': 'mixed_sheets.xlsx',
+        })
+        wizard.action_import()
+        self.assertTrue(self.env['res.partner'].search([('student_id', '=', '9000052')]))
+
+    # --- notes are stacked, never replaced ----------------------------------------
+
+    def test_import_notes_are_stacked_on_top_never_replaced(self):
+        student = self.env['res.partner'].create({
+            'name': 'Noted Student', 'contact_type': 'student', 'student_id': '9000060',
+            'comment': '<p>Hand-written note</p>'})
+        wizard = self._wizard(overwrite=True)
+        wizard._prepend_import_notes(student, 'Observacions: imported note')
+
+        self.assertIn('Hand-written note', student.comment)
+        self.assertIn('Observacions: imported note', student.comment)
+        # Odoo's HTML sanitiser rewrites the void tag, so match either form.
+        self.assertIn('<hr', student.comment)
+        # The newest block comes first, so the latest import reads at the top.
+        self.assertLess(
+            student.comment.index('Observacions'), student.comment.index('Hand-written'))
+        stamp = odoo_fields.Datetime.context_timestamp(
+            student, odoo_fields.Datetime.now()).strftime('%d/%m/%Y')
+        self.assertIn(stamp, student.comment)
+
+    def test_import_notes_on_a_record_without_previous_ones(self):
+        student = self.env['res.partner'].create({
+            'name': 'Fresh Student', 'contact_type': 'student', 'student_id': '9000061'})
+        wizard = self._wizard()
+        wizard._prepend_import_notes(student, 'Observacions: first note')
+        self.assertIn('Observacions: first note', student.comment)
+
+    def test_import_without_notes_leaves_the_field_untouched(self):
+        student = self.env['res.partner'].create({
+            'name': 'Untouched Student', 'contact_type': 'student', 'student_id': '9000062',
+            'comment': '<p>Only mine</p>'})
+        wizard = self._wizard(overwrite=True)
+        wizard._prepend_import_notes(student, False)
+        self.assertEqual(student.comment, '<p>Only mine</p>')
+
+    # --- family contacts follow the same write policy as students -----------------
+
+    def test_family_keeps_ems_data_when_not_overwriting(self):
+        family = self.env['res.partner'].create({
+            'name': 'Existing Family', 'contact_type': 'family',
+            'document_id': '77777777X', 'email': 'family.kept@example.com'})
+        wizard = self._wizard()
+        result, accio = wizard._get_or_create_family(
+            'New Name', '77777777X', None, None, 'from.file@example.com', {'city': 'Barcelona'})
+        self.assertEqual(result, family)
+        self.assertEqual(accio, 'Actualitzat')
+        self.assertEqual(family.email, 'family.kept@example.com')
+        self.assertEqual(family.name, 'Existing Family')
+        # ...while a field EMS had left empty is still filled in.
+        self.assertEqual(family.city, 'Barcelona')
+
+    def test_family_overwrites_when_flagged(self):
+        family = self.env['res.partner'].create({
+            'name': 'Old Family Name', 'contact_type': 'family',
+            'document_id': '77777778Y', 'email': 'old@example.com'})
+        wizard = self._wizard(overwrite=True)
+        wizard._get_or_create_family(
+            'New Family Name', '77777778Y', None, None, 'new@example.com', {})
+        self.assertEqual(family.email, 'new@example.com')
+        self.assertEqual(family.name, 'New Family Name')
+
+    def test_family_empty_value_never_blanks_existing_data(self):
+        family = self.env['res.partner'].create({
+            'name': 'Kept Family', 'contact_type': 'family',
+            'document_id': '77777779Z', 'email': 'kept@example.com', 'city': 'Girona'})
+        wizard = self._wizard(overwrite=True)
+        wizard._get_or_create_family(
+            'Kept Family', '77777779Z', None, None, None, {'city': '', 'street': False})
+        self.assertEqual(family.email, 'kept@example.com')
+        self.assertEqual(family.city, 'Girona')

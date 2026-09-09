@@ -3,6 +3,8 @@ from datetime import date
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
+from odoo.addons.ems.models.shared.attendance_mixin import EMS_SKIP_AUTO_SCHEDULE_SYNC
+
 from .common import create_level_study
 
 
@@ -726,7 +728,7 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
     def test_resync_updates_schedule_line_in_place_when_no_sessions(self):
         # A matched line (same weekday/time) whose room changed, with no real attendance history
         # yet, must be updated in place - same DB id - not archived and recreated. See
-        # 'ems.attendance_template._match_schedule_lines'/'_write_schedule_sync'.
+        # 'ems.attendance_template._decide_schedule_line_changes'/'_write_schedule_sync'.
         self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry(9, 10, '0')])
         line = self.env['ems.attendance_schedule'].search([
             ('attendance_template_id.teacher_ids', 'in', self.teacher.id),
@@ -1034,11 +1036,16 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
         # recorded under their OWN subject_id, physically sharing a room/slot with the group's main
         # teacher - not recognized as co-teaching (is_co_teaching_with needs a matching subject_id),
         # so regenerating from calendars must drop one side rather than aborting the whole batch.
-        self.teacher.resource_calendar_id.write({'attendance_ids': [(0, 0, {
+        # NOTE: fixture setup deliberately builds a real, unresolved conflict across two teachers -
+        # since the bottom-up sync redesign's automatic hook (EMS_SKIP_AUTO_SCHEDULE_SYNC's own
+        # docstring, ems.attendance_mixin) would otherwise try to sync each write immediately and
+        # raise the very conflict this test wants regenerate_all_from_calendars() itself to resolve,
+        # suppressed here exactly like any other batch caller building up state before its own sync.
+        self.teacher.resource_calendar_id.with_context(**{EMS_SKIP_AUTO_SCHEDULE_SYNC: True}).write({'attendance_ids': [(0, 0, {
             'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning', 'name': 'Main',
             'subject_id': self.subject.id, 'group_ids': [(6, 0, [self.group.id])], 'space_id': self.space.id,
         })]})
-        self.other_teacher.resource_calendar_id.write({'attendance_ids': [(0, 0, {
+        self.other_teacher.resource_calendar_id.with_context(**{EMS_SKIP_AUTO_SCHEDULE_SYNC: True}).write({'attendance_ids': [(0, 0, {
             'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning', 'name': 'Support',
             'subject_id': self.other_subject.id, 'group_ids': [(6, 0, [self.group.id])], 'space_id': self.space.id,
         })]})
@@ -1256,4 +1263,312 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
 
         self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [])
 
+        self.assertFalse(self.env['ems.attendance_template'].browse(template_id).exists())
+
+
+class TestDecideScheduleLineChanges(TransactionCase):
+    """Bottom-up sync redesign (issue: resource.calendar.attendance -> sync, 2026-09-08) - Phase 1:
+    isolated unit tests for '_decide_schedule_line_changes' (renamed/relocated from
+    '_match_schedule_lines', same algorithm), the "bottom" pure decision function of the sync
+    pipeline. Deliberately does NOT go through sync_from_schedule/sync_from_schedule_batch or any
+    calendar row at all - only ems.attendance_template/ems.attendance_schedule fixtures built
+    directly, and direct calls to the method under test, exactly as its own docstring promises
+    ("safely callable on its own outside the rest of the pipeline")."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.level, cls.study = create_level_study(cls, 'TDSL', level={'name': 'Test Level (Decide Schedule Line Changes)'}, study={
+            'code': 'TDSL001', 'name': 'Test Study (Decide Schedule Line Changes)', 'date': date.today(),
+        })
+        cls.subject = cls.env['ems.subject'].create({
+            'code': 'TDSL001', 'acronym': 'TDSL', 'name': 'Test Subject (Decide Schedule Line Changes)',
+            'study_ids': [(6, 0, [cls.study.id])],
+        })
+        cls.space, cls.other_space = cls.env['ems.space'].create([{
+            'code': code, 'name': name,
+            'space_type_id': cls.env.ref('ems.space_type_classroom').id,
+            'work_location_id': cls.env.ref('ems.work_location_main').id,
+        } for code, name in (('TDSL-A', 'Test Space A (Decide Schedule Line Changes)'), ('TDSL-B', 'Test Space B (Decide Schedule Line Changes)'))])
+        cls.group = cls.env['ems.group'].create({
+            'course': 1, 'acronym': 'TDSL', 'level_id': cls.level.id, 'study_id': cls.study.id, 'space_id': cls.space.id,
+        })
+        cls.teacher = cls.env['hr.employee'].create({
+            'name': 'Test Teacher (Decide Schedule Line Changes)', 'employee_type': 'teacher',
+        })
+
+    def _entry(self, hour_from, hour_to, dayofweek, space=None):
+        entry = {
+            'subject_id': self.subject.id, 'group_ids': [self.group.id],
+            'hour_from': hour_from, 'hour_to': hour_to, 'dayofweek': dayofweek,
+        }
+        if space is not None:
+            entry['space_id'] = space.id
+        return entry
+
+    def _template_with_lines(self, *lines):
+        """'lines' is a list of (hour_from, hour_to, dayofweek, space) tuples - built directly via
+        the ORM, never through sync_from_schedule, so this test stays independent of it."""
+        template = self.env['ems.attendance_template'].create({
+            'teacher_ids': [(6, 0, [self.teacher.id])], 'subject_id': self.subject.id,
+            'group_ids': [(6, 0, [self.group.id])], 'study_ids': [(6, 0, [self.study.id])],
+            'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
+        })
+        for hour_from, hour_to, dayofweek, space in lines:
+            self.env['ems.attendance_schedule'].create({
+                'attendance_template_id': template.id, 'weekday': dayofweek,
+                'start_time': hour_from, 'end_time': hour_to, 'space_id': space.id,
+            })
+        return template
+
+    def test_matched_identical_line_is_untouched(self):
+        template = self._template_with_lines((9, 10, '0', self.space))
+        result = self.env['ems.attendance_template']._decide_schedule_line_changes(
+            template, [self._entry(9, 10, '0')], self.space.id)
+        self.assertFalse(result['stale_lines'])
+        self.assertFalse(result['lines_to_rewrite'])
+        self.assertFalse(result['fresh_entries'])
+
+    def test_line_with_no_matching_entry_is_stale(self):
+        template = self._template_with_lines((9, 10, '0', self.space))
+        result = self.env['ems.attendance_template']._decide_schedule_line_changes(template, [], self.space.id)
+        self.assertEqual(result['stale_lines'], template.attendance_schedule_ids)
+        self.assertFalse(result['lines_to_rewrite'])
+        self.assertFalse(result['fresh_entries'])
+
+    def test_entry_with_no_matching_line_is_fresh(self):
+        template = self._template_with_lines()
+        entry = self._entry(9, 10, '0')
+        result = self.env['ems.attendance_template']._decide_schedule_line_changes(template, [entry], self.space.id)
+        self.assertFalse(result['stale_lines'])
+        self.assertFalse(result['lines_to_rewrite'])
+        self.assertEqual(result['fresh_entries'], [entry])
+
+    def test_matched_line_with_different_space_is_rewritten(self):
+        template = self._template_with_lines((9, 10, '0', self.space))
+        entry = self._entry(9, 10, '0', space=self.other_space)
+        result = self.env['ems.attendance_template']._decide_schedule_line_changes(template, [entry], self.space.id)
+        self.assertFalse(result['stale_lines'])
+        self.assertEqual(result['lines_to_rewrite'], [(template.attendance_schedule_ids, entry)])
+        self.assertFalse(result['fresh_entries'])
+
+    def test_mixed_combination_across_several_lines_and_entries(self):
+        # Monday stays untouched, Tuesday goes stale (no entry), Wednesday is fresh (no line),
+        # Thursday is rewritten (matched slot, different room) - all in one call.
+        template = self._template_with_lines(
+            (9, 10, '0', self.space), (9, 10, '1', self.space), (9, 10, '3', self.space),
+        )
+        monday_line = template.attendance_schedule_ids.filtered(lambda line: line.weekday == '0')
+        thursday_line = template.attendance_schedule_ids.filtered(lambda line: line.weekday == '3')
+        wednesday_entry = self._entry(9, 10, '2')
+        thursday_entry = self._entry(9, 10, '3', space=self.other_space)
+
+        result = self.env['ems.attendance_template']._decide_schedule_line_changes(
+            template, [self._entry(9, 10, '0'), wednesday_entry, thursday_entry], self.space.id)
+
+        self.assertEqual(result['stale_lines'], template.attendance_schedule_ids.filtered(lambda line: line.weekday == '1'))
+        self.assertEqual(result['lines_to_rewrite'], [(thursday_line, thursday_entry)])
+        self.assertEqual(result['fresh_entries'], [wednesday_entry])
+        # Monday: matched, identical - confirmed by exclusion from every other bucket above.
+        self.assertNotIn(monday_line, result['stale_lines'])
+
+
+class TestApplyScheduleLineChanges(TransactionCase):
+    """Bottom-up sync redesign (issue: resource.calendar.attendance -> sync, 2026-09-08) - Phase 2:
+    isolated unit tests for '_apply_schedule_line_archive_pass'/'_apply_schedule_line_write_pass' (extracted
+    unchanged from '_archive_stale_schedule_sync'/'_write_schedule_sync''s own per-key bodies) -
+    the "apply this one template's already-decided changes" pieces, one level above the pure
+    '_decide_schedule_line_changes' from Phase 1. Builds the decision dict directly (bypassing
+    Phase 1's own method call, so a Phase 1 regression can never mask a Phase 2 one) and asserts
+    the real DB writes these two methods produce - still without going through
+    sync_from_schedule/sync_from_schedule_batch or any resource.calendar.attendance at all."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.level, cls.study = create_level_study(cls, 'TASL', level={'name': 'Test Level (Apply Schedule Line Changes)'}, study={
+            'code': 'TASL001', 'name': 'Test Study (Apply Schedule Line Changes)', 'date': date.today(),
+        })
+        cls.subject = cls.env['ems.subject'].create({
+            'code': 'TASL001', 'acronym': 'TASL', 'name': 'Test Subject (Apply Schedule Line Changes)',
+            'study_ids': [(6, 0, [cls.study.id])],
+        })
+        cls.space, cls.other_space = cls.env['ems.space'].create([{
+            'code': code, 'name': name,
+            'space_type_id': cls.env.ref('ems.space_type_classroom').id,
+            'work_location_id': cls.env.ref('ems.work_location_main').id,
+        } for code, name in (('TASL-A', 'Test Space A (Apply Schedule Line Changes)'), ('TASL-B', 'Test Space B (Apply Schedule Line Changes)'))])
+        cls.group = cls.env['ems.group'].create({
+            'course': 1, 'acronym': 'TASL', 'level_id': cls.level.id, 'study_id': cls.study.id, 'space_id': cls.space.id,
+        })
+        cls.teacher = cls.env['hr.employee'].create({
+            'name': 'Test Teacher (Apply Schedule Line Changes)', 'employee_type': 'teacher',
+        })
+
+    def _entry(self, hour_from, hour_to, dayofweek, space=None):
+        entry = {
+            'subject_id': self.subject.id, 'group_ids': [self.group.id],
+            'hour_from': hour_from, 'hour_to': hour_to, 'dayofweek': dayofweek,
+        }
+        if space is not None:
+            entry['space_id'] = space.id
+        return entry
+
+    def _template_with_line(self, hour_from=9, hour_to=10, dayofweek='0', space=None):
+        template = self.env['ems.attendance_template'].create({
+            'teacher_ids': [(6, 0, [self.teacher.id])], 'subject_id': self.subject.id,
+            'group_ids': [(6, 0, [self.group.id])], 'study_ids': [(6, 0, [self.study.id])],
+            'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
+        })
+        line = self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id, 'weekday': dayofweek,
+            'start_time': hour_from, 'end_time': hour_to, 'space_id': (space or self.space).id,
+        })
+        return template, line
+
+    def _give_real_session(self, line):
+        self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': line.id, 'date': date.today(), 'mode': 'guard',
+            'session_teacher_id': self.teacher.id,
+        })
+        self.assertTrue(line.has_sessions)
+
+    def test_archive_stale_line(self):
+        template, line = self._template_with_line()
+        template._apply_schedule_line_archive_pass({'stale_lines': line, 'lines_to_rewrite': [], 'fresh_entries': []})
+        self.assertFalse(line.active)
+
+    def test_archive_leaves_no_session_rewrite_untouched(self):
+        # Not archived here - '_apply_schedule_line_write_pass' updates it in place instead (see that test).
+        template, line = self._template_with_line()
+        entry = self._entry(9, 10, '0', space=self.other_space)
+        template._apply_schedule_line_archive_pass({'stale_lines': template.env['ems.attendance_schedule'], 'lines_to_rewrite': [(line, entry)], 'fresh_entries': []})
+        self.assertTrue(line.active)
+
+    def test_archive_archives_real_session_rewrite(self):
+        template, line = self._template_with_line()
+        self._give_real_session(line)
+        entry = self._entry(9, 10, '0', space=self.other_space)
+        template._apply_schedule_line_archive_pass({'stale_lines': template.env['ems.attendance_schedule'], 'lines_to_rewrite': [(line, entry)], 'fresh_entries': []})
+        self.assertFalse(line.active)
+
+    def test_write_creates_fresh_line(self):
+        template = self.env['ems.attendance_template'].create({
+            'teacher_ids': [(6, 0, [self.teacher.id])], 'subject_id': self.subject.id,
+            'group_ids': [(6, 0, [self.group.id])], 'study_ids': [(6, 0, [self.study.id])],
+            'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
+        })
+        entry = self._entry(9, 10, '0')
+        template._apply_schedule_line_write_pass({'stale_lines': template.env['ems.attendance_schedule'], 'lines_to_rewrite': [], 'fresh_entries': [entry]}, self.space.id)
+        self.assertEqual(len(template.attendance_schedule_ids), 1)
+        self.assertEqual(template.attendance_schedule_ids.space_id, self.space)
+
+    def test_write_updates_no_session_rewrite_in_place(self):
+        template, line = self._template_with_line()
+        line_id = line.id
+        entry = self._entry(9, 10, '0', space=self.other_space)
+        template._apply_schedule_line_write_pass({'stale_lines': template.env['ems.attendance_schedule'], 'lines_to_rewrite': [(line, entry)], 'fresh_entries': []}, self.space.id)
+        self.assertEqual(len(template.attendance_schedule_ids), 1)
+        self.assertEqual(template.attendance_schedule_ids.id, line_id)
+        self.assertEqual(template.attendance_schedule_ids.space_id, self.other_space)
+
+    def test_write_clones_real_session_rewrite_carrying_students(self):
+        template, line = self._template_with_line()
+        self._give_real_session(line)
+        student = self.env['res.partner'].create({'name': 'Test Student (Apply Schedule Line Changes)', 'contact_type': 'student'})
+        line.student_ids = [(6, 0, [student.id])]
+        entry = self._entry(9, 10, '0', space=self.other_space)
+        changes = {'stale_lines': template.env['ems.attendance_schedule'], 'lines_to_rewrite': [(line, entry)], 'fresh_entries': []}
+        # The archive step must run first (see test_archive_archives_real_session_rewrite) - reuse
+        # it here instead of hand-rolling the bypass context, same ordering the real callers enforce.
+        template._apply_schedule_line_archive_pass(changes)
+        line_id = line.id
+
+        template._apply_schedule_line_write_pass(changes, self.space.id)
+
+        new_line = template.attendance_schedule_ids
+        self.assertEqual(len(new_line), 1)
+        self.assertNotEqual(new_line.id, line_id)
+        self.assertEqual(new_line.space_id, self.other_space)
+        self.assertEqual(new_line.student_ids, student)
+
+    def test_write_fills_students_only_for_fresh_slots(self):
+        template, line = self._template_with_line()
+        fresh_entry = self._entry(10, 11, '0')
+        template._apply_schedule_line_write_pass({'stale_lines': template.env['ems.attendance_schedule'], 'lines_to_rewrite': [], 'fresh_entries': [fresh_entry]}, self.space.id)
+        fresh_line = template.attendance_schedule_ids.filtered(lambda candidate, line=line: candidate != line)
+        old_line = template.attendance_schedule_ids - fresh_line
+        self.assertEqual(old_line, line)
+        self.assertFalse(old_line.student_ids)
+        # fill_students() derives the roster from ems.enrollment (none seeded here) - the real
+        # assertion worth making without a full enrollment fixture is simply that it ran without
+        # error and left the untouched old line's own roster alone (checked above), not that the
+        # new line ends up non-empty (it won't, with zero enrollments in this isolated fixture).
+
+
+class TestEmployeeSyncScheduleFromCalendar(TransactionCase):
+    """Bottom-up sync redesign (issue: resource.calendar.attendance -> sync, 2026-09-08) - Phase 3:
+    tests for 'hr.employee._ems_sync_schedule_from_calendar()', the per-teacher entry point built
+    on top of the Phase 1+2 pieces (not new reconciliation logic - see that method's own
+    docstring). Unlike Phase 1/2's tests, this one DOES create real resource.calendar.attendance
+    rows directly (bypassing any sync) and calls the new method to prove the whole "read the
+    calendar, sync the schedule" round trip works end-to-end through this specific entry point -
+    still without going through apply_schedule_changes/the import wizard/any hook (Phase 4)."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.level, cls.study = create_level_study(cls, 'TESF', level={'name': 'Test Level (Employee Sync Schedule From Calendar)'}, study={
+            'code': 'TESF001', 'name': 'Test Study (Employee Sync Schedule From Calendar)', 'date': date.today(),
+        })
+        cls.subject = cls.env['ems.subject'].create({
+            'code': 'TESF001', 'acronym': 'TESF', 'name': 'Test Subject (Employee Sync Schedule From Calendar)',
+            'study_ids': [(6, 0, [cls.study.id])],
+        })
+        cls.space = cls.env['ems.space'].create({
+            'code': 'TESF-A', 'name': 'Test Space (Employee Sync Schedule From Calendar)',
+            'space_type_id': cls.env.ref('ems.space_type_classroom').id,
+            'work_location_id': cls.env.ref('ems.work_location_main').id,
+        })
+        cls.group = cls.env['ems.group'].create({
+            'course': 1, 'acronym': 'TESF', 'level_id': cls.level.id, 'study_id': cls.study.id, 'space_id': cls.space.id,
+        })
+        cls.teacher = cls.env['hr.employee'].create({
+            'name': 'Test Teacher (Employee Sync Schedule From Calendar)', 'employee_type': 'teacher',
+        })
+
+    def _add_calendar_block(self, hour_from=9, hour_to=10, dayofweek='0'):
+        return self.env['resource.calendar.attendance'].create({
+            'calendar_id': self.teacher.resource_calendar_id.id, 'name': 'Test block',
+            'dayofweek': dayofweek, 'hour_from': hour_from, 'hour_to': hour_to, 'day_period': 'morning',
+            'group_ids': [self.group.id], 'subject_id': self.subject.id, 'space_id': self.space.id,
+        })
+
+    def test_syncs_a_fresh_template_and_line_from_the_calendar(self):
+        self._add_calendar_block()
+
+        self.teacher._ems_sync_schedule_from_calendar()
+
+        template = self.env['ems.attendance_template'].search([
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
+        ])
+        self.assertEqual(len(template), 1)
+        self.assertEqual(template.attendance_schedule_ids.space_id, self.space)
+        self.assertTrue(self.env['ems.teaching'].search([
+            ('teacher_id', '=', self.teacher.id), ('subject_id', '=', self.subject.id),
+        ]))
+
+    def test_removing_the_calendar_block_archives_the_orphaned_schedule_line(self):
+        block = self._add_calendar_block()
+        self.teacher._ems_sync_schedule_from_calendar()
+        template = self.env['ems.attendance_template'].search([
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
+        ])
+        template_id = template.id
+
+        block.unlink()
+        self.teacher._ems_sync_schedule_from_calendar()
+
+        # No real attendance history behind it - _archive_or_delete() removes it outright rather
+        # than leaving dead clutter (same convention already covered elsewhere in this file).
         self.assertFalse(self.env['ems.attendance_template'].browse(template_id).exists())

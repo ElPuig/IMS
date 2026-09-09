@@ -262,11 +262,54 @@ class EmsAttendanceTemplate(models.Model):
 		before writing ANY group's fresh ones — doing this one group at a time can raise a false
 		check_overlap() collision when two groups share a classroom: the first group's fresh line would
 		be checked against the second group's still-active STALE line, since that second group hasn't
-		been re-synced yet at that point."""
+		been re-synced yet at that point.
+
+		An entry with no resolvable 'space_id' (developer decision, 2026-09-08, bottom-up sync
+		redesign, see '_plan_schedule_sync's own handling) never crashes this pipeline on
+		'ems.attendance_schedule.space_id's NOT NULL constraint - deliberately NOT filtered out
+		HERE, before reconciliation, though: an earlier version of this fix did exactly that, and
+        it broke a genuinely different, worse way - dropping the entry before
+		'_reconcile_teacher_groups' ever sees it makes that method think the teacher no longer
+		teaches this at all, silently VACATING (and, with no real sessions, DELETING) an already-
+		correctly-roomed existing template just because the group's OWN default happened to be
+		empty. The resolution instead happens per-key, once the existing survivor's own lines are
+		known (so a slot that already has a real room keeps it, untouched)."""
 		merged_groups, vacated = self._reconcile_teacher_groups(teacher_entries)
 		vacated._archive_or_delete()
 		self._run_schedule_sync_plans(merged_groups, start_date=start_date)
 		self._link_calendar_attendance(merged_groups)
+
+	def _entries_with_a_resolvable_space(self, entries, existing_lines, group_space_id):
+		"""Bottom-up sync redesign (2026-09-08, developer decision after real fixture fallout during
+		Phase 4: skip silently, never crash a background sync over a group that simply has no
+		classroom yet - deliberately DIFFERENT from the working-schedules import wizard's own
+		'_groups_without_space', which still raises a clear, actionable error - that one is a human-
+		driven, interactive call with someone there to read and act on it; the automatic
+		resource.calendar.attendance hook has no such moment, so silently not creating/rewriting an
+		incomplete schedule line is the only sane default). Called per (subject, group-set) key,
+		once 'existing_lines' (the survivor template's own CURRENT lines, before this sync) is
+		known - NOT earlier, before reconciliation (see 'sync_from_schedule_batch's own note on why
+		an earlier version of this fix, filtering before '_reconcile_teacher_groups' ever ran,
+		wrongly looked like "nobody teaches this anymore" and vacated/deleted an already-correctly-
+		roomed template).
+
+		An entry resolves its space, in order: its own explicit 'space_id' (a one-off override,
+		same convention '_schedule_line_vals' already uses) > the group's own default
+		('group_space_id') > whatever room the line ALREADY at this exact slot has, if any (so a
+		pre-existing, already-roomed line is never treated as needing a room-less rewrite just
+		because the group's own default is empty or missing - it keeps its own room, untouched).
+		Only dropped if none of the three resolves anything - a genuinely brand new slot with no
+		room anywhere to infer one from."""
+		lines_by_slot = {(line.weekday, line.start_time, line.end_time): line for line in existing_lines}
+		resolved = []
+		for entry in entries:
+			if entry.get('space_id') or group_space_id:
+				resolved.append(entry)
+				continue
+			existing_line = lines_by_slot.get((entry['dayofweek'], entry['hour_from'], entry['hour_to']))
+			if existing_line:
+				resolved.append({**entry, 'space_id': existing_line.space_id.id})
+		return resolved
 
 	def regenerate_all_from_calendars(self, teachers=None):
 		"""Archive every active template outright, then rebuild an equivalent, fully calendar-backed
@@ -564,6 +607,16 @@ class EmsAttendanceTemplate(models.Model):
 						'dayofweek': line.weekday,
 						'hour_from': line.start_time,
 						'hour_to': line.end_time,
+						# NOTE: bug found 2026-09-08 (bottom-up sync redesign, Phase 4) - without this,
+						# an untouched teacher's own slot silently forgot whatever real room the
+						# EXISTING line already had, falling back to the group's OWN default instead
+						# (see '_schedule_line_vals's 'entry.get("space_id", space_id)') - harmless
+						# whenever that default happens to agree, but wrong (and, if the group has no
+						# default at all, a NOT NULL crash) whenever the line's own room had legitimately
+						# diverged from it. Never exercised before this redesign: nothing called
+						# sync_from_schedule_batch for an "untouched" bystander teacher like this until
+						# the automatic resource.calendar.attendance hook started doing so.
+						'space_id': line.space_id.id,
 					}})
 					by_slot[slot_key]['teacher_ids'].update(untouched.ids)
 
@@ -764,7 +817,9 @@ class EmsAttendanceTemplate(models.Model):
 		for key, templates in old_items.items():
 			if key in grouped_entries:
 				first_group = self.env['ems.group'].browse(grouped_entries[key][0]["group_ids"][0])
-				line_sync[key] = self._match_schedule_lines(templates[0], grouped_entries[key], first_group.space_id.id)
+				resolved_entries = self._entries_with_a_resolvable_space(
+					grouped_entries[key], templates[0].attendance_schedule_ids, first_group.space_id.id)
+				line_sync[key] = self._decide_schedule_line_changes(templates[0], resolved_entries, first_group.space_id.id)
 
 		return {
 			'teachers': teachers,
@@ -775,10 +830,19 @@ class EmsAttendanceTemplate(models.Model):
 			'end_date': end_date,
 		}
 
-	def _match_schedule_lines(self, survivor, group_entries, space_id):
-		"""Matches 'survivor's current active schedule lines against 'group_entries' (this sync's
-		freshly reconciled slots for the same key) by (weekday, start_time, end_time) - a line's own
-		identity within a template. Returns {'stale_lines', 'lines_to_rewrite', 'fresh_entries'}:
+	@api.model
+	def _decide_schedule_line_changes(self, template, entries, space_id):
+		"""The "bottom" decision of the sync pipeline (issue: resource.calendar.attendance → sync
+		bottom-up redesign, 2026-09-08) - a pure function, no writes, no side effects, safely callable
+		on its own outside the rest of the pipeline (see tests/test_attendance_template.py's own
+		isolated unit tests for it). Renamed/relocated from '_match_schedule_lines' - same algorithm,
+		unchanged, just a clearer name and an explicit '@api.model' marking that it never actually
+		needs 'self' to be a specific record (it was already effectively stateless).
+
+		Matches 'template's current active schedule lines against 'entries' (this sync's freshly
+		reconciled slots for the same subject+group-set+teacher-set key) by (weekday, start_time,
+		end_time) - a line's own identity within a template. Returns {'stale_lines',
+		'lines_to_rewrite', 'fresh_entries'}:
 		- 'stale_lines': lines with no matching entry at all - genuinely gone, always archived
 		  outright regardless of 'has_sessions' (archiving is never locked, only in-place field
 		  edits are - see 'ems.attendance_mixin').
@@ -787,11 +851,11 @@ class EmsAttendanceTemplate(models.Model):
 		- 'fresh_entries': entries with no matching existing line - a genuinely new schedule line.
 		A line whose matched entry is identical in every synced field (including 'space_id') is left
 		out of all three entirely - not even a no-op archive+recreate."""
-		lines_by_slot = {(line.weekday, line.start_time, line.end_time): line for line in survivor.attendance_schedule_ids}
+		lines_by_slot = {(line.weekday, line.start_time, line.end_time): line for line in template.attendance_schedule_ids}
 		matched_slots = set()
 		lines_to_rewrite = []
 		fresh_entries = []
-		for entry in group_entries:
+		for entry in entries:
 			slot = (entry["dayofweek"], entry["hour_from"], entry["hour_to"])
 			line = lines_by_slot.get(slot)
 			if line is None:
@@ -800,7 +864,7 @@ class EmsAttendanceTemplate(models.Model):
 			matched_slots.add(slot)
 			if line.space_id.id != entry.get("space_id", space_id):
 				lines_to_rewrite.append((line, entry))
-		stale_lines = survivor.attendance_schedule_ids.filtered(
+		stale_lines = template.attendance_schedule_ids.filtered(
 			lambda line: (line.weekday, line.start_time, line.end_time) not in matched_slots)
 		return {'stale_lines': stale_lines, 'lines_to_rewrite': lines_to_rewrite, 'fresh_entries': fresh_entries}
 
@@ -822,6 +886,78 @@ class EmsAttendanceTemplate(models.Model):
 		see '_schedule_line_vals' for the shared per-entry shape."""
 		return [(0, 0, self._schedule_line_vals(entry, space_id)) for entry in group_entries]
 
+	def _apply_schedule_line_archive_pass(self, changes):
+		"""Bottom-up sync redesign, Phase 2 (2026-09-08, renamed from '_archive_stale_schedule_
+		changes' after developer review - "stale" undersold what this actually archives, see
+		below) - the FIRST of a mandatory pair with '_apply_schedule_line_write_pass' below, one
+		level up from the pure '_decide_schedule_line_changes' (Phase 1). Given the {'stale_lines',
+		'lines_to_rewrite', 'fresh_entries'} dict that method returned for THIS template ('self' -
+		one record), archives two genuinely different things, for two different reasons:
+		- every 'stale_lines' record - these are truly gone, no calendar entry backs them anymore.
+		- only the 'lines_to_rewrite' entries that already 'has_sessions' - these are NOT gone at
+		  all (still taught, just moving room), archived here purely because a line with real
+		  attendance history is locked against an in-place edit - its replacement (a fresh clone
+		  carrying the new room) is created by the write pass below, not here.
+		Must run, for every template in a whole sync batch, BEFORE any template's write pass -
+		archiving one template's stale line while a DIFFERENT template's still-active stale line
+		shares its room would otherwise trip a false 'check_overlap' collision (see
+		'_archive_stale_schedule_sync'/'sync_from_schedule_batch' for the batch-level orchestration
+		this pairs with). No duplicate-template consolidation, no batch looping here - that
+		orchestration stays at the caller. Extracted unchanged from that method's own per-key
+		body, only renamed."""
+		self.ensure_one()
+		changes['stale_lines'].with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
+		# NOTE: a changed line only needs archiving here if it has real session history -
+		# 'has_sessions' doesn't depend on 'active', so '_apply_schedule_line_write_pass' below reads
+		# the same predicate independently without needing to track "was archived" state.
+		for line, _entry in changes['lines_to_rewrite']:
+			if line.has_sessions:
+				line.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
+
+	def _apply_schedule_line_write_pass(self, changes, space_id):
+		"""Bottom-up sync redesign, Phase 2 (2026-09-08, renamed from '_write_schedule_changes') -
+		the SECOND of the mandatory pair with '_apply_schedule_line_archive_pass' above, for the
+		SAME template ('self' - one record) - must run after it: a 'lines_to_rewrite' entry whose
+		line 'has_sessions' had its original already archived there, and this is what creates its
+		replacement clone (carrying the new room + the original's own student roster forward
+		unchanged). The other 'lines_to_rewrite' entries (no real history) were deliberately left
+		untouched by the archive pass - this is what writes their new room in place instead.
+		Extracted unchanged from '_write_schedule_sync''s own per-key body, only renamed."""
+		self.ensure_one()
+		new_lines = [(0, 0, self._schedule_line_vals(entry, space_id)) for entry in changes['fresh_entries']]
+		for line, entry in changes['lines_to_rewrite']:
+			vals = self._schedule_line_vals(entry, space_id)
+			if line.has_sessions:
+				# NOTE: already archived in '_apply_schedule_line_archive_pass' above - create
+				# its replacement here, same shape as any other fresh line. Carries the
+				# archived line's OWN roster forward explicitly - this is a room-only
+				# correction (see 'has_sessions'), not a fresh slot, so the student roster
+				# must survive it untouched rather than starting empty (see
+				# plans/calendar_driven_attendance_templates.md, point 1).
+				new_lines.append((0, 0, {**vals, 'student_ids': [(6, 0, line.student_ids.ids)]}))
+			else:
+				# NOTE: left untouched (not archived) in the pass above - safe to update in
+				# place, same "no sessions yet" reasoning as
+				# 'ems.attendance_mixin._write_or_new_version'. 'student_ids' is not in
+				# 'vals' at all here, so the line's own roster is naturally untouched too.
+				line.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).write(vals)
+		# NOTE: sudo() - 'new_lines' contains (0, 0, {...}) create commands, and create() is
+		# revoked for every group on ems.attendance_schedule (see this same lock refinement) -
+		# a schedule line only ever comes into existence as a consequence of this sync.
+		self.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).sudo().write({
+			'attendance_schedule_ids': new_lines,
+		})
+		# NOTE: only the genuinely NEW slots ('fresh_entries') need fill_students() - a
+		# rewritten line (has_sessions or not) already carries or keeps its own roster
+		# untouched above, and blindly filling every line here would silently overwrite a
+		# teacher's manual per-line roster customization on every resync, defeating the
+		# whole point of point 1 in plans/calendar_driven_attendance_templates.md.
+		fresh_slots = {(entry["dayofweek"], entry["hour_from"], entry["hour_to"]) for entry in changes['fresh_entries']}
+		if fresh_slots:
+			self.attendance_schedule_ids.filtered(
+				lambda line, fresh_slots=fresh_slots: (line.weekday, line.start_time, line.end_time) in fresh_slots
+			).fill_students()
+
 	def _archive_stale_schedule_sync(self, plan):
 		"""First pass: archive every schedule line about to be removed or replaced by '_write_schedule_sync'.
 		Must run for every plan in a batch before any plan's '_write_schedule_sync' — see
@@ -841,14 +977,7 @@ class EmsAttendanceTemplate(models.Model):
 				survivor, duplicates = templates[0], templates[1:]
 				if duplicates:
 					duplicates._archive_or_delete()
-				line_sync = plan['line_sync'][key]
-				line_sync['stale_lines'].with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
-				# NOTE: a changed line only needs archiving here if it has real session history -
-				# 'has_sessions' doesn't depend on 'active', so '_write_schedule_sync' below reads
-				# the same predicate independently without needing to track "was archived" state.
-				for line, _entry in line_sync['lines_to_rewrite']:
-					if line.has_sessions:
-						line.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
+				survivor._apply_schedule_line_archive_pass(plan['line_sync'][key])
 
 	def _write_schedule_sync(self, plan):
 		"""Second pass: refresh persisting templates and create genuinely new ones from 'plan'."""
@@ -861,43 +990,7 @@ class EmsAttendanceTemplate(models.Model):
 				# order) — any other duplicate sharing this key was already fully archived there.
 				survivor = templates[0]
 				first_group = self.env['ems.group'].browse(grouped_entries[key][0]["group_ids"][0])
-				line_sync = plan['line_sync'][key]
-				new_lines = [
-					(0, 0, self._schedule_line_vals(entry, first_group.space_id.id))
-					for entry in line_sync['fresh_entries']
-				]
-				for line, entry in line_sync['lines_to_rewrite']:
-					vals = self._schedule_line_vals(entry, first_group.space_id.id)
-					if line.has_sessions:
-						# NOTE: already archived in '_archive_stale_schedule_sync' above - create
-						# its replacement here, same shape as any other fresh line. Carries the
-						# archived line's OWN roster forward explicitly - this is a room-only
-						# correction (see 'has_sessions'), not a fresh slot, so the student roster
-						# must survive it untouched rather than starting empty (see
-						# plans/calendar_driven_attendance_templates.md, point 1).
-						new_lines.append((0, 0, {**vals, 'student_ids': [(6, 0, line.student_ids.ids)]}))
-					else:
-						# NOTE: left untouched (not archived) in the pass above - safe to update in
-						# place, same "no sessions yet" reasoning as
-						# 'ems.attendance_mixin._write_or_new_version'. 'student_ids' is not in
-						# 'vals' at all here, so the line's own roster is naturally untouched too.
-						line.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).write(vals)
-				# NOTE: sudo() - 'new_lines' contains (0, 0, {...}) create commands, and create() is
-				# revoked for every group on ems.attendance_schedule (see this same lock refinement) -
-				# a schedule line only ever comes into existence as a consequence of this sync.
-				survivor.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).sudo().write({
-					'attendance_schedule_ids': new_lines,
-				})
-				# NOTE: only the genuinely NEW slots ('fresh_entries') need fill_students() - a
-				# rewritten line (has_sessions or not) already carries or keeps its own roster
-				# untouched above, and blindly filling every line here would silently overwrite a
-				# teacher's manual per-line roster customization on every resync, defeating the
-				# whole point of point 1 in plans/calendar_driven_attendance_templates.md.
-				fresh_slots = {(entry["dayofweek"], entry["hour_from"], entry["hour_to"]) for entry in line_sync['fresh_entries']}
-				if fresh_slots:
-					survivor.attendance_schedule_ids.filtered(
-						lambda line, fresh_slots=fresh_slots: (line.weekday, line.start_time, line.end_time) in fresh_slots
-					).fill_students()
+				survivor._apply_schedule_line_write_pass(plan['line_sync'][key], first_group.space_id.id)
 
 		# NOTE: offset by the count of every template ever created (not just this batch), so
 		# consecutive sync calls keep rotating through the palette instead of every batch
@@ -912,6 +1005,14 @@ class EmsAttendanceTemplate(models.Model):
 			# TODO: define default start and end date for subjects within settings.
 			groups = self.env['ems.group'].browse(group_entries[0]["group_ids"])
 			first_group = groups[:1]
+			# NOTE: no existing lines to fall back to at all (this key has no survivor template
+			# yet) - an entry with no resolvable space is simply dropped (see
+			# '_entries_with_a_resolvable_space'); if that empties the whole key, there is nothing
+			# left worth creating a brand-new template for.
+			group_entries = self._entries_with_a_resolvable_space(
+				group_entries, self.env['ems.attendance_schedule'], first_group.space_id.id)
+			if not group_entries:
+				continue
 			templates[key] = {
 				'start_date': plan['start_date'],
 				'end_date': plan['end_date'],

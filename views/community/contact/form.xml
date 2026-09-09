@@ -57,7 +57,40 @@
                                 class="btn-secondary"
                                 invisible="google_ws_state != 'suspended'"
                                 groups="ems.group_secretary,ems.group_academic_admin"/>
+                        <!-- Grace period (issue #388): leaving the school only schedules
+                             the suspension, and the suspension only schedules the
+                             deletion. Neither date is part of google_ws_state, so these
+                             are driven by the date fields themselves. -->
+                        <button name="action_cancel_scheduled_deactivation" type="object"
+                                string="Cancel scheduled deactivation"
+                                class="btn-secondary"
+                                invisible="not google_ws_deactivation_date"
+                                groups="ems.group_secretary,ems.group_academic_admin"/>
+                        <button name="action_delete_google_account" type="object"
+                                string="Delete Google account"
+                                class="btn-secondary"
+                                invisible="not google_ws_deletion_date"
+                                confirm="This deletes the corporate Google account for good: the mailbox and the Drive files cannot be recovered afterwards. Continue?"
+                                groups="ems.group_secretary,ems.group_academic_admin"/>
                     </header>
+                    <!-- Same groups as the buttons above: the teacher role has read
+                         access to every res.partner (rule_contact_teacher), so without
+                         this a tutor opening a former student's file would read the
+                         account's schedule while being unable to act on it. -->
+                    <div class="alert alert-warning" role="alert"
+                         invisible="not google_ws_deactivation_date"
+                         groups="ems.group_secretary,ems.group_academic_admin">
+                        The Google account is scheduled to be deactivated on
+                        <field name="google_ws_deactivation_date" readonly="1" nolabel="1"
+                               class="oe_inline"/>.
+                    </div>
+                    <div class="alert alert-danger" role="alert"
+                         invisible="not google_ws_deletion_date"
+                         groups="ems.group_secretary,ems.group_academic_admin">
+                        The suspended Google account is scheduled to be deleted for good on
+                        <field name="google_ws_deletion_date" readonly="1" nolabel="1"
+                               class="oe_inline"/>.
+                    </div>
                 </xpath>
 
                 <xpath expr="//field[@name='name'][last()]" position="attributes">

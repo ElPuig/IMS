@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import logging
+
 from odoo import models, fields, api, _
 from ..shared import base
 from .attendance_schedule import EmsAttendanceSchedule
@@ -7,6 +9,8 @@ from .attendance_justification import EmsAttendanceJustification
 from datetime import datetime, timedelta
 from odoo.exceptions import ValidationError, UserError, AccessError
 from psycopg2 import IntegrityError
+
+_logger = logging.getLogger(__name__)
 
 class EmsAttendanceSessionHeader(models.Model):
     _name = "ems.attendance_session_header"
@@ -226,6 +230,7 @@ class EmsAttendanceSessionHeader(models.Model):
     def _setup_next_session_line_data(self, previous):
         justified = self.env.ref("ems.attendance_status_justified")
         delayed = self.env.ref("ems.attendance_status_delayed")
+        delayed_severe = self.env.ref("ems.attendance_status_delayed_severe")
         attended = self.env.ref("ems.attendance_status_attended")
         miss = self.env.ref("ems.attendance_status_miss")
         if previous.status_id == justified:
@@ -237,13 +242,22 @@ class EmsAttendanceSessionHeader(models.Model):
             }
         return {
             "student_id": previous.student_id,
-            "status_id": attended.id if previous.status_id == delayed else previous.status_id.id,
+            "status_id": attended.id if previous.status_id in (delayed, delayed_severe) else previous.status_id.id,
             "notes": previous.notes,
             "is_auto_generated": True,
         }
 
     def _auto_checkin_teacher(self, teacher, date, schedule=None):
-        """Auto check-in the teacher if they haven't checked in yet today."""
+        """Auto check-in the teacher if they haven't checked in yet today.
+
+        Called from create() (see below) as a side effect of taking attendance, not the
+        teacher's own primary action - so any failure here must never block the session that
+        triggered it. See _do_auto_checkin() for the actual create() call and its own
+        failure-isolation, mirroring hr.attendance._close_stale_attendance_safely()'s pattern
+        (issue #422's own auto-checkout fix): a raw, unhandled error here (e.g. the exact
+        UniqueViolation that fix resolves, still possible for a colliding stale record from
+        before it was deployed) used to abort the whole session creation, blocking the
+        roll-call itself over what is only ever a side effect of it."""
         mode = self.env.company.auto_checkin_mode
         if not mode or mode == 'disabled':
             return
@@ -293,11 +307,45 @@ class EmsAttendanceSessionHeader(models.Model):
         else:
             return
 
-        self.env['hr.attendance'].sudo().create({
-            'employee_id': teacher.id,
-            'check_in': check_in_naive,
-            'in_mode': 'auto_check_in',
-        })
+        try:
+            with self.env.cr.savepoint():
+                self.env['hr.attendance'].sudo().create({
+                    'employee_id': teacher.id,
+                    'check_in': check_in_naive,
+                    'in_mode': 'auto_check_in',
+                })
+        except Exception:
+            _logger.exception(
+                "EMS auto-checkin: unexpected error auto-checking-in teacher %s while taking "
+                "attendance — skipping, the roll-call itself must not be blocked by this.",
+                teacher.name,
+            )
+            try:
+                self._notify_auto_checkin_failure(teacher)
+            except Exception:
+                _logger.exception(
+                    "EMS auto-checkin: could not notify about the failure above for "
+                    "teacher %s.", teacher.name,
+                )
+
+    def _notify_auto_checkin_failure(self, teacher):
+        """Same reasoning as hr.attendance._notify_close_failure() (issue #422): a failure here
+        must surface somewhere a human will actually see it, since the roll-call itself no
+        longer blocks on it and the server log alone is easy to miss."""
+        admins = self.env['res.users'].sudo().search([
+            ('groups_id', '=', self.env.ref('ems.group_academic_admin').id),
+        ])
+        for admin in admins:
+            teacher.sudo().activity_schedule(
+                'mail.mail_activity_data_todo',
+                user_id=admin.id,
+                summary=_('Automatic check-in failed'),
+                note=_(
+                    'Automatic check-in failed for %(employee)s while taking attendance '
+                    '(session %(session)s) due to an unexpected error. Please review and '
+                    'check them in manually if needed.'
+                ) % {'employee': teacher.display_name, 'session': self.display_name},
+            )
 
     def _auto_populate_lines(self):
         """Populate session lines when created via ORM (onchange doesn't fire outside form view)."""

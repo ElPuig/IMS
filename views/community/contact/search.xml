@@ -9,13 +9,33 @@
                     <field name="exit_course_id"/>
                     <filter name="students_only" string="Students" domain="[('contact_type', '=', 'student')]"/>
                     <filter name="former_students" string="Former students" domain="[('contact_type', 'in', ['alumni', 'withdrawal', 'expelled'])]"/>
+                    <!-- Its own filter group (hence the separators): adjacent filters are ORed,
+                         and this one must narrow the result set on top of the facets above,
+                         not widen it. Applied by default via action_student_kanban's
+                         'search_default_my_students' - see issue #421. -->
+                    <separator/>
+                    <filter name="my_students" string="My students" domain="[('is_my_student', '=', True)]"/>
                     <separator/>
                     <filter name="alumni" string="Alumni" domain="[('contact_type', '=', 'alumni')]"/>
                     <filter name="withdrawals" string="Withdrawals" domain="[('contact_type', '=', 'withdrawal')]"/>
                     <filter name="expelled" string="Expelled" domain="[('contact_type', '=', 'expelled')]"/>
+                    <!-- Google account lifecycle (#388). Restricted to the roles that can
+                         actually act on those accounts, matching the form's own buttons:
+                         the teacher role can read every res.partner, so an unrestricted
+                         filter would expose the schedule to whoever cannot act on it. -->
+                    <separator groups="ems.group_secretary,ems.group_academic_admin"/>
+                    <filter name="gw_deactivation_pending" string="Google suspension pending"
+                            domain="[('google_ws_deactivation_date', '!=', False)]"
+                            groups="ems.group_secretary,ems.group_academic_admin"/>
+                    <filter name="gw_deletion_pending" string="Google deletion pending"
+                            domain="[('google_ws_deletion_date', '!=', False)]"
+                            groups="ems.group_secretary,ems.group_academic_admin"/>
                     <group expand="0" string="Group By">
                         <filter name="group_by_exit_course" string="Exit course" context="{'group_by': 'exit_course_id'}"/>
                         <filter name="group_by_exit_type" string="Exit type" context="{'group_by': 'exit_type'}"/>
+                        <filter name="group_by_gw_deactivation_date" string="Google suspension date"
+                                context="{'group_by': 'google_ws_deactivation_date'}"
+                                groups="ems.group_secretary,ems.group_academic_admin"/>
                     </group>
                     <searchpanel>
                         <field name="main_group_id" string="Student group" icon="fa-users" enable_counters="1" />

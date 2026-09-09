@@ -1,12 +1,19 @@
-from datetime import date
+from datetime import date, timedelta
 
 from odoo.tests import HttpCase, tagged
 
-from .common import create_level_study, force_user_language_to_english
+from .common import create_level_study, force_user_language_to_english, mock_outgoing_email
 
 
 @tagged('post_install', '-at_install')
 class TestGuardDutyBoardTour(HttpCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        # Approving the absence seeded below posts to the chatter and notifies its followers -
+        # see CLAUDE.md's 'Email safety in tests'.
+        mock_outgoing_email(cls)
 
     def test_guard_duty_board_tour(self):
         force_user_language_to_english(self, self.env.ref('base.user_admin'))
@@ -97,5 +104,23 @@ class TestGuardDutyBoardTour(HttpCase):
             'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
             'subject_id': subject2.id, 'group_ids': [group2.id], 'name': 'TGDBT2: TGDBT2',
         }])
+
+        # An approved whole-day absence for the morning teacher, on the Monday of the week the
+        # board opens on - which is the same Monday its own date picker resolves (see mondayOf()
+        # in guard_duty_board.js: a weekend belongs to the week it closes, exactly as
+        # date.weekday() does here). Whole day explicitly: 'leave_type_justified' does not seed
+        # it, and a request that is neither a whole day nor a span of hours is worth zero hours,
+        # which hr_holidays itself then refuses to approve.
+        today = date.today()
+        monday = today - timedelta(days=today.weekday())
+        self.env['hr.leave'].create({
+            'employee_id': teacher.id,
+            'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
+            'request_date_from': monday,
+            'request_date_to': monday,
+            'ems_full_day': True,
+            'ems_submitted': True,
+            'ems_responsible_declaration': True,
+        }).action_approve()
 
         self.start_tour("/odoo", "ems_guard_duty_board", login="admin")

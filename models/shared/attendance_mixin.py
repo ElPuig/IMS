@@ -15,6 +15,25 @@ from odoo import models
 # without either model needing to import from the other.
 EMS_BYPASS_TEMPLATE_LOCK_KEY = 'ems_bypass_template_lock'
 
+# Bottom-up sync redesign (2026-09-08, docs/en/developers/attendance/attendance_template.md's
+# "Bottom-up sync redesign" section) - resource.calendar.attendance's own create()/write()/unlink()
+# now automatically re-syncs every affected teacher's schedule (hr.employee._ems_sync_schedule_
+# from_calendar(), Phase 3) after a relevant change, so no caller needs to remember to do it by
+# hand anymore. Default behavior (this flag ABSENT) is "sync" - the safe default, since forgetting
+# to think about this at all must never silently reproduce the old, pre-redesign staleness bug.
+# The ONLY reason to set this flag is a caller already doing its OWN batched sync across SEVERAL
+# teachers at once in one transaction - sync_from_schedule_batch's cross-template
+# archive-before-write ordering guarantee (see that method's own docstring: avoiding a false
+# room-conflict between two different teachers/templates mid-resync) only holds within ONE batched
+# call, not across N separate per-row hook triggers - such a caller sets this around its own
+# calendar-writing phase, then runs its own explicit batch sync afterward exactly as before. As of
+# Phase 7 (2026-09-08) the only real caller left is the working-schedules import wizard's own
+# per-teacher calendar write (_write_teacher_schedule) - course_transition_wizard.py no longer
+# suppresses at all (letting the hook fire is the whole point of its own Phase 7 simplification,
+# see docs/en/developers/settings/course_transition_wizard.md), and regenerate_all_from_calendars()
+# never needed to (it never touches resource.calendar.attendance in the first place).
+EMS_SKIP_AUTO_SCHEDULE_SYNC = 'ems_skip_auto_schedule_sync'
+
 
 class EmsAttendanceMixin(models.AbstractModel):
     _name = 'ems.attendance_mixin'

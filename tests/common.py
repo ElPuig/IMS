@@ -3,6 +3,7 @@
 (extracted after the DTON rollout found the same fixture/mock boilerplate hand-written
 identically across dozens of test files)."""
 
+import base64
 from unittest.mock import patch
 
 
@@ -71,3 +72,58 @@ def make_synchronous_run_in_thread(record):
         store(record)
         callback(record)
     return fake_run_in_thread
+
+
+def create_student_academic_file(cls, prefix, group, course=None, student=None):
+    """Seeds the data the student form's Secretary and Academic history tabs render.
+
+    An EMS enrolment is a `sale.order`, and the Secretary tab's authorizations are resolved
+    from it by `res.partner._ems_enrollment_in_force()` - which reads the *running* course, so
+    the enrolment has to hang off that one to be found. Returns a dict with every record, so a
+    test can assert on any of them.
+
+    Extracted after issue #393 needed the exact same fixture in a TransactionCase and in a tour.
+    """
+    Course = cls.env['ems.course']
+    # Mirrors _ems_enrollment_in_force()'s own two-tier fallback exactly (is_current, then
+    # is_enrollment_default) - a plain "first course found" fallback picked whichever course
+    # sorts first under ems.course's own _order ('start desc', the LATEST one), which silently
+    # never matches what that method falls back to (is_enrollment_default, seeded onto the
+    # EARLIEST course when no course is current - see _ems_seed_enrollment_default) on a fresh
+    # install with no current course configured. Found 2026-09-09 via CI: this enrolment's own
+    # course never matched the one the Secretary tab's lookup resolved to, so it rendered empty
+    # on a clean install despite passing on a dev database that already had a current course.
+    course = course or Course.search([('is_current', '=', True)], limit=1) \
+        or Course.search([('is_enrollment_default', '=', True)], limit=1) \
+        or Course.create({'start': 2098, 'end': 2099})
+
+    student = student or cls.env['res.partner'].create({
+        'name': f'Test {prefix} Student', 'contact_type': 'student',
+        'student_email': f'test_{prefix.lower()}_student@example.com',
+        'main_group_id': group.id,
+    })
+
+    order = cls.env['sale.order'].create({
+        'partner_id': student.id, 'ems_study_id': group.study_id.id, 'ems_course_id': course.id,
+    })
+    # Creating the template applies it to every matching draft enrolment, which is what
+    # produces the ems.authorization record the Secretary tab lists.
+    template = cls.env['ems.authorization.template'].create({
+        'name': f'Test {prefix} Image Rights', 'legal_text': '<p>Text</p>', 'auth_type': 'image',
+    })
+    authorization = order.ems_authorization_ids.filtered(
+        lambda auth: auth.template_id == template)
+    # Signing needs the PDF in the same write - see ems.authorization.write().
+    authorization.write({'status': 'yes',
+                         'signed_document': base64.b64encode(b'%PDF-1.4 test'),
+                         'signed_document_name': 'signed.pdf'})
+
+    benefit = cls.env['ems.student.benefit'].create({
+        'student_id': student.id, 'benefit_type': 'scholarship',
+        'document': base64.b64encode(b'%PDF-1.4 test'), 'document_name': 'test.pdf',
+    })
+    year_record = cls.env['ems.student.year_record'].create({
+        'student_id': student.id, 'course_id': course.id,
+    })
+    return {'student': student, 'course': course, 'order': order, 'auth_template': template,
+            'authorization': authorization, 'benefit': benefit, 'year_record': year_record}

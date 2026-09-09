@@ -293,24 +293,38 @@ export class EmsGroupedConflictLinesField extends Component {
         if (!value) {
             return;
         }
-        const records = subgroup.records;
-        await this.props.record.model.mutex.exec(async () => {
-            for (const record of records.slice(0, -1)) {
-                await record._update(
-                    { resolution: value },
-                    { withoutOnchange: true, withoutParentUpdate: true }
-                );
-            }
-            const last = records[records.length - 1];
-            if (last) {
-                await last._update({ resolution: value });
-            }
-        });
+        await this._bulkUpdate(subgroup.records, { resolution: value });
         ev.target.value = "";
     }
 
     onRowResolutionChange(record, ev) {
         record.update({ resolution: ev.target.value });
+    }
+
+    // Developer feedback (2026-09-08, live-debugging a real 20-row batch - SMX1D/SMX2D): every row
+    // in a sub-group typically wants the SAME room on one side (e.g. "everything colliding with
+    // SMX1D moves to -1.6"), only the OTHER side varies (or doesn't need to move at all) - picking
+    // it 20 times over was exactly the bottleneck 'onBulkApply' above already solved for the
+    // resolution dropdown. Same fix, same batching (see that method's own long comment for why a
+    // naive 'record.update()' per row doesn't scale) - one bulk room picker per side, shown only
+    // where a room picker is meaningful at all ('kindHasRoomPicker'). Picking a room here also
+    // forces 'resolution' to 'reassign_rooms' on every affected row - a bulk room pick is only ever
+    // meaningful under that resolution, so setting the room alone without it would silently do
+    // nothing visible until each row was ALSO switched to it by hand, defeating the point.
+    async onBulkApplySpace(subgroup, fieldName, option) {
+        await this._bulkUpdate(subgroup.records, { resolution: "reassign_rooms", [fieldName]: [option.value, option.label] });
+    }
+
+    async _bulkUpdate(records, vals) {
+        await this.props.record.model.mutex.exec(async () => {
+            for (const record of records.slice(0, -1)) {
+                await record._update(vals, { withoutOnchange: true, withoutParentUpdate: true });
+            }
+            const last = records[records.length - 1];
+            if (last) {
+                await last._update(vals);
+            }
+        });
     }
 }
 

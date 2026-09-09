@@ -48,20 +48,24 @@ The selector on the right lists what's available for the chosen date, split into
 
 If a subject spans two consecutive periods on the same day (e.g. two back-to-back lessons), starting
 the second period's session copies each student's status from the first one automatically — a
-banner tells you this happened. A student marked **Delayed** in the first period is presumed to
-have arrived by the second (shown as **Attended**); a **Justified Miss** carries forward as an
-unconfirmed **Miss** unless their justification's own date actually covers the second period too.
-You can freely change any of the copied statuses.
+banner tells you this happened. A student marked **Minor Delay** or **Severe Delay** in the first
+period is presumed to have arrived by the second (shown as **Attended**); a **Justified Miss**
+carries forward as an unconfirmed **Miss** unless their justification's own date actually covers
+the second period too. You can freely change any of the copied statuses.
 
 ---
 
 ## Marking Attendance
 
 Once a session is loaded, you get one row per student with a button for each attendance status
-(e.g. **Attended**, **Delayed**, **Miss**, **Justified Miss** — the exact set and their colours are
-configured by the administration, see the [Administrator's manual](../admin/attendance-status.md)).
-Click the button matching the student's status for that session — it's saved immediately, no need
-to click a separate Save button.
+(e.g. **Attended**, **Minor Delay**, **Severe Delay**, **Miss**, **Justified Miss** — the exact set
+and their colours are configured by the administration, see the
+[Administrator's manual](../admin/attendance-status.md)). Click the button matching the student's
+status for that session — it's saved immediately, no need to click a separate Save button.
+
+- **Minor Delay** never counts as an absence and doesn't notify the family. **Severe Delay** counts
+  as an absence and notifies the family, exactly like a Miss — use it for a delay serious enough to
+  warrant the same treatment as a missed session.
 
 - A shield icon next to a student's name means their absence is **already justified** (an approved
   justification or a prevision covers this session) — their status and notes are locked, since the

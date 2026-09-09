@@ -5,6 +5,7 @@ import base64
 from odoo import SUPERUSER_ID, models, fields, api, Command, _
 from odoo.exceptions import UserError, ValidationError
 
+from ..shared.attendance_mixin import EMS_SKIP_AUTO_SCHEDULE_SYNC
 from ..shared.schedule_report_mixin import HOUR_EPSILON
 
 employee_types = [
@@ -257,6 +258,40 @@ class ems_employee_base(models.AbstractModel):
             'date_to': attendance.date_to,
         } for attendance in self.resource_calendar_id.attendance_ids if attendance.subject_id]
 
+    def _ems_sync_schedule_from_calendar(self):
+        """Bottom-up sync redesign, Phase 3 (2026-09-08, docs/en/developers/attendance/
+        attendance_template.md's "Bottom-up sync redesign" section) - the per-teacher "sync me
+        from my own calendar, right now" step, one level above the template-level Phase 1+2
+        pieces ('ems.attendance_template._decide_schedule_line_changes'/
+        '_apply_schedule_line_archive_pass'/'_apply_schedule_line_write_pass') and one level below
+        the automatic 'resource.calendar.attendance' hook (Phase 4, see
+        '_ems_sync_schedule_from_calendar_unless_suppressed' below). Not new reconciliation logic -
+        both 'ems.teaching.sync_from_schedule' and 'ems.attendance_template.sync_from_schedule'
+        already correctly reduce to a single-teacher case ('sync_from_schedule_batch([(teacher,
+        entries)])' already runs through the exact same Phase 1+2 pipeline for a batch of one, no
+        code changed there for this to be true). This just gives that case its own clear name and
+        home, at the level ('hr.employee', the calendar's own "container") the whole redesign's
+        naming principle asks for - mirrors exactly what 'resource.calendar.
+        apply_schedule_changes()' already does inline for the Schedule tab's own save (to be
+        simplified to reuse this instead, Phase 5)."""
+        self.ensure_one()
+        entries = self._teaching_entries_from_calendar()
+        self.env['ems.teaching'].sync_from_schedule(self, entries)
+        self.env['ems.attendance_template'].sync_from_schedule(self, entries)
+
+    def _ems_sync_schedule_from_calendar_unless_suppressed(self):
+        """Bottom-up sync redesign, Phase 4 (2026-09-08) - recordset-level wrapper around
+        '_ems_sync_schedule_from_calendar' above (Phase 3): syncs every teacher in 'self', unless
+        'EMS_SKIP_AUTO_SCHEDULE_SYNC' is set in context (see that constant's own docstring in
+        'ems.attendance_mixin' for when/why a caller sets it). This is the ONE place that checks
+        the flag - 'resource.calendar.attendance's own create()/write()/unlink() hook
+        (models/employees/working_schedule.py) only ever derives WHICH teachers are affected and
+        calls this, never checks the flag itself, so there is exactly one spot to reason about."""
+        if self.env.context.get(EMS_SKIP_AUTO_SCHEDULE_SYNC):
+            return
+        for teacher in self:
+            teacher._ems_sync_schedule_from_calendar()
+
     def _get_new_employee_type(self):
         return employee_types
     
@@ -355,6 +390,18 @@ class ems_employee_base(models.AbstractModel):
     @api.onchange('job_id')
     def _onchange_job_id(self):
         self._sync_security_groups()
+
+    def _get_own_groups(self):
+        """The groups this employee actually works with: the ones they teach plus the ones
+        they tutor. Backs res.partner's 'is_my_student' (issue #421) - see
+        docs/en/developers/contacts/contact.md.
+
+        Both sources are needed. A tutoring assignment is normally already an ordinary
+        ems.teaching row, on the group's tutorship subject (ems.subject.is_tutorship), so
+        'teaching_ids' alone covers the usual case - but a tutor set by hand on the group
+        form has no ems.teaching row behind it at all, and that really happens (6 groups
+        were in exactly that state when this was written, 2 of them with students)."""
+        return self.teaching_ids.group_id | self.tutorship_ids
 
     def _ems_role_hierarchy_truth(self):
         """Returns a (role, should_be_assigned, message) tuple per hierarchy-managed role (the

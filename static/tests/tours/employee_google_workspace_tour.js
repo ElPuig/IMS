@@ -6,6 +6,8 @@ import { registry } from "@web/core/registry";
 // exactly one Google Workspace / EMS user button must be visible per state, never two at
 // once — the original bug report this consolidation fixes (Create + Suspend both showing
 // for a teacher whose account was adopted from pre-integration/migrated data).
+// The single exception is "Re-link Google sign-in" (issue #420), a repair driven by its
+// own google_signin_missing field that shows next to Suspend in the 'active' state.
 registry.category("web_tour.tours").add("ems_employee_google_workspace_state", {
     test: true,
     url: "/odoo/action-ems.action_employee_kanban",
@@ -69,8 +71,43 @@ registry.category("web_tour.tours").add("ems_employee_google_workspace_state", {
                 ".o_statusbar_buttons:has(button[name='action_suspend_google_account'])"
                 + ":not(:has(button[name='action_create_google_account']))"
                 + ":not(:has(button[name='action_create_ems_user']))"
+                + ":not(:has(button[name='action_relink_google_signin']))"
                 + ":not(:has(button[name='action_reactivate_google_account']))",
-            content: "Only 'Suspend Google account' is visible",
+            content: "Only 'Suspend Google account' is visible: this user's Google "
+                + "sign-in is linked, so no repair is offered",
+        },
+        {
+            trigger: ".o_breadcrumb a",
+            content: "Back to list",
+            run: "click",
+        },
+        // --- state 'active' with a broken sign-in link (issue #420) ----------
+        // The repair button is deliberately NOT another exclusive state: the account
+        // is genuinely active, only its OAuth link is gone, so Suspend must keep
+        // showing next to it.
+        {
+            trigger: ".o_list_view .o_data_row .o_data_cell:contains('GW Tour Relink')",
+            content: "Open the teacher whose user lost its OAuth data",
+            run: "click",
+        },
+        {
+            trigger:
+                ".o_statusbar_buttons:has(button[name='action_relink_google_signin'])"
+                + ":has(button[name='action_suspend_google_account'])"
+                + ":not(:has(button[name='action_create_google_account']))"
+                + ":not(:has(button[name='action_create_ems_user']))"
+                + ":not(:has(button[name='action_reactivate_google_account']))",
+            content: "'Re-link Google sign-in' shows alongside Suspend",
+        },
+        {
+            trigger: "button[name='action_relink_google_signin']",
+            content: "Repair the Google sign-in link",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view:not(:has(button[name='action_relink_google_signin']))"
+                + ":has(button[name='action_suspend_google_account'])",
+            content: "The repair button is gone once the link is back; Suspend stays",
         },
         {
             trigger: ".o_breadcrumb a",
@@ -94,6 +131,48 @@ registry.category("web_tour.tours").add("ems_employee_google_workspace_state", {
         {
             trigger: ".o_breadcrumb a",
             content: "Back to list",
+            run: "click",
+        },
+        // --- grace period (#388): the scheduled-deactivation banner and its button
+        // The employee is archived (that is what opens the grace period), so the list
+        // has to be switched to archived records first.
+        {
+            trigger: ".o_searchview_dropdown_toggler",
+            content: "Open the search dropdown",
+            run: "click",
+        },
+        {
+            trigger: ".o_filter_menu .dropdown-item:contains('Archived')",
+            content: "Filter on archived employees",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row .o_data_cell:contains('GW Tour Scheduled')",
+            content: "Open the teacher whose deactivation is scheduled",
+            run: "click",
+        },
+        {
+            trigger: ".alert-warning:contains('scheduled to be deactivated')",
+            content: "The grace-period banner shows the pending deactivation",
+        },
+        {
+            trigger: "button[name='action_cancel_scheduled_deactivation']",
+            content: "Call off the scheduled deactivation",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view:not(:has(.alert-warning:contains('scheduled to be deactivated')))"
+                + ":not(:has(button[name='action_cancel_scheduled_deactivation']))",
+            content: "Banner and button are both gone: the account is kept",
+        },
+        {
+            trigger: ".o_breadcrumb a",
+            content: "Back to list",
+            run: "click",
+        },
+        {
+            trigger: ".o_searchview .o_facet_remove",
+            content: "Drop the archived filter again",
             run: "click",
         },
         // --- pending identification: "Mark as identified" clears it manually -

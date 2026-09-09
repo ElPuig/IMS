@@ -61,8 +61,8 @@ to your choice.
 
 **For any report type**, two controls govern the per-line detail in the PDF:
 - **Detail statuses** — which statuses appear in the "Details" tables. It defaults to absence-related
-  statuses only (**Miss**, **Justified Miss**) so the report stays a manageable size; add more and a warning
-  appears that the report may become slow to generate or fail for large selections.
+  statuses only (**Miss**, **Justified Miss**, **Severe Delay**) so the report stays a manageable size;
+  add more and a warning appears that the report may become slow to generate or fail for large selections.
 - **Include strikes** (on by default) — adds tables of the disciplinary strikes recorded during the period.
 
 ---

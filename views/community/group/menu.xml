@@ -5,6 +5,7 @@
             <field name="name">Groups (for students)</field>
             <field name="res_model">ems.group</field>
             <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_group_search"/>
         </record>
 
         <!-- Target of the RedirectWarning raised from ems.group's create()/write() when the

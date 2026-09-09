@@ -11,6 +11,16 @@ const SHIFTS = [
     { key: "afternoon", label: _t("Afternoon") },
 ];
 
+// The two ways of reading the same day: the timetable everyone already knows, with whoever is
+// away struck through it, and the plain "who is missing / who is on guard" list built from the
+// very same payload (see ems.course.get_guard_duty_board_data) - one fetch, two renderings.
+const VIEWS = [
+    { key: "schedule", label: _t("Guard duty schedule") },
+    { key: "table", label: _t("Guard duty table") },
+];
+
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
 // Mirrors ems.course's own SHIFT_HOURS (models/attendance/guard_duty_board.py): the afternoon
 // shift starts at 15:00, kept in sync by hand since a plain JS constant can't share the Python
 // one directly.
@@ -28,6 +38,29 @@ function getDefaultDayAndShift() {
     const day = jsDay >= 1 && jsDay <= 5 ? jsDay - 1 : 0;
     const shift = now.getHours() >= AFTERNOON_START_HOUR ? "afternoon" : "morning";
     return { day, shift };
+}
+
+// "YYYY-MM-DD" from the browser's own local calendar date - deliberately NOT toISOString(),
+// which converts to UTC first and so hands back the previous day for anyone east of Greenwich
+// during the evening. The board's date is a plain calendar day, never an instant in time.
+function toIsoDate(date) {
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${date.getFullYear()}-${month}-${day}`;
+}
+
+function fromIsoDate(iso) {
+    const [year, month, day] = iso.split("-").map(Number);
+    return new Date(year, month - 1, day);
+}
+
+// The Monday of whichever week `date` falls in. A weekend date belongs to the week that just
+// happened (Saturday and Sunday follow their own Monday), which is also what makes picking a
+// weekend in the date input land on a real, showable weekday instead of nothing at all.
+function mondayOf(date) {
+    const jsDay = date.getDay();
+    const offset = jsDay === 0 ? 6 : jsDay - 1;
+    return new Date(date.getTime() - offset * MS_PER_DAY);
 }
 
 // Read-only, centre-wide board: one weekday visible at a time (tabs), morning/afternoon are
@@ -62,6 +95,11 @@ export class GuardDutyBoard extends Component {
             // behaviour) - see guard_duty_board.py's own get_guard_duty_board_lines() docstring.
             activeLevelIds: [],
             levels: [],
+            // The Monday the weekday tabs hang off. Absences are keyed to real dates while the
+            // timetable is keyed to weekdays, so the board needs a concrete week before it can
+            // say who is away - see ems.course.get_guard_duty_board_lines()'s 'day' argument.
+            weekStart: toIsoDate(mondayOf(new Date())),
+            activeView: "schedule",
             board: null,
             loading: true,
             courseId: null,
@@ -79,12 +117,43 @@ export class GuardDutyBoard extends Component {
         });
     }
 
+    // Each weekday tab carries its own real date, so the tab strip doubles as the week's
+    // calendar: the label says which Monday, not just "Monday".
     get days() {
-        return dayLabels().map((label, index) => ({ index, label }));
+        const monday = fromIsoDate(this.state.weekStart);
+        return dayLabels().map((label, index) => {
+            const date = new Date(monday.getTime() + index * MS_PER_DAY);
+            return { index, label, date: toIsoDate(date), dayOfMonth: date.getDate() };
+        });
     }
 
     get shifts() {
         return SHIFTS;
+    }
+
+    get views() {
+        return VIEWS;
+    }
+
+    // The date the board is actually showing: the active weekday tab within the active week.
+    get activeDate() {
+        return this.days[this.state.activeDay].date;
+    }
+
+    get columnLabels() {
+        return {
+            time: _t("Time block"),
+            guard: _t("Guard duty"),
+            absences: _t("Absences"),
+        };
+    }
+
+    get emptyLabels() {
+        return {
+            schedule: _t("No schedule for this shift."),
+            absences: _t("Nobody is missing this shift."),
+            loading: _t("Loading..."),
+        };
     }
 
     // Compact label for the level dropdown's own toggle button - the full checkbox list already
@@ -103,6 +172,12 @@ export class GuardDutyBoard extends Component {
         }
         this.state.activeDay = index;
         await this.loadBoard();
+    }
+
+    setActiveView(key) {
+        // Both tabs render the same already-fetched payload, so switching between them never
+        // costs a round trip.
+        this.state.activeView = key;
     }
 
     async onShiftChange(ev) {
@@ -125,20 +200,53 @@ export class GuardDutyBoard extends Component {
         await this.loadBoard();
     }
 
+    // Picking any date moves the whole week and lands on that date's own weekday tab - a
+    // weekend picks the week it closes (see mondayOf) and falls back to its Monday, since the
+    // board has no weekend column to show.
+    async onDateChange(ev) {
+        const value = ev.target.value;
+        if (!value) {
+            return;
+        }
+        const picked = fromIsoDate(value);
+        const monday = mondayOf(picked);
+        const jsDay = picked.getDay();
+        this.state.weekStart = toIsoDate(monday);
+        this.state.activeDay = jsDay >= 1 && jsDay <= 5 ? jsDay - 1 : 0;
+        await this.loadBoard();
+    }
+
+    async shiftWeek(weeks) {
+        const monday = fromIsoDate(this.state.weekStart);
+        this.state.weekStart = toIsoDate(new Date(monday.getTime() + weeks * 7 * MS_PER_DAY));
+        await this.loadBoard();
+    }
+
     async loadBoard() {
         this.state.loading = true;
         this.state.board = await this.orm.call(
             "ems.course",
             "get_guard_duty_board_data",
-            [String(this.state.activeDay), this.state.activeShift, this.state.activeLevelIds]
+            [String(this.state.activeDay), this.state.activeShift, this.state.activeLevelIds, this.activeDate]
         );
         this.state.loading = false;
+    }
+
+    // Bold red for an absence that is going to happen, a lighter italic for one still waiting
+    // on its approver - the planner has to be able to tell a fact from a warning at a glance.
+    absenceClass(absence) {
+        if (absence === "approved") {
+            return "o_guard_board_absent";
+        }
+        return absence === "pending" ? "o_guard_board_absent_pending" : "";
     }
 
     // One PDF per day AND per shift — whichever day tab / shift dropdown is currently active,
     // not the whole week or both shifts — see reports/attendance/report_guard_duty_board.xml's
     // own use of the 'guard_duty_weekday'/'guard_duty_shift' context keys. 'guard_duty_level_ids'
-    // (issue #390) forwards the same level selection, following the same pattern.
+    // (issue #390) forwards the same level selection, following the same pattern; 'guard_duty_date'
+    // is the printed copy's own absence information - a cuadrante handed out to plan the day's
+    // guards is no use without them.
     async onPdfClick() {
         await this.actionService.doAction("ems.action_report_guard_duty_board", {
             additionalContext: {
@@ -146,6 +254,7 @@ export class GuardDutyBoard extends Component {
                 guard_duty_weekday: String(this.state.activeDay),
                 guard_duty_shift: this.state.activeShift,
                 guard_duty_level_ids: this.state.activeLevelIds,
+                guard_duty_date: this.activeDate,
             },
         });
     }

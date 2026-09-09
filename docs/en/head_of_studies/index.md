@@ -15,8 +15,10 @@ This section contains the manuals for **Head of Studies, Deputy Head of Studies 
 - [Strikes: Convivencia Menu and Escalation Emails](strike.md)
 - [A Group's Weekly Schedule](../admin/group-schedule.md)
 - [Attendance Reports](attendance-reports.md)
+- [Managing staff absences](absences.md)
 - [Creating and Editing Teachers](staff-management.md)
 - [Notices: Sending Your Own Bulk Emails](notice.md)
+- [Guard Duty Schedule](../teachers/guard-duty-schedule.md) — Who is missing each time block, and who is on guard duty to cover it.
 
 ---
 

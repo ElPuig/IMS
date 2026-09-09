@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.23.5',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.24.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -32,6 +32,7 @@
         'mass_mailing', 
         'survey', 
         'hr_attendance',
+        'hr_holidays',
         'queue_job',
         'sale_management',
         'sale_pdf_quote_builder',
@@ -63,6 +64,7 @@
         'security/rules/grading.xml',
         'security/rules/planning.xml',
         'security/rules/portal.xml',
+        'security/rules/student_data_reader.xml',
         'security/rules/task_assignment.xml',
         'security/ir.model.access.csv',
 
@@ -106,8 +108,10 @@
             'views/community/contact/student_document.xml',
 
             'views/community/group/list.xml',
-            'views/community/group/form.xml',  
-            'views/community/group/menu.xml',  
+            'views/community/group/form.xml',
+            'views/community/group/search.xml',
+            'views/community/group/menu.xml',
+            'views/community/group/classroom_change_wizard.xml',
 
             'views/community/enrollment/list.xml',
             'views/community/enrollment/form.xml',
@@ -241,6 +245,10 @@
             'views/attendance/attendance_correction/hr_attendance_form.xml',
 
             'views/attendance/guard_duty_board/menu.xml',
+
+            'views/attendance/absence/leave.xml',
+            'views/attendance/absence/menu.xml',
+            'views/attendance/absence/monthly_report.xml',
             'reports/attendance/report_guard_duty_board.xml',
 
             'views/attendance/attendance_issue/menu.xml',
@@ -345,6 +353,8 @@
         'data/main/res.partner.relation.type.csv',
         'data/main/mail.activity.type.csv',
         'data/main/mail.template-google_welcome.csv',
+        'data/main/mail.template-google_lifecycle.csv',
+        'data/main/ir.cron-google_workspace.csv',
         'data/main/product.category.csv',
         'data/main/ems.strike.reason.csv',
         'data/main/ems.attendance_status.csv',
@@ -381,6 +391,7 @@
         'data/cat/ems.role.csv',
         'data/cat/ems.workgroup.csv',
         'data/cat/hr.job.csv',
+        'data/cat/hr.leave.type.csv',
         'data/cat/product.template-generic.csv',
         'data/cat/ems_enrollment_template_data.xml',
         

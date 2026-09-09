@@ -14,8 +14,9 @@ Aquesta guia explica com gestionar els contactes de tipus **alumne, família, as
 2. [Afegir un contacte familiar a un alumne](#afegir-un-contacte-familiar-a-un-alumne)
 3. [Matricular un alumne en assignatures](#matricular-un-alumne-en-assignatures)
 4. [Bonificacions i exempcions](#bonificacions-i-exempcions)
-5. [Columnes que es mostren a la vista de llista d'alumnat](#columnes-que-es-mostren-a-la-vista-de-llista-dalumnat)
-6. [Camps que només veuen admin/secretaria/tutors](#camps-que-només-veuen-adminsecretariatutors)
+5. [Filtres aplicats en obrir la llista d'alumnat](#filtres-aplicats-en-obrir-la-llista-dalumnat)
+6. [Columnes que es mostren a la vista de llista d'alumnat](#columnes-que-es-mostren-a-la-vista-de-llista-dalumnat)
+7. [Camps que només veuen admin/secretaria/tutors](#camps-que-només-veuen-adminsecretariatutors)
 
 ---
 
@@ -54,6 +55,10 @@ Els **beneficis** de quota d'un alumne (bonificacions, que descompten part de la
 - El distintiu de **Beneficis** de l'alumne (visible a la fitxa) reflecteix el benefici de prioritat més alta registrat: una exempció sempre té preferència sobre una bonificació.
 
 Que un benefici canviï realment la quota de matrícula depèn de l'estat de la matrícula corresponent: un benefici registrat **abans** que la matrícula es confirmi s'hi aplica immediatament; un de registrat **després de confirmar-la** no en modifica retroactivament l'import — cal tornar a aplicar-lo explícitament (des de la matrícula). Consulta el manual de la matrícula per a aquesta acció.
+
+## Filtres aplicats en obrir la llista d'alumnat
+
+La barra de cerca s'obre amb dos filtres ja aplicats: **Alumnat**, que amaga l'alumnat antic, i **El meu alumnat**, que limita la llista als grups de qui hi ha connectat. Com que secretaria i administració no estan assignades a cap grup, **El meu alumnat** no t'amaga res — amb el filtre posat la llista mostra tot l'alumnat igualment. Treu qualsevol dels dos filtres fent clic a la seva **×**.
 
 ## Columnes que es mostren a la vista de llista d'alumnat
 

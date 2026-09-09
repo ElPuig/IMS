@@ -1,3 +1,5 @@
+from . import test_absence
+from . import test_absence_tour
 from . import test_contact
 from . import test_contact_group_change_tour
 from . import test_contact_relation_wizard
@@ -87,6 +89,7 @@ from . import test_grade_session_state_wizard_tour
 from . import test_grade_import_wizard_tour
 from . import test_employee_google_workspace
 from . import test_employee_google_workspace_tour
+from . import test_student_google_workspace_tour
 from . import test_employee_ems_user
 from . import test_strike
 from . import test_strike_tour
@@ -102,6 +105,10 @@ from . import test_year_record
 from . import test_non_teaching_type
 from . import test_teaching_reduction_type
 from . import test_group
+from . import test_group_classroom_change
+from . import test_group_classroom_change_tour
+from . import test_group_classroom_suggestion
+from . import test_group_classroom_suggestion_tour
 from . import test_group_schedule
 from . import test_guard_duty_board
 from . import test_guard_duty_board_tour
@@ -162,3 +169,8 @@ from . import test_grade_matrix_tour
 from . import test_grade_tutor_matrix_tour
 from . import test_employee_staff_permissions
 from . import test_employee_staff_permissions_tour
+from . import test_student_data_reader
+from . import test_student_data_reader_tour
+from . import test_student_my_groups
+from . import test_student_my_groups_tour
+from . import test_mail_template_translations

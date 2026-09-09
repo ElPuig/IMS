@@ -103,12 +103,18 @@
         <field name="perm_unlink" eval="False"/>
     </record>
 
-    <!-- ems.student.year_record (and its subject/outcome children): the academic
-         history is readable by the tutor of the student's current group, by Head of
-         Studies / Director (read all) and fully manageable by the admin. Secretary
-         needs its own all-data rule (not just the ACL): a secretary who is also a
-         teacher would otherwise be restricted by the tutor rule (group rules only
-         OR across groups that define one). -->
+    <!-- ems.student.year_record (and its subject/outcome children): the academic history is
+         readable by EVERY teacher centre-wide, not just the tutor of the student's current
+         group - the centre considers a student's academic history necessary information for
+         the whole teaching community (issue #393). Head of Studies / Director and Secretary
+         keep their own all-data read rules: they are redundant with the teacher one for
+         anyone who is also a teacher, but they are what covers a non-teaching holder of
+         those posts. Writing stays with the admin alone.
+
+         The three rule XML IDs still end in '_tutor' for historical reasons: renaming an
+         XML ID that already exists in production needs a migration script, and this branch
+         deliberately does not bump the manifest version. Their 'name' and domain describe
+         the current behaviour. -->
     <record id="rule_year_record_admin" model="ir.rule">
         <field name="name">Year record: all data</field>
         <field name="model_id" ref="ems.model_ems_student_year_record"/>
@@ -132,10 +138,10 @@
     </record>
 
     <record id="rule_year_record_tutor" model="ir.rule">
-        <field name="name">Year record: tutored students</field>
+        <field name="name">Year record: all students (read)</field>
         <field name="model_id" ref="ems.model_ems_student_year_record"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">[('student_id.main_group_id.tutor_id.user_id.id', '=', user.id)]</field>
+        <field name="domain_force">[]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="False"/>
         <field name="perm_create" eval="False"/>
@@ -165,10 +171,10 @@
     </record>
 
     <record id="rule_year_record_subject_tutor" model="ir.rule">
-        <field name="name">Year record subject: tutored students</field>
+        <field name="name">Year record subject: all students (read)</field>
         <field name="model_id" ref="ems.model_ems_student_year_record_subject"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">[('record_id.student_id.main_group_id.tutor_id.user_id.id', '=', user.id)]</field>
+        <field name="domain_force">[]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="False"/>
         <field name="perm_create" eval="False"/>
@@ -198,10 +204,10 @@
     </record>
 
     <record id="rule_year_record_outcome_tutor" model="ir.rule">
-        <field name="name">Year record outcome: tutored students</field>
+        <field name="name">Year record outcome: all students (read)</field>
         <field name="model_id" ref="ems.model_ems_student_year_record_outcome"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">[('subject_record_id.record_id.student_id.main_group_id.tutor_id.user_id.id', '=', user.id)]</field>
+        <field name="domain_force">[]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="False"/>
         <field name="perm_create" eval="False"/>

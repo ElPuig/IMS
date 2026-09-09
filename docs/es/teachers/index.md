@@ -19,9 +19,12 @@ Esta sección contiene los manuales para los **profesores**.
 | [Strikes: notificar una incidencia disciplinaria](strike.md) | Poner un strike desde la vista de pasar lista cuando hay que dejar constancia del comportamiento de un alumno |
 | [Tu horario semanal](working-schedules.md) | Consultar tus asignaturas, grupos, aulas, patios y reuniones en tu horario semanal |
 | [Horario de guardias](guard-duty-schedule.md) | Consultar dónde está cada docente, y quién está de guardia, en cada franja horaria de la semana |
+| [Alumnado: tus grupos](student-list-my-groups.md) | Abrir la lista de alumnado ya filtrada a los grupos donde das clase o eres tutor, y ampliarla cuando la necesites entera |
 | [Desactivar tu foto de perfil](photo-visibility.md) | Activar o desactivar tu foto de perfil |
 | [Informes de asistencia](attendance-reports.md) | Imprimir los 3 informes PDF de asistencia (por grupo/alumno/asignatura) y explorar los datos tú mismo con la pantalla de Análisis de asistencia |
 | [El horario semanal de un grupo](../admin/group-schedule.md) | Consultar el horario agregado de un grupo (asignaturas, docentes, aulas, patios) y exportarlo a PDF |
+| [Consultar los datos académicos de un alumno](student-academic-data.md) | Dónde consultar el historial académico de cualquier alumno, y qué datos pueden leer los roles de Orientación y Convivencia |
+| [Solicitar una ausencia](absences.md) | Pedir una ausencia: elegir el tipo, día entero o unas horas, la declaración responsable, el justificante y enviarla |
 
 ## Temas previstos
 

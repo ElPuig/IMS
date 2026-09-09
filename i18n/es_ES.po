@@ -485,7 +485,7 @@ msgid ""
 "                                                <ul>\n"
 "                                                    <t t-foreach=\"student.attendance_issue_status_ids\" t-as=\"status\">\n"
 "                                                        <li t-att-style=\"'text-decoration: line-through;' if status.rectified_by.id != False else ''\">\n"
-"                                                            <span t-field=\"status.attendance_session_id.attendance_schedule_id.attendance_template_id\"/> | from <span t-field=\"status.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> to <span t-field=\"status.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/> | <span t-field=\"status.attendance_status\"/>\n"
+"                                                            <span t-field=\"status.attendance_session_id.attendance_schedule_id.attendance_template_id\"/> | from <span t-field=\"status.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> to <span t-field=\"status.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/> | <span t-field=\"status.attendance_status_id\"/>\n"
 "                                                            <t t-if=\"status.notes\">\n"
 "                                                                | <span t-field=\"status.notes\"/>\n"
 "                                                            </t>\n"
@@ -522,7 +522,7 @@ msgstr ""
 "                                                <ul>\n"
 "                                                    <t t-foreach=\"student.attendance_issue_status_ids\" t-as=\"status\">\n"
 "                                                        <li t-att-style=\"'text-decoration: line-through;' if status.rectified_by.id != False else ''\"> \n"
-"                                                            <span t-field=\"status.attendance_session_id.attendance_schedule_id.attendance_template_id\"/> | de <span t-field=\"status.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> a <span t-field=\"status.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/> | <span t-field=\"status.attendance_status\"/>\n"
+"                                                            <span t-field=\"status.attendance_session_id.attendance_schedule_id.attendance_template_id\"/> | de <span t-field=\"status.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> a <span t-field=\"status.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/> | <span t-field=\"status.attendance_status_id\"/>\n"
 "                                                            <t t-if=\"status.notes\">\n"
 "                                                                | <span t-field=\"status.notes\"/>\n"
 "                                                            </t>\n"
@@ -1086,6 +1086,8 @@ msgstr ""
 msgid ""
 "<strong>Import Process:</strong><br/>\n"
 "                                This wizard will import student data from an Excel file exported from Esfera (SAGA system).\n"
+"                                Every sheet of the file holding data is imported, and the student identifier (IDALU/RALC)\n"
+"                                is the only column that must be present.\n"
 "                                The import will:<br/>\n"
 "                                • Create new student records for students not yet in the system (identified by RALC)<br/>\n"
 "                                • Update existing student records if found by RALC identifier<br/>\n"
@@ -1093,16 +1095,24 @@ msgid ""
 "                                • Link family members to students using relationship types<br/>\n"
 "                                • Deduce family relationships from comments (mother, father, guardian, etc.)<br/>\n"
 "                                <br/>\n"
+"                                A column that comes empty in the file never erases data already held by EMS, and existing\n"
+"                                notes are always kept: each import adds its own notes on top, stamped with its date.<br/>\n"
+"                                <br/>\n"
 "                                Select an Excel file below and click \"Import students\" to proceed."
 msgstr ""
 "<strong>Proceso de importación:</strong><br/>\n"
 "                                Este asistente importará datos de alumnos desde un archivo Excel exportado desde Esfera (sistema SAGA).\n"
+"                                Se importa cada pestaña del fichero que contenga datos, y el identificador del alumno (IDALU/RALC)\n"
+"                                es la única columna que debe estar presente.\n"
 "                                La importación:<br/>\n"
 "                                • Creará nuevos registros de alumnos para aquellos que aún no están en el sistema (identificados por RALC)<br/>\n"
 "                                • Actualizará los registros existentes si se encuentran por el identificador RALC<br/>\n"
 "                                • Creará contactos familiares para tutores/responsables<br/>\n"
 "                                • Vinculará los miembros de la familia con los alumnos mediante tipos de relación<br/>\n"
 "                                • Deducirá las relaciones familiares a partir de los comentarios (madre, padre, tutor, etc.)<br/>\n"
+"                                <br/>\n"
+"                                Una columna que llega vacía en el fichero nunca borra datos que EMS ya tenga, y las notas existentes\n"
+"                                se conservan siempre: cada importación añade sus notas arriba, con su fecha.<br/>\n"
 "                                <br/>\n"
 "                                Seleccione un archivo Excel a continuación y haga clic en \"Importar alumnos\" para continuar."
 
@@ -1488,12 +1498,12 @@ msgid "Administrative data"
 msgstr "Datos administrativos"
 
 #. module: ems
-#: model:res.groups,name:ems.group_academic_admin model:res.groups,name:ems.group_coexistence_admin model:res.groups,name:ems.group_quality_admin model:res.groups,name:ems.group_secretary_admin model:res.groups,name:ems.group_settings_admin model:res.groups,name:ems.group_tac_admin
+#: model:res.groups,name:ems.group_academic_admin model:res.groups,name:ems.group_coexistence_admin model:res.groups,name:ems.group_quality_admin model:res.groups,name:ems.group_secretary_admin model:res.groups,name:ems.group_settings_admin model:res.groups,name:ems.group_tac_admin model:res.groups,name:ems.group_orientation_admin
 msgid "Administrator"
 msgstr "Administrador"
 
 #. module: ems
-#: model:res.groups,name:ems.group_coexistence model:res.groups,name:ems.group_quality model:res.groups,name:ems.group_settings model:res.groups,name:ems.group_tac
+#: model:res.groups,name:ems.group_coexistence model:res.groups,name:ems.group_quality model:res.groups,name:ems.group_settings model:res.groups,name:ems.group_tac model:res.groups,name:ems.group_orientation
 msgid "Manager"
 msgstr "Gestor/a"
 
@@ -1636,7 +1646,9 @@ msgstr "Cargar"
 
 #. module: ems
 #. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/absence_dashboard.xml:0
 #: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__create_new
 msgid "New"
 msgstr "Nuevo"
 
@@ -1887,6 +1899,7 @@ msgid "Attendance report"
 msgstr "Informe de asistencia"
 
 #. module: ems
+#. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/attendance_report_analysis_cog_menu.xml:0
 msgid "Print attendance report"
 msgstr "Imprimir informe de asistencia"
@@ -2114,6 +2127,18 @@ msgid "Automatic check-out could not use the scheduled working hours because the
 msgstr ""
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee_autocheckout.py:0
+msgid "Automatic check-out failed"
+msgstr "El cierre automático ha fallado"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee_autocheckout.py:0
+msgid "Automatic check-out failed for %(employee)s's attendance (id=%(id)d) due to an unexpected error. Please review and close it manually."
+msgstr "El cierre automático del fichaje de %(employee)s (id=%(id)d) ha fallado por un error inesperado. Por favor, revísalo y ciérralo manualmente."
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__available_template_ids
 msgid "Available templates"
 msgstr "Plantillas disponibles"
@@ -2334,7 +2359,9 @@ msgid "Categorize your Employees by type. This field also has an impact on contr
 msgstr "Categorice sus empleados por tipo. Este campo también afectará a sus contactos, solo los Empleados, Estudiantes y Aprendices tendrán historial de contracto."
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_student_benefit__category model:ir.model.fields,field_description:ems.field_ems_attendance_status__category model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_form
+#: code:addons/ems/models/employees/working_schedule.py:0
 msgid "Category"
 msgstr "Categoría"
 
@@ -2624,6 +2651,7 @@ msgstr "País"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_group__course model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__special_course_filter model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment model:ir.model.fields,field_description:ems.field_ems_student_year_record__course_id model_terms:ir.ui.view,arch_db:ems.view_applicant_search model_terms:ir.ui.view,arch_db:ems.view_year_record_search model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__course_name model:ir.model.fields,field_description:ems.field_resource_calendar__course_id model_terms:ir.ui.view,arch_db:ems.view_resource_calendar_search_ems model:ir.model.fields,field_description:ems.field_ems_guard_duty_board__course_id
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_course_id
 msgid "Course"
 msgstr "Curso"
 
@@ -2731,6 +2759,9 @@ msgstr "Actual (hora actual)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_company__current_course_id model:ir.model.fields,field_description:ems.field_res_config_settings__current_course_id
+#: model:ir.model.fields,field_description:ems.field_res_company__current_course_id
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__current_course_id
+#: model_terms:ir.ui.view,arch_db:ems.view_hr_holidays_filter_ems
 msgid "Current Course"
 msgstr "Curso Actual"
 
@@ -2781,6 +2812,7 @@ msgstr "Datos descargados"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__date model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__issue_date model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__date model:ir.model.fields,field_description:ems.field_ems_minute__date model:ir.model.fields.selection,name:ems.selection__ems_authorization_field__field_type__date model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__date model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_monthly_list
 msgid "Date"
 msgstr "Fecha"
 
@@ -2826,8 +2858,13 @@ msgstr "Define a qué estudio pertenece esta matrícula."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_status__attendance_status__a_delayed model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_line__status__a_delayed model:ems.attendance_status,name:ems.attendance_status_delayed
-msgid "Delayed"
-msgstr "Demorado"
+msgid "Minor Delay"
+msgstr "Retraso leve"
+
+#. module: ems
+#: model:ems.attendance_status,name:ems.attendance_status_delayed_severe
+msgid "Severe Delay"
+msgstr "Retraso grave"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_group__delegate_id
@@ -3021,8 +3058,8 @@ msgid "Documents"
 msgstr "Documentos"
 
 #. module: ems
-#: model:project.task.type,name:ems.project_stage_secretary_done
 #: model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard__state__done
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_direction_state__done
 msgid "Done"
 msgstr "Hecho"
 
@@ -3589,7 +3626,10 @@ msgid "Field to store the color that will be used for calendar view"
 msgstr "Campo para almacenar el color que se utilizará en la vista de calendarioCampo para almacenar el color del calendarioCampo para almacenar el color que se utilizará para la vista de calendario."
 
 #. module: ems
+#. odoo-javascript
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__doc_file model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
 msgid "File"
 msgstr "Archivo"
 
@@ -5485,6 +5525,7 @@ msgstr "Plan de pago"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__pending model:ir.model.fields.selection,name:ems.selection__ems_attendance_correction__state__pending model:ir.model.fields.selection,name:ems.selection__ems_authorization__status__pending model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_recipient__state__pending model:ir.model.fields.selection,name:ems.selection__ems_notice_line__display_status__pending model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_search model_terms:ir.ui.view,arch_db:ems.view_student_document_search
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__state__confirm
 msgid "Pending"
 msgstr "Pendiente"
 
@@ -5955,8 +5996,10 @@ msgid "Reminding"
 msgstr "Recordando"
 
 #. module: ems
+#. odoo-javascript
 #. odoo-python
 #: code:addons/ems/models/communications/limesurvey.py:0
+#: code:addons/ems/static/src/js/backend/absence_attachment_field.js:0
 msgid "Remove"
 msgstr "Eliminar"
 
@@ -6979,6 +7022,7 @@ msgid "Submit"
 msgstr "Enviar"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_submitted
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
 msgid "Submitted"
 msgstr "Enviado"
@@ -7193,16 +7237,19 @@ msgid "The code must be unique."
 msgstr "El código debe ser único."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/curriculum/outcome.py:0
 msgid "The code must start as the subject's code."
 msgstr "El código debe empezar como el código de la asignatura."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/curriculum/content.py:0 code:addons/ems/models/curriculum/criteria.py:0
 msgid "The code must start as the parent's code."
 msgstr "El código debe empezar como el código del padre."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/curriculum/content.py:0 code:addons/ems/models/curriculum/criteria.py:0 code:addons/ems/models/curriculum/outcome.py:0
 msgid "%s Edit"
 msgstr "Editar %s"
@@ -8060,11 +8107,6 @@ msgid "Identifier found in file"
 msgstr "Identificador encontrado en el fichero"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__create_new
-msgid "New"
-msgstr "Nuevo"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
 msgid "Every teacher mentioned in the file was recognized."
 msgstr "Se han reconocido todos los docentes mencionados en el fichero."
@@ -8128,42 +8170,66 @@ msgid "Right classroom"
 msgstr "Aula derecha"
 
 #. module: ems
+#. odoo-javascript
 #: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__kind__co_teaching_eligible model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__kind__co_teaching_eligible
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
 msgid "Co-teaching"
 msgstr "Co-docencia"
 
 #. module: ems
+#. odoo-javascript
 #: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__kind__join_session model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__kind__join_session
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
 msgid "Join session"
 msgstr "Sesión conjunta"
 
 #. module: ems
+#. odoo-javascript
 #: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__kind__plain_conflict model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__kind__plain_conflict
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
 msgid "Room conflict"
 msgstr "Conflicto de aula"
 
 #. module: ems
+#. odoo-javascript
 #: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__kind__self_conflict model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__kind__self_conflict
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
 msgid "Same teacher, different room"
 msgstr "Mismo docente, aula diferente"
 
 #. module: ems
+#. odoo-javascript
 #: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__resolution__co_teaching model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__resolution__co_teaching
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
 msgid "Confirm"
 msgstr "Confirmar"
 
 #. module: ems
+#. odoo-javascript
 #: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__resolution__prevail_left model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__resolution__prevail_left
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
 msgid "Left prevails"
 msgstr "Prevalece la izquierda"
 
 #. module: ems
+#. odoo-javascript
 #: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__resolution__prevail_right model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__resolution__prevail_right
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
 msgid "Right prevails"
 msgstr "Prevalece la derecha"
 
 #. module: ems
+#. odoo-javascript
 #: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__resolution__reassign_rooms model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__resolution__reassign_rooms
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
 msgid "Reassign rooms"
 msgstr "Reasignar aulas"
 
@@ -8269,12 +8335,6 @@ msgstr "Su horario semanal se sincronizará con el contenido de este archivo. Ca
 #: code:addons/ems/models/employees/working_schedule.py:0
 msgid "These are placeholder employees, created now so their schedule and subjects are ready immediately. Afterwards, open each one's own record to replace the placeholder name with the real one, fill in their personal e-mail, and click Generate Google account - exactly like any other new teacher."
 msgstr "Son empleados provisionales, creados ahora para que su horario y asignaturas estén listos de inmediato. Después, abre la ficha de cada uno para sustituir el nombre provisional por el real, rellenar su correo personal y hacer clic en Generar cuenta Google - exactamente igual que para cualquier otro docente nuevo."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/employees/working_schedule.py:0
-msgid "Category"
-msgstr "Categoría"
 
 #. module: ems
 #. odoo-python
@@ -10991,8 +11051,8 @@ msgstr "Es un descanso"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__is_fixed
-msgid "Always a fixed-schedule commitment"
-msgstr "Siempre es un compromiso de horario fijo"
+msgid "Fixed schedule"
+msgstr "Horario fijo"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_non_teaching_type_list model:ir.ui.menu,name:ems.menu_non_teaching_types
@@ -12269,72 +12329,18 @@ msgid "Teacher with email '%s' not found."
 msgstr "No se ha encontrado ningún profesor con el correo '%s'."
 
 #. module: ems
+#. odoo-javascript
 #: code:addons/ems/static/src/js/backend/working_schedule_import_blocking_upload.js:0
 #, python-format
 msgid "Reading and validating the schedule file, please wait..."
 msgstr "Leyendo y validando el fichero de horario, por favor espere..."
 
 #. module: ems
+#. odoo-javascript
 #: code:addons/ems/static/src/js/backend/working_schedules_import_wizard_form_controller.js:0
 #, python-format
 msgid "Importing the schedule, please wait..."
 msgstr "Importando el horario, por favor espere..."
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
-#, python-format
-msgid "Co-teaching"
-msgstr "Co-docencia"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
-#, python-format
-msgid "Join session"
-msgstr "Sesión conjunta"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
-#, python-format
-msgid "Room conflict"
-msgstr "Conflicto de aula"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
-#, python-format
-msgid "Same teacher, different room"
-msgstr "Mismo docente, aula diferente"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
-#, python-format
-msgid "Confirm"
-msgstr "Confirmar"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
-#, python-format
-msgid "Left prevails"
-msgstr "Prevalece la izquierda"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
-#, python-format
-msgid "Right prevails"
-msgstr "Prevalece la derecha"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
-#, python-format
-msgid "Reassign rooms"
-msgstr "Reasignar aulas"
 
 #. module: ems
 #. odoo-javascript
@@ -12349,13 +12355,6 @@ msgstr "— aplicar a todos —"
 #, python-format
 msgid "Classroom…"
 msgstr "Aula…"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
-#, python-format
-msgid "File"
-msgstr "Archivo"
 
 #. module: ems
 #. odoo-javascript
@@ -12606,9 +12605,10 @@ msgid "Guard duty"
 msgstr "Guardia"
 
 #. module: ems
-#: model:ir.actions.server,name:ems.action_guard_duty_board
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+#: model:ir.actions.client,name:ems.action_guard_duty_board
 #: model:ir.ui.menu,name:ems.menu_guard_duty_board
-#: model_terms:ir.ui.view,arch_db:ems.view_guard_duty_board_form
 msgid "Guard duty schedule"
 msgstr "Horario de guardias"
 
@@ -12622,6 +12622,591 @@ msgstr "No hay horario disponible."
 #: code:addons/ems/static/src/xml/backend/guard_duty_board_field.xml:0
 msgid "Time block"
 msgstr "Bloque horario"
+
+#. module: ems
+#: model:hr.leave.type,name:ems.leave_type_sick_leave
+msgid "Sick leave"
+msgstr "Baja laboral"
+
+#. module: ems
+#: model:hr.leave.type,name:ems.leave_type_health
+msgid "Health: I was absent from my workplace for health reasons, a circumstance I reported immediately to the centre's director"
+msgstr "Salud: Me he ausentado de mi puesto de trabajo por motivos de salud, circunstancia que he comunicado de manera inmediata al director/a del centro"
+
+#. module: ems
+#: model:hr.leave.type,name:ems.leave_type_medical_appointment
+msgid "Medical appointment: it was not possible for me to arrange the medical appointment outside my working hours. (Supporting document attached)"
+msgstr "Asistencia a consulta médica: no me ha sido posible concertar la asistencia a la consulta médica fuera de mi horario de trabajo. (Adjunto justificante)"
+
+#. module: ems
+#: model:hr.leave.type,name:ems.leave_type_invasive_test
+msgid "Invasive medical test: I was absent from my workplace for the whole day because I underwent an invasive medical test (includes colonoscopy, endoscopy, gastroscopy and catheterisation). (Supporting document attached)"
+msgstr "Prueba médica invasiva: Me he ausentado de mi puesto de trabajo durante toda la jornada porque me han hecho una prueba médica invasiva (incluye colonoscopia, endoscopia, gastroscopia y cateterismo). (Adjunto justificante)"
+
+#. module: ems
+#: model:hr.leave.type,name:ems.leave_type_menstrual_flexibility
+msgid "Menstrual or climacteric flexibility: recoverable flexible-hours leave for menstruation or climacteric affecting health (maximum 8 hours during the current month, recoverable in minimum fractions of 30 minutes over the following 4 months)."
+msgstr "Flexibilidad por menstruación o climaterio: permiso de flexibilidad horaria recuperable por menstruación o climaterio con afectación a la salud (duración máxima de 8 horas durante el mes en curso, recuperables en fracciones mínimas de 30 minutos durante los siguientes 4 meses)."
+
+#. module: ems
+#: model:hr.leave.type,name:ems.leave_type_training
+msgid "Training: courses, Erasmus, ..."
+msgstr "Formación: cursos, Erasmus, ..."
+
+#. module: ems
+#: model:hr.leave.type,name:ems.leave_type_justified
+msgid "Justified absence"
+msgstr "Ausencia justificada"
+
+#. module: ems
+#: model:hr.leave.type,name:ems.leave_type_service_assignment
+msgid "Service assignment: field trips, travel, ..."
+msgstr "Encargo de servicios: salidas, viajes, ..."
+
+#. module: ems
+#: model:hr.leave.type,name:ems.leave_type_atri
+msgid "ATRI: request managed through the ATRI portal"
+msgstr "ATRI: Solicitud gestionada por el portal Atri"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid "<span class=\"ms-1\">hours used.</span>"
+msgstr "<span class=\"ms-1\">horas consumidas.</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid ""
+"<span>This employee is over their self-declared health absence allowance for"
+" the course.</span>"
+msgstr "<span>Esta persona ha superado su crédito de ausencias por motivos de salud del curso.</span>"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave_type__ems_counts_hours
+msgid ""
+"Absences of this type are added by default to the monthly hours each Area "
+"Manager reports. It stays editable request by request, because employees do "
+"miscategorise."
+msgstr "Las ausencias de este tipo se suman por defecto a las horas mensuales que reporta cada responsable de área. Se puede cambiar solicitud por solicitud, porque a veces la persona se equivoca de categoría."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave_type__ems_counts_health_allowance
+msgid "Consumes the health allowance"
+msgstr "Consume el crédito de salud"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_counts_hours
+#: model:ir.model.fields,field_description:ems.field_hr_leave_type__ems_counts_hours
+msgid "Adds the hours to the monthly report"
+msgstr "Suma las horas al informe mensual"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_direction_state
+msgid "Direction check"
+msgstr "Verificación de dirección"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_direction_state
+msgid ""
+"Direction's own check of the supporting document and, for ATRI absences, of "
+"the request having really been filed on the portal. Independent of the "
+"approval: a request can be approved and still be waiting for its document."
+msgstr "Verificación que hace la dirección del documento justificativo y, en las ausencias de ATRI, de que la solicitud se ha tramitado realmente en el portal. Es independiente de la aprobación: una solicitud puede estar aprobada y aún pendiente del justificante."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__ems_full_day_hours
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_full_day_hours
+msgid "Ems Full Day Hours"
+msgstr "Horas de jornada completa"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__ems_health_allowance_hours
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_health_allowance_hours
+msgid "Ems Health Allowance Hours"
+msgstr "Horas del crédito de salud"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_needs_atri
+#: model:ir.model.fields,field_description:ems.field_hr_leave_type__ems_needs_atri
+msgid "Filed through ATRI"
+msgstr "Se tramita por ATRI"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Health absence allowance"
+msgstr "Crédito de horas por motivos de salud"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_health_hours_used
+msgid "Health hours used"
+msgstr "Horas de salud consumidas"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave_type__ems_counts_health_allowance
+msgid ""
+"Hours of this type count against the employee's yearly self-declared health "
+"absence allowance."
+msgstr "Las horas de este tipo descuentan del crédito anual de ausencias por motivos de salud de la persona."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_health_hours_used
+msgid ""
+"Hours this employee has already used from their health allowance this "
+"course, this request included."
+msgstr "Horas que esta persona ya ha consumido de su crédito por motivos de salud este curso, esta solicitud incluida."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_responsible_declaration
+msgid ""
+"I declare, under my own responsibility, that the details and the reason "
+"given for this absence are true."
+msgstr "Declaro, bajo mi responsabilidad, que los datos y el motivo de esta ausencia son ciertos."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_direction_state__missing_doc
+msgid "Missing document"
+msgstr "Falta documento"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_direction_state__not_done
+msgid "Not done"
+msgstr "No hecho"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
+msgid "Over allowance"
+msgstr "Supera el crédito"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_health_allowance_exceeded
+msgid "Over the health allowance"
+msgstr "Por encima del crédito de salud"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave_type__ems_full_day_default
+msgid "Requests of this type start marked as a whole-day absence."
+msgstr "Las solicitudes de este tipo se crean marcadas como ausencia de día entero."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_responsible_declaration
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid "Responsible declaration"
+msgstr "Declaración responsable"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid ""
+"The absence type '%(type)s' needs the responsible declaration to be accepted"
+" before the request can be submitted."
+msgstr "El tipo de ausencia '%(type)s' requiere aceptar la declaración responsable antes de poder enviar la solicitud."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_full_day
+msgid ""
+"The employee did not come in at all that day. A whole-day absence always "
+"counts a full working day, however many lessons they had scheduled."
+msgstr "La persona no ha venido en todo el día. Una ausencia de día entero siempre cuenta una jornada completa, tenga las clases que tenga programadas."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave_type__ems_needs_atri
+msgid ""
+"The employee files this absence on the Generalitat's ATRI portal. Direction "
+"confirms it was really filed as part of their own check."
+msgstr "La persona tramita esta ausencia en el portal ATRI de la Generalitat. La dirección confirma que se ha tramitado realmente como parte de su verificación."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid ""
+"This request takes %(name)s to %(used).2f hours of self-declared health "
+"absence this course, over the %(allowance).2f hours allowed. It can still be"
+" submitted, but it will be flagged for the Head of Studies."
+msgstr "Esta solicitud lleva a %(name)s a %(used).2f horas de ausencia por motivos de salud este curso, por encima de las %(allowance).2f horas permitidas. Se puede enviar igualmente, pero quedará marcada para la jefatura de estudios."
+
+#. module: ems
+#: model:ir.model,name:ems.model_hr_leave
+msgid "Time Off"
+msgstr "Ausencias"
+
+#. module: ems
+#: model:ir.model,name:ems.model_hr_leave_type
+msgid "Time Off Type"
+msgstr "Tipo de ausencia"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_full_day
+msgid "Whole day?"
+msgstr "¿Día entero?"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave_type__ems_full_day_default
+msgid "Whole day by default"
+msgstr "Día entero por defecto"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"Hours a whole-day staff absence is worth. A whole day always counts this "
+"much, however many lessons the employee had scheduled that day."
+msgstr "Horas que vale una ausencia de día entero del personal. Un día entero siempre cuenta estas horas, tenga las clases que tenga programadas ese día."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"Hours of self-declared health absence each employee may use per course. "
+"Going over it does not block the request, it only warns the employee and "
+"flags it for the Head of Studies."
+msgstr "Horas de ausencia por motivos de salud que puede usar cada persona por curso. Superarlas no bloquea la solicitud, solo avisa a la persona y la marca para la jefatura de estudios."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Staff Absence Settings"
+msgstr "Configuración de ausencias del personal"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Whole-day absence"
+msgstr "Ausencia de día entero"
+
+#. module: ems
+#. odoo-javascript
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_dashboard_ems
+#: code:addons/ems/static/src/xml/backend/absence_dashboard.xml:0
+msgid "Absence request"
+msgstr "Solicitud de ausencia"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__is_absence_manager
+msgid "Current user manages this absence"
+msgstr "El usuario actual gestiona esta ausencia"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid "Supporting document for the absence. For a medical appointment, it must expressly state the patient's first name and surname and the time of entry to and exit from the centre or medical practice."
+msgstr "Documento justificativo de la ausencia. En el caso de consulta médica, en el justificante debe constar expresamente el nombre y apellidos del o de la paciente y la hora de entrada y salida del centro o consulta médica."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid "Supporting document"
+msgstr "Justificante"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__is_absence_manager
+msgid ""
+"Whether the user reading this request is the one who approves it, or an "
+"officer. Drives which fields stay editable once the request has been "
+"approved."
+msgstr "Si quien lee esta solicitud es quien la aprueba, o un responsable de ausencias. Determina qué campos siguen siendo editables una vez la solicitud está aprobada."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/absence_dashboard.xml:0
+msgid "New absence"
+msgstr "Nueva ausencia"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__is_absence_direction
+msgid "Current user is Direction"
+msgstr "El usuario actual es dirección"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__is_absence_direction
+msgid "Whether the user reading this request may set the Direction check."
+msgstr "Si quien lee esta solicitud puede fijar la verificación de dirección."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/absence_attachment_field.js:0
+msgid "Remove the supporting document"
+msgstr "Eliminar el justificante"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/absence_attachment_field.js:0
+msgid "\"%s\" will be removed from this absence. This cannot be undone."
+msgstr "Se eliminará \"%s\" de esta ausencia. Esta acción no se puede deshacer."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_type_short_name
+#: model_terms:ir.ui.view,arch_db:ems.view_holiday_list_ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_monthly_list
+msgid "Absence type"
+msgstr "Tipo de ausencia"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave_type__ems_short_name
+msgid "Short name"
+msgstr "Nombre corto"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_type_short_name
+#: model:ir.model.fields,help:ems.field_hr_leave_type__ems_short_name
+msgid ""
+"The absence type's name up to its colon - what the original Apps Script "
+"showed in the calendar and in its emails, keeping the full legal wording for"
+" the form where the employee actually has to read it."
+msgstr "El nombre del tipo de ausencia hasta los dos puntos: lo que el script de Apps Script original mostraba en el calendario y en sus correos, dejando el texto legal completo para el formulario, que es donde la persona debe leerlo de verdad."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid ""
+"<span>Responsible declaration justifying an absence for health reasons, "
+"attendance at a medical appointment, an invasive medical test, recoverable "
+"flexible hours for menstruation or climacteric, training, or participation "
+"in the Erasmus+ programme</span>"
+msgstr "<span>Declaración responsable justificativa de ausencia por motivos de salud, asistencia a consulta médica, realización de prueba médica invasiva, flexibilidad horaria recuperable por menstruación o climaterio, formación o participación en el programa Erasmus+</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid ""
+"<span>Supporting document for the absence. For a medical appointment, it "
+"must expressly state the patient's first name and surname and the time of "
+"entry to and exit from the centre or medical practice.</span>"
+msgstr "<span>Documento justificativo de la ausencia. En el caso de consulta médica, en el justificante debe constar expresamente el nombre y apellidos del o de la paciente y la hora de entrada y salida del centro o consulta médica.</span>"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Absence request submitted by the employee."
+msgstr "Solicitud de ausencia enviada por la persona interesada."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid ""
+"I declare, under my own responsibility, that the details and the reason for "
+"my absence that I have given are true."
+msgstr "Declaro, bajo mi responsabilidad, que los datos y el motivo de mi ausencia que he indicado son ciertos."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Only Direction can change the Direction check on an absence."
+msgstr "Solo la dirección puede cambiar la verificación de dirección de una ausencia."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/absence_submit_widget.js:0
+#: code:addons/ems/static/src/xml/backend/absence_submit_widget.xml:0
+msgid "Send request"
+msgstr "Enviar solicitud"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/absence_submit_widget.js:0
+msgid ""
+"Your absence request is about to be filed. Do you confirm that every detail "
+"is correct?"
+msgstr "Se va a tramitar su solicitud de ausencia. ¿Confirma que todos los datos son correctos?"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/absence_submit_widget.js:0
+msgid "Send the absence request"
+msgstr "Enviar la solicitud de ausencia"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_submitted
+msgid ""
+"Set by the “Send request” button once the employee has confirmed their "
+"details. A request cannot be saved without it, which is what stops Odoo's "
+"own autosave from filing an absence nobody asked for."
+msgstr "Lo fija el botón «Enviar solicitud» cuando la persona ha confirmado sus datos. Una solicitud no se puede guardar sin esto, que es lo que impide que el guardado automático de Odoo registre una ausencia que nadie ha pedido."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid ""
+"The responsible declaration has to be accepted before an absence request can"
+" be sent."
+msgstr "Hay que aceptar la declaración responsable antes de enviar una solicitud de ausencia."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid ""
+"This absence request has not been sent. Fill it in and use the “Send "
+"request” button at the bottom of the form; to leave without requesting "
+"anything, discard it instead."
+msgstr "Esta solicitud de ausencia no se ha enviado. Rellénela y use el botón «Enviar solicitud» del final del formulario; para salir sin pedir nada, descártela."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/absence_submit_widget.js:0
+msgid "Accept the responsible declaration."
+msgstr "Acepte la declaración responsable."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/absence_submit_widget.js:0
+msgid "Choose the type of absence."
+msgstr "Elija el tipo de ausencia."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/absence_submit_widget.js:0
+msgid "Give a start and an end time, with the end later than the start."
+msgstr "Indique una hora de inicio y una de fin, con la de fin posterior a la de inicio."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_health_hours
+#: model_terms:ir.ui.view,arch_db:ems.view_holiday_list_ems
+msgid "Health hours"
+msgstr "Horas por salud"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_course_id
+msgid ""
+"The school year the absence falls in, September to August. Stored so reports"
+" can filter and group on it - a calendar year cuts a school year in half."
+msgstr "El curso escolar en que cae la ausencia, de septiembre a agosto. Se guarda para que los informes puedan filtrar y agrupar por él: un año natural parte un curso escolar por la mitad."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_health_hours
+msgid ""
+"This absence's hours when it consumes the health allowance, zero otherwise. "
+"A column of its own so a report grouped by employee can total it - which is "
+"the figure that has to stay under the yearly allowance."
+msgstr "Las horas de esta ausencia cuando consume el crédito de salud, y cero si no. Una columna propia para que un informe agrupado por persona pueda totalizarla, que es la cifra que debe quedar por debajo del crédito anual."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_hr_holidays_filter_ems
+msgid "Month"
+msgstr "Mes"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_absence_monthly_report
+#: model:ir.ui.menu,name:ems.menu_absence_monthly_report
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_monthly_list
+msgid "Monthly totals"
+msgstr "Totales por mes"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_absence_monthly_report
+msgid "No absences counted this course yet"
+msgstr "Todavía no hay ninguna ausencia contabilizada este curso"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_counted_hours
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_monthly_list
+msgid "Reported hours"
+msgstr "Horas reportadas"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_counted_hours
+msgid ""
+"This absence's hours when it is marked as adding to the monthly report, zero"
+" otherwise. Summable, so the monthly report can total it per month the way "
+"the spreadsheet's own 'Totals per mes' tab did."
+msgstr "Las horas de esta ausencia cuando está marcada como que suma al informe mensual, y cero si no. Se puede sumar, de modo que el informe mensual puede totalizarla por mes tal como hacía la pestaña «Totals per mes» de la hoja de cálculo."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid ""
+"<span>.</span>\n"
+"                        <span class=\"d-block\">Reference manual:</span>"
+msgstr "Manual de referencia:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid ""
+"<span>This absence also has to be requested on the Generalitat's ATRI "
+"portal:</span>"
+msgstr "Esta ausencia también se tiene que solicitar en el portal ATRI de la Generalitat:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid "ATRI leave and absences manual (PDF)"
+msgstr "Manual de permisos y ausencias de ATRI (PDF)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid "My requests - leave and absences"
+msgstr "Mis solicitudes - permisos y ausencias"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "%(date)s, from %(start)s to %(end)s"
+msgstr "%(date)s, de %(start)s a %(end)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "%(start)s to %(end)s"
+msgstr "del %(start)s al %(end)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Absence request of %(name)s"
+msgstr "Solicitud de ausencia de %(name)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Absence type: %(type)s"
+msgstr "Tipo de ausencia: %(type)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Dates: %(when)s"
+msgstr "Fechas: %(when)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Duration: %(hours).2f h"
+msgstr "Duración: %(hours).2f h"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Employee: %(name)s"
+msgstr "Persona: %(name)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Status: %(state)s"
+msgstr "Estado: %(state)s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_kanban_ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
+msgid ""
+"A refused absence request cannot be reopened: the employee has to file a new"
+" one. Refuse it?"
+msgstr ""
+"Una solicitud de ausencia rechazada no se puede reabrir: la persona tendrá "
+"que hacer una nueva. ¿Quieres rechazarla?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_kanban_ems
+msgid "Refuse this absence request"
+msgstr "Rechazar esta solicitud de ausencia"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_kanban_ems
+msgid "Refuse"
+msgstr "Rechazar"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid ""
+"An approved absence request can no longer be changed. Its supporting "
+"document can still be filed; anything else has to go through whoever "
+"approved it."
+msgstr ""
+"Una solicitud de ausencia aprobada ya no se puede modificar. El justificante "
+"sí se puede adjuntar; cualquier otro cambio lo tiene que hacer quien la "
+"aprobó."
 
 #. module: ems
 #: model:ems.role,name:ems.role_tac
@@ -12682,3 +13267,440 @@ msgstr ""
 "El cambio de estudio ha actualizado las matrículas de este alumno a partir "
 "de la plantilla %(template)s, pero las siguientes asignaturas ya tienen "
 "notas y se han mantenido tal cual:"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__google_signin_missing
+msgid "Google sign-in not linked"
+msgstr "Acceso con Google no vinculado"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_employee__google_signin_missing
+msgid "True when the employee has an active account and an EMS user, but that user has lost its OAuth data and can no longer sign in with Google."
+msgstr "Verdadero cuando el empleado tiene una cuenta activa y un usuario EMS, pero ese usuario ha perdido sus datos de OAuth y ya no puede iniciar sesión con Google."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Re-link Google sign-in"
+msgstr "Volver a vincular el acceso con Google"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__google_ws_deactivation_date
+#: model:ir.model.fields,field_description:ems.field_res_partner__google_ws_deactivation_date
+#: model:ir.model.fields,field_description:ems.field_res_users__google_ws_deactivation_date
+msgid "Scheduled Google deactivation"
+msgstr "Desactivación de Google programada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__google_ws_deletion_date
+#: model:ir.model.fields,field_description:ems.field_res_users__google_ws_deletion_date
+msgid "Scheduled Google deletion"
+msgstr "Eliminación de Google programada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__google_ws_deleted
+#: model:ir.model.fields,field_description:ems.field_res_users__google_ws_deleted
+msgid "Google account deleted"
+msgstr "Cuenta de Google eliminada"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Cancel scheduled deactivation"
+msgstr "Cancelar la desactivación programada"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Delete Google account"
+msgstr "Eliminar la cuenta de Google"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "The Google account is scheduled to be deactivated on"
+msgstr "La cuenta de Google se desactivará el"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "The suspended Google account is scheduled to be deleted for good on"
+msgstr "La cuenta de Google suspendida se eliminará definitivamente el"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid ""
+"This deletes the corporate Google account for good: the mailbox and the "
+"Drive files cannot be recovered afterwards. Continue?"
+msgstr "Esto elimina definitivamente la cuenta corporativa de Google: el buzón y los archivos de Drive no se podrán recuperar. ¿Continuar?"
+
+#. module: ems
+#: model:ir.actions.server,name:ems.ir_cron_gw_staff_lifecycle_ir_actions_server
+msgid "EMS: Google Workspace staff account lifecycle"
+msgstr "EMS: ciclo de vida de las cuentas de Google Workspace del personal"
+
+#. module: ems
+#: model:ir.actions.server,name:ems.ir_cron_gw_student_lifecycle_ir_actions_server
+msgid "EMS: Google Workspace student account lifecycle"
+msgstr "EMS: ciclo de vida de las cuentas de Google Workspace del alumnado"
+
+#. module: ems
+#: model:mail.template,name:ems.mail_template_google_deactivation_employee
+msgid "Google Workspace - Account deactivation notice (staff)"
+msgstr "Google Workspace - Aviso de desactivación de cuenta (personal)"
+
+#. module: ems
+#: model:mail.template,name:ems.mail_template_google_deactivation_student
+msgid "Google Workspace - Account deactivation notice (students)"
+msgstr "Google Workspace - Aviso de desactivación de cuenta (alumnado)"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_employee__google_ws_deactivation_date
+msgid ""
+"Date the corporate account is due to be suspended, set when the employee is "
+"archived. Until then the account keeps working; unarchiving cancels it."
+msgstr "Fecha en la que se suspenderá la cuenta corporativa, fijada al archivar al empleado. Hasta entonces la cuenta sigue funcionando; desarchivarlo la anula."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__google_ws_deactivation_date
+#: model:ir.model.fields,help:ems.field_res_users__google_ws_deactivation_date
+msgid ""
+"Date the corporate account is due to be suspended, set when the student "
+"leaves. Until then the account keeps working; coming back cancels it."
+msgstr "Fecha en la que se suspenderá la cuenta corporativa, fijada cuando el estudiante causa baja. Hasta entonces la cuenta sigue funcionando; su regreso la anula."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__google_ws_deletion_date
+#: model:ir.model.fields,help:ems.field_res_users__google_ws_deletion_date
+msgid ""
+"Date the suspended corporate account is due to be deleted for good. Set when"
+" the account is suspended; reactivating it cancels the deletion."
+msgstr "Fecha en la que se eliminará definitivamente la cuenta corporativa suspendida. Se fija al suspender la cuenta; reactivarla anula la eliminación."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__google_ws_deleted
+#: model:ir.model.fields,help:ems.field_res_users__google_ws_deleted
+msgid ""
+"True once the corporate account has been deleted in Google. The address is "
+"kept on the record so it is never handed to a different student."
+msgstr "Verdadero una vez que la cuenta corporativa se ha eliminado en Google. La dirección se conserva en la ficha para que nunca se asigne a otro estudiante."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "Google did not return a user id for %s. The account may not exist, or it may live outside the organizational units this service account is allowed to read. Check the server log for the exact Google error."
+msgstr "Google no ha devuelto ningún identificador de usuario para %s. Puede que la cuenta no exista o que esté fuera de las unidades organizativas que esta cuenta de servicio puede leer. Consulta el registro del servidor para ver el error exacto de Google."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "Google returned no user id for %s."
+msgstr "Google no ha devuelto ningún identificador de usuario para %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "Google sign-in could not be linked. Check that the \"Google OAuth2\" provider exists and is enabled."
+msgstr "No se ha podido vincular el acceso con Google. Comprueba que el proveedor «Google OAuth2» existe y está activado."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "Sign in with Google re-linked for %s."
+msgstr "Se ha vuelto a vincular el acceso con Google para %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "The Google account of %(employee)s is already linked to the EMS user %(login)s. Clear the Google sign-in on that user first, then try again."
+msgstr "La cuenta de Google de %(employee)s ya está vinculada al usuario EMS %(login)s. Elimina primero el acceso con Google de ese usuario y vuelve a intentarlo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "The Google user id cannot be resolved: this environment runs the Google Workspace integration in dry-run mode (Settings > Company)."
+msgstr "No se puede obtener el identificador de usuario de Google: este entorno ejecuta la integración con Google Workspace en modo de simulación (Ajustes > Compañía)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "This employee has no corporate email address."
+msgstr "Este empleado no tiene dirección de correo corporativo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid ""
+"Google Workspace: the corporate account %(email)s will be suspended on "
+"%(date)s. Unarchiving this employee before that date cancels it."
+msgstr "Google Workspace: la cuenta corporativa %(email)s se suspenderá el %(date)s. Desarchivar a este empleado antes de esa fecha lo anula."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid ""
+"Google Workspace: the corporate account %(email)s will be suspended on "
+"%(date)s and deleted %(days)s days later. Bringing this student back before "
+"then cancels it."
+msgstr "Google Workspace: la cuenta corporativa %(email)s se suspenderá el %(date)s y se eliminará %(days)s días después. Recuperar a este estudiante antes lo anula."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "Google Workspace: the scheduled suspension of %s has been cancelled."
+msgstr "Google Workspace: se ha cancelado la suspensión programada de %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid ""
+"Google Workspace account suspended: %(email)s (moved to OU %(ou)s)%(dry)s. "
+"It will be deleted for good on %(date)s unless the student comes back."
+msgstr "Cuenta de Google Workspace suspendida: %(email)s (movida a la OU %(ou)s)%(dry)s. Se eliminará definitivamente el %(date)s salvo que el estudiante regrese."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Google Workspace: account %s was deleted; creating a new one."
+msgstr "Google Workspace: la cuenta %s se eliminó; se está creando una nueva."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Google Workspace: could not delete %(email)s. Error: %(err)s"
+msgstr "Google Workspace: no se ha podido eliminar %(email)s. Error: %(err)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Google Workspace account deleted for good: %(email)s%(dry)s."
+msgstr "Cuenta de Google Workspace eliminada definitivamente: %(email)s%(dry)s."
+
+#. module: ems
+#: model:mail.template,subject:ems.mail_template_google_deactivation_employee
+msgid ""
+"Your corporate account @{{ object.env.company.google_ws_domain }} will be "
+"deactivated"
+msgstr "Tu cuenta corporativa @{{ object.env.company.google_ws_domain }} se desactivará"
+
+#. module: ems
+#: model:mail.template,subject:ems.mail_template_google_deactivation_student
+msgid ""
+"Your corporate account @{{ object.env.company.google_ws_domain }} will be "
+"deactivated and deleted"
+msgstr "Tu cuenta corporativa @{{ object.env.company.google_ws_domain }} se desactivará y se eliminará"
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_template_google_deactivation_student
+msgid ""
+"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
+"                    <p>Hello <t t-out=\"object.firstname or object.name or ''\"/>,</p>\n"
+"                    <p>Now that you are no longer enrolled at the school, your corporate\n"
+"                       Google Workspace account\n"
+"                       <strong><t t-out=\"object.student_email or ''\"/></strong>\n"
+"                       is scheduled to be <strong>deactivated</strong> on\n"
+"                       <strong><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></strong>.</p>\n"
+"                    <p style=\"color:#b00;\">Once deactivated, the account is\n"
+"                       <strong>deleted for good</strong> on\n"
+"                       <strong><t t-out=\"format_date(ctx.get('gw_deletion_date'))\"/></strong>.\n"
+"                       After that date your email and your Drive files cannot be recovered.</p>\n"
+"                    <p>You can use your account as usual before\n"
+"                       <t t-out=\"format_date(object.google_ws_deactivation_date)\"/>; from\n"
+"                       <t t-out=\"format_date(object.google_ws_deactivation_date)\"/> (included)\n"
+"                       you will no longer be able to access it; on\n"
+"                       <t t-out=\"format_date(ctx.get('gw_deletion_date'))\"/> it will be deleted\n"
+"                       for good. Please make sure you download everything you want to keep\n"
+"                       before then, and that you have moved any personal service using this\n"
+"                       address to another one.</p>\n"
+"                    <p>If you enrol again at the school before those dates, the account is kept\n"
+"                       and nothing is lost.</p>\n"
+"                    <p>Best regards,<br/>School Secretariat</p>\n"
+"                </div>"
+msgstr ""
+"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
+"                    <p>Hola <t t-out=\"object.firstname or object.name or ''\"/>,</p>\n"
+"                    <p>Ahora que ya no estás matriculado en el centro, está previsto que tu cuenta\n"
+"                       corporativa de Google Workspace\n"
+"                       <strong><t t-out=\"object.student_email or ''\"/></strong>\n"
+"                       se <strong>desactive</strong> el\n"
+"                       <strong><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></strong>.</p>\n"
+"                    <p style=\"color:#b00;\">Una vez desactivada, la cuenta se\n"
+"                       <strong>elimina definitivamente</strong> el\n"
+"                       <strong><t t-out=\"format_date(ctx.get('gw_deletion_date'))\"/></strong>.\n"
+"                       A partir de esa fecha tu correo y tus archivos de Drive no se podrán\n"
+"                       recuperar.</p>\n"
+"                    <p>Podrás acceder a tu cuenta con normalidad antes del\n"
+"                       <t t-out=\"format_date(object.google_ws_deactivation_date)\"/>; a partir del\n"
+"                       <t t-out=\"format_date(object.google_ws_deactivation_date)\"/> (incluido) ya\n"
+"                       no podrás acceder a ella; el día\n"
+"                       <t t-out=\"format_date(ctx.get('gw_deletion_date'))\"/> se eliminará\n"
+"                       definitivamente. Asegúrate de descargar antes todo lo que quieras\n"
+"                       conservar, y de trasladar a otra dirección cualquier servicio personal que\n"
+"                       use esta.</p>\n"
+"                    <p>Si vuelves a matricularte en el centro antes de esas fechas, la cuenta se\n"
+"                       conserva y no se pierde nada.</p>\n"
+"                    <p>Un saludo,<br/>Secretaría del centro</p>\n"
+"                </div>"
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_template_google_deactivation_employee
+msgid ""
+"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
+"                    <p>Hello <t t-out=\"object.name or ''\"/>,</p>\n"
+"                    <p>Now that you are no longer part of the school staff, your corporate\n"
+"                       Google Workspace account\n"
+"                       <strong><t t-out=\"object.work_email or ''\"/></strong>\n"
+"                       is scheduled to be <strong>deactivated</strong> on\n"
+"                       <strong><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></strong>.</p>\n"
+"                    <p>Until that date the account keeps working normally. Please make sure\n"
+"                       you have saved anything you need from your email and your Drive files\n"
+"                       before then, and that you have moved any personal service using this\n"
+"                       address to another one.</p>\n"
+"                    <p>If you come back to the school before that date, the account is kept\n"
+"                       and nothing is lost.</p>\n"
+"                    <p>Best regards,<br/>School Secretariat</p>\n"
+"                </div>"
+msgstr ""
+"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
+"                    <p>Hola <t t-out=\"object.name or ''\"/>,</p>\n"
+"                    <p>Ahora que ya no formas parte del personal del centro, está previsto que tu\n"
+"                       cuenta corporativa de Google Workspace\n"
+"                       <strong><t t-out=\"object.work_email or ''\"/></strong>\n"
+"                       se <strong>desactive</strong> el\n"
+"                       <strong><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></strong>.</p>\n"
+"                    <p>Hasta esa fecha la cuenta sigue funcionando con normalidad. Asegúrate de\n"
+"                       guardar antes todo lo que necesites de tu correo y de tus archivos de Drive,\n"
+"                       y de trasladar a otra dirección cualquier servicio personal que use esta.</p>\n"
+"                    <p>Si vuelves al centro antes de esa fecha, la cuenta se conserva y no se pierde\n"
+"                       nada.</p>\n"
+"                    <p>Un saludo,<br/>Secretaría del centro</p>\n"
+"                </div>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_search
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "Google suspension pending"
+msgstr "Suspensión de Google pendiente"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "Google deletion pending"
+msgstr "Eliminación de Google pendiente"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "Google suspension date"
+msgstr "Fecha de suspensión de Google"
+
+#. module: ems
+#: model:ir.module.category,name:ems.category_orientation
+msgid "Guidance"
+msgstr "Orientación"
+
+#. module: ems
+#: model:ir.module.category,description:ems.category_orientation
+msgid "Educational Management System - Guidance (Orientació)"
+msgstr "Sistema de Gestión Educativa - Orientación"
+
+#. module: ems
+#: model:ems.role,name:ems.role_orientation
+msgid "Guidance coordinator"
+msgstr "Coordinador/a de orientación"
+
+#. module: ems
+#: model:res.groups,name:ems.group_student_data_reader
+msgid "Student data reader"
+msgstr "Lector de datos del alumnado"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Absences"
+msgstr "Ausencias"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Guard duty table"
+msgstr "Tabla de guardias"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Loading..."
+msgstr "Cargando..."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "No schedule for this shift."
+msgstr "No hay horario para este turno."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Nobody is missing this shift."
+msgstr "No falta nadie en este turno."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "My students"
+msgstr "Mi alumnado"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__is_my_student
+#: model:ir.model.fields,field_description:ems.field_res_users__is_my_student
+msgid "Taught by me"
+msgstr "De mis grupos"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "Unsupported search on is_my_student"
+msgstr "Búsqueda no admitida sobre is_my_student"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__overwrite
+msgid "Overwrite existing data"
+msgstr "Sobrescribir los datos existentes"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_student_import_wizard__overwrite
+msgid ""
+"Leave it unticked to keep what EMS already holds: only fields that are "
+"currently empty get filled in, and students missing from EMS are created. "
+"Tick it to let the file's values replace EMS's ones. In both cases a column "
+"that comes empty in the file never erases an existing value, and notes are "
+"always kept."
+msgstr ""
+"Déjela desmarcada para conservar lo que EMS ya tiene: solo se rellenan los "
+"campos que ahora están vacíos, y se crean los alumnos que no están. "
+"Márquela para que los valores del fichero sustituyan a los de EMS. En ambos "
+"casos, una columna que llega vacía en el fichero nunca borra un valor "
+"existente, y las notas se conservan siempre."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_import_wizard.py:0
+msgid "A row was skipped: it carries no student identifier (%(column)s)."
+msgstr ""
+"Se ha omitido una fila: no lleva ningún identificador de alumno "
+"(%(column)s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_import_wizard.py:0
+msgid ""
+"Could not find the header row in any sheet of the file. Make sure it "
+"contains a column '%(column)s'."
+msgstr ""
+"No se ha encontrado la fila de cabecera en ninguna pestaña del fichero. "
+"Asegúrese de que contiene una columna '%(column)s'."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_import_wizard.py:0
+msgid ""
+"Student '%(ralc)s' was skipped: the row carries no name and no student with "
+"that identifier exists in EMS yet."
+msgstr ""
+"Se ha omitido el alumno '%(ralc)s': la fila no lleva ningún nombre y todavía "
+"no hay ningún alumno con ese identificador en EMS."

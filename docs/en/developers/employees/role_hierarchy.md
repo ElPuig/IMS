@@ -83,8 +83,157 @@ flowchart LR
 | `ems.group_academic_admin` | `ems.group_director` (+ Secretary/Quality/Settings admin chains) | All access rights |
 | `ems.group_tac` | `ems.group_teacher`, `hr.group_hr_user` | TAC (Learning and Knowledge Technologies) team. Own category, transversal to the chain above: same create/edit rights on teachers as the Head of Studies, and nothing else |
 | `ems.group_tac_admin` | `ems.group_tac` | The TAC coordinator (`role_tac`). Currently identical to `group_tac` |
+| `ems.group_coexistence` | `ems.group_student_data_reader` | Coexistence team. Own category, transversal: reads every strike centre-wide, plus the whole student dataset - see [Transversal read-only access to student data](#transversal-read-only-access-to-student-data-issue-393) below |
+| `ems.group_coexistence_admin` | `ems.group_coexistence` | The coexistence coordinator (`role_coexistence`). Currently identical to `group_coexistence` |
+| `ems.group_orientation` | `ems.group_teacher`, `ems.group_student_data_reader` | Guidance (Orientació) team. Own category, transversal: a teacher who additionally reads the whole student dataset, and nothing else |
+| `ems.group_orientation_admin` | `ems.group_orientation` | The guidance coordinator (`role_orientation`). Currently identical to `group_orientation` |
+| `ems.group_student_data_reader` | - | Technical group, no category of its own: carries the read-only record rules, ACL lines and menu visibility for the whole student dataset. Never assigned directly - granted only by implication from the two groups above |
 
 No new record rules or views were needed for `group_department_chief`: because it implies `group_tutor`, every rule/view gated on `group_teacher` (with a `tutor_id` domain) or on `group_tutor` directly is automatically satisfied.
+
+## Transversal read-only access to student data (issue #393)
+
+Two posts sit outside the teacher → tutor → department chief → Head of Studies chain but still
+need to see every student's file, not just their own tutees': the **guidance team**
+(*Orientació*, new in this issue) and the **coexistence coordinator** (already modelled, but
+until now able to read strikes and nothing else). Both are transversal in exactly the sense
+`category_quality`/`category_coexistence`/`category_tac` already are - the post is held by a
+teacher, but it does not sit anywhere on the academic chain, so it gets its own independent
+Manager/Administrator pair rather than being wired into it.
+
+### Why a shared technical group instead of duplicating the rules
+
+The two posts need the *same* read-only view of the student dataset, for different reasons
+(guidance follows a student's academic and personal trajectory; coexistence needs the full
+disciplinary and attendance context behind an incident). Writing one `ir.rule` per model per
+group would mean ~17 rules duplicated twice, and a third post later would duplicate them a
+third time. Instead, a single technical group owns the whole permission surface:
+
+```mermaid
+graph LR
+    RO["role_orientation"] --> GO["group_orientation"]
+    RC["role_coexistence"] --> GC["group_coexistence"]
+    GO --> SDR["group_student_data_reader<br/>(ir.rule + ACL + menus)"]
+    GC --> SDR
+    GO --> T["group_teacher"]
+    GC --> T
+    GOA["group_orientation_admin"] --> GO
+    GCA["group_coexistence_admin"] --> GC
+```
+
+`group_student_data_reader` has **no `category_id`**, so it never shows up as a role selector on
+the user form - it is granted only by implication, never picked by hand. It is deliberately
+self-sufficient (it carries its own ACL lines rather than relying on `group_teacher`'s):
+it never depends on another group happening to be granted alongside it.
+
+`group_coexistence` gained `group_teacher` in this issue, matching `group_tac` and
+`group_orientation`. That is not a courtesy: the Students screen is served by an
+`ir.actions.server`, and Odoo requires **write** access on the action's own model (`res.partner`)
+to execute a server action at all - so without `group_teacher` a coexistence coordinator hit an
+`AccessError` opening the screen however complete their read permissions were. It is safe because
+`role_coexistence` is `employee_type='teacher'`: the post is always held by a teacher already.
+
+Odoo ORs record rules across the groups a user belongs to, so a domain of `[]` on
+`group_student_data_reader` widens whatever `group_teacher`'s own `tutor_id`-filtered rules
+already allow, rather than fighting them. Nothing narrows: every rule below is `perm_read` only,
+with write/create/unlink left to the groups that already own them.
+
+### Models covered
+
+Read-only (`domain_force` `[]`, `perm_read` only), in `security/rules/student_data_reader.xml`:
+
+| Area | Models | Was previously limited to |
+|------|--------|---------------------------|
+| Contacts and enrolment | `res.partner`, `ems.enrollment`, `ems.authorization` | Already readable by any teacher - covered here only so the technical group stands alone |
+| Grades | `ems.grade_session`, `ems.grade_subject_line`, `ems.grade_outcome_line` | The teacher who owns the session, or the group's tutor |
+| Academic record | `ems.student.year_record`, `.subject`, `.outcome` | **Now every teacher** - see below |
+| Daily attendance | `ems.attendance_session_header`, `ems.attendance_session_line`, `ems.attendance_justification` | The session's own teacher, or the student's tutor |
+| Attendance issues | `ems.attendance_issue_tutor`, `ems.attendance_issue_student`, `ems.attendance_issue_status` | The student's tutor |
+| Coexistence | `ems.strike`, `ems.strike.reason` | The issuing teacher, the student's tutor, or `group_coexistence` (strikes only) |
+| Enrolment | `sale.order`, `sale.order.line` | The student's own tutor |
+
+`ems.strike.reason` deliberately gets an ACL line but **no** record rule: no group row-filters
+that catalog in the first place, so a rule would add noise without changing what anyone sees.
+
+Invoices and payments (`account.move`, `account.payment`) are deliberately **out of scope**:
+neither post has a reason to see what a family paid, and they stay with secretary and admin.
+
+`sale.order` is **not** in that exclusion, despite being the model the money lives on, and the
+distinction matters: in EMS an enrolment *is* a `sale.order`, and the student form's **Secretary
+tab** resolves its authorizations through `res.partner._ems_enrollment_in_force()`, which walks
+`sale_order_ids`. Denying it does not merely hide a number - the walk yields nothing *silently*,
+so the tab renders empty and, worse, the `auth_image`/`auth_trip`/`auth_healt`/`auth_share`
+badges on the Student data tab all read **"No"** on a student whose family did sign. Read access
+here is what a tutor already has (`rule_sale_order_teacher`, ACL via `group_teacher`); these two
+posts get the same mechanism with an open domain instead of one narrowed to own tutees.
+
+### The academic record is no longer transversal-only (issue #393, widened scope)
+
+Partway through this issue the centre decided a student's academic history is necessary
+information for the **whole teaching community**, not just their tutor - so the three
+`ems.student.year_record*` rules that were scoped to `student_id.main_group_id.tutor_id` were
+opened to a plain `[]` domain on `group_teacher`, and `menu_year_record` now lists
+`group_teacher` instead of the technical group. Reading is centre-wide for any teacher; writing
+is untouched and still belongs to the admin (and the secretary's own result adjustment).
+
+This makes the reader group's own `year_record` rules and ACL lines redundant in practice, since
+both posts imply `group_teacher`. They are kept deliberately: the technical group is meant to
+stand on its own, so that what it grants stays legible in one file rather than depending on
+another group's current scope.
+
+The three rule XML IDs still end in `_tutor`. Renaming an XML ID that already exists in
+production requires a migration script, and this branch deliberately does not bump the manifest
+version, so only their `name` and domain were updated - a rename is worth folding into whichever
+future branch does bump the version.
+
+### Menus: permissions with no way in are invisible
+
+Three menu entries gate the screens this data actually renders in, and none of them listed a
+group either post holds - so without this, both roles would have the records and no route to
+them. Each gains `ems.group_student_data_reader` alongside its existing groups:
+
+| Menu | File | Previously visible to |
+|------|------|-----------------------|
+| `menu_ems_academic_management` (root) | `views/academic_management/menu.xml` | admin, secretary, tutor |
+| `menu_students_tutor` | `views/academic_management/enrollment/menu.xml` | admin, secretary, tutor |
+| `menu_year_record` | `views/planning_grading/grading/year_record/menu.xml` | admin, secretary, Head of Studies (now `group_teacher`, see above) |
+
+The attendance, coexistence and grading menus carry no `groups` attribute at all, so they follow
+their children's own access and need no change - `menu_grade_sessions` ("Evaluation by group and
+subject", a plain `ems.grade_session` list) therefore becomes reachable on the ACL alone, and is
+the screen these posts consult grades from.
+
+**Two menus were deliberately left alone**, both initially opened up in this issue and then
+reverted once their actual target was traced:
+
+- `menu_ems_enrollments` points at a **`sale.order`** list, not `ems.enrollment` - financial data,
+  explicitly out of scope.
+- `menu_grade_tutor` is the tutor's own OWL matrix, whose client-side loader filters on
+  `group_id.tutor_id.user_id = uid` (`static/src/js/backend/grade_tutor_matrix.js`). It would
+  render empty for a guidance or coexistence user, so it is the wrong entry point regardless of
+  permissions.
+
+### The screen filter that record rules alone cannot reach
+
+`action_student_group_enrollment` (`views/academic_management/enrollment/list_tutor.xml`) is an
+`ir.actions.server` that rewrites its own domain in Python: admin and secretary get every student,
+everyone else gets `('tutor_id.user_id', '=', env.uid)`. Row-level permission therefore was not
+enough - a guidance user with full read access still saw an **empty list**, because the narrowing
+happens in the action, not in the rules. `group_student_data_reader` is now recognized there too.
+This is worth remembering as a class of bug: grepping `security/` finds every rule, but a screen
+can still filter itself in server-side action code or in a client-side OWL loader.
+
+### Role catalog entry
+
+`data/cat/ems.role.csv` gains one row: `role_orientation`, `employee_type` `teacher`,
+`unipersonal` **false** (the post is held by a team, like `role_coexistence` and `role_tac`),
+wired to `group_orientation`. It has no department/company backing, so it is manually
+assignable - `is_hierarchy_managed` is false and it never appears in
+`HIERARCHY_MANAGED_ROLE_XMLIDS`. `role_coexistence` keeps pointing at `group_coexistence`
+unchanged; it inherits the new access purely through that group's new `implied_ids`.
+
+No migration is needed: every XML ID here is new, and the role row is added to a
+`noupdate=False` CSV that re-syncs on upgrade.
 
 ## Staff management (issue #391)
 

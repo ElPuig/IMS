@@ -16,10 +16,11 @@ flowchart LR
     NT["ems.non_teaching_type.is_guard"] -->|related, store=True| ATT["resource.calendar.attendance.non_teaching_is_guard"]
     T1["Teacher A: resource.calendar.attendance (teaching)"] --> AGG["ems.course._get_guard_duty_board_attendance_ids()"]
     T2["Teacher B: resource.calendar.attendance (guard)"] --> AGG
-    AGG --> LINES["ems.course.get_guard_duty_board_lines(weekday, shift) -- rows = time blocks, columns = groups, + guards list"]
-    LINES --> DATA["ems.course.get_guard_duty_board_data(weekday, shift) -- same, JSON-safe, @api.model"]
+    AGG --> LINES["ems.course.get_guard_duty_board_lines(weekday, shift, day) -- rows = time blocks, columns = groups, + guards list"]
+    ABS["hr.leave (approved or pending, covering 'day')"] --> LINES
+    LINES --> DATA["ems.course.get_guard_duty_board_data(weekday, shift, day) -- same, JSON-safe, @api.model"]
     LINES --> PDF["QWeb PDF: ems.report_guard_duty_board (model = ems.course)"]
-    DATA --> W["ir.actions.client 'ems_guard_duty_board' -- weekday tabs (Mon-Fri) x shift dropdown (Morning/Afternoon), one table + one PDF per day"]
+    DATA --> W["ir.actions.client 'ems_guard_duty_board' -- week picker + weekday tabs (Mon-Fri) x shift dropdown x two views (timetable / guard duty table)"]
 ```
 
 **No dedicated model.** An earlier version introduced a `ems.guard_duty_board` `TransientModel`
@@ -143,6 +144,60 @@ addressable by a real, stable URL.
   2026-09-01: both methods used to read `current_course_id` unguarded, crashing with a raw
   `ValueError: Expected singleton: ems.course()` instead.
 
+## Absences on the board
+
+**The problem this solves.** A guard-duty period is only worth planning if you know which
+classes are actually going to be left without a teacher. That information lives in `hr.leave`
+(see [Staff absences](../employees/absence.md)) and nothing joined the two: the board answered
+"who is on guard on a Tuesday", never "who is missing on Tuesday the 15th".
+
+**Weekday vs date — why the screen needed a week picker first.** The timetable repeats by
+weekday; an absence happens on a real date. There is no way to resolve one from the other, so
+`get_guard_duty_board_lines()`/`get_guard_duty_board_data()` take an optional `day`, and the
+client action grew a date input and week navigation to supply it. **Without a date the board
+behaves exactly as it did before** — every absence structure comes back empty — which is what
+keeps every weekday-only caller working unchanged.
+
+```mermaid
+flowchart TD
+    D["day (a real date)"] --> Q["hr.leave.search: employee in this shift's teachers,<br/>state in confirm/validate1/validate,<br/>request_date_from &lt;= day &lt;= request_date_to"]
+    Q --> I["_get_guard_duty_absence_intervals()<br/>{employee.id: [(hour_from, hour_to, state)]}"]
+    I --> S["_guard_duty_absence_state(intervals, employees, hour_from, hour_to)<br/>overlap test per board period"]
+    S --> C["cell['absences'] -- who is away in this group's cell"]
+    S --> G["line['guard_absences'] -- who is away in the guard column"]
+    C --> R["line['absences'] -- one row per uncovered class (teacher + group/subject/room)"]
+```
+
+**Two states, never one.** `ABSENCE_STATES` maps hr_holidays' states onto the only two
+distinctions that matter to whoever assigns guards: `validate` → `'approved'` (a fact to plan
+around), `confirm`/`validate1` → `'pending'` (a request nobody has decided on yet). The two
+pre-approval states are collapsed deliberately — "waiting for the first approver" vs "the
+second" changes nothing here. Refused and cancelled requests are not in the mapping at all,
+which is what keeps them off the board entirely. When the same teacher has both an approved and
+a pending absence overlapping one period, approved wins: the period needs covering either way,
+and reporting it as merely requested would understate it.
+
+**Whole day vs part of one.** The interval is read from `request_unit_hours` rather than
+`ems_full_day`: it is the field that actually decides whether `request_hour_from`/`_to` carry
+anything (see `hr.leave._compute_request_unit_hours` and EMS's override of it), and a multi-day
+request is a whole day on each of its days however it was filled in. A whole day becomes
+`(0.0, 24.0)` so it compares against a board period exactly like a partial one does — no special
+case anywhere downstream. Arriving an hour late therefore marks the 9-10 lesson and leaves the
+11-12 one alone.
+
+**An absent guard is a subtraction, not an addition.** A teacher who is away during a period
+they were on guard for has no class of their own for anybody to cover — they are simply one
+fewer person available to cover somebody else's. That is why `guard_absences` is reported
+separately from `absences` and never folded into it: the guard column marks them, and no row
+appears in the "what needs covering" list.
+
+**Confidentiality.** The absence search runs `sudo()` — same justification
+`ems.attendance_session_header.get_guard_sessions()` already carries for reading schedules that
+are not the reader's own: whoever reads this board legitimately needs to know a colleague is not
+coming. Only **the fact and the interval** are ever exposed. The absence type, its reason and
+its attachments never leave the model, so the confidentiality rule described in
+[Staff absences](../employees/absence.md) is not weakened by this screen.
+
 ## Access control
 
 | Action | `ems.group_teacher` (every teacher) | `ems.group_department_chief` and above |
@@ -191,6 +246,47 @@ page: morning and afternoon are different shifts (see `ems.group.shift`) and a s
 bell schedule made the two stacked together too dense to read at a glance (developer feedback,
 2026-08-31). Only one `<table>` (the active day + active shift) is ever rendered from
 `state.board`.
+
+**A week, not just a weekday.** `state.weekStart` holds the Monday of the shown week, and the
+weekday tabs render their own day of the month alongside their name, so the tab strip doubles
+as that week's calendar. The toolbar carries `‹ ›` week navigation plus a native
+`<input type="date">`; picking any date moves the whole week and lands on that date's own
+weekday tab. Three helpers at the top of the file keep this honest: `toIsoDate()` formats from
+the browser's **local** calendar fields, deliberately not `toISOString()` (which converts to UTC
+first and so returns the previous day for anyone east of Greenwich during the evening — the
+board's date is a calendar day, never an instant); `fromIsoDate()` parses one back; `mondayOf()`
+maps any date onto its week's Monday, with a weekend belonging to the week it closes, which is
+also what makes picking a Saturday in the date input land on a real, showable weekday.
+
+**Two views of the same payload, no extra round trip.** `state.activeView` switches between the
+timetable (`schedule`) and the guard duty table (`table`), rendered as `nav-pills` in the
+toolbar rather than a second row of `nav-tabs`, so they never compete visually with the weekday
+tabs above them. Both read the *same* already-fetched `state.board.lines` — the server sends
+`cells`, `guards` and `absences` on every line (see "Absences on the board" above), so switching
+view is a pure re-render. Every teacher arrives as `{name, absence}` rather than a bare name,
+which is what lets both views mark absences the same way without matching names back against a
+separate list; `absenceClass()` maps that to `o_guard_board_absent` (bold red, an absence that
+is going to happen) or `o_guard_board_absent_pending` (lighter italic, still awaiting its
+approver). That red is the only colour left anywhere on the board — everything else was
+deliberately stripped back to plain text and thin borders (developer feedback, 2026-09-01), so
+nothing competes with it.
+
+**The guard duty table is not stretched across the window, unlike the timetable.** It only ever
+has three columns, so Bootstrap's own `.table { width: 100% }` spread them over the full width of
+a wide screen and left the content adrift in empty cell (developer feedback, 2026-09-08: "queda
+demasiado disperso en la pantalla"). `.o_guard_board_duty_table` overrides `width` to `auto`, so
+`table-layout: fixed` sizes the table to the literal sum of its `<col>` widths (100 + 300 + 230 =
+750px), and `margin: 0 auto` centres that block. The wrapper keeps its own `overflow-x: auto`, so
+a narrow window scrolls rather than squeezing the columns. Each absence stays on **one line** —
+teacher and the class to cover side by side, never wrapped (developer feedback, 2026-09-08:
+"elimina el salto de línea aunque quede una columna un poco más ancha"). The absence column's
+420px comes from measuring the real worst case on this centre's own data (a 22-character name
+plus a 33-character group/subject/room detail, ~315px rendered) and leaving room to spare; the
+`text-overflow: ellipsis` alongside `white-space: nowrap` is not expected to trigger, it is there
+so a longer name degrades by being clipped rather than by spilling over the guard-duty column.
+All three are regression-tested in `guard_duty_board_tour.js`, which asserts the table is
+narrower than its wrapper, centred within it, and that no absence row wraps onto a second line
+(measured against its own computed `line-height`, not a hardcoded pixel height).
 
 **Opens on today's own day/shift, not always Monday/Morning.** `getDefaultDayAndShift()`
 (top of the file) reads the browser's own `Date()` — "now" here means the *viewer's* wall-clock
@@ -335,6 +431,14 @@ still forced that one column — and, via `border-collapse`, every row sharing i
 than the rest, even under `table-layout: fixed`. With word-breaking allowed, the same content
 wraps onto multiple lines within its declared column width instead.
 
+**The PDF prints what the screen shows, absences included.** The board's PDF button passes
+`guard_duty_date` alongside the `guard_duty_weekday`/`guard_duty_shift` context keys it already
+sent, and the template forwards it to `get_guard_duty_board_lines(..., day=...)` and marks
+absent teachers with `.gdb-absent`/`.gdb-absent-pending` — the same two-state distinction, and
+the same single accent colour, as the live screen. A cuadrante handed out on paper to assign the
+day's guards is no use without them. Omitting the key (any other caller) still prints the plain
+timetable. The guard duty table view has **no** PDF of its own yet.
+
 ## Level filter (issue #390)
 
 **Spec, written before implementation** — a level selector next to the existing shift
@@ -408,9 +512,12 @@ flowchart TB
   tuple-membership check the unfiltered path still uses — a guard's own period is no longer
   necessarily one of the `periods` the rows come from once filtering restricts `periods` to
   teaching entries only).
-- `get_guard_duty_board_lines(weekday, shift, level_ids=None)` — new optional `level_ids`
-  (falsy/omitted = "All levels", the exact previous behaviour, unchanged). `groups`/`periods`
-  come from level-filtered `teaching_entries` only when a filter is active.
+- `get_guard_duty_board_lines(weekday, shift, level_ids=None, day=None)` — new optional
+  `level_ids` (falsy/omitted = "All levels", the exact previous behaviour, unchanged).
+  `groups`/`periods` come from level-filtered `teaching_entries` only when a filter is active.
+  `level_ids` and `day` (see "Absences on the board" above) are independent of each other and
+  compose freely — a level-filtered break/"Patio" row still carries its own `guard_absences`,
+  computed from the same `intervals` the caller already resolved for `day`.
   **`level_ids` covering every existing `ems.level` is normalized to the falsy/"All levels" path
   too** (bug fix, 2026-09-07, developer report): checking every checkbox in the client's own
   filter dropdown is meant to mean "show everything", the same as checking none. Even with guard
@@ -422,8 +529,8 @@ flowchart TB
   difference, without weakening the row-narrowing for a genuine *partial* selection (e.g. ESO+BTX
   only, still correctly hiding every ciclos group/row).
 - `_get_guard_duty_board_break_lines(level_ids, weekday, shift_start, shift_end, groups,
-  unmatched_guards)` — new private helper, the break/"Patio" row logic above.
-- `get_guard_duty_board_data(weekday, shift, level_ids=None)` — passes `level_ids` through;
+  unmatched_guards, intervals)` — new private helper, the break/"Patio" row logic above.
+- `get_guard_duty_board_data(weekday, shift, level_ids=None, day=None)` — passes both through;
   each JSON line also carries `is_break` (default `False`) for the client template.
 - `get_guard_duty_board_levels()` — new `@api.model`, `[{'id':, 'name':} ...]` for every
   `ems.level` (centre-wide curriculum data, not course-scoped), read once by the client action
@@ -435,12 +542,13 @@ levels") + `state.levels` (fetched once `onWillStart`, alongside the existing co
 A Bootstrap dropdown-with-checkboxes next to the shift `<select>` (native multi-`<select>`
 would need ctrl/cmd-click, which is not discoverable) — `o_guard_board_level_dropdown`/
 `o_guard_board_level_menu`. Toggling a checkbox re-runs `loadBoard()`, now passing
-`state.activeLevelIds` as the RPC's third argument. The PDF button forwards the same selection
-via a `guard_duty_level_ids` context key, mirroring `guard_duty_weekday`/`guard_duty_shift`.
+`state.activeLevelIds` as the RPC's third argument (`this.activeDate`, from the absences work
+below, is the fourth). The PDF button forwards the same selection via a `guard_duty_level_ids`
+context key, mirroring `guard_duty_weekday`/`guard_duty_shift`/`guard_duty_date`.
 
 **PDF report** (`reports/attendance/report_guard_duty_board.xml`): reads
-`guard_duty_level_ids` from context the same way as the existing weekday/shift keys, passed
-through to `get_guard_duty_board_lines()`.
+`guard_duty_level_ids` from context the same way as the existing weekday/shift/date keys,
+passed through to `get_guard_duty_board_lines()`.
 
 ## Related docs
 
@@ -448,3 +556,4 @@ through to `get_guard_duty_board_lines()`.
 - [Teacher working schedules & schedule frameworks](../employees/working_schedule.md)
 - [Group Schedule](../contacts/group_schedule.md) — the aggregation precedent this board generalizes
 - [shared/schedule_report_mixin.md](../shared/schedule_report_mixin.md)
+- [Staff absences](../employees/absence.md) — where the absences drawn on this board come from

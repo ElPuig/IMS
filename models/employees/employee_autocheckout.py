@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, time, timedelta, timezone
+
+import pytz
 
 from odoo import api, models, fields, _
 
@@ -25,16 +27,48 @@ class ems_attendance(models.Model):
             if not employee_id or vals.get('check_out'):
                 continue
 
-            open_attendance = self.sudo().search([
-                ('employee_id', '=', employee_id),
-                ('check_out', '=', False),
-                ('employee_id.company_id.auto_check_out', '=', True),
-                ('employee_id.resource_calendar_id.flexible_hours', '=', False),
-            ], limit=1)
+            open_attendance = self.sudo().search(
+                [('employee_id', '=', employee_id)] + self._get_stale_attendance_domain(),
+                limit=1,
+            )
             if open_attendance:
-                open_attendance._auto_close_attendance()
+                open_attendance._close_stale_attendance_safely()
 
         return super().create(vals_list)
+
+    @api.model
+    def _get_stale_attendance_domain(self):
+        """Shared eligibility criteria for an open attendance this model is
+        allowed to auto-close - used by both create()'s per-employee lookup and
+        the cron's company-wide one."""
+        return [
+            ('check_out', '=', False),
+            ('employee_id.company_id.auto_check_out', '=', True),
+            ('employee_id.resource_calendar_id.flexible_hours', '=', False),
+        ]
+
+    def _close_stale_attendance_safely(self):
+        """Shared by create()'s check-in-triggered backup and the nightly cron:
+        isolate a close failure in its own savepoint (so it can't poison the rest
+        of the caller's transaction/batch) and notify the Academic Admins instead
+        of letting it propagate uncontrolled or fail silently."""
+        self.ensure_one()
+        try:
+            with self.env.cr.savepoint():
+                self._auto_close_attendance()
+        except Exception:
+            _logger.exception(
+                "EMS auto-checkout: unexpected error processing attendance id=%d "
+                "for employee %s — skipping.",
+                self.id, self.employee_id.name,
+            )
+            try:
+                self._notify_close_failure()
+            except Exception:
+                _logger.exception(
+                    "EMS auto-checkout: could not notify about the failure above "
+                    "for attendance id=%d.", self.id,
+                )
 
     def _auto_close_attendance(self):
         """Close this open attendance using the last scheduled working hour
@@ -99,22 +133,47 @@ class ems_attendance(models.Model):
         )
         return True
 
+    def _get_day_start_and_day(self, employee, dt):
+        """Odoo core's own version leaves microseconds untouched, so a check_in
+        stamped via datetime.now() (has microseconds) and a check_out set to a
+        'clean' value (none) on the same calendar day produce two distinct
+        day-start instants for the exact same date. hr.attendance.overtime's
+        create() then self-collides against its own UNIQUE(employee_id, date)
+        index trying to insert both in the same statement. Normalizing here fixes
+        it at the single source create()/write()/both crons all go through."""
+        day_start, day = super()._get_day_start_and_day(employee, dt)
+        return day_start.replace(microsecond=0), day
+
     def _get_last_working_hour(self, employee, work_date):
-        """Return the last hour_to (as naive UTC datetime) for the employee on work_date.
-        Returns None if the employee has no working schedule for that day."""
+        """End of the last stretch the employee was actually expected to work on work_date, as
+        a naive UTC datetime, or None when nothing was expected of them at all.
+
+        Asks the calendar what was expected rather than reading its raw weekly 'attendance_ids':
+        an approved absence becomes a 'resource.calendar.leaves' row on that same calendar (see
+        docs/en/developers/employees/absence.md), and Odoo's own '_get_expected_attendances'
+        already subtracts those - it calls '_work_intervals_batch' with compute_leaves=True.
+        Reading the untouched timetable instead closed the attendance at the end of a day the
+        employee had permission to miss part of, crediting them hours they were on approved
+        leave for. Only an approved absence counts: a request still awaiting its approver never
+        becomes a resource leave, so it correctly changes nothing here.
+
+        None means the same thing to the caller in both of the cases that produce it - the
+        employee never works that weekday, or an absence covers the whole of it: either way
+        there is no scheduled hour to close at, and leaving the attendance open for a human to
+        correct is more honest than closing it at an invented time.
+        """
         if not employee.resource_calendar_id:
             return None
 
-        weekday = str(work_date.weekday())  # '0'=Monday … '6'=Sunday
-        slots = employee.resource_calendar_id.attendance_ids.filtered(
-            lambda a: a.dayofweek == weekday
-        ).sorted(key=lambda a: a.hour_to, reverse=True)
-
-        if not slots:
+        employee_tz = pytz.timezone(employee._get_tz())
+        day_start = employee_tz.localize(datetime.combine(work_date, time.min))
+        day_end = employee_tz.localize(datetime.combine(work_date, time.max))
+        expected = employee._get_expected_attendances(day_start, day_end)
+        if not expected:
             return None
 
-        utils = self.env['ems.datetime_utils']
-        return utils.datetime_to_odoo(utils.time_float_to_utc_datetime(work_date, slots[0].hour_to))
+        last_end = max(interval_end for _interval_start, interval_end, *_rest in expected)
+        return last_end.astimezone(pytz.utc).replace(tzinfo=None)
 
     def _cron_auto_check_out(self):
         """Delegates to native Odoo or EMS checkout logic based on company's auto_checkout_mode."""
@@ -142,11 +201,7 @@ class ems_attendance(models.Model):
             )
             return
 
-        open_attendances = self.sudo().search([
-            ('check_out', '=', False),
-            ('employee_id.company_id.auto_check_out', '=', True),
-            ('employee_id.resource_calendar_id.flexible_hours', '=', False),
-        ])
+        open_attendances = self.sudo().search(self._get_stale_attendance_domain())
 
         if not open_attendances:
             _logger.info("EMS auto-checkout: no open attendances to process.")
@@ -155,11 +210,44 @@ class ems_attendance(models.Model):
         _logger.info("EMS auto-checkout: processing %d open attendance(s).", len(open_attendances))
 
         for attendance in open_attendances:
-            try:
-                attendance._auto_close_attendance()
-            except Exception:
-                _logger.exception(
-                    "EMS auto-checkout: unexpected error processing attendance id=%d "
-                    "for employee %s — skipping.",
-                    attendance.id, attendance.employee_id.name,
-                )
+            attendance._close_stale_attendance_safely()
+
+    def _notify_close_failure(self):
+        """A close failing silently is exactly how this went unnoticed for days
+        (issue #422) - schedule an activity for the Academic Admins so a
+        stuck-open attendance surfaces immediately instead of only in the server log.
+        Scheduled on employee_id, not on self: hr.attendance only inherits
+        mail.thread (no mail.activity.mixin), while hr.employee already does -
+        also a more natural place for "this employee's attendance data needs
+        review" than the attendance record itself. Uses activity_schedule()
+        (same pattern as ems.attendance_correction._find_approver's callers)
+        rather than a plain message_post(partner_ids=...): a chatter note whose
+        only recipients are non-followers wasn't kept once its associated
+        outgoing-email attempt got cleaned up, in testing.
+
+        Known, accepted gap (2026-09, verified empirically, not chased further):
+        when this runs nested inside the very create() call that goes on to
+        raise its own native "already checked in" validation right after (i.e.
+        this is the *employee's own* check-in attempt, not the cron), the
+        scheduled activity is not reliably kept either - something in that
+        specific combination (notify, then a same-call ORM failure) discards it,
+        even though the failure itself stays correctly isolated (the stale
+        attendance is never wrongly left half-closed, and the new check-in is
+        still correctly blocked). Calling this from a separate, already-returned
+        call (the cron's own loop, one call per record) is unaffected. Low
+        impact either way: the same stuck attendance gets picked up by the next
+        cron run or the employee's next real check-in regardless."""
+        self.ensure_one()
+        admins = self.env['res.users'].sudo().search([
+            ('groups_id', '=', self.env.ref('ems.group_academic_admin').id),
+        ])
+        for admin in admins:
+            self.employee_id.sudo().activity_schedule(
+                'mail.mail_activity_data_todo',
+                user_id=admin.id,
+                summary=_('Automatic check-out failed'),
+                note=_(
+                    'Automatic check-out failed for %(employee)s\'s attendance (id=%(id)d) '
+                    'due to an unexpected error. Please review and close it manually.'
+                ) % {'employee': self.employee_id.display_name, 'id': self.id},
+            )

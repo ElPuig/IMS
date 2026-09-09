@@ -30,6 +30,15 @@ def post_init_hook(env):
     # opens the next campaign), so a fresh install needs it seeded once.
     env['ems.course']._ems_seed_enrollment_default()
     _backfill_missing_teacher_calendars(env)
+    # Installing hr_holidays hands its Administrator group to every existing user via
+    # 'base.default_user'; take it back from everyone EMS does not actually grant it to.
+    env['res.users']._ems_sync_time_off_groups()
+    # Odoo's own absence types are none of the centre's nine, and carry noupdate=True
+    # so no data file can archive them.
+    env['hr.leave.type']._ems_deactivate_native_types()
+    # Same reason, same mechanism: the Catalan Odoo ships for the two approval activity types
+    # is machine-generated nonsense, and it heads every request in the chatter.
+    env['mail.activity.type']._ems_fix_approval_activity_names()
     _default_strike_family_notification_kicked_out(env)
     _seed_notice_email_signature_default(env)
 

@@ -6,9 +6,9 @@ from .common import create_level_study_group, force_user_language_to_english
 @tagged('post_install', '-at_install')
 class TestStudentImportWizardTour(HttpCase):
 
-    def test_student_import_wizard_missing_columns_tour(self):
+    def test_student_import_wizard_missing_student_id_tour(self):
         force_user_language_to_english(self, self.env.ref('base.user_admin'))
-        self.start_tour("/odoo", "ems_student_import_wizard_missing_columns", login="admin")
+        self.start_tour("/odoo", "ems_student_import_wizard_missing_student_id", login="admin")
 
     def test_student_import_wizard_success_tour(self):
         force_user_language_to_english(self, self.env.ref('base.user_admin'))

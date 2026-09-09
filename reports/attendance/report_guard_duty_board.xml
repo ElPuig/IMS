@@ -51,6 +51,11 @@
                          'guard_duty_weekday'/'guard_duty_shift' above - falsy/absent means "All
                          levels", the previous, still-default behaviour. -->
                     <t t-set="requested_level_ids" t-value="course.env.context.get('guard_duty_level_ids')"/>
+                    <!-- The concrete date that weekday stands for, set from the screen's own date
+                         picker. Absences happen on dates, so without one the printed board is the
+                         plain timetable it always was - which is also what any other caller that
+                         omits it keeps getting. -->
+                    <t t-set="requested_date" t-value="course.env.context.get('guard_duty_date')"/>
                     <t t-foreach="weekdays" t-as="weekday">
                         <t t-call="web.external_layout">
                             <div class="page">
@@ -97,6 +102,12 @@
                                        A thin border replaces the colour fill, purely to keep
                                        several names in the same cell visually separated. */
                                     .gdb-guard-badge { display: inline-block; border: 1px solid #ccc; border-radius: 3px; padding: 1px 4px; margin: 1px; font-weight: 600; overflow-wrap: break-word; word-break: break-word; }
+                                    /* The one colour on the page, same reasoning as the live
+                                       screen's own .o_guard_board_absent: an approved absence is
+                                       a fact to plan around, a request still awaiting its
+                                       approver is only a warning. */
+                                    .gdb-absent { color: #b52a37; font-weight: 700; }
+                                    .gdb-absent-pending { color: #b52a37; font-style: italic; }
                                 </style>
 
                                 <h1 class="gdb-title">
@@ -110,7 +121,7 @@
                                 </h1>
 
                                 <t t-foreach="shifts" t-as="shift">
-                                    <t t-set="data" t-value="course.get_guard_duty_board_lines(weekday, shift, level_ids=requested_level_ids)"/>
+                                    <t t-set="data" t-value="course.get_guard_duty_board_lines(weekday, shift, level_ids=requested_level_ids, day=requested_date)"/>
                                     <h2 class="gdb-shift-title">
                                         <t t-if="shift == 'morning'">Morning</t>
                                         <t t-else="">Afternoon</t>
@@ -141,14 +152,18 @@
                                                             <td>
                                                                 <t t-if="cell['entries']">
                                                                     <span class="gdb-cell-subject" t-esc="cell['entries'][:1].subject_id.acronym"/>
-                                                                    <span class="gdb-cell-teacher" t-esc="', '.join(cell['teachers'].mapped('name'))"/>
+                                                                    <span class="gdb-cell-teacher">
+                                                                        <t t-foreach="cell['teachers']" t-as="teacher">
+                                                                            <span t-att-class="'gdb-absent' if cell['absences'].get(teacher.id) == 'approved' else ('gdb-absent-pending' if cell['absences'].get(teacher.id) else '')" t-esc="teacher.name"/><t t-if="not teacher_last">, </t>
+                                                                        </t>
+                                                                    </span>
                                                                     <span t-if="cell['entries'][:1].space_id" class="gdb-cell-room" t-esc="cell['entries'][:1].space_id.display_name"/>
                                                                 </t>
                                                             </td>
                                                         </t>
                                                         <td>
                                                             <t t-foreach="line['guards']" t-as="guard">
-                                                                <span class="gdb-guard-badge" t-esc="guard.employee_id.name"/>
+                                                                <span class="gdb-guard-badge" t-att-class="'gdb-absent' if line['guard_absences'].get(guard.employee_id.id) == 'approved' else ('gdb-absent-pending' if line['guard_absences'].get(guard.employee_id.id) else '')" t-esc="guard.employee_id.name"/>
                                                             </t>
                                                         </td>
                                                     </tr>

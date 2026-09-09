@@ -15,8 +15,10 @@ Esta sección contiene los manuales para **Jefatura de Estudios, Jefatura de Est
 - [Strikes: menú Convivencia y correos de escalado](strike.md)
 - [El horario semanal de un grupo](../admin/group-schedule.md)
 - [Informes de asistencia](attendance-reports.md)
+- [Gestionar las ausencias del personal](absences.md) — Aprobar las ausencias de tu área, ajustar su cómputo, la verificación de dirección y los dos informes.
 - [Crear y editar profesorado](staff-management.md)
 - [Comunicados: enviar tus propios correos masivos](notice.md)
+- [Horario de guardias](../teachers/guard-duty-schedule.md) — Quién falta en cada franja horaria, y quién está de guardia para cubrirlo.
 
 ---
 

@@ -85,14 +85,91 @@ internally, so there is a single implementation either way.
 In **dry-run** (`company.google_ws_dry_run`) no API call is made, so there is no
 Google id: the EMS user is created without OAuth fields.
 
+### `action_relink_google_signin()`
+
+Repairs "Sign in with Google" for an employee who **already has** an EMS user whose
+OAuth fields were lost (`oauth_uid` / `oauth_provider_id` emptied by hand, by a bad
+import, or by a partial restore). Without them the user cannot log in at all:
+`auth_oauth` matches an incoming login exclusively by `(oauth_uid,
+oauth_provider_id)`, and its fallback path (`signup`) fails because the login already
+exists — so Google answers correctly and Odoo still returns *Access Denied*. There is
+no e-mail-based fallback.
+
+The action resolves the numeric Google id through the Directory API
+(`_gw_google_user_id(raise_on_error=True)`) and hands it to the same
+`_ems_link_google_signin()` used by the creation paths, so there is one implementation
+of the link itself. It never overwrites a link that is already there — the button is
+hidden in that case — and it never touches the Google account.
+
+Unlike the automatic paths, every failure is raised instead of swallowed: pressing a
+button and getting no feedback is worse than an error message. `_gw_google_user_id()`
+therefore takes a `raise_on_error` flag (default `False`, preserving the silent
+behaviour the queue jobs rely on) and, when set, reports dry-run and API failure as
+distinct errors. It deliberately does **not** try to tell "no such account" from
+"account outside my scope": the service-account role is scoped to the managed OUs and
+Google answers **403, not 404**, for anything outside them, so the two are not
+reliably distinguishable from the response — the message names both causes instead. A
+`oauth_uid` already claimed
+by a different `res.users` (the `auth_oauth` unique constraint) is reported naming
+that user, since the fix there is to clear the stale record first.
+
 ## Lifecycle
+
+Archiving a member of staff does **not** suspend the Google account straight away. It opens
+a 30-day grace period (issue #388): the account keeps working, a warning email goes out,
+and a daily cron does the actual suspension once the date arrives. The EMS user, in
+contrast, is still archived immediately — losing Odoo access is the point of archiving, and
+it is reversible.
+
+```mermaid
+flowchart LR
+    A[Archived] -->|warning email + chatter| B[google_ws_deactivation_date = today + 30]
+    B -->|daily cron, date reached| C[Account suspended, moved to the suspended OU]
+    B -->|unarchived| D[Schedule cancelled, nothing ever changed in Google]
+    C -->|unarchived| E[Reactivated]
+```
 
 | Employee event | Google account | EMS user (`res.users`) |
 |---|---|---|
 | Created / completed (ready) | created (queued) | created + OAuth pre-linked |
-| Archived (`active = False`) | suspended, moved to suspended OU (queued) | archived immediately (`_ems_sync_user_active`) |
-| Unarchived | reactivated (queued) | unarchived |
+| Archived (`active = False`) | **nothing yet**: `google_ws_deactivation_date` set to today + `GW_DEACTIVATION_DELAY_DAYS`, warning email sent, chatter note posted | archived immediately (`_ems_sync_user_active`) |
+| Deactivation date reached (daily cron) | suspended, moved to suspended OU (queued) | unchanged (already archived) |
+| Unarchived before the deactivation date | schedule cancelled; the account was never touched | unarchived |
+| Unarchived while suspended | reactivated (queued) | unarchived |
 | Deleted (`unlink`) | suspended synchronously | archived |
+
+Unlike the student side, staff accounts are **never deleted** — the issue only asks for
+deletion of student accounts. `GW_DELETION_DELAY_DAYS` and `action_delete_google_account()`
+exist only on `res.partner`.
+
+The delay is a fixed constant in `models/shared/google_workspace_mixin.py`
+(`GW_DEACTIVATION_DELAY_DAYS`, 30), not a company setting.
+
+### The daily cron
+
+`ems.ir_cron_gw_staff_lifecycle` (`data/main/ir_cron_google_workspace.csv`) runs
+`hr.employee._gw_cron_process_lifecycle()` once a day, searching with `active_test=False`
+(every candidate is archived by definition) and enqueuing the existing
+`action_suspend_google_account` job rather than calling the Directory API itself:
+
+```python
+[('active', '=', False), ('google_ws_deactivation_date', '<=', today),
+ ('google_ws_suspended', '=', False), ('work_email', '!=', False)]
+```
+
+### `unlink()` keeps suspending synchronously
+
+A hard delete leaves no record to hold `google_ws_deactivation_date`, so there would be
+nothing for the cron to find later — and it is not the archive path the grace period is
+about. It therefore keeps suspending immediately, exactly as before.
+
+### The warning email
+
+`ems.mail_template_google_deactivation_employee`
+(`data/main/mail.template-google_lifecycle.csv`) is sent once, when the schedule is
+created, to **both** `private_email` and `work_email`: the corporate mailbox is still alive
+during the grace period and is the one actually read day to day. An employee with neither
+address gets the chatter note only.
 
 The user archiving is deliberately **synchronous and independent** of
 `google_ws_enabled` and of the job queue: a former employee must lose Odoo access
@@ -127,8 +204,17 @@ stateDiagram-v2
 | `none` | Create Google account | No corporate email yet |
 | `manual_pending` | *(none)* | `google_ws_manual_email` ticked, waiting for the email to be typed in |
 | `pending_user` | Create EMS User | Corporate email exists, no `res.users` linked (adopt / migration gap) |
-| `active` | Suspend Google account | Fully set up |
+| `active` | Suspend Google account (+ Re-link Google sign-in when `google_signin_missing`) | Fully set up |
 | `suspended` | Reactivate Google account | `google_ws_suspended = True` |
+
+The one button that is **not** part of that mutually-exclusive set is **Re-link Google
+sign-in**, driven by its own non-stored computed boolean, `google_signin_missing`
+(`google_ws_state == 'active'` and the linked user has no `oauth_uid`). It is a repair
+offered *alongside* Suspend rather than another state of its own: the account is
+genuinely active and fully set up, only the sign-in link is broken, so hiding Suspend
+while it shows would misrepresent the account. The compute reads `user_id.oauth_uid`
+through `sudo()` — an `hr.group_hr_user` who is not an Odoo administrator cannot read
+`res.users` OAuth fields, and the button must still render for them.
 
 `res.partner` (students) has the analogous `google_ws_state` in
 `models/contacts/google_workspace_integration.py` — see
@@ -224,6 +310,16 @@ and backfill tests live in `tests/test_exit_management.py`.
 `tests/test_employee_google_workspace_tour.py` +
 `static/tests/tours/employee_google_workspace_tour.js` open the employee form in a real
 browser for each state and assert exactly one header button renders — the client-side
-render that a `TransactionCase` cannot exercise. The student-side integration has its own
+render that a `TransactionCase` cannot exercise. That tour also covers the grace period's banner and its
+"Cancel scheduled deactivation" button on an archived teacher, reached through the search
+panel's Archived filter.
+
+`TestEmployeeGoogleWorkspaceLifecycle` (same file as the other backend tests) covers the
+grace period itself (#388): scheduling on archive rather than suspending, the warning
+email, the first date winning over a second archive, cancelling on unarchive and via the
+button, the schedule being cleared once the account is actually suspended, the cron's
+date/active guards and idempotence, and `unlink()` still suspending immediately.
+
+The student-side integration has its own
 `tests/test_student_google_workspace.py` — see
 [Google Workspace student integration](../contacts/google_workspace_student.md#tests).
