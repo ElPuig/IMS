@@ -1,4 +1,7 @@
+from datetime import date
 from unittest.mock import patch
+
+from dateutil.relativedelta import relativedelta
 
 from odoo.tests import tagged, HttpCase
 
@@ -12,7 +15,8 @@ class TestEmployeeGoogleWorkspaceTour(HttpCase):
     def setUpClass(cls):
         super().setUpClass()
         # This box's ir.mail_server rows point at real, credentialed servers and the
-        # seeding below posts to the chatter - see CLAUDE.md's "Email safety in tests".
+        # seeding below posts to the chatter, and archiving a teacher now sends the
+        # grace-period warning (#388) - see CLAUDE.md's "Email safety in tests".
         mock_outgoing_email(cls)
 
     def _seed_teacher(self, name, **vals):
@@ -41,6 +45,12 @@ class TestEmployeeGoogleWorkspaceTour(HttpCase):
         self._seed_teacher(
             'GW Tour Suspended', work_email='gw.tour.suspended@elpuig.xeill.net',
             google_ws_suspended=True)
+        # Grace period (#388): archived, with the suspension already scheduled - the
+        # state the form's banner and "Cancel scheduled deactivation" button react to.
+        scheduled = self._seed_teacher(
+            'GW Tour Scheduled', work_email='gw.tour.scheduled@elpuig.xeill.net')
+        scheduled.write({'active': False})
+        scheduled.google_ws_deactivation_date = date.today() + relativedelta(days=30)
         self.env['hr.employee'].create({
             'name': '0000 GW Tour Pending Identification',
             'employee_type': 'teacher',

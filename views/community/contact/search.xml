@@ -13,9 +13,23 @@
                     <filter name="alumni" string="Alumni" domain="[('contact_type', '=', 'alumni')]"/>
                     <filter name="withdrawals" string="Withdrawals" domain="[('contact_type', '=', 'withdrawal')]"/>
                     <filter name="expelled" string="Expelled" domain="[('contact_type', '=', 'expelled')]"/>
+                    <!-- Google account lifecycle (#388). Restricted to the roles that can
+                         actually act on those accounts, matching the form's own buttons:
+                         the teacher role can read every res.partner, so an unrestricted
+                         filter would expose the schedule to whoever cannot act on it. -->
+                    <separator groups="ems.group_secretary,ems.group_academic_admin"/>
+                    <filter name="gw_deactivation_pending" string="Google suspension pending"
+                            domain="[('google_ws_deactivation_date', '!=', False)]"
+                            groups="ems.group_secretary,ems.group_academic_admin"/>
+                    <filter name="gw_deletion_pending" string="Google deletion pending"
+                            domain="[('google_ws_deletion_date', '!=', False)]"
+                            groups="ems.group_secretary,ems.group_academic_admin"/>
                     <group expand="0" string="Group By">
                         <filter name="group_by_exit_course" string="Exit course" context="{'group_by': 'exit_course_id'}"/>
                         <filter name="group_by_exit_type" string="Exit type" context="{'group_by': 'exit_type'}"/>
+                        <filter name="group_by_gw_deactivation_date" string="Google suspension date"
+                                context="{'group_by': 'google_ws_deactivation_date'}"
+                                groups="ems.group_secretary,ems.group_academic_admin"/>
                     </group>
                     <searchpanel>
                         <field name="main_group_id" string="Student group" icon="fa-users" enable_counters="1" />

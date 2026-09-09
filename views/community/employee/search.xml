@@ -8,6 +8,14 @@
                 <filter name="newly_hired" position="after">
                     <filter name="pending_identification" string="Pending identification"
                             domain="[('pending_identification', '=', True)]"/>
+                    <!-- Google account lifecycle (#388), restricted to the roles that can
+                         act on those accounts - same groups as the form's own buttons.
+                         Only suspension: staff accounts are never deleted. Combine it
+                         with the standard Archived filter, since every match is
+                         archived by definition. -->
+                    <filter name="gw_deactivation_pending" string="Google suspension pending"
+                            domain="[('google_ws_deactivation_date', '!=', False)]"
+                            groups="ems.group_academic_admin,hr.group_hr_user"/>
                 </filter>
 
                 <filter name="group_job" position="after">

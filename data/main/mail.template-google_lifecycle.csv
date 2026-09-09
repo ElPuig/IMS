@@ -1,0 +1,39 @@
+"id","name","model_id/id","subject","email_from","email_to","body_html"
+"ems.mail_template_google_deactivation_employee","Google Workspace - Account deactivation notice (staff)","hr.model_hr_employee","Your corporate account @{{ object.env.company.google_ws_domain }} will be deactivated","{{ (object.company_id.email or user.email_formatted) }}","{{ ctx.get('gw_recipients') or '' }}","<div style=""margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;"">
+                    <p>Hello <t t-out=""object.name or ''"" />,</p>
+                    <p>Now that you are no longer part of the school staff, your corporate
+                       Google Workspace account
+                       <strong><t t-out=""object.work_email or ''"" /></strong>
+                       is scheduled to be <strong>deactivated</strong> on
+                       <strong><t t-out=""format_date(object.google_ws_deactivation_date)"" /></strong>.</p>
+                    <p>Until that date the account keeps working normally. Please make sure
+                       you have saved anything you need from your email and your Drive files
+                       before then, and that you have moved any personal service using this
+                       address to another one.</p>
+                    <p>If you come back to the school before that date, the account is kept
+                       and nothing is lost.</p>
+                    <p>Best regards,<br />School Secretariat</p>
+                </div>"
+"ems.mail_template_google_deactivation_student","Google Workspace - Account deactivation notice (students)","base.model_res_partner","Your corporate account @{{ object.env.company.google_ws_domain }} will be deactivated and deleted","{{ (object.company_id.email or user.email_formatted) }}","{{ ctx.get('gw_recipients') or '' }}","<div style=""margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;"">
+                    <p>Hello <t t-out=""object.firstname or object.name or ''"" />,</p>
+                    <p>Now that you are no longer enrolled at the school, your corporate
+                       Google Workspace account
+                       <strong><t t-out=""object.student_email or ''"" /></strong>
+                       is scheduled to be <strong>deactivated</strong> on
+                       <strong><t t-out=""format_date(object.google_ws_deactivation_date)"" /></strong>.</p>
+                    <p style=""color:#b00;"">Once deactivated, the account is
+                       <strong>deleted for good</strong> on
+                       <strong><t t-out=""format_date(ctx.get('gw_deletion_date'))"" /></strong>.
+                       After that date your email and your Drive files cannot be recovered.</p>
+                    <p>You can use your account as usual before
+                       <t t-out=""format_date(object.google_ws_deactivation_date)"" />; from
+                       <t t-out=""format_date(object.google_ws_deactivation_date)"" /> (included)
+                       you will no longer be able to access it; on
+                       <t t-out=""format_date(ctx.get('gw_deletion_date'))"" /> it will be deleted
+                       for good. Please make sure you download everything you want to keep
+                       before then, and that you have moved any personal service using this
+                       address to another one.</p>
+                    <p>If you enrol again at the school before those dates, the account is kept
+                       and nothing is lost.</p>
+                    <p>Best regards,<br />School Secretariat</p>
+                </div>"

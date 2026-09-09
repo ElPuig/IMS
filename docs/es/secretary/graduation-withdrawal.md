@@ -56,6 +56,24 @@ Archivar a un alumno desde la acción genérica de Archivar (lista o ficha) abre
 4. Si elegiste **Expulsión**, pasa a ser **Expulsado/a** — siempre, independientemente de cualquier marca de graduación anterior. Si no, pasa a ser **extitulado** si en algún momento fue marcado como graduado (aunque fuera hace tiempo), o **baja** en caso contrario.
 5. Se le revoca el acceso al portal — y también al de su familia, **salvo que** algún miembro de la familia tenga todavía otro hijo/a matriculado/a activamente en el centro (un hermano/a mantiene el acceso de la familia funcionando).
 6. La ficha del alumno se archiva.
+7. Se programa la suspensión de su cuenta corporativa de Google: EMS le envía un correo (a la dirección personal y a la corporativa) avisándole de que la cuenta se suspenderá dentro de 30 días y se eliminará 30 días después, y muestra ambas fechas en la ficha a medida que se fijan.
+
+---
+
+## La cuenta corporativa de Google tras una baja
+
+La cuenta no se toca el día en que el alumno se va: sigue funcionando 30 días, después se suspende y, 30 días más tarde, se elimina definitivamente (buzón y archivos de Drive incluidos).
+
+En la parte superior de la ficha del alumno:
+
+- **Cancelar la desactivación programada** — conserva la cuenta aunque el alumno se haya ido.
+- **Suspender la cuenta de Google** — la suspende de inmediato, sin esperar los 30 días. Esto también inicia la cuenta atrás de 30 días hasta la eliminación.
+- **Eliminar la cuenta de Google** — la elimina definitivamente, sin esperar. Pide confirmación antes; no se puede deshacer.
+- **Reactivar la cuenta de Google** — recupera una cuenta suspendida y anula su eliminación.
+
+Si el alumno vuelve (desarchivar la ficha), esto se hace automáticamente: se anula el paso que estuviera programado, o se reactiva la cuenta si ya estaba suspendida. Si la cuenta ya se había eliminado, se crea una nueva con credenciales nuevas.
+
+Para ver a todo el alumnado con algo pendiente, ve a **Comunidad educativa → Alumnos** y usa los filtros **Suspensión de Google pendiente** o **Eliminación de Google pendiente**. Ambas fechas están disponibles como columnas opcionales en la vista de lista (el selector del extremo derecho de la cabecera), de modo que puedes ordenar por ellas; **Agrupar por → Fecha de suspensión de Google** las agrupa por mes.
 
 Si el acceso al portal no se puede revocar por algún motivo, el alumno **no** se archiva — lo verás indicado en el mensaje de confirmación, y puedes volver a intentarlo una vez resuelto el problema.
 

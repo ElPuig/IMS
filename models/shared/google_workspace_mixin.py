@@ -5,7 +5,9 @@ import secrets
 import string
 import unicodedata
 
-from odoo import api, models, _
+from dateutil.relativedelta import relativedelta
+
+from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
@@ -29,6 +31,13 @@ except ImportError:
     phonenumbers = None
 
 GW_SCOPES = ['https://www.googleapis.com/auth/admin.directory.user']
+
+# Grace periods, in days, between archiving someone and the Google account actually
+# changing (issue #388). Archiving warns and schedules; a daily cron does the work once
+# the date arrives. Deliberately fixed constants rather than company settings: the centre
+# states a single policy, and a per-centre knob would only add a way to get it wrong.
+GW_DEACTIVATION_DELAY_DAYS = 30  # archive -> suspension (staff and students)
+GW_DELETION_DELAY_DAYS = 30      # suspension -> deletion (students only)
 
 
 class GoogleWorkspaceMixin(models.AbstractModel):
@@ -90,6 +99,33 @@ class GoogleWorkspaceMixin(models.AbstractModel):
         if not domain:
             raise UserError(_("Google Workspace domain is not configured (Settings > Company)."))
         return domain
+
+    @api.model
+    def _gw_schedule_date(self, days):
+        """The date, `days` days from today, a scheduled lifecycle step falls due on."""
+        return fields.Date.context_today(self) + relativedelta(days=days)
+
+    @api.model
+    def _gw_send_lifecycle_warning(self, record, template_xmlid, recipients,
+                                   extra_context=None):
+        """Warn `record`'s known addresses that its Google account is about to change.
+
+        Sent to every address given (personal *and* corporate): the corporate mailbox is
+        still alive during the grace period and is the one actually read day to day.
+        Returns whether an email was actually sent - a record with no address at all only
+        gets the chatter note its caller posts.
+        """
+        addresses = [address for address in recipients if address]
+        if not addresses:
+            return False
+        template = self.env.ref(template_xmlid, raise_if_not_found=False)
+        if not template:
+            _logger.warning("Google Workspace: mail template %s not found", template_xmlid)
+            return False
+        template.sudo().with_context(
+            gw_recipients=','.join(addresses), **(extra_context or {}),
+        ).send_mail(record.id, force_send=True)
+        return True
 
     @api.model
     def _gw_format_phone(self, raw):

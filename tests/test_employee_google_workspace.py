@@ -1,7 +1,13 @@
 import importlib.util
 import os
+from datetime import date
 from unittest.mock import patch
 
+from dateutil.relativedelta import relativedelta
+
+from odoo.addons.ems.models.shared.google_workspace_mixin import (
+    GW_DEACTIVATION_DELAY_DAYS,
+)
 from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase
 
@@ -348,3 +354,136 @@ class TestEmployeeGoogleWorkspace(TransactionCase):
         self.assertTrue(archived.google_ws_suspended)
         self.assertFalse(active_teacher.google_ws_suspended)
         self.assertFalse(no_email.google_ws_suspended)
+
+
+class TestEmployeeGoogleWorkspaceLifecycle(TransactionCase):
+    """Issue #388: archiving a member of staff opens a 30-day grace period before
+    the Google account is suspended, instead of suspending it straight away.
+
+    Everything runs in dry-run so no real Google API call is performed, and the
+    warning email is patched out at the template level.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.company = cls.env.company
+        cls.company.write({
+            'google_ws_enabled': True,
+            'google_ws_dry_run': True,
+            'google_ws_domain': 'elpuig.xeill.net',
+            'google_ws_ou_teacher': '/claustro/doble-factor-autenticación',
+            'google_ws_ou_staff_suspended': '/claustro/bajas',
+        })
+        # No real SMTP: the grace-period warning goes through a mail.template.
+        patcher = patch(
+            'odoo.addons.base.models.ir_mail_server.IrMailServer.send_email')
+        patcher.start()
+        cls.addClassCleanup(patcher.stop)
+
+    def _new_teacher(self, **vals):
+        base = {
+            'name': 'Ada Lovelace King',
+            'employee_type': 'teacher',
+            'private_email': 'ada@example.com',
+            'work_email': 'alovelace@elpuig.xeill.net',
+        }
+        base.update(vals)
+        return self.env['hr.employee'].create(base)
+
+    # --- scheduling on archive -------------------------------------------
+
+    def test_archive_schedules_deactivation_instead_of_suspending(self):
+        teacher = self._new_teacher()
+        teacher.write({'active': False})
+        self.assertEqual(
+            teacher.google_ws_deactivation_date,
+            date.today() + relativedelta(days=GW_DEACTIVATION_DELAY_DAYS))
+        self.assertFalse(
+            teacher.google_ws_suspended,
+            "Archiving must not suspend the account before the grace period ends")
+
+    def test_archive_sends_the_warning_email(self):
+        teacher = self._new_teacher()
+        with patch.object(type(self.env['mail.template']), 'send_mail') as send_mail:
+            teacher.write({'active': False})
+        send_mail.assert_called_once()
+
+    def test_archive_without_account_schedules_nothing(self):
+        teacher = self._new_teacher(work_email=False)
+        teacher.write({'active': False})
+        self.assertFalse(teacher.google_ws_deactivation_date)
+
+    def test_archive_twice_keeps_the_first_date(self):
+        teacher = self._new_teacher()
+        teacher.write({'active': False})
+        first = teacher.google_ws_deactivation_date
+        teacher.google_ws_deactivation_date = first - relativedelta(days=5)
+        teacher.write({'active': False})
+        self.assertEqual(teacher.google_ws_deactivation_date, first - relativedelta(days=5))
+
+    # --- cancelling -------------------------------------------------------
+
+    def test_unarchive_cancels_the_schedule(self):
+        teacher = self._new_teacher()
+        teacher.write({'active': False})
+        teacher.write({'active': True})
+        self.assertFalse(teacher.google_ws_deactivation_date)
+
+    def test_manual_cancel_button(self):
+        teacher = self._new_teacher()
+        teacher.write({'active': False})
+        teacher.action_cancel_scheduled_deactivation()
+        self.assertFalse(teacher.google_ws_deactivation_date)
+
+    def test_suspending_clears_the_schedule(self):
+        teacher = self._new_teacher()
+        teacher.write({'active': False})
+        teacher.action_suspend_google_account()
+        self.assertTrue(teacher.google_ws_suspended)
+        self.assertFalse(teacher.google_ws_deactivation_date)
+
+    # --- the cron ---------------------------------------------------------
+
+    def test_cron_suspends_only_when_the_date_has_arrived(self):
+        teacher = self._new_teacher()
+        teacher.write({'active': False})
+        with patch.object(type(teacher), 'action_suspend_google_account') as suspend:
+            self.env['hr.employee'].with_context(
+            queue_job__no_delay=True)._gw_cron_process_lifecycle()
+        suspend.assert_not_called()
+
+    def test_cron_suspends_once_the_date_is_reached(self):
+        teacher = self._new_teacher()
+        teacher.write({'active': False})
+        teacher.google_ws_deactivation_date = date.today()
+        self.env['hr.employee'].with_context(
+            queue_job__no_delay=True)._gw_cron_process_lifecycle()
+        self.assertTrue(teacher.google_ws_suspended)
+
+    def test_cron_ignores_active_employees(self):
+        teacher = self._new_teacher()
+        teacher.google_ws_deactivation_date = date.today()
+        self.env['hr.employee'].with_context(
+            queue_job__no_delay=True)._gw_cron_process_lifecycle()
+        self.assertFalse(teacher.google_ws_suspended)
+
+    def test_cron_is_idempotent(self):
+        teacher = self._new_teacher()
+        teacher.write({'active': False})
+        teacher.google_ws_deactivation_date = date.today()
+        self.env['hr.employee'].with_context(
+            queue_job__no_delay=True)._gw_cron_process_lifecycle()
+        with patch.object(type(teacher), 'action_suspend_google_account') as suspend:
+            self.env['hr.employee'].with_context(
+            queue_job__no_delay=True)._gw_cron_process_lifecycle()
+        suspend.assert_not_called()
+
+    # --- hard delete keeps the old immediate behaviour --------------------
+
+    def test_unlink_still_suspends_immediately(self):
+        teacher = self._new_teacher()
+        with patch.object(
+                type(teacher), 'action_suspend_google_account', autospec=True) as suspend:
+            teacher.unlink()
+        suspend.assert_called_once()

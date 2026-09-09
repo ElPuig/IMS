@@ -133,6 +133,48 @@ registry.category("web_tour.tours").add("ems_employee_google_workspace_state", {
             content: "Back to list",
             run: "click",
         },
+        // --- grace period (#388): the scheduled-deactivation banner and its button
+        // The employee is archived (that is what opens the grace period), so the list
+        // has to be switched to archived records first.
+        {
+            trigger: ".o_searchview_dropdown_toggler",
+            content: "Open the search dropdown",
+            run: "click",
+        },
+        {
+            trigger: ".o_filter_menu .dropdown-item:contains('Archived')",
+            content: "Filter on archived employees",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row .o_data_cell:contains('GW Tour Scheduled')",
+            content: "Open the teacher whose deactivation is scheduled",
+            run: "click",
+        },
+        {
+            trigger: ".alert-warning:contains('scheduled to be deactivated')",
+            content: "The grace-period banner shows the pending deactivation",
+        },
+        {
+            trigger: "button[name='action_cancel_scheduled_deactivation']",
+            content: "Call off the scheduled deactivation",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view:not(:has(.alert-warning:contains('scheduled to be deactivated')))"
+                + ":not(:has(button[name='action_cancel_scheduled_deactivation']))",
+            content: "Banner and button are both gone: the account is kept",
+        },
+        {
+            trigger: ".o_breadcrumb a",
+            content: "Back to list",
+            run: "click",
+        },
+        {
+            trigger: ".o_searchview .o_facet_remove",
+            content: "Drop the archived filter again",
+            run: "click",
+        },
         // --- pending identification: "Mark as identified" clears it manually -
         {
             trigger: ".o_list_view .o_data_row .o_data_cell:contains('GW Tour Pending Identification')",

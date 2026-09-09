@@ -12699,6 +12699,105 @@ msgid "Re-link Google sign-in"
 msgstr "Tornar a vincular l'accés amb Google"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__google_ws_deactivation_date
+#: model:ir.model.fields,field_description:ems.field_res_partner__google_ws_deactivation_date
+#: model:ir.model.fields,field_description:ems.field_res_users__google_ws_deactivation_date
+msgid "Scheduled Google deactivation"
+msgstr "Desactivació de Google programada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__google_ws_deletion_date
+#: model:ir.model.fields,field_description:ems.field_res_users__google_ws_deletion_date
+msgid "Scheduled Google deletion"
+msgstr "Eliminació de Google programada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__google_ws_deleted
+#: model:ir.model.fields,field_description:ems.field_res_users__google_ws_deleted
+msgid "Google account deleted"
+msgstr "Compte de Google eliminat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Cancel scheduled deactivation"
+msgstr "Cancel·la la desactivació programada"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Delete Google account"
+msgstr "Elimina el compte de Google"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "The Google account is scheduled to be deactivated on"
+msgstr "El compte de Google es desactivarà el"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "The suspended Google account is scheduled to be deleted for good on"
+msgstr "El compte de Google suspès s'eliminarà definitivament el"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid ""
+"This deletes the corporate Google account for good: the mailbox and the "
+"Drive files cannot be recovered afterwards. Continue?"
+msgstr "Això elimina definitivament el compte corporatiu de Google: la bústia i els fitxers de Drive no es podran recuperar. Voleu continuar?"
+
+#. module: ems
+#: model:ir.actions.server,name:ems.ir_cron_gw_staff_lifecycle_ir_actions_server
+msgid "EMS: Google Workspace staff account lifecycle"
+msgstr "EMS: cicle de vida dels comptes de Google Workspace del personal"
+
+#. module: ems
+#: model:ir.actions.server,name:ems.ir_cron_gw_student_lifecycle_ir_actions_server
+msgid "EMS: Google Workspace student account lifecycle"
+msgstr "EMS: cicle de vida dels comptes de Google Workspace de l'alumnat"
+
+#. module: ems
+#: model:mail.template,name:ems.mail_template_google_deactivation_employee
+msgid "Google Workspace - Account deactivation notice (staff)"
+msgstr "Google Workspace - Avís de desactivació de compte (personal)"
+
+#. module: ems
+#: model:mail.template,name:ems.mail_template_google_deactivation_student
+msgid "Google Workspace - Account deactivation notice (students)"
+msgstr "Google Workspace - Avís de desactivació de compte (alumnat)"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_employee__google_ws_deactivation_date
+msgid ""
+"Date the corporate account is due to be suspended, set when the employee is "
+"archived. Until then the account keeps working; unarchiving cancels it."
+msgstr "Data en què se suspendrà el compte corporatiu, fixada en arxivar l'empleat. Fins llavors el compte continua funcionant; desarxivar-lo l'anul·la."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__google_ws_deactivation_date
+#: model:ir.model.fields,help:ems.field_res_users__google_ws_deactivation_date
+msgid ""
+"Date the corporate account is due to be suspended, set when the student "
+"leaves. Until then the account keeps working; coming back cancels it."
+msgstr "Data en què se suspendrà el compte corporatiu, fixada quan l'estudiant causa baixa. Fins llavors el compte continua funcionant; el seu retorn l'anul·la."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__google_ws_deletion_date
+#: model:ir.model.fields,help:ems.field_res_users__google_ws_deletion_date
+msgid ""
+"Date the suspended corporate account is due to be deleted for good. Set when"
+" the account is suspended; reactivating it cancels the deletion."
+msgstr "Data en què s'eliminarà definitivament el compte corporatiu suspès. Es fixa en suspendre el compte; reactivar-lo anul·la l'eliminació."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__google_ws_deleted
+#: model:ir.model.fields,help:ems.field_res_users__google_ws_deleted
+msgid ""
+"True once the corporate account has been deleted in Google. The address is "
+"kept on the record so it is never handed to a different student."
+msgstr "Cert un cop el compte corporatiu s'ha eliminat a Google. L'adreça es conserva a la fitxa perquè mai s'assigni a un altre estudiant."
+
+#. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/google_workspace_integration.py:0
 msgid "Google did not return a user id for %s. The account may not exist, or it may live outside the organizational units this service account is allowed to read. Check the server log for the exact Google error."
@@ -12739,6 +12838,173 @@ msgstr "No es pot obtenir l'identificador d'usuari de Google: aquest entorn exec
 #: code:addons/ems/models/employees/google_workspace_integration.py:0
 msgid "This employee has no corporate email address."
 msgstr "Aquest empleat no té adreça de correu corporatiu."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid ""
+"Google Workspace: the corporate account %(email)s will be suspended on "
+"%(date)s. Unarchiving this employee before that date cancels it."
+msgstr "Google Workspace: el compte corporatiu %(email)s se suspendrà el %(date)s. Desarxivar aquest empleat abans d'aquesta data ho anul·la."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid ""
+"Google Workspace: the corporate account %(email)s will be suspended on "
+"%(date)s and deleted %(days)s days later. Bringing this student back before "
+"then cancels it."
+msgstr "Google Workspace: el compte corporatiu %(email)s se suspendrà el %(date)s i s'eliminarà %(days)s dies després. Recuperar aquest estudiant abans ho anul·la."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "Google Workspace: the scheduled suspension of %s has been cancelled."
+msgstr "Google Workspace: s'ha cancel·lat la suspensió programada de %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid ""
+"Google Workspace account suspended: %(email)s (moved to OU %(ou)s)%(dry)s. "
+"It will be deleted for good on %(date)s unless the student comes back."
+msgstr "Compte de Google Workspace suspès: %(email)s (mogut a la OU %(ou)s)%(dry)s. S'eliminarà definitivament el %(date)s tret que l'estudiant torni."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Google Workspace: account %s was deleted; creating a new one."
+msgstr "Google Workspace: el compte %s es va eliminar; se n'està creant un de nou."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Google Workspace: could not delete %(email)s. Error: %(err)s"
+msgstr "Google Workspace: no s'ha pogut eliminar %(email)s. Error: %(err)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Google Workspace account deleted for good: %(email)s%(dry)s."
+msgstr "Compte de Google Workspace eliminat definitivament: %(email)s%(dry)s."
+
+#. module: ems
+#: model:mail.template,subject:ems.mail_template_google_deactivation_employee
+msgid ""
+"Your corporate account @{{ object.env.company.google_ws_domain }} will be "
+"deactivated"
+msgstr "El teu compte corporatiu @{{ object.env.company.google_ws_domain }} es desactivarà"
+
+#. module: ems
+#: model:mail.template,subject:ems.mail_template_google_deactivation_student
+msgid ""
+"Your corporate account @{{ object.env.company.google_ws_domain }} will be "
+"deactivated and deleted"
+msgstr "El teu compte corporatiu @{{ object.env.company.google_ws_domain }} es desactivarà i s'eliminarà"
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_template_google_deactivation_student
+msgid ""
+"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
+"                    <p>Hello <t t-out=\"object.firstname or object.name or ''\"/>,</p>\n"
+"                    <p>Now that you are no longer enrolled at the school, your corporate\n"
+"                       Google Workspace account\n"
+"                       <strong><t t-out=\"object.student_email or ''\"/></strong>\n"
+"                       is scheduled to be <strong>deactivated</strong> on\n"
+"                       <strong><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></strong>.</p>\n"
+"                    <p style=\"color:#b00;\">Once deactivated, the account is\n"
+"                       <strong>deleted for good</strong> on\n"
+"                       <strong><t t-out=\"format_date(ctx.get('gw_deletion_date'))\"/></strong>.\n"
+"                       After that date your email and your Drive files cannot be recovered.</p>\n"
+"                    <p>You can use your account as usual before\n"
+"                       <t t-out=\"format_date(object.google_ws_deactivation_date)\"/>; from\n"
+"                       <t t-out=\"format_date(object.google_ws_deactivation_date)\"/> (included)\n"
+"                       you will no longer be able to access it; on\n"
+"                       <t t-out=\"format_date(ctx.get('gw_deletion_date'))\"/> it will be deleted\n"
+"                       for good. Please make sure you download everything you want to keep\n"
+"                       before then, and that you have moved any personal service using this\n"
+"                       address to another one.</p>\n"
+"                    <p>If you enrol again at the school before those dates, the account is kept\n"
+"                       and nothing is lost.</p>\n"
+"                    <p>Best regards,<br/>School Secretariat</p>\n"
+"                </div>"
+msgstr ""
+"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
+"                    <p>Hola <t t-out=\"object.firstname or object.name or ''\"/>,</p>\n"
+"                    <p>Ara que ja no estàs matriculat al centre, està previst que el teu compte\n"
+"                       corporatiu de Google Workspace\n"
+"                       <strong><t t-out=\"object.student_email or ''\"/></strong>\n"
+"                       es <strong>desactivi</strong> el\n"
+"                       <strong><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></strong>.</p>\n"
+"                    <p style=\"color:#b00;\">Un cop desactivat, el compte s'<strong>elimina\n"
+"                       definitivament</strong> el\n"
+"                       <strong><t t-out=\"format_date(ctx.get('gw_deletion_date'))\"/></strong>.\n"
+"                       A partir d'aquesta data el teu correu i els teus fitxers de Drive no es\n"
+"                       podran recuperar.</p>\n"
+"                    <p>Podràs accedir al teu compte amb normalitat abans del\n"
+"                       <t t-out=\"format_date(object.google_ws_deactivation_date)\"/>; a partir del\n"
+"                       <t t-out=\"format_date(object.google_ws_deactivation_date)\"/> (inclòs) ja no\n"
+"                       hi podràs accedir; el dia\n"
+"                       <t t-out=\"format_date(ctx.get('gw_deletion_date'))\"/> s'eliminarà\n"
+"                       definitivament. Assegura't de descarregar abans tot el que vulguis\n"
+"                       conservar, i de traslladar a una altra adreça qualsevol servei personal que\n"
+"                       faci servir aquesta.</p>\n"
+"                    <p>Si tornes a matricular-te al centre abans d'aquestes dates, el compte es\n"
+"                       conserva i no es perd res.</p>\n"
+"                    <p>Salutacions,<br/>Secretaria del centre</p>\n"
+"                </div>"
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_template_google_deactivation_employee
+msgid ""
+"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
+"                    <p>Hello <t t-out=\"object.name or ''\"/>,</p>\n"
+"                    <p>Now that you are no longer part of the school staff, your corporate\n"
+"                       Google Workspace account\n"
+"                       <strong><t t-out=\"object.work_email or ''\"/></strong>\n"
+"                       is scheduled to be <strong>deactivated</strong> on\n"
+"                       <strong><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></strong>.</p>\n"
+"                    <p>Until that date the account keeps working normally. Please make sure\n"
+"                       you have saved anything you need from your email and your Drive files\n"
+"                       before then, and that you have moved any personal service using this\n"
+"                       address to another one.</p>\n"
+"                    <p>If you come back to the school before that date, the account is kept\n"
+"                       and nothing is lost.</p>\n"
+"                    <p>Best regards,<br/>School Secretariat</p>\n"
+"                </div>"
+msgstr ""
+"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
+"                    <p>Hola <t t-out=\"object.name or ''\"/>,</p>\n"
+"                    <p>Ara que ja no formes part del personal del centre, està previst que el teu\n"
+"                       compte corporatiu de Google Workspace\n"
+"                       <strong><t t-out=\"object.work_email or ''\"/></strong>\n"
+"                       es <strong>desactivi</strong> el\n"
+"                       <strong><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></strong>.</p>\n"
+"                    <p>Fins aquesta data el compte continua funcionant amb normalitat. Assegura't de\n"
+"                       desar abans tot el que necessitis del teu correu i dels teus fitxers de Drive,\n"
+"                       i de traslladar a una altra adreça qualsevol servei personal que faci servir\n"
+"                       aquesta.</p>\n"
+"                    <p>Si tornes al centre abans d'aquesta data, el compte es conserva i no es perd\n"
+"                       res.</p>\n"
+"                    <p>Salutacions,<br/>Secretaria del centre</p>\n"
+"                </div>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_search
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "Google suspension pending"
+msgstr "Suspensió de Google pendent"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "Google deletion pending"
+msgstr "Eliminació de Google pendent"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "Google suspension date"
+msgstr "Data de suspensió de Google"
 
 #. module: ems
 #: model:ir.module.category,name:ems.category_orientation

@@ -27,6 +27,16 @@
 
                 <xpath expr="//field[@name='email']" position="after">
                     <field name="student_email" optional="show" column_invisible="context.get('default_contact_type') != 'student'"/>
+                    <!-- Google account lifecycle (#388): hidden by default and restricted
+                         to the roles that manage those accounts. Shown on demand next to
+                         the matching search filters, so a pending suspension/deletion can
+                         be sorted by date. -->
+                    <field name="google_ws_deactivation_date" optional="hide"
+                           column_invisible="context.get('default_contact_type') != 'student'"
+                           groups="ems.group_secretary,ems.group_academic_admin"/>
+                    <field name="google_ws_deletion_date" optional="hide"
+                           column_invisible="context.get('default_contact_type') != 'student'"
+                           groups="ems.group_secretary,ems.group_academic_admin"/>
                 </xpath>
 
                 <xpath expr="//field[@name='user_id']" position="attributes">
