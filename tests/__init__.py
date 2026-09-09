@@ -173,3 +173,4 @@ from . import test_student_data_reader
 from . import test_student_data_reader_tour
 from . import test_student_my_groups
 from . import test_student_my_groups_tour
+from . import test_mail_template_translations
