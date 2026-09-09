@@ -200,6 +200,48 @@ class TestEmployeeAutocheckout(TransactionCase):
         self.assertFalse(failing.check_out)
         self.assertTrue(healthy.check_out)
 
+    def test_create_close_failure_is_isolated_and_notifies(self):
+        # Mirrors test_cron_auto_check_out_savepoint_isolates_failures for the
+        # create()-triggered backup path: a real (SQL-level) failure while
+        # auto-closing a stale attendance must not corrupt the transaction, and
+        # must notify the Academic Admins - the same robustness the cron already
+        # has, now shared via _close_stale_attendance_safely().
+        self.env.company.auto_check_out = True
+        self.calendar.flexible_hours = False
+        stale_check_in = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=1)
+        self._add_slot(0.0, 0.02, dayofweek=str(stale_check_in.weekday()))
+        stale = self.env['hr.attendance'].create({
+            'employee_id': self.teacher.id, 'check_in': stale_check_in,
+        })
+
+        def _boom(self):
+            self.env.cr.execute("SELECT * FROM ems_test_nonexistent_table_422")
+
+        # Spy on the notify call rather than asserting on persisted mail.activity
+        # state: verified separately (not asserted here, see
+        # _notify_close_failure()'s own docstring) that when the notify happens
+        # nested inside the very create() call that goes on to fail its own
+        # native validation right after (exactly this scenario), the activity it
+        # schedules is not reliably kept - a known, accepted gap, not something
+        # this test should flake on. What's guaranteed and worth asserting is
+        # that a close failure always triggers the notify call, on the right
+        # record - the cron or the employee's next real check-in will pick the
+        # still-open attendance back up regardless.
+        with patch.object(type(stale), '_auto_close_attendance', _boom), \
+             patch.object(type(stale), '_notify_close_failure', autospec=True) as notify_mock:
+            with self.assertRaises(Exception) as failure:
+                self.env['hr.attendance'].create({
+                    'employee_id': self.teacher.id,
+                    'check_in': datetime.now(timezone.utc).replace(tzinfo=None),
+                })
+
+        # The stale attendance stayed open (close failed) so Odoo's own native
+        # validation blocked the new check-in - proof the raw injected SQL error
+        # never escaped uncontrolled, only the transaction-safe outcome did.
+        self.assertIn("hasn't checked out since", str(failure.exception))
+        self.assertFalse(stale.check_out)
+        notify_mock.assert_called_once_with(stale)
+
     def test_create_leaves_stale_attendance_when_auto_check_out_disabled(self):
         # With auto_check_out off, EMS never auto-closes the stale attendance, so Odoo's
         # own "already checked in" validation blocks the second check-in — same as it

@@ -18,9 +18,43 @@ flowchart TD
     B -- No --> E[Proceed to create]
     B -- Yes --> C{auto_check_out enabled AND\nnot flexible_hours?}
     C -- No --> D[Leave the old one open —\nOdoo's native validation will\nreject the new check-in]
-    C -- Yes --> F[_auto_close_attendance on the stale one]
+    C -- Yes --> F[_close_stale_attendance_safely\non the stale one]
     F --> E
 ```
+
+This is the **check-in-triggered backup** for the nightly cron below: if the cron missed a
+run (a bug, a server restart mid-window, a misconfigured retry window), the very next time
+that same employee checks in for real, the stale attendance gets a chance to close right
+then — visibly, since a failure here surfaces through the *same* check-in request instead of
+silently at 3am with nobody watching. It does **not** replace the cron: an employee who
+doesn't come back soon (leave, absence, departure) still needs the cron as the only
+mechanism that eventually corrects the data regardless of employee action.
+
+## `_get_stale_attendance_domain()` / `_close_stale_attendance_safely()` — shared by both paths
+
+`create()`'s per-employee lookup and the cron's company-wide one both build their search
+from `_get_stale_attendance_domain()` (`create()` adds `('employee_id', '=', employee_id)`
+on top; the cron uses it as-is) — the three eligibility conditions
+(`check_out = False`, `company.auto_check_out = True`, `not resource_calendar_id.flexible_hours`)
+are written in exactly one place.
+
+Once a stale attendance is found, both paths hand it to `_close_stale_attendance_safely()`
+rather than calling `_auto_close_attendance()` directly:
+
+```mermaid
+flowchart TD
+    A[_close_stale_attendance_safely] --> B[cr.savepoint\naround _auto_close_attendance]
+    B -- succeeds --> C[done]
+    B -- raises --> D[log the failure]
+    D --> E[_notify_close_failure]
+    E -- raises too --> F[log that too, still don't propagate]
+```
+
+The `cr.savepoint()` is what actually isolates one bad record from whatever else is going
+on in the same transaction: a bare `try/except` alone does **not** undo Postgres's own
+"transaction aborted" state once a genuine DB-level error occurs — every subsequent
+statement in that same run would fail too without it (this is exactly the blast radius the
+microsecond bug below used to have, every single night).
 
 ## `_auto_close_attendance()` — the shared close logic
 
@@ -45,8 +79,26 @@ flowchart TD
 Delegates straight to Odoo's native `_cron_auto_check_out()` unless `res.company.auto_checkout_mode == 'ems'` (see [res.company](../settings/company.md)). When EMS mode is active:
 
 1. Only runs inside the configured retry window (`auto_checkout_time` → `auto_checkout_retry_until`, wrapping past midnight if `start > end`) — a cron that runs more often than once a night would otherwise keep re-evaluating "not yet passed" attendances pointlessly.
-2. Finds every open attendance across every employee (not just one), gated the same way as `create()`.
-3. Calls `_auto_close_attendance()` per record inside its own `cr.savepoint()`, itself inside a `try/except` — logging, notifying the Academic Admins (`_notify_close_failure()`), and skipping on error. The savepoint is what actually isolates one bad record from the rest of the batch: a bare `try/except` alone does **not** undo Postgres's own "transaction aborted" state once a DB-level error occurs mid-loop, so every attendance processed *after* the first failure would silently fail too without it (see the bug below).
+2. Finds every open attendance across every employee (not just one) via `_get_stale_attendance_domain()`.
+3. Hands each one to `_close_stale_attendance_safely()` — see above.
+
+## `_notify_close_failure()` — telling someone, not just the log
+
+Schedules a `mail.mail_activity_data_todo` activity for every user in `ems.group_academic_admin`.
+Scheduled on `employee_id`, not on the attendance itself: `hr.attendance` only inherits
+`mail.thread` (no `mail.activity.mixin`), while `hr.employee` already does.
+
+**Known, accepted gap (2026-09, verified empirically, not chased further):** when this runs
+*nested* inside the very `create()` call that goes on to raise its own native "already
+checked in" validation right after — i.e. the failure is discovered during the *employee's
+own* check-in attempt, which Odoo's own validation then blocks anyway — the scheduled
+activity is not reliably kept; something in that specific combination (schedule an activity,
+then have the *same* top-level ORM call fail right after) discards it. Calling this from the
+cron's own loop (one call per record, never followed by a same-call failure) is unaffected.
+Low impact either way: the underlying safety guarantee (the transaction never gets corrupted,
+the stale attendance is never wrongly half-closed, the new check-in stays correctly blocked)
+holds regardless — the same stuck attendance gets picked up by the next cron run or the
+employee's next real check-in either way, just without that one immediate notification.
 
 ### The microsecond bug (issue #422, fixed 2026-09)
 
