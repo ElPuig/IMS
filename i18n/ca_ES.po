@@ -13661,3 +13661,20 @@ msgstr "No hi ha horari per a aquest torn."
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Nobody is missing this shift."
 msgstr "No falta ningú en aquest torn."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "My students"
+msgstr "El meu alumnat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__is_my_student
+#: model:ir.model.fields,field_description:ems.field_res_users__is_my_student
+msgid "Taught by me"
+msgstr "Dels meus grups"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "Unsupported search on is_my_student"
+msgstr "Cerca no admesa sobre is_my_student"

@@ -167,3 +167,5 @@ from . import test_employee_staff_permissions
 from . import test_employee_staff_permissions_tour
 from . import test_student_data_reader
 from . import test_student_data_reader_tour
+from . import test_student_my_groups
+from . import test_student_my_groups_tour

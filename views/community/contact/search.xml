@@ -9,6 +9,12 @@
                     <field name="exit_course_id"/>
                     <filter name="students_only" string="Students" domain="[('contact_type', '=', 'student')]"/>
                     <filter name="former_students" string="Former students" domain="[('contact_type', 'in', ['alumni', 'withdrawal', 'expelled'])]"/>
+                    <!-- Its own filter group (hence the separators): adjacent filters are ORed,
+                         and this one must narrow the result set on top of the facets above,
+                         not widen it. Applied by default via action_student_kanban's
+                         'search_default_my_students' - see issue #421. -->
+                    <separator/>
+                    <filter name="my_students" string="My students" domain="[('is_my_student', '=', True)]"/>
                     <separator/>
                     <filter name="alumni" string="Alumni" domain="[('contact_type', '=', 'alumni')]"/>
                     <filter name="withdrawals" string="Withdrawals" domain="[('contact_type', '=', 'withdrawal')]"/>

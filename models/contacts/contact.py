@@ -157,6 +157,10 @@ class ResPartner(models.Model):
         ('missing', 'No destination'),
     ], string="Transition status", compute='_compute_transition_status',
         search='_search_transition_status', store=False)
+    # Backs the "My students" search facet the Students action applies by default (issue #421).
+    # Never rendered as a field in any view - it exists so the facet has something to search on.
+    is_my_student = fields.Boolean(string="Taught by me", compute='_compute_is_my_student',
+        search='_search_is_my_student', store=False)
     # Feeds the shared 'ems_archived_reason_ribbon' field widget (form + kanban, same widget
     # used by hr.employee's departure_reason_id - see static/src/js/backend/
     # archived_reason_ribbon_field.js). Empty/False when there's nothing specific to show
@@ -429,6 +433,65 @@ class ResPartner(models.Model):
         matching = candidates.filtered(lambda p: p.transition_status == value)
         positive = (operator == '=')
         return [('id', 'in' if positive else 'not in', matching.ids)]
+
+    def _ems_my_students_domain(self):
+        """Domain matching the students of the current user's own groups, shared by the
+        compute and the search below so the two can never disagree (issue #421).
+
+        Returns an EMPTY domain - not a domain matching nothing - for a user with no groups
+        at all, so administration and secretariat are not filtered even though the Students
+        action applies the facet to them too. An ir.actions.act_window's context is a string
+        evaluated client-side and has no ORM access, so it cannot decide per user whether to
+        add 'search_default_my_students'; making the search inert for those users is what
+        keeps that action a plain act_window. See the developer doc for the full rationale.
+        """
+        employee = self.env.user.sudo().employee_id
+        groups = employee._get_own_groups() if employee else self.env['ems.group']
+        if not groups:
+            return []
+        # Two branches, deliberately of different width.
+        #
+        # 'main_group_id' covers the groups themselves: everyone whose main group is one of
+        # mine, whatever they happen to be enrolled in there.
+        #
+        # ems.enrollment covers the students who reach one of my groups WITHOUT it being their
+        # main one - a reinforcement group (nobody's main group is a reinforcement one, its
+        # students are attached through ems.enrollment only) and a repeater carrying a failed
+        # subject down into a lower course's group. Matching those by group alone was too wide
+        # (found 2026-09-09 by a teacher of SMX1A/SMX1B, who was shown 19 students of SMX2A and
+        # SMX2B whose only link was some other teacher's subject taught in SMX1A/SMX1B): what
+        # actually makes such a student mine is the exact (group, subject) pair I teach, the
+        # ternary ems.enrollment mirrors from ems.teaching. Only 4 of those 19 survive the pair
+        # match, which are precisely the repeaters sitting in one of this teacher's own classes.
+        #
+        # The pair match is built from 'teaching_ids' alone, not from 'groups': a group that is
+        # only in scope because the employee tutors it (no ems.teaching row) contributes no
+        # subject of theirs, and its own tutorands are already covered by the branch above.
+        #
+        # active_test=False because the Students action itself runs with it: archived alumni and
+        # withdrawals must stay reachable once the 'students_only' facet is removed.
+        pairs = {(teaching.group_id.id, teaching.subject_id.id)
+                 for teaching in employee.teaching_ids}
+        enrolled = self.env['ems.enrollment'].sudo().with_context(active_test=False).search([
+            ('group_id', 'in', [group_id for group_id, _subject_id in pairs]),
+            ('subject_id', 'in', [subject_id for _group_id, subject_id in pairs]),
+        ]).filtered(lambda enrollment: (enrollment.group_id.id, enrollment.subject_id.id) in pairs)
+        return ['|', ('main_group_id', 'in', groups.ids), ('id', 'in', enrolled.student_id.ids)]
+
+    @api.depends('main_group_id')
+    def _compute_is_my_student(self):
+        mine = self.filtered_domain(self._ems_my_students_domain())
+        for partner in self:
+            partner.is_my_student = partner in mine
+
+    def _search_is_my_student(self, operator, value):
+        if operator not in ('=', '!=') or not isinstance(value, bool):
+            raise NotImplementedError(_("Unsupported search on is_my_student"))
+        domain = self._ems_my_students_domain()
+        if (operator == '=') == value:
+            return domain
+        # Negated: with no groups every student is "mine", so "not mine" matches nobody.
+        return ['!'] + domain if domain else [('id', '=', False)]
 
     @api.depends('contact_type')
     def _compute_archived_reason(self):
