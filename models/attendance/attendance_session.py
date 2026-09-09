@@ -226,6 +226,7 @@ class EmsAttendanceSessionHeader(models.Model):
     def _setup_next_session_line_data(self, previous):
         justified = self.env.ref("ems.attendance_status_justified")
         delayed = self.env.ref("ems.attendance_status_delayed")
+        delayed_severe = self.env.ref("ems.attendance_status_delayed_severe")
         attended = self.env.ref("ems.attendance_status_attended")
         miss = self.env.ref("ems.attendance_status_miss")
         if previous.status_id == justified:
@@ -237,7 +238,7 @@ class EmsAttendanceSessionHeader(models.Model):
             }
         return {
             "student_id": previous.student_id,
-            "status_id": attended.id if previous.status_id == delayed else previous.status_id.id,
+            "status_id": attended.id if previous.status_id in (delayed, delayed_severe) else previous.status_id.id,
             "notes": previous.notes,
             "is_auto_generated": True,
         }

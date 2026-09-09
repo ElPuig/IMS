@@ -2856,8 +2856,13 @@ msgstr "Define a qué estudio pertenece esta matrícula."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_status__attendance_status__a_delayed model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_line__status__a_delayed model:ems.attendance_status,name:ems.attendance_status_delayed
-msgid "Delayed"
-msgstr "Demorado"
+msgid "Minor Delay"
+msgstr "Retraso leve"
+
+#. module: ems
+#: model:ems.attendance_status,name:ems.attendance_status_delayed_severe
+msgid "Severe Delay"
+msgstr "Retraso grave"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_group__delegate_id

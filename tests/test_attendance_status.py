@@ -25,6 +25,7 @@ class TestAttendanceStatus(TransactionCase):
 
         cls.status_attended = cls.env.ref('ems.attendance_status_attended')
         cls.status_delayed = cls.env.ref('ems.attendance_status_delayed')
+        cls.status_delayed_severe = cls.env.ref('ems.attendance_status_delayed_severe')
         cls.status_miss = cls.env.ref('ems.attendance_status_miss')
         cls.status_justified = cls.env.ref('ems.attendance_status_justified')
         cls.status_issue = cls.env.ref('ems.attendance_status_issue')
@@ -34,6 +35,9 @@ class TestAttendanceStatus(TransactionCase):
     def test_seed_statuses_exist_with_expected_shape(self):
         self.assertEqual(self.status_attended.category, 'assistance')
         self.assertEqual(self.status_delayed.category, 'assistance')
+        # A severe delay counts as an absence, unlike a minor one - the whole point of
+        # splitting the two apart (see docs/en/developers/attendance/attendance_status.md).
+        self.assertEqual(self.status_delayed_severe.category, 'absence')
         self.assertEqual(self.status_miss.category, 'absence')
         self.assertEqual(self.status_justified.category, 'absence')
         # 'Issue' kept the historical 'a_'-prefix categorisation (counted as
@@ -44,6 +48,7 @@ class TestAttendanceStatus(TransactionCase):
 
         self.assertTrue(self.status_miss.notifiable)
         self.assertTrue(self.status_issue.notifiable)
+        self.assertTrue(self.status_delayed_severe.notifiable)
         self.assertFalse(self.status_attended.notifiable)
         self.assertFalse(self.status_delayed.notifiable)
         self.assertFalse(self.status_justified.notifiable)

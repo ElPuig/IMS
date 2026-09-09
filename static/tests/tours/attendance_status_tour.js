@@ -2,10 +2,12 @@
 
 import { registry } from "@web/core/registry";
 
-// Configuration screen: the seeded active statuses (Attended, Delayed, Miss, Justified
-// Miss) must be listed; the archived "Issue" status must not show up by default (it
-// ships pre-archived - ems.strike now covers what it used to flag). Opens one record's
-// form to confirm the new fields (category, notifiable, color) render.
+// Configuration screen: the seeded active statuses (Attended, Minor Delay, Severe Delay,
+// Miss, Justified Miss) must be listed; the archived "Issue" status must not show up by
+// default (it ships pre-archived - ems.strike now covers what it used to flag). Opens two
+// records' forms to confirm the new fields (category, notifiable, color) render - "Miss"
+// (pre-existing absence status) and "Severe Delay" (the new one, added so a severe delay
+// counts as an absence and notifies the family, unlike a minor one).
 registry.category("web_tour.tours").add("ems_attendance_status_configuration", {
     test: true,
     url: "/odoo/action-ems.action_attendance_status_list",
@@ -30,6 +32,24 @@ registry.category("web_tour.tours").add("ems_attendance_status_configuration", {
         {
             trigger: ".o_form_view .o_field_widget[name='notifiable'] input:checked",
             content: "'Miss' is notifiable, matching the pre-refactor status_is_notificable() list",
+        },
+        {
+            trigger: ".breadcrumb-item:contains('Statuses')",
+            content: "Back to the list",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row td[name='name']:contains('Severe Delay')",
+            content: "The seeded 'Severe Delay' status is listed, click to open it",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='category'] select:value(absence)",
+            content: "'Severe Delay' is categorised as an absence, unlike a minor delay",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='notifiable'] input:checked",
+            content: "'Severe Delay' is notifiable, so the family gets notified like a miss",
         },
         {
             trigger: ".breadcrumb-item:contains('Statuses')",

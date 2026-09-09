@@ -154,6 +154,24 @@ class TestAttendanceSessionHeader(TransactionCase):
         # delayed carries forward as attended (a delay only applies to the first period).
         self.assertEqual(second_line.status_id, self.env.ref('ems.attendance_status_attended'))
 
+    def test_continuation_session_carries_over_previous_status_severe_delay(self):
+        first = self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': self.schedule.id, 'date': date.today(),
+            'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
+        })
+        delayed_severe = self.env.ref('ems.attendance_status_delayed_severe')
+        first_line = first.attendance_session_line_ids.filtered(lambda l: l.student_id == self.student1)
+        first_line.status_id = delayed_severe
+
+        second = self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': self.schedule2.id, 'date': date.today(),
+            'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
+        })
+        second_line = second.attendance_session_line_ids.filtered(lambda l: l.student_id == self.student1)
+        # a severe delay resets to attended too, same rule as a minor one - it only
+        # applies to the single period it was marked in.
+        self.assertEqual(second_line.status_id, self.env.ref('ems.attendance_status_attended'))
+
     def test_continuation_session_justified_becomes_miss(self):
         first = self.env['ems.attendance_session_header'].create({
             'attendance_schedule_id': self.schedule.id, 'date': date.today(),

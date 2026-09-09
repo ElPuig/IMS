@@ -42,8 +42,9 @@ A la pantalla d'**Informes d'assistència**, fes clic a la icona **⚙ (engranat
 
 **Per a qualsevol tipus d'informe**, dos controls governen el detall per línia al PDF:
 - **Estats de detall** — quins estats apareixen a les taules "Detalls". Per defecte només inclou estats
-  d'absència (**Falta**, **Falta justificada**) perquè l'informe es mantingui d'una mida raonable; afegeix-ne
-  més i apareix un avís que l'informe pot tornar-se lent de generar o fallar per a seleccions grans.
+  d'absència (**Falta**, **Falta justificada**, **Retard greu**) perquè l'informe es mantingui d'una mida
+  raonable; afegeix-ne més i apareix un avís que l'informe pot tornar-se lent de generar o fallar per a
+  seleccions grans.
 - **Inclou els strikes** (actiu per defecte) — afegeix taules dels strikes disciplinaris del període.
 
 > Per a una vista més àmplia, per curs, de l'assistència d'un tutorat al llarg de tot el seu historial, consulta [Historial acadèmic dels teus alumnes](academic-history.md).

@@ -13,9 +13,10 @@ import { registry } from "@web/core/registry";
 // Status buttons only expose their *translated* name via the title attribute (no stable
 // data-status-id in the DOM) - same gotcha attendance_passlist_tour.js already documents.
 // Clicking by column position (nth-child) instead of by label text keeps this tour correct
-// regardless of the logged-in session's UI language. Column 3 is "Delayed" (by `sequence`,
-// right after "Attended" in column 2) - deliberately not column 2, since that's the default
-// every freshly auto-populated line already has, so clicking it wouldn't prove a real change.
+// regardless of the logged-in session's UI language. Column 3 is "Minor Delay" (by
+// `sequence`, right after "Attended" in column 2) - deliberately not column 2, since that's
+// the default every freshly auto-populated line already has, so clicking it wouldn't prove a
+// real change.
 registry.category("web_tour.tours").add("ems_attendance_session_continuation", {
     test: true,
     url: "/odoo/action-ems.action_attendance_passlist",
@@ -53,12 +54,12 @@ registry.category("web_tour.tours").add("ems_attendance_session_continuation", {
         },
         {
             trigger: ".ems-av-line:has(.ems-av-name:contains('Zoe Aguilar')) .ems-av-td-status:nth-child(3) .ems-av-status-btn",
-            content: "Mark Zoe Aguilar's 2nd status option (Delayed)",
+            content: "Mark Zoe Aguilar's 2nd status option (Minor Delay)",
             run: "click",
         },
         {
             trigger: ".ems-av-line:has(.ems-av-name:contains('Zoe Aguilar')) .ems-av-td-status:nth-child(3) .ems-av-status-btn--active",
-            content: "Delayed is now the active status for Zoe Aguilar",
+            content: "Minor Delay is now the active status for Zoe Aguilar",
         },
         {
             trigger: ".ems-av-sort-wrap select",
@@ -101,7 +102,7 @@ registry.category("web_tour.tours").add("ems_attendance_session_continuation", {
         },
         {
             trigger: ".ems-av-line:has(.ems-av-name:contains('Zoe Aguilar')) .ems-av-td-status:nth-child(2) .ems-av-status-btn--active",
-            content: "Zoe Aguilar's Delayed status from period 1 was carried forward as Attended (1st status column, active again)",
+            content: "Zoe Aguilar's Minor Delay status from period 1 was carried forward as Attended (1st status column, active again)",
         },
         {
             trigger: ".ems-av-continuation-close",
@@ -177,12 +178,12 @@ registry.category("web_tour.tours").add("ems_attendance_session_guard", {
         },
         {
             trigger: ".ems-av-line:has(.ems-av-name:contains('Zoe Aguilar')) .ems-av-td-status:nth-child(3) .ems-av-status-btn",
-            content: "Mark the student's 2nd status option (Delayed) while covering (goes through write_guard_session_line)",
+            content: "Mark the student's 2nd status option (Minor Delay) while covering (goes through write_guard_session_line)",
             run: "click",
         },
         {
             trigger: ".ems-av-line:has(.ems-av-name:contains('Zoe Aguilar')) .ems-av-td-status:nth-child(3) .ems-av-status-btn--active",
-            content: "Delayed is now the active status, confirming the guard write actually persisted",
+            content: "Minor Delay is now the active status, confirming the guard write actually persisted",
         },
         {
             trigger: ".ems-av-table",

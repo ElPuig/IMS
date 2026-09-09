@@ -42,9 +42,9 @@ En la pantalla de **Informes de asistencia**, haz clic en el icono **⚙ (engran
 
 **Para cualquier tipo de informe**, dos controles gobiernan el detalle por línea en el PDF:
 - **Estados de detalle** — qué estados aparecen en las tablas "Detalles". Por defecto solo incluye estados
-  de ausencia (**Falta**, **Falta justificada**) para que el informe se mantenga de un tamaño razonable;
-  añade más y aparece un aviso de que el informe puede volverse lento de generar o fallar para selecciones
-  grandes.
+  de ausencia (**Falta**, **Falta justificada**, **Retraso grave**) para que el informe se mantenga de un
+  tamaño razonable; añade más y aparece un aviso de que el informe puede volverse lento de generar o fallar
+  para selecciones grandes.
 - **Incluir los strikes** (activado por defecto) — añade tablas de los strikes disciplinarios del periodo.
 
 > Para una vista más amplia, por curso, de la asistencia de un tutorizado a lo largo de todo su historial, consulta [Historial académico de tus alumnos](academic-history.md).
