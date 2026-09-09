@@ -63,6 +63,7 @@
         'security/rules/grading.xml',
         'security/rules/planning.xml',
         'security/rules/portal.xml',
+        'security/rules/student_data_reader.xml',
         'security/rules/task_assignment.xml',
         'security/ir.model.access.csv',
 

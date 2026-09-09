@@ -22,6 +22,7 @@ Aquesta secció conté els manuals per als **professors**.
 | [Desactivar la teva foto de perfil](photo-visibility.md) | Activar o desactivar la teva foto de perfil |
 | [Informes d'assistència](attendance-reports.md) | Imprimir els 3 informes PDF d'assistència (per grup/alumne/assignatura) i explorar les dades tu mateix amb la pantalla d'Anàlisi d'assistència |
 | [L'horari setmanal d'un grup](../admin/group-schedule.md) | Consultar l'horari agregat d'un grup (assignatures, docents, aules, patis) i exportar-lo a PDF |
+| [Consultar les dades acadèmiques d'un alumne](student-academic-data.md) | On consultar l'historial acadèmic de qualsevol alumne, i quines dades poden llegir els rols d'Orientació i Convivència |
 
 ## Temes previstos
 

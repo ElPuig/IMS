@@ -26,10 +26,13 @@ Permission levels form a hierarchy — each level includes all the permissions o
 | Secretary | *(Secretary block — see note below)* | Automatic — set as **Area Manager** on the `ASP` department's own form (Role = Secretary) |
 | Director | Director | Automatic — set as **Director** in Settings > EMS Management |
 | TAC coordinator | *(TAC block — see note below)* | Manual — added to the **Roles** field on the teacher's own record |
+| Guidance coordinator | *(Guidance block — see note below)* | Manual — added to the **Roles** field on the teacher's own record |
 
 > Department Chief currently grants the same permissions as Tutor, plus the ability to create, edit and delete Class Groups (Contacts → Groups). It exists as its own level so it can be extended independently in the future. Seminar leader is granted the same permission level.
 >
 > **Secretary is not part of this ladder.** It grants access to a completely separate permission block (Secretary: Manager/Administrator), unrelated to the Teacher→...→Director chain above — even though it's configured the same way (as an "Area Manager" on a top-level department's form), it does not sit at any particular rung of this ladder.
+>
+> **Guidance coordinator is not part of this ladder either.** It grants its own separate permission block (Guidance: Manager/Administrator) and, like the TAC coordinator, it is assigned by hand from the teacher's own **Roles** field. It is not unipersonal: the post is normally held by a team. It grants read-only access to every student's data centre-wide - grades, academic history, daily attendance and its issues, strikes, contacts, enrolments and authorizations - and no write access anywhere, nor access to invoices or payments. **The Coexistence coordinator grants the same access**, plus every strike in the centre. The academic history needs no role at all: every teacher can read it. See [Consulting a Student's Academic Data](../teachers/student-academic-data.md).
 >
 > **TAC coordinator is not part of this ladder either.** It grants its own separate permission block (TAC: Manager/Administrator), and unlike every other role in this table it is assigned by hand, from the teacher's own **Roles** field. It grants exactly one thing: the ability to create and edit teacher records in full, private information included — the same right the Head of Studies gained, and nothing else from the ladder above. It is not unipersonal: the post can be held by a team of several teachers at once.
 >

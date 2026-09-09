@@ -26,10 +26,13 @@ Los niveles de permisos forman una jerarquía — cada nivel incluye todos los p
 | Secretario/a | *(bloque de Secretaría — ver nota)* | Automático — se establece como **Responsable de área** en el formulario del departamento `ASP` (Rol = Secretario/a) |
 | Director | Director | Automático — se establece como **Director** en Ajustes > EMS Management |
 | Coordinador/a TAC | *(bloque TAC — ved la nota de abajo)* | Manual — se añade al campo **Cargos** de la ficha del profesor |
+| Coordinador/a de orientación | *(bloque Orientación — ved la nota de abajo)* | Manual — se añade al campo **Cargos** de la ficha del profesor |
 
 > El Jefe de departamento tiene actualmente los mismos permisos que el Tutor, además de poder crear, editar y eliminar Grupos de alumnos (Contactos → Grupos). Existe como nivel propio para poder ampliarse de forma independiente en el futuro. El Jefe de seminario tiene el mismo nivel de permisos.
 >
 > **El rol de Secretario/a no forma parte de esta jerarquía.** Concede acceso a un bloque de permisos completamente separado (Secretaría: Manager/Administrador), sin relación con la cadena Profesor→...→Director de arriba — aunque se configura de la misma manera (como "Responsable de área" en un departamento top-level), no ocupa ningún peldaño de esta escala.
+>
+> **El cargo de Coordinador/a de orientación tampoco forma parte de esta jerarquía.** Concede un bloque de permisos propio y separado (Orientación: Manager/Administrador) y, como el de TAC, se asigna a mano desde el campo **Cargos** de la ficha del profesor. No es unipersonal: normalmente lo ocupa un equipo. Concede acceso de solo lectura a los datos de todo el alumnado del centro - notas, historial académico, asistencia diaria y sus incidencias, faltas de convivencia, contactos, matrículas y autorizaciones - y ningún permiso de escritura en ninguna parte, ni acceso a facturas ni a pagos. **El cargo de Coordinador/a de convivencia concede el mismo acceso**, más todas las faltas de convivencia del centro. El historial académico no necesita ningún cargo: lo puede leer cualquier profesor. Ved [Consultar los datos académicos de un alumno](../teachers/student-academic-data.md).
 >
 > **El cargo de Coordinador/a TAC tampoco forma parte de esta jerarquía.** Concede un bloque de permisos propio y separado (TAC: Manager/Administrador) y, a diferencia de todos los demás cargos de esta tabla, se asigna a mano, desde el campo **Cargos** de la ficha del profesor. Concede exactamente una cosa: poder crear y editar fichas de profesorado enteras, información privada incluida, el mismo derecho que ha ganado la jefatura de estudios, y nada más de la escala de arriba. No es unipersonal: el cargo lo puede ocupar un equipo de varias personas a la vez.
 >

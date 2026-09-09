@@ -25,7 +25,7 @@
                       name="Enrollment proposal"
                       parent="menu_ems_enrollment"
                       action="ems.action_student_group_enrollment"
-                      groups="ems.group_academic_admin,ems.group_secretary,ems.group_tutor"
+                      groups="ems.group_academic_admin,ems.group_secretary,ems.group_tutor,ems.group_student_data_reader"
                       sequence="20"/>
 
             <menuitem id="menu_ems_enrollments"

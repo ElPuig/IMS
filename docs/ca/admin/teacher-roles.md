@@ -26,10 +26,13 @@ Els nivells de permisos formen una jerarquia — cada nivell inclou tots els per
 | Secretari/ària | *(bloc de Secretaria — vegeu la nota)* | Automàtic — s'estableix com a **Responsable d'àrea** al formulari del departament `ASP` (Rol = Secretari/ària) |
 | Director | Director | Automàtic — s'estableix com a **Director** a Ajustes > EMS Management |
 | Coordinador/a TAC | *(bloc TAC — vegeu la nota de sota)* | Manual — s'afegeix al camp **Càrrecs** de la fitxa del professor |
+| Coordinador/a d'orientació | *(bloc Orientació — vegeu la nota de sota)* | Manual — s'afegeix al camp **Càrrecs** de la fitxa del professor |
 
 > El Cap de departament té actualment els mateixos permisos que el Tutor, a més de poder crear, editar i eliminar Grups d'alumnes (Contactes → Grups). Existeix com a nivell propi perquè es pugui ampliar de manera independent en el futur. El Cap de seminari té el mateix nivell de permisos.
 >
 > **El rol de Secretari/ària no forma part d'aquesta jerarquia.** Concedeix accés a un bloc de permisos completament separat (Secretaria: Manager/Administrador), sense relació amb la cadena Professor→...→Director de dalt — encara que es configura de la mateixa manera (com a "Responsable d'àrea" en un departament top-level), no ocupa cap esglaó d'aquesta escala.
+>
+> **El càrrec de Coordinador/a d'orientació tampoc no forma part d'aquesta jerarquia.** Concedeix un bloc de permisos propi i separat (Orientació: Manager/Administrador) i, com el de TAC, s'assigna a mà des del camp **Càrrecs** de la fitxa del professor. No és unipersonal: normalment l'ocupa un equip. Concedeix accés de només lectura a les dades de tot l'alumnat del centre - notes, historial acadèmic, assistència diària i les seves incidències, faltes de convivència, contactes, matrícules i autoritzacions - i cap permís d'escriptura enlloc, ni accés a factures ni a pagaments. **El càrrec de Coordinador/a de convivència concedeix el mateix accés**, més totes les faltes de convivència del centre. L'historial acadèmic no necessita cap càrrec: el pot llegir qualsevol professor. Vegeu [Consultar les dades acadèmiques d'un alumne](../teachers/student-academic-data.md).
 >
 > **El càrrec de Coordinador/a TAC tampoc no forma part d'aquesta jerarquia.** Concedeix un bloc de permisos propi i separat (TAC: Manager/Administrador) i, a diferència de tots els altres càrrecs d'aquesta taula, s'assigna a mà, des del camp **Càrrecs** de la fitxa del professor. Concedeix exactament una cosa: poder crear i editar fitxes de professorat senceres, informació privada inclosa, el mateix dret que ha guanyat la prefectura d'estudis, i res més de l'escala de dalt. No és unipersonal: el càrrec el pot ocupar un equip de diverses persones alhora.
 >

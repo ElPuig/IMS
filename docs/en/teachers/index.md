@@ -22,6 +22,7 @@ This section contains the manuals for **teachers**.
 | [Disabling Your Profile Picture](photo-visibility.md) | Turn your profile picture on or off |
 | [Attendance Reports](attendance-reports.md) | Print the 3 PDF attendance reports (by group/student/subject) and explore attendance data yourself with the Attendance analysis pivot/graph screen |
 | [A Group's Weekly Schedule](../admin/group-schedule.md) | View a group's aggregated timetable (subjects, teachers, classrooms, breaks) and export it to PDF |
+| [Consulting a Student's Academic Data](student-academic-data.md) | Where to consult any student's academic history, and the student data the Guidance and Coexistence roles can read |
 
 ## Planned Topics
 

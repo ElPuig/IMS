@@ -1488,12 +1488,12 @@ msgid "Administrative data"
 msgstr "Datos administrativos"
 
 #. module: ems
-#: model:res.groups,name:ems.group_academic_admin model:res.groups,name:ems.group_coexistence_admin model:res.groups,name:ems.group_quality_admin model:res.groups,name:ems.group_secretary_admin model:res.groups,name:ems.group_settings_admin model:res.groups,name:ems.group_tac_admin
+#: model:res.groups,name:ems.group_academic_admin model:res.groups,name:ems.group_coexistence_admin model:res.groups,name:ems.group_quality_admin model:res.groups,name:ems.group_secretary_admin model:res.groups,name:ems.group_settings_admin model:res.groups,name:ems.group_tac_admin model:res.groups,name:ems.group_orientation_admin
 msgid "Administrator"
 msgstr "Administrador"
 
 #. module: ems
-#: model:res.groups,name:ems.group_coexistence model:res.groups,name:ems.group_quality model:res.groups,name:ems.group_settings model:res.groups,name:ems.group_tac
+#: model:res.groups,name:ems.group_coexistence model:res.groups,name:ems.group_quality model:res.groups,name:ems.group_settings model:res.groups,name:ems.group_tac model:res.groups,name:ems.group_orientation
 msgid "Manager"
 msgstr "Gestor/a"
 
@@ -12739,3 +12739,23 @@ msgstr "No se puede obtener el identificador de usuario de Google: este entorno 
 #: code:addons/ems/models/employees/google_workspace_integration.py:0
 msgid "This employee has no corporate email address."
 msgstr "Este empleado no tiene dirección de correo corporativo."
+
+#. module: ems
+#: model:ir.module.category,name:ems.category_orientation
+msgid "Guidance"
+msgstr "Orientación"
+
+#. module: ems
+#: model:ir.module.category,description:ems.category_orientation
+msgid "Educational Management System - Guidance (Orientació)"
+msgstr "Sistema de Gestión Educativa - Orientación"
+
+#. module: ems
+#: model:ems.role,name:ems.role_orientation
+msgid "Guidance coordinator"
+msgstr "Coordinador/a de orientación"
+
+#. module: ems
+#: model:res.groups,name:ems.group_student_data_reader
+msgid "Student data reader"
+msgstr "Lector de datos del alumnado"
