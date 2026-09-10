@@ -29,7 +29,11 @@
         <record model="ir.ui.view" id="view_employee_kanban">
             <field name="name">ems.employee.kanban</field>
             <field name="model">hr.employee</field>           
-            <field name="inherit_id" ref="hr.hr_kanban_view_employees"/> 
+            <field name="inherit_id" ref="hr.hr_kanban_view_employees"/>
+            <!-- Must apply after hr_holidays' own inherit of this same view (priority 16),
+            whose widget swap the presence-icon xpath below depends on being already in
+            place. -->
+            <field name="priority">20</field>
             <field name="arch" type="xml">  
                 <xpath expr="//kanban" position="inside">
                     <!-- WARNING: All the Kanban fields must be included also as "fields" within the view. -->
@@ -72,6 +76,33 @@
                         Tutorship: <t t-esc="record.tutorships.value"/>
                     </span>
                 </field>
+
+                <!-- Presence icon: hr_holidays swaps this field's widget to
+                "hr_presence_status_private" (its own views/hr_views.xml), and that widget's JS
+                declares current_leave_id as a field dependency
+                (hr_holidays/static/src/components/hr_presence_status/hr_presence_status.js).
+                A widget's field dependencies go into the read specification unconditionally -
+                the view postprocessor's group-based stripping never gets a say - and
+                current_leave_id is groups="hr.group_hr_user". Stock Odoo never shows this model
+                to a non-HR user at all (they get hr.employee.public), but EMS's own Teachers /
+                ASP screens do, so from the moment hr_holidays became a dependency every teacher
+                opening them got "You do not have enough rights to access the fields
+                current_leave_id" instead of the screen.
+
+                Keep the private widget for HR officers and render hr's plain
+                "hr_presence_status" - same icon, no leave type, no extra field read - for
+                everybody else. Deliberately fixed here rather than by widening
+                current_leave_id's own groups: what a teacher may know about a colleague's
+                absence is the fact and the interval, never its type (same line
+                ems.guard.duty.board._get_guard_duty_absence_intervals draws). -->
+                <xpath expr="//field[@name='hr_icon_display']" position="attributes">
+                    <attribute name="groups">hr.group_hr_user</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='hr_icon_display'][@groups='hr.group_hr_user']" position="after">
+                    <field name="hr_icon_display" class="o_employee_availability"
+                           widget="hr_presence_status" groups="!hr.group_hr_user"/>
+                </xpath>
 
                 <field name="category_ids" position="attributes">
                     <attribute name="name">role_ids</attribute>
