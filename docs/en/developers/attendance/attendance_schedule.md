@@ -76,6 +76,28 @@ full picture.
 
 ---
 
+## `student_ids`: the roster, and who keeps it current
+
+The roster is this specific weekly slot's own (a given day/time can genuinely differ - someone
+sitting in, someone excused), which is why it lives here rather than on the template. Three things
+write it, and only the third is manual:
+
+- `fill_students()` - resets the line from the current `(subject_id, group_ids)` enrollments of its
+  template. Called by the calendar sync for genuinely **new** slots only (see
+  [`attendance_template.md`](attendance_template.md)); a slot that already existed keeps whatever
+  roster it has, so a per-line customization survives a resync.
+- `ems.enrollment.create()`/`unlink()` - incremental add/remove of a single student across every
+  matching line, without touching anybody else's roster (see
+  [`../contacts/enrollment.md`](../contacts/enrollment.md#createunlink--keeping-two-side-systems-in-sync)).
+  **This cascade runs under `sudo()` since issue #435**: the models involved are access-restricted
+  in ways `ems.enrollment` is not, so before that fix the roster was only updated when an academic
+  admin happened to be the one making the enrollment change.
+- The **"Reload students"** button (`reload_students()`) - the manual escape hatch: wipes the line's
+  roster and refills it from current enrollments. It is what an admin/teacher reaches for when a
+  roster has drifted, and the only supported way to discard a per-line customization.
+
+---
+
 ## Archiving never cascades to sessions, in either direction (settled 2026-08-06)
 
 A same-day attempt added an `action_archive()` override here that cascaded to

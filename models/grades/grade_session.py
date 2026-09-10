@@ -160,9 +160,14 @@ class EmsGradeSession(models.Model):
             ("grade_session_id.group_id", "=", group_id),
             ("grade_session_id.subject_id", "=", subject_id),
         ]
-        if self.env["ems.grade_outcome_line"].search_count(domain + [("is_scored", "=", True)]):
+        # sudo() (issue #435): this is a safety guard, so it must see every grade line, not only
+        # the ones its caller happens to be allowed to read - a teacher only sees their own
+        # sessions (rule_grade_session_teacher_own, security/rules/grading.xml), which would let
+        # a secretary-who-also-teaches delete an enrollment already carrying another teacher's
+        # grades. Same reasoning as ems.enrollment._ems_matching_attendance_schedules().
+        if self.env["ems.grade_outcome_line"].sudo().search_count(domain + [("is_scored", "=", True)]):
             return True
-        return bool(self.env["ems.grade_subject_line"].search_count(domain + [("external_is_scored", "=", True)]))
+        return bool(self.env["ems.grade_subject_line"].sudo().search_count(domain + [("external_is_scored", "=", True)]))
 
     def reload_students(self):
         self.fill_students()

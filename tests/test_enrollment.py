@@ -385,3 +385,126 @@ class TestEnrollment(TransactionCase):
 
         self.assertFalse(session_old.grade_outcome_line_ids.filtered(lambda l: l.student_id == self.student))
         self.assertTrue(session_new.grade_outcome_line_ids.filtered(lambda l: l.student_id == self.student))
+
+
+class TestEnrollmentSyncAsRestrictedUser(TransactionCase):
+    """Issue #435: the attendance-roster / grade-session cascades fired by ems.enrollment's own
+    create()/unlink() must land regardless of who triggers them. Every one of those hooks used
+    to run with the acting user's own rights, so a secretary (read-only on
+    ems.attendance_template/ems.attendance_schedule) or a teacher (record-rule-scoped to their
+    OWN templates, see security/rules/attendance.xml) silently reached zero of the schedule
+    lines they had to update - found in production after enrolling seven ex-ESO students into
+    SA1A: their ems.enrollment rows were created correctly, but they never appeared in any
+    attendance roster."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.level, cls.study = create_level_study(cls, 'TESR', level={'name': 'Test Level (Enrollment Sync)'}, study={
+            'code': 'TESR001', 'name': 'Test Study (Enrollment Sync)', 'date': date.today(),
+        })
+        cls.subject = cls.env['ems.subject'].create({
+            'code': 'TESR001', 'acronym': 'TESR', 'name': 'Test Subject (Enrollment Sync)',
+            'study_ids': [(6, 0, [cls.study.id])],
+        })
+        cls.outcome = cls.env['ems.outcome'].create({
+            'code': 'TESR001_01RA', 'acronym': 'RA1', 'name': 'Outcome 1', 'subject_id': cls.subject.id,
+        })
+        cls.planning = cls.env['ems.planning'].create({
+            'study_id': cls.study.id, 'subject_id': cls.subject.id,
+            'internal_ponderation': 100.0, 'external_ponderation': 0.0,
+            'planning_outcome_ids': [(0, 0, {'outcome_id': cls.outcome.id, 'ponderation': 100.0})],
+        })
+        cls.group = cls.env['ems.group'].create({
+            'course': 1, 'acronym': 'A', 'level_id': cls.level.id, 'study_id': cls.study.id,
+        })
+        cls.space = cls.env['ems.space'].create({
+            'code': 'TESR-A', 'name': 'Test Space (Enrollment Sync)',
+            'space_type_id': cls.env.ref('ems.space_type_classroom').id,
+            'work_location_id': cls.env.ref('ems.work_location_main').id,
+        })
+        # The template's OWN teacher - deliberately NOT the user driving the tests below, so the
+        # teacher record rule ('teacher_ids.user_id.id = user.id') excludes it for them.
+        cls.other_teacher = cls.env['hr.employee'].create({
+            'name': 'Test Other Teacher (Enrollment Sync)', 'employee_type': 'teacher',
+        })
+        cls.student = cls.env['res.partner'].create({
+            'name': 'Test Student (Enrollment Sync)', 'contact_type': 'student'})
+
+        # A secretary who is ALSO a teacher: the exact real-world combination behind #435 (a
+        # secretary teaching a couple of hours). Their teacher group brings in the record rule
+        # that hides every template they don't teach.
+        cls.secretary_teacher = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Secretary Teacher (Enrollment Sync)',
+            'login': 'test_secretary_teacher_enrollment_sync',
+            'email': 'test.secretary.teacher.sync@example.com',
+            'groups_id': [(4, cls.env.ref('ems.group_secretary').id), (4, cls.env.ref('ems.group_teacher').id)],
+        })
+        cls.env['hr.employee'].create({
+            'name': 'Test Secretary Teacher Employee (Enrollment Sync)', 'employee_type': 'teacher',
+            'user_id': cls.secretary_teacher.id,
+        })
+        # A secretary with no teaching at all: read-only on both attendance models, so the same
+        # cascade used to raise an AccessError instead of silently doing nothing.
+        cls.secretary = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Secretary (Enrollment Sync)', 'login': 'test_secretary_enrollment_sync',
+            'email': 'test.secretary.sync@example.com',
+            'groups_id': [(4, cls.env.ref('ems.group_secretary').id)],
+        })
+
+    def _create_template(self):
+        template = self.env['ems.attendance_template'].create({
+            'teacher_ids': [(6, 0, [self.other_teacher.id])],
+            'study_ids': [(6, 0, [self.study.id])],
+            'subject_id': self.subject.id,
+            'group_ids': [(6, 0, [self.group.id])],
+            'start_date': date(2026, 1, 1), 'end_date': date(2026, 6, 30),
+        })
+        # Several lines (the real SA1A case had 25): the sync must reach every one of them.
+        for weekday in ('0', '1', '2'):
+            self.env['ems.attendance_schedule'].create({
+                'attendance_template_id': template.id, 'weekday': weekday,
+                'start_time': 9.0, 'end_time': 10.0, 'space_id': self.space.id,
+            })
+        return template
+
+    def _create_enrollment_as(self, user):
+        return self.env['ems.enrollment'].with_user(user).create({
+            'student_id': self.student.id, 'group_id': self.group.id, 'subject_id': self.subject.id,
+        })
+
+    def test_secretary_teacher_create_fills_every_schedule_line(self):
+        template = self._create_template()
+
+        self._create_enrollment_as(self.secretary_teacher)
+
+        for line in template.attendance_schedule_ids:
+            self.assertIn(self.student, line.student_ids, f"missing from line {line.weekday}")
+
+    def test_secretary_create_fills_every_schedule_line(self):
+        template = self._create_template()
+
+        self._create_enrollment_as(self.secretary)
+
+        for line in template.attendance_schedule_ids:
+            self.assertIn(self.student, line.student_ids, f"missing from line {line.weekday}")
+
+    def test_secretary_teacher_unlink_clears_every_schedule_line(self):
+        template = self._create_template()
+        enrollment = self._create_enrollment_as(self.secretary_teacher)
+
+        enrollment.with_user(self.secretary_teacher).unlink()
+
+        for line in template.attendance_schedule_ids:
+            self.assertNotIn(self.student, line.student_ids, f"still on line {line.weekday}")
+
+    def test_secretary_teacher_create_adds_open_grade_session_lines(self):
+        session = self.env['ems.grade_session'].create({
+            'group_id': self.group.id, 'subject_id': self.subject.id,
+            'round': '1', 'teacher_id': self.other_teacher.id,
+        })
+
+        self._create_enrollment_as(self.secretary_teacher)
+
+        self.assertTrue(session.grade_subject_line_ids.filtered(lambda line: line.student_id == self.student))
+        self.assertTrue(session.grade_outcome_line_ids.filtered(lambda line: line.student_id == self.student))

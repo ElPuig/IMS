@@ -82,7 +82,18 @@ class EmsEnrollment(models.Model):
         # attendance_schedule_ids (2026-08-11, see plans/calendar_driven_attendance_templates.md,
         # point 1) - the roster now lives per schedule line, not per template, so a sync must reach
         # every one of a matching template's lines, not the template itself.
-        return self.env['ems.attendance_template'].search([
+        # NOTE: sudo() - issue #435. This is a system-level consequence of an already-authorized
+        # enrollment change, not a separate action the acting user has to be entitled to perform
+        # on the attendance side (same reasoning '_ems_move_group' below already documents for
+        # its own sudo()). Without it, the caller's own rights decided how much of the roster got
+        # synced: a secretary is read-only on ems.attendance_template/ems.attendance_schedule
+        # (security/ir.model.access.csv), so the write raised an AccessError; a teacher only sees
+        # the templates they teach (rule_attendance_template_teacher_own /
+        # rule_attendance_schedule_teacher_own in security/rules/attendance.xml), so this search
+        # silently returned nothing and the student was never added to a single line - which is
+        # exactly what happened in production when a secretary-who-also-teaches enrolled seven
+        # ex-ESO students into SA1A.
+        return self.env['ems.attendance_template'].sudo().search([
             ('subject_id', '=', subject_id),
             ('group_ids', 'in', group_id),
         ]).attendance_schedule_ids
@@ -125,7 +136,9 @@ class EmsEnrollment(models.Model):
         of the given group_ids. Shared by both unlink() sync hooks below (and any
         future caller needing the same "does a sibling enrollment still cover this
         student" check) so they can't drift apart on what "still enrolled" means."""
-        return bool(self.search_count([
+        # sudo(): a guard protecting a system cascade must see every enrollment, not only the
+        # ones the acting user is allowed to read - see _ems_matching_attendance_schedules().
+        return bool(self.sudo().search_count([
             ('student_id', '=', student_id),
             ('subject_id', '=', subject_id),
             ('group_id', 'in', group_ids),
@@ -148,7 +161,10 @@ class EmsEnrollment(models.Model):
 
     def _ems_sync_grade_session_add(self):
         self.ensure_one()
-        sessions = self.env['ems.grade_session'].search([
+        # sudo(): same reasoning as _ems_matching_attendance_schedules() - a teacher only sees
+        # their own grade sessions (rule_grade_session_teacher_own), so without it a session
+        # belonging to a different teacher never got the new student's lines.
+        sessions = self.env['ems.grade_session'].sudo().search([
             ('group_id', '=', self.group_id.id),
             ('subject_id', '=', self.subject_id.id),
             ('state', '=', 'open'),
@@ -162,7 +178,7 @@ class EmsEnrollment(models.Model):
         # plans/grade_session_remove_missing_still_enrolled_guard.md.
         if self._ems_still_enrolled(student_id, subject_id, [group_id]):
             return
-        sessions = self.env['ems.grade_session'].search([
+        sessions = self.env['ems.grade_session'].sudo().search([
             ('group_id', '=', group_id),
             ('subject_id', '=', subject_id),
             ('state', '=', 'open'),
