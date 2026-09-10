@@ -144,6 +144,7 @@ En prémer **Enviar matrícula**, per a cada matrícula seleccionada:
 
 * S'**envia el correu** de proposta de matrícula a l'alumne/família (amb la plantilla del centre).
 * La matrícula passa a estat **enviada**.
+* Si l'alumne havia deixat el centre en un curs anterior (una baixa o un graduat), torna a ser **sol·licitant** i es desarxiva, de manera que ja se li pot donar accés al portal i confirmar ell mateix la matrícula. Un alumne expulsat no es readmet.
 
 > A partir d'aquí, les famílies reben el correu i poden **confirmar la matrícula** des del portal seguint la guia [Guia per confirmar la proposta de matrícula](../families/manual-confirmacio-matricula.md).
 

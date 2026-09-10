@@ -39,6 +39,8 @@ Una vez hecha la selección, abre el menú **Acciones** en la barra superior y h
 
 > **Nota:** como tutor, solo verás y podrás gestionar tus alumnos. Aunque selecciones alumnos de otros grupos, el cuadro de diálogo solo mostrará los que te corresponden.
 
+> **Nota:** el cuadro de diálogo solo gestiona alumnado actual y solicitantes. Para un alumno que se dio de baja en un curso anterior, envíale primero su nueva matrícula: al enviarla pasa a ser solicitante y ya puede recibir el acceso al portal como cualquier otro.
+
 ---
 
 ## Paso 2 — Elegir la acción

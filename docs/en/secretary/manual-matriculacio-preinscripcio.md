@@ -144,6 +144,7 @@ Pressing **Send enrollment** does the following for each selected enrollment:
 
 * The enrollment proposal **email is sent** to the student/family (with the centre's template).
 * The enrollment moves to the **sent** state.
+* If the student had left the centre in a previous course (a withdrawal or a graduate), they become an **applicant** again and are unarchived, so they can be granted portal access and confirm the enrollment themselves. An expelled student is not reinstated.
 
 > From here on, the families receive the email and can **confirm the enrollment** from the portal by following the [Guide to confirm the enrollment proposal](../families/manual-confirmacio-matricula.md).
 

@@ -144,6 +144,7 @@ Al pulsar **Enviar matrícula**, para cada matrícula seleccionada:
 
 * Se **envía el correo** de propuesta de matrícula al alumno/familia (con la plantilla del centro).
 * La matrícula pasa a estado **enviada**.
+* Si el alumno había dejado el centro en un curso anterior (una baja o un graduado), vuelve a ser **solicitante** y se desarchiva, de modo que ya se le puede dar acceso al portal y confirmar él mismo la matrícula. Un alumno expulsado no se readmite.
 
 > A partir de aquí, las familias reciben el correo y pueden **confirmar la matrícula** desde el portal siguiendo la guía [Guía para confirmar la propuesta de matrícula](../families/manual-confirmacio-matricula.md).
 
