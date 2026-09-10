@@ -43,3 +43,24 @@
   teacher, asserting the roster is filled and cleared on *every* schedule line of the template and
   that an open grade session gets the new student's lines. Every pre-existing test for these hooks
   ran as superuser, which is exactly why the gap survived.
+
+## Design plan for publishing documents to the centre's Plone website:
+
+Added `plans/web_publications.md`, a design-only note (no code) for automating the publication of
+EMS-generated PDFs — group timetables first — to the centre's public website. Recorded here
+because the file rides along in this branch, unrelated to the attendance/enrollment fixes above.
+Verified live that `https://elpuig.xeill.net/` runs Plone 5.2 with `plone.restapi` already
+installed and answering, so no server-side add-on work is needed. Proposes a generic
+`ems.web_publication` model plus a `plone_mixin` transport, surfaced as a "Website" entry under
+Communications, with a mandatory dry-run flag so development databases can never write to the
+public site.
+
+## Existing attendance rosters healed on upgrade:
+
+`migrations/18.0.0.24.1/post-migrate.py` restores the students the broken cascade never wrote:
+for every active schedule line it adds whoever is enrolled in its template's subject and groups
+but is missing from its roster. Add-only and idempotent - it never removes anybody, so a roster
+deliberately customised for one weekly slot survives untouched, unlike the "Reload students"
+button which wipes first. No `post_init_hook` counterpart: a fresh installation has no enrollments
+to heal. Rehearsed against a restored copy of production: 189 entries across 51 lines restored,
+zero missing afterwards, and a second run adds nothing.
