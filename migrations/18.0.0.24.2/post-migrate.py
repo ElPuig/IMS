@@ -54,7 +54,7 @@ def _heal_attendance_rosters(env):
         added += len(missing)
         healed_lines += 1
     _logger.info(
-        "Migration 18.0.0.24.1: restored %d missing student(s) across %d attendance schedule "
+        "Migration 18.0.0.24.2: restored %d missing student(s) across %d attendance schedule "
         "line(s).", added, healed_lines)
 
 

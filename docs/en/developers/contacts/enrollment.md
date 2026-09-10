@@ -94,7 +94,7 @@ Found in production (2026-09-10): a secretary who also teaches enrolled seven ex
 
 Covered by `tests/test_enrollment.py::TestEnrollmentSyncAsRestrictedUser` (roster fill/clear across *every* schedule line, and open-grade-session lines, driven by both a secretary-who-teaches and a plain secretary).
 
-The rows the broken cascade already left behind are healed by `migrations/18.0.0.24.1/post-migrate.py` (add-only, idempotent - see its own docstring for why it must not wipe a roster the way `reload_students()` does).
+The rows the broken cascade already left behind are healed by `migrations/18.0.0.24.2/post-migrate.py` (add-only, idempotent - see its own docstring for why it must not wipe a roster the way `reload_students()` does).
 
 ### `_ems_move_group(student, old_group, new_group)` — following a student's group change (issue #395)
 

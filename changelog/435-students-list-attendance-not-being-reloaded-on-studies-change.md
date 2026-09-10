@@ -57,7 +57,7 @@ public site.
 
 ## Existing attendance rosters healed on upgrade:
 
-`migrations/18.0.0.24.1/post-migrate.py` restores the students the broken cascade never wrote:
+`migrations/18.0.0.24.2/post-migrate.py` restores the students the broken cascade never wrote:
 for every active schedule line it adds whoever is enrolled in its template's subject and groups
 but is missing from its roster. Add-only and idempotent - it never removes anybody, so a roster
 deliberately customised for one weekly slot survives untouched, unlike the "Reload students"
