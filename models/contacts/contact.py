@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tools import email_normalize
 from ..shared import base
 import datetime
@@ -347,6 +347,29 @@ class ResPartner(models.Model):
             'context': {
                 'active_ids': students.ids,
             },
+        }
+
+    def action_portal_access_bulk(self):
+        """Open the bulk portal-access wizard for the selected students/applicants.
+
+        Lives here rather than inline in the `action_portal_access_bulk` server
+        action because safe_eval's context has no `_`, so a translatable error
+        message is only possible from real Python (an inline `_(...)` raised a
+        NameError that masked the real "nothing selected" cause).
+        """
+        students = self.filtered(lambda p: p.contact_type in ('student', 'applicant'))
+        if not students:
+            raise UserError(_("Please select at least one student or applicant. "
+                              "An ex-student (withdrawal, alumni or expelled) only "
+                              "becomes a student again once its new enrollment is "
+                              "confirmed."))
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Portal access'),
+            'res_model': 'ems.portal.access.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'active_ids': students.ids},
         }
 
     def action_graduation_wizard(self):

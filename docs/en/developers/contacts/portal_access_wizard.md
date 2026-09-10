@@ -14,14 +14,19 @@
 
 ```mermaid
 flowchart TD
-    A["_resolve_recipients(student)"] --> B{"contact_type == 'applicant'?"}
-    B -- yes --> C["the applicant itself\n(family not yet known at preinscription)"]
-    B -- no --> D{"is_adult?"}
-    D -- yes --> E["the student itself"]
-    D -- no --> F["the student's family contacts\n(res.partner.relation.all, sudo)"]
+    A["_resolve_recipients(student)"] --> B{"is_adult?"}
+    B -- yes --> C["the student/applicant itself"]
+    B -- no --> D["_family_contacts(student)\n(res.partner.relation.all, sudo)"]
+    D --> E{"any family contact?"}
+    E -- yes --> F["the family contacts"]
+    E -- no --> G{"contact_type == 'applicant'?"}
+    G -- yes --> H["the applicant itself\n(GEDAC preinscription:\nfamily genuinely not known yet)"]
+    G -- no --> I["nobody\n(reported as 'no family contact')"]
 ```
 
-A minor student's family contacts are found via `res.partner.relation.all` (`this_partner_id = student`, `other_partner_id.contact_type = 'family'`), run with `sudo()` since a tutor may lack read rights on the relation records of a family they don't otherwise manage.
+A minor's family contacts are found via `res.partner.relation.all` (`this_partner_id = student`, `other_partner_id.contact_type = 'family'`), run with `sudo()` since a tutor may lack read rights on the relation records of a family they don't otherwise manage.
+
+**Age comes before contact type.** An earlier version keyed the first branch on `applicant`, giving every applicant their own login whatever their age, on the grounds that "at preinscription the family contacts are not known yet". That stopped being true once a returning ex-student became an applicant (see below): their family relations survive a withdrawal, so a 15-year-old coming back would have been emailed their own credentials, the opposite of what a `student` of the same age gets. Testing for the family contacts themselves, rather than for the contact type, keeps a real GEDAC preinscription (which has none on file) behaving exactly as before.
 
 ---
 
@@ -96,6 +101,10 @@ A plain teacher who is not currently tutoring anyone cannot even open this wizar
 | View | File | Notes |
 |------|------|-------|
 | Form | `views/community/contact/portal_access_wizard.xml` | `view_portal_access_wizard_form` — mode radio, readonly recipient preview list, Apply/Cancel footer |
-| Bulk entry point | same file | `action_portal_access_bulk` (`ir.actions.server`), bound to the `res.partner` list view's cog-menu, restricted to `group_academic_admin`/`group_secretary`/`group_teacher` at the action level (the model's own `ir.model.access.csv`/`_user_can_manage` are the real gate for a non-tutoring teacher, as above); raises a `UserError` if invoked with no student/applicant selected |
+| Bulk entry point | same file | `action_portal_access_bulk` (`ir.actions.server`), bound to the `res.partner` list view's cog-menu, restricted to `group_academic_admin`/`group_secretary`/`group_teacher` at the action level (the model's own `ir.model.access.csv`/`_user_can_manage` are the real gate for a non-tutoring teacher, as above). Its `code` field is a single call to `res.partner.action_portal_access_bulk()` (`models/contacts/contact.py`), which filters the selection down to `student`/`applicant` and raises a `UserError` when nothing survives. The logic lives in Python, not inline in the action, because `safe_eval`'s context has no `_`: an inline `_("...")` raises `NameError: name '_' is not defined` and the RPC surfaces that traceback instead of the intended message. |
+
+> **How a returning ex-student gets in.** A contact that left is `withdrawal`/`alumni`/`expelled` and cannot hold portal access as such. Sending them a new enrollment converts them to `applicant` (`sale.order._ems_offer_to_ex_student()`, `models/enrollment/enrollment.py`), which is what makes them eligible here; confirming that enrollment later turns them into a full `student` via `_ems_admit_student()`. An `expelled` contact is never converted, so it stays out of scope on purpose.
+>
+> This exists because the four requirements otherwise form a closed loop: portal access needs `student`/`applicant`, becoming a student needs a confirmed enrollment, confirming needs the required authorizations answered, and those are answered *from the portal*. Sending the offer is the only deliberate act that can break it. See `docs/en/developers/enrollment/enrollment.md`.
 
 Registered as a `data` entry in `__manifest__.py` (line ~97), alongside the rest of `views/community/contact/`.

@@ -57,24 +57,35 @@ class EmsPortalAccessWizard(models.TransientModel):
             return True
         return bool(student.tutor_id) and student.tutor_id.user_id.id == self.env.uid
 
-    def _resolve_recipients(self, student):
-        """Partners that should get/lose portal access for this student.
-
-        - Applicant -> the applicant himself (his personal `email`), regardless of
-          age: at preinscription the family contacts are not known yet. Age and
-          family are reviewed later, once admitted as a student.
-        - Adult student -> the student himself (uses his main `email`).
-        - Minor student -> his associated family contacts.
-        """
-        if student.contact_type == 'applicant':
-            return student
-        if student.is_adult:
-            return student
+    def _family_contacts(self, student):
+        """Family contacts related to this student, empty if none is on file."""
         rels = self.env['res.partner.relation.all'].sudo().search([
             ('this_partner_id', '=', student.id),
             ('other_partner_id.contact_type', '=', 'family'),
         ])
         return rels.mapped('other_partner_id')
+
+    def _resolve_recipients(self, student):
+        """Partners that should get/lose portal access for this student.
+
+        - Adult (student or applicant) -> himself (uses his main `email`).
+        - Minor with family contacts -> those family contacts, whether he is a
+          student or an applicant. An ex-student coming back is an applicant of the
+          study he is heading to (sale.order._ems_offer_to_ex_student), and his family
+          relations survived the withdrawal, so the family is known and is who must
+          hold the account, exactly as for any other minor.
+        - Minor applicant with no family contact -> himself. This is the applicant
+          straight from a GEDAC preinscription: the family contacts are genuinely not
+          known yet, so his personal `email` is the only address available.
+        - Minor student with no family contact -> nobody; _build_lines/action_apply
+          report it as "no family contact".
+        """
+        if student.is_adult:
+            return student
+        family = self._family_contacts(student)
+        if family or student.contact_type != 'applicant':
+            return family
+        return student
 
     def _build_lines(self, students):
         """Build the One2many command list for the recipient preview."""

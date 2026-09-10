@@ -145,6 +145,81 @@ class TestEnrollmentPlacement(TransactionCase):
         self.assertEqual(student.contact_type, 'student')
         self.assertEqual(student.main_group_id, self.g2a)
 
+    # --- offer to an ex-student (sending the enrollment) ---------------------
+
+    def _ex_student(self, contact_type, name):
+        """An ex-student as _ems_convert_to_ex_student() leaves it: archived, with the
+        study/level/group cleared and the exit metadata stamped."""
+        return self.env['res.partner'].create({
+            'name': name, 'contact_type': contact_type, 'active': False,
+            'exit_type': 'withdrawal', 'exit_course_id': self.course.id,
+            'exit_date': date(2099, 6, 30),
+        })
+
+    def test_send_converts_withdrawal_to_applicant(self):
+        ex = self._ex_student('withdrawal', 'Returning Withdrawal')
+        order = self._order(ex, group=self.g1a)
+        order.action_quotation_sent()
+        self.assertEqual(ex.contact_type, 'applicant')
+        self.assertTrue(ex.active)
+        # Reads as an applicant of the study it is heading to, not the one it left.
+        self.assertEqual(ex.study_id, self.study)
+        self.assertEqual(ex.level_id, self.level)
+        self.assertFalse(ex.exit_type)
+        self.assertFalse(ex.exit_course_id)
+        self.assertFalse(ex.exit_date)
+
+    def test_send_converts_alumni_and_keeps_has_graduated(self):
+        ex = self._ex_student('alumni', 'Returning Alumni')
+        ex.has_graduated = True
+        order = self._order(ex, group=self.g1a)
+        order.action_quotation_sent()
+        self.assertEqual(ex.contact_type, 'applicant')
+        # Permanent mark: it is what makes a later exit land on alumni again.
+        self.assertTrue(ex.has_graduated)
+
+    def test_send_never_readmits_an_expelled_student(self):
+        ex = self._ex_student('expelled', 'Expelled Student')
+        order = self._order(ex, group=self.g1a)
+        order.action_quotation_sent()
+        self.assertEqual(ex.contact_type, 'expelled')
+        self.assertFalse(ex.active)
+
+    def test_send_leaves_a_current_student_alone(self):
+        student = self.env['res.partner'].create({
+            'name': 'Current Student', 'contact_type': 'student',
+            'main_group_id': self.g2a.id})
+        order = self._order(student, group=self.g1a)
+        order.action_quotation_sent()
+        self.assertEqual(student.contact_type, 'student')
+        self.assertEqual(student.main_group_id, self.g2a)
+
+    def test_send_ignores_a_plain_sale_order(self):
+        """A non-EMS quotation (no ems_study_id) must never touch its partner."""
+        ex = self._ex_student('withdrawal', 'Unrelated Withdrawal')
+        order = self.env['sale.order'].create({'partner_id': ex.id})
+        order.action_quotation_sent()
+        self.assertEqual(ex.contact_type, 'withdrawal')
+
+    def test_resend_of_an_already_sent_offer_converts_too(self):
+        """A re-send skips action_quotation_sent() (it only runs on drafts), so the
+        bulk action has to convert on its own."""
+        ex = self._ex_student('withdrawal', 'Resent Withdrawal')
+        order = self._order(ex, group=self.g1a)
+        order.state = 'sent'
+        self.assertEqual(ex.contact_type, 'withdrawal')
+        order._ems_offer_to_ex_student()
+        self.assertEqual(ex.contact_type, 'applicant')
+
+    def test_confirming_after_send_makes_a_student_again(self):
+        """The whole point: the returning ex-student ends up a student, via applicant."""
+        ex = self._ex_student('withdrawal', 'Full Circle Student')
+        order = self._order(ex, group=self.g1a)
+        order.action_quotation_sent()
+        self.assertEqual(ex.contact_type, 'applicant')
+        order._ems_admit_student()
+        self.assertEqual(ex.contact_type, 'student')
+
     # --- destination placement helper ---------------------------------------
 
     def test_placement_creates_enrollments_idempotent(self):
