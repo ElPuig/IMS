@@ -20,7 +20,7 @@ Ve a: **Empleados → [tu propia ficha] → pestaña Horario**
 
 Cada bloque de la cuadrícula semanal muestra:
 - su hora exacta de inicio y fin (las franjas no siempre están alineadas a la hora en punto, p. ej. `10:25–11:25`),
-- la asignatura y el grupo que impartes, o el motivo si no es una franja lectiva (un patio, una reunión de coordinación...),
+- la asignatura y el/los grupo(s) que impartes — un mismo bloque puede nombrar más de un grupo cuando das una sesión idéntica a varios grupos a la vez (p. ej. una asignatura optativa que combina dos grupos oficiales en la misma aula) — o el motivo si no es una franja lectiva (un patio, una reunión de coordinación...),
 - el aula, cuando el grupo tiene una asignada.
 
 Una franja que todavía no tiene ningún bloque simplemente no tiene nada asignado — contacta con un administrador si crees que falta algo o hay algún error en tu horario.

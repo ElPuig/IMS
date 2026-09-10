@@ -124,7 +124,7 @@ Two blocks sharing the exact same time (see "Mid-Course Subject Handoff" below) 
 The weekly grid splits into 5 day columns (Monday–Friday); within each day, independent **cards** — one per real or still-unassigned period — hold everything about that block: an optional date range, its own start/end time, a subject/group or a non-teaching reason, and a classroom.
 
 1. Open the teacher's **Schedule** tab and click **Edit**.
-2. Each day's column starts pre-filled with the framework's own periods (including its breaks/meetings) as blank cards — pick a **subject** and a **group** for one, or a **non-teaching** reason, from its own dropdowns.
+2. Each day's column starts pre-filled with the framework's own periods (including its breaks/meetings) as blank cards — pick a **subject** and one or more **groups** for one, or a **non-teaching** reason, from its own dropdowns. The group field is a multi-select list: hold **Ctrl** (**Cmd** on a Mac) and click to pick several groups on the same card — this is how you set up a session where the same teacher runs an identical class for two (or more) groups at once, in the same room (e.g. an optional subject combining two official groups), instead of one group silently overwriting the other.
 3. To change a card's time: edit its start or end time field directly (moving the start keeps the card's length).
 4. To set a classroom other than the group's own default: pick one from the card's own **Classroom** dropdown — leave it blank to keep using the group's default.
 5. To remove a card entirely: use its own trash icon.

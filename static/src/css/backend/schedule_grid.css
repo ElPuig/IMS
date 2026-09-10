@@ -98,6 +98,55 @@
     padding: 4px 0;
 }
 
+/* Group tag picker (2026-09-10, replacing an earlier native <select multiple> - impractical:
+   selected options gave no visible feedback and picking several needed a Ctrl/Shift-click nobody
+   discovered on their own). A card can name several groups at once (e.g. an optional subject
+   combining two official groups in the same room) - each already-picked group shows as its own
+   removable pill, with an AutoComplete input (@web/core/autocomplete) right after it to add more,
+   same search-as-you-type pattern already used for the room picker in
+   grouped_conflict_lines_field.css. */
+.o_schedule_grid_card_group_tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+}
+
+.o_schedule_grid_card_group_tags .o-autocomplete {
+    flex: 1 1 60px;
+    min-width: 60px;
+}
+
+.o_schedule_grid_card_group_tags .o-autocomplete input {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #dee2e6;
+    border-radius: 3px;
+    font-size: 11px;
+    padding: 1px 4px;
+}
+
+.o_schedule_grid_group_tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background-color: #e9ecef;
+    border-radius: 3px;
+    padding: 1px 4px;
+    white-space: nowrap;
+}
+
+.o_schedule_grid_group_tag_remove {
+    color: #6c757d;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.o_schedule_grid_group_tag_remove:hover {
+    color: #dc3545;
+}
+
 .o_schedule_grid_header {
     height: 24px;
     font-weight: 600;

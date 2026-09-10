@@ -112,6 +112,35 @@ class TestWorkingSchedule(TransactionCase):
         self.assertEqual(len(calendar.attendance_ids), 1)
         self.assertEqual(calendar.source_framework_id, self.framework)
 
+    def test_apply_schedule_changes_supports_multiple_groups_in_one_cell(self):
+        """A join_session slot (one teacher running an identical session for two different groups
+        at once, e.g. an optional subject combining two official groups in the same room - see
+        working_schedule.md's own 'join_session' section) is ONE calendar row with several
+        'group_ids', not one row per group. Regression test for the Schedule tab's own edit widget
+        silently truncating an existing multi-group row down to its first group on save (issue
+        'unable to setup multiple groups when editing a schedule manually')."""
+        other_group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'TWSL2', 'level_id': self.level.id, 'study_id': self.study.id,
+            'space_id': self.space.id,
+        })
+        calendar = self.env['resource.calendar'].create({'name': 'Test Apply Multi-group (Working Schedule)'})
+        cells = [{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id, other_group.id],
+            'name': 'Test: Group, Other Group',
+        }]
+
+        calendar.apply_schedule_changes(cells)
+
+        self.assertEqual(len(calendar.attendance_ids), 1)
+        self.assertEqual(set(calendar.attendance_ids.group_ids.ids), {self.group.id, other_group.id})
+
+        # Re-saving (simulating a later "Edit" round trip through the same widget) must keep both
+        # groups, not silently drop back to one.
+        calendar.apply_schedule_changes(cells)
+        self.assertEqual(len(calendar.attendance_ids), 1)
+        self.assertEqual(set(calendar.attendance_ids.group_ids.ids), {self.group.id, other_group.id})
+
     def test_attendance_row_active_defaults_true_and_can_be_archived(self):
         # 'active' added 2026-08-06 (core resource.calendar.attendance has none) so a course
         # transition can archive a teacher's migrating blocks instead of unlink()-ing them - see

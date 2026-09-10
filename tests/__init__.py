@@ -100,6 +100,7 @@ from . import test_working_schedules_import_wizard
 from . import test_working_schedules_import_wizard_tour
 from . import test_working_schedule_split_period_tour
 from . import test_working_schedule_stale_breaks_tour
+from . import test_working_schedule_multi_group_tour
 from . import test_task_assignment
 from . import test_year_record
 from . import test_non_teaching_type
