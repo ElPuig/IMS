@@ -71,6 +71,36 @@ justified/expected the absence and *why* it says so.
 
 ---
 
+## The `session_teacher_ids` back-link and why it needs `sudo()`
+
+`rule_attendance_justification_teacher_own_read` (`security/rules/attendance.xml`) grants a
+teacher read access to a justification when they appear in its `session_teacher_ids`. That
+field is a stored compute over `attendance_session_line_ids`, so a teacher only becomes able
+to read the justification **after** one of their own session lines has been linked to it.
+
+The link itself is written by `EmsAttendanceSessionLine.create()`
+(`attendance_session.py`), when a line is created carrying an `attendance_prevision_id`:
+
+```python
+line.attendance_prevision_id.sudo().attendance_session_line_ids = [(4, line.id)]
+```
+
+The `sudo()` is load-bearing, not defensive tidiness. Without it the acting teacher has to
+write the very link that would grant them access, and `write()`'s override reads
+`attendance_session_line_ids` on the way through — a read the record rules reject for a
+teacher who is neither the student's tutor nor the justification's author. The result is a
+chicken-and-egg `AccessError` that aborts the whole transaction, so the session is never
+created and the slot cannot be rolled at all (issue #432). The back-link is system-driven
+bookkeeping, not a user action, which is what makes `sudo()` the correct answer here — the
+same reasoning as `get_current_justifications()`, which is already sudo.
+
+For the same reason `write()` builds its `old_lines_map` (the old-vs-new line diff) only
+when `start_date`/`end_date` are actually in `vals`, the single branch that consumes it.
+Reading `attendance_session_line_ids` enforces the record rules, so doing it unconditionally
+put a permission check in front of every unrelated write.
+
+---
+
 ## Fixed in this pass (2026-07-28)
 
 **Real bug found and fixed:** `student_id`'s domain was

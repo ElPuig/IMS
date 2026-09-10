@@ -670,7 +670,13 @@ class EmsAttendanceSessionLine(models.Model):
 
         for line in records:
             if line.attendance_prevision_id.id != False:
-                line.attendance_prevision_id.attendance_session_line_ids = [(4, line.id)]
+                # sudo() is required: this back-link is what registers the session's
+                # teachers on the justification (session_teacher_ids), which is in turn
+                # what rule_attendance_justification_teacher_own_read reads to grant them
+                # access. Without it a teacher who is neither the student's tutor nor the
+                # justification's author cannot write the very link that would let them
+                # read it, and starting the session fails outright (issue #432).
+                line.attendance_prevision_id.sudo().attendance_session_line_ids = [(4, line.id)]
 
         return records
 
