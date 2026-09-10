@@ -3,7 +3,7 @@ from datetime import date
 from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study
+from .common import create_level_study, mock_outgoing_email
 
 
 class TestEnrollmentPlacement(TransactionCase):
@@ -14,6 +14,9 @@ class TestEnrollmentPlacement(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # message_post() with mark_so_as_sent (the real "email the quotation" path) notifies
+        # the order's followers for real - neutralize SMTP delivery, see CLAUDE.md.
+        mock_outgoing_email(cls)
         # A dedicated, always-in-the-future course, explicitly made the REAL 'is_enrollment_default'
         # one via the company selector - not a plain field write, and not left to whichever course
         # the ambient dev DB happens to have it on. Found the hard way (2026-08-11, a full unscoped
@@ -89,6 +92,7 @@ class TestEnrollmentPlacement(TransactionCase):
         # Only the secretary (and the academic admin) may cross studies; the tutor
         # keeps proposing same-study renewals.
         cls.secretary = cls._ems_user('plc_secretary', 'ems.group_secretary')
+        cls.secretary.email = 'plc_secretary@example.com'
         cls.tutor = cls._ems_user('plc_tutor', 'ems.group_tutor')
         # The family/student behind a portal confirmation: no EMS group at all.
         cls.portal = cls.env['res.users'].create({
@@ -169,6 +173,26 @@ class TestEnrollmentPlacement(TransactionCase):
         self.assertFalse(ex.exit_course_id)
         self.assertFalse(ex.exit_date)
 
+    def test_emailing_the_offer_converts_to_applicant(self):
+        """The path the UI actually takes. Odoo never calls action_quotation_sent()
+        when the quotation is emailed: message_post() marks the order with a direct
+        write({'state': 'sent'}), so the conversion has to hang off write()."""
+        ex = self._ex_student('withdrawal', 'Emailed Withdrawal')
+        order = self._order(ex, group=self.g1a)
+        order.with_context(mark_so_as_sent=True).message_post(body="Enrollment proposal")
+        self.assertEqual(order.state, 'sent')
+        self.assertEqual(ex.contact_type, 'applicant')
+        self.assertTrue(ex.active)
+        self.assertEqual(ex.study_id, self.study)
+
+    def test_emailing_the_offer_converts_as_secretary(self):
+        """The write() on res.partner runs with the sender's own rights, not admin's."""
+        ex = self._ex_student('withdrawal', 'Secretary Sent Withdrawal')
+        order = self._order(ex, group=self.g1a)
+        order.with_user(self.secretary).with_context(
+            mark_so_as_sent=True).message_post(body="Enrollment proposal")
+        self.assertEqual(ex.contact_type, 'applicant')
+
     def test_send_converts_alumni_and_keeps_has_graduated(self):
         ex = self._ex_student('alumni', 'Returning Alumni')
         ex.has_graduated = True
@@ -202,14 +226,18 @@ class TestEnrollmentPlacement(TransactionCase):
         self.assertEqual(ex.contact_type, 'withdrawal')
 
     def test_resend_of_an_already_sent_offer_converts_too(self):
-        """A re-send skips action_quotation_sent() (it only runs on drafts), so the
-        bulk action has to convert on its own."""
+        """Recovery path for an offer sent before the conversion existed: the order is
+        already 'sent', so write()'s '-> sent' branch never fires for it again and the
+        bulk send action has to convert on its own."""
         ex = self._ex_student('withdrawal', 'Resent Withdrawal')
         order = self._order(ex, group=self.g1a)
         order.state = 'sent'
-        self.assertEqual(ex.contact_type, 'withdrawal')
+        # Rewind the partner to what a pre-fix send left behind: still an ex-student,
+        # with the study the exit had cleared.
+        ex.write({'contact_type': 'withdrawal', 'study_id': False, 'level_id': False})
         order._ems_offer_to_ex_student()
         self.assertEqual(ex.contact_type, 'applicant')
+        self.assertEqual(ex.study_id, self.study)
 
     def test_confirming_after_send_makes_a_student_again(self):
         """The whole point: the returning ex-student ends up a student, via applicant."""
