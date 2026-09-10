@@ -6,6 +6,21 @@ from .employee import _UNSET, write_photo
 
 EMS_SYNC_CONTEXT_KEY = 'ems_syncing_groups'
 
+# "Private Information" tab fields (hr/views/res_users.xml's "personal_information" page) -
+# always self-editable regardless of "can_edit"/administrator status (developer feedback
+# 2026-09-10: personal, not professional, data - the user is free to modify it). Deliberately
+# excludes 'additional_note' (also in hr's own HR_WRITABLE_FIELDS, but an HR-authored note about
+# the employee, not shown on this tab at all - not something the employee should freely rewrite).
+PRIVATE_INFO_SELF_EDITABLE_FIELDS = frozenset({
+    'private_street', 'private_street2', 'private_city', 'private_state_id', 'private_zip',
+    'private_country_id', 'private_email', 'private_phone', 'private_lang',
+    'employee_bank_account_id', 'distance_home_work', 'distance_home_work_unit',
+    'employee_country_id', 'identification_id', 'ssnid', 'passport_id', 'gender', 'birthday',
+    'place_of_birth', 'country_of_birth', 'marital', 'spouse_complete_name', 'spouse_birthdate',
+    'certificate', 'study_field', 'study_school', 'children', 'emergency_contact',
+    'emergency_phone', 'visa_no', 'permit_no', 'visa_expire',
+})
+
 
 class ems_users(models.Model):
     _inherit = "res.users"
@@ -17,15 +32,46 @@ class ems_users(models.Model):
     # allows a fresh upload again.
     image_disabled = fields.Boolean(string="Disable profile picture", default=False)
 
+    # "Schedule" tab on the My Profile screen (see views/community/employee/
+    # user_profile_form.xml): reuses the exact same 'schedule_grid' OWL widget as the
+    # teacher's own "Schedule" tab (views/community/employee/form.xml), which hardcodes
+    # 'resource_calendar_id' and 'can_edit_schedule' as field names to read off the record
+    # (schedule_grid_field.js). 'res.users' already has its OWN native 'resource_calendar_id'
+    # (from the 'resource' module, related='resource_ids.calendar_id') - re-declaring it here
+    # to point at 'employee_id.resource_calendar_id' instead would have hijacked that
+    # unrelated native mechanism. No override needed though: since 'hr.employee.resource_id'
+    # (a 'resource.mixin' field) always carries the same 'user_id' as the linked user, both
+    # paths already resolve to the very same 'resource.calendar' record - verified empirically
+    # against every teacher in this dev DB. Only 'can_edit_schedule' and
+    # 'schedule_attendance_ids' are genuinely new fields.
+    can_edit_schedule = fields.Boolean(related="employee_id.can_edit_schedule")
+    schedule_attendance_ids = fields.One2many(
+        string="Schedule", related="employee_id.schedule_attendance_ids")
+
     @property
     def SELF_WRITEABLE_FIELDS(self):
         return super().SELF_WRITEABLE_FIELDS + ['image_disabled']
 
     @property
     def SELF_READABLE_FIELDS(self):
-        return super().SELF_READABLE_FIELDS + ['image_disabled']
+        return super().SELF_READABLE_FIELDS + [
+            'image_disabled', 'resource_calendar_id', 'can_edit_schedule',
+            'schedule_attendance_ids',
+        ]
 
     def write(self, vals):
+        # "Private Information": always self-editable regardless of "can_edit" - hr's own
+        # write() (hr/models/res_users.py) blocks ANY hr.employee-related field for a self-edit
+        # unless "can_edit" is True, with no per-field exception of its own. Elevating to
+        # SUPERUSER_ID only for this carved-out field set (never the rest of vals) makes
+        # 'self.env.user.has_group(...)' resolve True inside that check, without touching
+        # anything else this same write might also be doing. The re-entrant write() call below
+        # naturally skips this same branch (its own 'self.env.user' is then the superuser, not
+        # this record, so 'self == self.env.user' is False) - no separate recursion guard needed.
+        private_vals = {}
+        if self == self.env.user and not self.can_edit:
+            private_vals = {k: vals.pop(k) for k in list(vals) if k in PRIVATE_INFO_SELF_EDITABLE_FIELDS}
+
         trigger = any(
             k == 'groups_id' or k.startswith(('sel_groups_', 'in_group_'))
             for k in vals
@@ -48,6 +94,9 @@ class ems_users(models.Model):
                     raise UserError(_("The profile picture is disabled; it cannot be changed."))
 
         res = super().write(vals)
+
+        if private_vals:
+            self.with_user(SUPERUSER_ID).write(private_vals)
 
         if photo is not _UNSET:
             for user in self:

@@ -23,8 +23,9 @@
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
     'depends': [
-        'base_setup', 
-        'hr', 
+        'base_setup',
+        'hr',
+        'calendar',
         'hr_org_chart', 
         'auth_oauth', 
         'contacts', 

@@ -181,6 +181,27 @@ class TestAbsence(TransactionCase):
     def test_leave_manager_empty_without_a_department(self):
         self.assertFalse(self._create_employee('Test Teacher (No Department)').leave_manager_id)
 
+    # --- Attendance approver mirrors the absence approver (issue #440) ----------------------
+
+    def test_attendance_manager_matches_leave_manager(self):
+        _top, child, manager = self._create_area('AttendanceSync')
+        employee = self._create_employee('Test Teacher (AttendanceSync)', child)
+
+        self.assertEqual(employee.attendance_manager_id, manager.user_id)
+        self.assertEqual(employee.attendance_manager_id, employee.leave_manager_id)
+
+    def test_attendance_manager_resyncs_when_the_area_manager_changes(self):
+        top, child, _manager = self._create_area('AttendanceResync')
+        employee = self._create_employee('Test Teacher (AttendanceResync)', child)
+        replacement = self._create_employee('Test New Area Manager (AttendanceResync)', with_user=True)
+
+        top.manager_id = replacement.id
+
+        self.assertEqual(employee.attendance_manager_id, replacement.user_id)
+
+    def test_attendance_manager_empty_without_a_department(self):
+        self.assertFalse(self._create_employee('Test Teacher (No Department, Attendance)').attendance_manager_id)
+
     # --- Access control ---------------------------------------------------------------------
 
     def test_head_of_studies_manages_every_request(self):

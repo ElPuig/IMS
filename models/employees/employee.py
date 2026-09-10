@@ -584,7 +584,16 @@ class ems_employee(models.AbstractModel):
         'teacher': 'set default'
     })
 
-    attendance_manager_id = fields.Many2one(groups="hr_attendance.group_hr_attendance_officer,ems.group_teacher")
+    # Kept in sync with 'leave_manager_id' (absence.py's own compute) rather than left as
+    # Odoo's native manually-set field: EMS never gave admins a way to set it (the whole
+    # 'Approvers' group is hidden on the teacher form, see 'view_employee_form_inherit_
+    # hr_attendance' below), so it was permanently empty for every employee while
+    # 'leave_manager_id' was always populated - the same person is meant to approve both an
+    # absence and an attendance correction (the Area Manager of the employee's top-level
+    # department), so there is no reason for the two to ever diverge.
+    attendance_manager_id = fields.Many2one(
+        compute="_compute_attendance_manager_id", store=True,
+        groups="hr_attendance.group_hr_attendance_officer,ems.group_teacher")
     activity_ids = fields.One2many(groups="hr.group_hr_user,ems.group_teacher")
     activity_exception_decoration = fields.Selection(groups="hr.group_hr_user,ems.group_teacher")
     activity_exception_icon = fields.Char(groups="hr.group_hr_user,ems.group_teacher")
@@ -617,6 +626,11 @@ class ems_employee(models.AbstractModel):
     def _compute_pending_identification(self):
         for employee in self:
             employee.pending_identification = bool(employee.schedule_import_code)
+
+    @api.depends("leave_manager_id")
+    def _compute_attendance_manager_id(self):
+        for employee in self:
+            employee.attendance_manager_id = employee.leave_manager_id
 
     @api.model_create_multi
     def create(self, vals_list):

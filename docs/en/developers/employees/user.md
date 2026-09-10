@@ -2,7 +2,7 @@
 
 ## Overview
 
-`models/employees/user.py` extends `res.users` with the profile-picture disable switch (`image_disabled`, see [Photo visibility](photo_visibility.md) — already documented and tested) and `_sync_ems_implied_groups()`, a compensating mechanism for a real gap in Odoo's own group-implication system.
+`models/employees/user.py` extends `res.users` with the profile-picture disable switch (`image_disabled`, see [Photo visibility](photo_visibility.md) — already documented and tested), the related fields bridging the "My Profile" Schedule tab to the linked employee's own schedule (see [My Profile restructuring](user_profile.md)), and `_sync_ems_implied_groups()`, a compensating mechanism for a real gap in Odoo's own group-implication system.
 
 **Module file:** `models/employees/user.py`
 
@@ -44,4 +44,4 @@ No EMS-specific `ir.model.access.csv` rows for `res.users` — standard Odoo use
 
 ## Views
 
-No dedicated EMS view for `res.users` itself beyond `views/settings/res_users_form.xml` (the "My Profile" `image_disabled` toggle — see [Photo visibility](photo_visibility.md)).
+`views/community/employee/user_profile_form.xml` — the "My Profile" `image_disabled` toggle (see [Photo visibility](photo_visibility.md)) and the read-only/hidden/new-tab restructuring covered in [My Profile restructuring](user_profile.md). `views/settings/res_users_form.xml` is a separate, unrelated inherit of the *admin* Users form (`base.view_users_form`), not "My Profile".

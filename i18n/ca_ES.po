@@ -6258,7 +6258,7 @@ msgid "Save"
 msgstr "Desar"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_group__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee_base__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee_public__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_attendance_schedule_form model_terms:ir.ui.view,arch_db:ems.view_employee_form model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_notice_form model:ir.model.fields,field_description:ems.field_ems_guard_duty_board__board_attendance_ids
+#: model:ir.model.fields,field_description:ems.field_ems_group__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee_base__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee_public__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_attendance_schedule_form model_terms:ir.ui.view,arch_db:ems.view_employee_form model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_notice_form model:ir.model.fields,field_description:ems.field_ems_guard_duty_board__board_attendance_ids model:ir.model.fields,field_description:ems.field_res_users__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_users_form_profile_ems_restrictions
 msgid "Schedule"
 msgstr "Horari"
 
@@ -10591,7 +10591,7 @@ msgid "PDF"
 msgstr "PDF"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_hr_employee__can_edit_schedule model:ir.model.fields,field_description:ems.field_hr_employee_base__can_edit_schedule model:ir.model.fields,field_description:ems.field_hr_employee_public__can_edit_schedule
+#: model:ir.model.fields,field_description:ems.field_hr_employee__can_edit_schedule model:ir.model.fields,field_description:ems.field_hr_employee_base__can_edit_schedule model:ir.model.fields,field_description:ems.field_hr_employee_public__can_edit_schedule model:ir.model.fields,field_description:ems.field_res_users__can_edit_schedule
 msgid "Can edit schedule"
 msgstr "Pot editar l'horari"
 

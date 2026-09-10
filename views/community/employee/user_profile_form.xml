@@ -22,6 +22,286 @@
                         <field name="image_disabled"/>
                     </group>
                 </group>
+                <!-- Preferences tab: for an ordinary self-viewing user, only "Disable profile
+                     picture" (above) and "Language" stay visible/editable - everything else
+                     native (email, timezone, signature, calendar's own "Calendar Default
+                     Privacy") is hidden. Gated on "can_edit" like every other restriction in
+                     this file (developer feedback 2026-09-10: nothing hidden elsewhere on this
+                     screen should stay hidden for an administrator - this tab was missed in the
+                     earlier pass that fixed the rest). "can_edit" isn't otherwise present on this
+                     specific combined view (it's added by hr.res_users_view_form_profile, a
+                     later layer - see the class comment above), so it needs its own explicit,
+                     invisible field node here to be usable in these expressions. Same anchor as
+                     above and for the same reason: it propagates safely across the whole
+                     combined view tree rooted here. -->
+                <group name="signature" position="before">
+                    <field name="can_edit" invisible="1"/>
+                </group>
+                <xpath expr="//group[@name='preferences']/group[1]" position="attributes">
+                    <attribute name="invisible">not can_edit</attribute>
+                </xpath>
+                <field name="tz" position="attributes">
+                    <attribute name="invisible">not can_edit</attribute>
+                </field>
+                <group name="signature" position="attributes">
+                    <attribute name="invisible">not can_edit</attribute>
+                </group>
+            </field>
+        </record>
+
+        <!-- "Calendar Default Privacy" (Preferences tab) is added by a sibling inherit of
+             base.view_users_form_simple_modif from the 'calendar' module, not by that base view
+             itself - targeting it here, directly on the view that actually declares it, rather
+             than via the same anchor as the rest of this file, which can't see a field added by
+             another, unrelated inherit of the same parent. Same "can_edit" gating as above, for
+             the same reason (developer feedback 2026-09-10). -->
+        <record model="ir.ui.view" id="calendar_res_users_form_view_calendar_default_privacy_hide">
+            <field name="name">ems.res.users.preferences.form.calendar.privacy.hide</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="calendar.res_users_form_view_calendar_default_privacy"/>
+            <field name="arch" type="xml">
+                <field name="calendar_default_privacy" position="before">
+                    <field name="can_edit" invisible="1"/>
+                </field>
+                <field name="calendar_default_privacy" position="attributes">
+                    <attribute name="invisible">not can_edit</attribute>
+                </field>
+            </field>
+        </record>
+
+        <!-- Remaining "My Profile" restrictions: these target hr's own layered profile view
+             (hr.res_users_view_form_profile), not the base one above, since the fields involved
+             (header info, Location, Approvers, HR Settings, and the new "Schedule" tab) only
+             exist there. -->
+        <record model="ir.ui.view" id="view_users_form_profile_ems_restrictions">
+            <field name="name">ems.res.users.preferences.form.profile.restrictions</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="hr.res_users_view_form_profile"/>
+            <field name="arch" type="xml">
+                <!-- 1. Main form (header) and 3. "Location": deliberately left untouched here -
+                     both already use Odoo's native "readonly="not can_edit"" (an HR officer, or
+                     the global "hr.hr_employee_self_edit" setting), which already gives exactly
+                     the behaviour asked for: read-only for an ordinary self-viewing user, still
+                     editable for an administrator (developer feedback 2026-09-10: an earlier
+                     version of this file hard-forced "readonly="1"" regardless of "can_edit" -
+                     reverted, since an admin must keep being able to edit their own profile from
+                     here). Nothing to override... except "Manager" and "Coach" below, which are
+                     an exception to that same rule. -->
+
+                <!-- "Private Information" tab: always editable by the user themselves,
+                     regardless of "can_edit"/administrator status - developer feedback
+                     2026-09-10: these are the user's own personal (not professional) data, and
+                     they're free to modify them. Native Odoo gates every field here behind
+                     "readonly="not can_edit"" like the rest of the form - flipped to
+                     unconditionally editable for every field on this page, one override per
+                     field: Odoo's inheritance mechanism (locate_node(), template_inheritance.py)
+                     only ever applies a "position" directive to the FIRST node an xpath matches,
+                     even a raw "<xpath expr=...>" - a single expression matching all of them
+                     (tried first) silently only affected the first field in the page, not the
+                     rest - confirmed empirically (get_view() showed the other 30 unchanged).
+
+                     View-level alone is NOT enough: 'res.users.write()' (hr/models/res_users.py)
+                     independently blocks writing ANY hr.employee-related field - this tab's
+                     fields included - for a self-edit unless 'can_edit' is True, regardless of
+                     what the view shows. See models/employees/user.py's own write() override,
+                     which carves out exactly this tab's field set (kept in sync with the list
+                     below) as always self-editable. -->
+                <field name="private_street" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="private_street2" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="private_city" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="private_state_id" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="private_zip" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="private_country_id" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="private_email" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="private_phone" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="private_lang" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="employee_bank_account_id" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="distance_home_work" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="distance_home_work_unit" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="employee_country_id" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="identification_id" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="ssnid" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="passport_id" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="gender" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="birthday" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="place_of_birth" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="country_of_birth" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="marital" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="spouse_complete_name" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="spouse_birthdate" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="certificate" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="study_field" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="study_school" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="children" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="emergency_contact" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="emergency_phone" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="visa_no" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="permit_no" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+                <field name="visa_expire" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </field>
+
+                <!-- 1b. "Manager" (employee_parent_id) and "Coach" (coach_id): unconditionally
+                     read-only, even for an administrator - developer feedback 2026-09-10: both
+                     are set from the department screens (employee_parent_id is in fact a
+                     computed field - see ems_employee_base._compute_parent_id, employee.py -
+                     derived from department_id.manager_id), never hand-edited from "My Profile". -->
+                <field name="employee_parent_id" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </field>
+                <field name="coach_id" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </field>
+
+                <!-- 3. Approvers: unconditionally read-only, unlike the rest of the form above -
+                     who approves an absence/attendance correction is derived from the department
+                     hierarchy (see docs/en/developers/employees/absence.md), never something to
+                     hand-edit from "My Profile", not even as an administrator. Also adds the
+                     avatar widget to "leave_manager_id" to match "attendance_manager_id" - native
+                     hr_holidays gives it one on the plain employee form but not on this profile
+                     view, unlike hr_attendance's own field. -->
+                <field name="attendance_manager_id" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </field>
+                <field name="leave_manager_id" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                    <attribute name="widget">many2one_avatar_user</attribute>
+                </field>
+
+                <!-- 4. "HR Settings" tab: hidden for an ordinary self-viewing user, still
+                     reachable (and editable, via the fields' own native "readonly="not
+                     can_edit"") for an administrator - same "can_edit" exception as point 1/3
+                     above (developer feedback 2026-09-10: initially hidden unconditionally). -->
+                <page name="hr_settings" position="attributes">
+                    <attribute name="invisible">not can_edit</attribute>
+                </page>
+
+                <!-- 5. New "Schedule" tab: exactly the same widget/fields as the teacher's own
+                     "Schedule" tab (views/community/employee/form.xml), bridged through the new
+                     related fields on res.users (models/employees/user.py) - same edit
+                     permission (can_edit_schedule) as the teacher's own record, so a Department
+                     Chief viewing their own profile can still edit it, like anywhere else. Where
+                     it's inserted here doesn't matter - the reordering block below moves every
+                     tab (this one included) to its final position regardless. -->
+                <xpath expr="//page[@name='skills_resume']" position="after">
+                    <page string="Schedule" name="schedule">
+                        <field name="resource_calendar_id" invisible="1"/>
+                        <field name="can_edit_schedule" invisible="1"/>
+                        <!-- Lets the schedule_grid widget resolve the real hr.employee id for its
+                             employee-specific RPCs (derived breaks, PDF, "copy from another
+                             teacher") - see schedule_grid_field.js's _employeeIdFor(). Without
+                             this, the widget assumes its host record IS the employee (true on
+                             the teacher's own form, false here). -->
+                        <field name="employee_id" invisible="1"/>
+                        <field name="schedule_attendance_ids" widget="schedule_grid" nolabel="1">
+                            <list limit="200">
+                                <field name="name"/>
+                                <field name="dayofweek"/>
+                                <field name="hour_from"/>
+                                <field name="hour_to"/>
+                                <field name="day_period"/>
+                                <field name="subject_id"/>
+                                <field name="group_ids"/>
+                                <field name="non_teaching"/>
+                                <field name="non_teaching_is_break"/>
+                                <field name="space_id"/>
+                            </list>
+                        </field>
+                    </page>
+                </xpath>
+
+                <!-- 6. Tab order (developer feedback 2026-09-10): Schedule, Work Information,
+                     HR Settings, Private Information, Account Security, Devices, Resume,
+                     Preferences - Schedule ends up first, which is also what makes it the
+                     default active tab (Odoo's notebook activates the first visible page on a
+                     fresh load). Built as a chain of "move X right after the previous one",
+                     processed in the target order - each step only assumes the previous step's
+                     pair is already correctly placed, so it doesn't matter what order the tabs
+                     started in. "position=move" (not "position=after" with a copy) relocates the
+                     existing node instead of duplicating it. -->
+                <xpath expr="//page[@name='schedule']" position="after">
+                    <xpath expr="//page[@name='public']" position="move"/>
+                </xpath>
+                <xpath expr="//page[@name='public']" position="after">
+                    <xpath expr="//page[@name='hr_settings']" position="move"/>
+                </xpath>
+                <xpath expr="//page[@name='hr_settings']" position="after">
+                    <xpath expr="//page[@name='personal_information']" position="move"/>
+                </xpath>
+                <xpath expr="//page[@name='personal_information']" position="after">
+                    <xpath expr="//page[@name='page_account_security']" position="move"/>
+                </xpath>
+                <xpath expr="//page[@name='page_account_security']" position="after">
+                    <xpath expr="//page[@name='page_devices']" position="move"/>
+                </xpath>
+                <xpath expr="//page[@name='page_devices']" position="after">
+                    <xpath expr="//page[@name='skills_resume']" position="move"/>
+                </xpath>
+                <xpath expr="//page[@name='skills_resume']" position="after">
+                    <xpath expr="//page[@name='preferences_page']" position="move"/>
+                </xpath>
             </field>
         </record>
     </data>
