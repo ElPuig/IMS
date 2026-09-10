@@ -5704,6 +5704,7 @@ msgstr "El valor de ponderació ha d'estar dins el rang [0,100]."
 
 #. module: ems
 #. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
 #: code:addons/ems/models/contacts/portal_access_wizard.py:0 model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
 msgid "Portal access"
 msgstr "Accés al portal"
@@ -13703,3 +13704,15 @@ msgid ""
 msgstr ""
 "S'ha omès l'alumne '%(ralc)s': la fila no porta cap nom i encara no hi ha "
 "cap alumne amb aquest identificador a l'EMS."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid ""
+"Please select at least one student or applicant. An ex-student "
+"(withdrawal, alumni or expelled) only becomes a student again once its "
+"new enrollment is confirmed."
+msgstr ""
+"Selecciona almenys un alumne/a o sol·licitant. Un ex alumne/a (baixa, "
+"graduat/da o expulsat/da) no torna a ser alumne/a fins que es confirma la "
+"seva nova matrícula."

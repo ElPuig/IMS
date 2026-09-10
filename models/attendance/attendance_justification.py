@@ -178,13 +178,20 @@ class EmsAttendanceJustification(models.Model):
         return records
 
     def write(self, vals):
+        # NOTE: only the date-change branch below consumes this, so it is built only
+        # when that branch will run — reading attendance_session_line_ids enforces the
+        # record rules, and doing it unconditionally made every unrelated write (the
+        # session line back-link in particular) fail for teachers who cannot yet read
+        # the justification (issue #432).
+        dates_changed = 'start_date' in vals or 'end_date' in vals
         old_lines_map = {}
-        for justification in self:
-            old_lines_map[justification.id] = set(justification.attendance_session_line_ids)
+        if dates_changed:
+            for justification in self:
+                old_lines_map[justification.id] = set(justification.attendance_session_line_ids)
 
         # Must be saved after storing previous data
         updated = super().write(vals)
-        if 'start_date' in vals or 'end_date' in vals:
+        if dates_changed:
             # This method is called when an attendance session is created (because justification is beeing linked to the session)
             # so only on trying to update dates, the permissions must be checked to avoid unauthorized changes.
             if not self._check_permissions():

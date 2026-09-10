@@ -493,7 +493,50 @@ class SaleOrder(models.Model):
             raise ValidationError(_(
                 "Tutors cannot change the enrollment status. "
                 "Please contact the secretary or admin."))
-        return super().action_quotation_sent()
+        res = super().action_quotation_sent()
+        self._ems_offer_to_ex_student()
+        return res
+
+    def _ems_offer_to_ex_student(self):
+        """Turn an ex-student holding this offer back into an applicant.
+
+        Sending the enrollment is what breaks an otherwise closed loop: portal access
+        needs a 'student'/'applicant', becoming a student needs the enrollment
+        confirmed, confirming it needs the required authorizations answered, and those
+        are answered from the portal. An ex-student who returns could never get in.
+
+        'applicant' is not a workaround, it is the state that already models this:
+        someone holding an offer for a study, with a portal user of their own, and with
+        the return path already written - _ems_admit_student() converts an applicant
+        back into a student on confirmation. The course transition wizard does exactly
+        the same for a graduate whose offer nobody has confirmed yet, see
+        ems.course_transition_wizard._apply_pending_graduates().
+
+        study_id/level_id follow the destination on the order (the exit cleared them),
+        so they read as an applicant of the study they are heading to. The exit metadata
+        goes: they have not left, they are waiting to come back in. 'has_graduated'
+        stays, it is a permanent mark. 'expelled' is deliberately left out, matching
+        _ems_admit_student(), which only readmits applicant/alumni/withdrawal.
+
+        Hooked on the send and not on create(): a draft can still be deleted, while
+        sending the offer to the family is a deliberate act.
+        """
+        for order in self:
+            partner = order.partner_id
+            if not order.ems_study_id or partner.contact_type not in ('alumni', 'withdrawal'):
+                continue
+            study = order.ems_study_id
+            partner.write({
+                # The exit archived them; holding an offer means being active again.
+                'active': True,
+                'contact_type': 'applicant',
+                'study_id': study.id or partner.study_id.id,
+                'level_id': study.level_id.id or partner.level_id.id,
+                'exit_type': False,
+                'exit_course_id': False,
+                'exit_date': False,
+                'exit_reason': False,
+            })
 
     def action_quotation_send(self):
         if self._is_blocked_tutor():
@@ -528,6 +571,9 @@ class SaleOrder(models.Model):
         for order in orders:
             template.send_mail(order.id, force_send=True)
         orders.filtered(lambda order: order.state == 'draft').action_quotation_sent()
+        # Covers a re-send of an already 'sent' offer too, which never goes through
+        # action_quotation_sent(). Idempotent: an applicant is skipped.
+        orders._ems_offer_to_ex_student()
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',

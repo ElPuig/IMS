@@ -203,6 +203,44 @@ flowchart TD
 
 ---
 
+## Offer to an ex-student (`sent`): ex-student → applicant
+
+`action_quotation_sent()` calls `_ems_offer_to_ex_student()`, which converts the
+partner of every EMS enrollment being sent from `alumni`/`withdrawal` into
+`applicant`. It also unarchives them, points `study_id`/`level_id` at the study on
+the order (the exit cleared both), and wipes the `exit_*` metadata.
+`has_graduated` is left alone — it is a permanent mark. `expelled` is deliberately
+never converted, matching `_ems_admit_student()` below, which only readmits
+`applicant`/`alumni`/`withdrawal`.
+
+**Why this has to exist.** Without it the four requirements form a closed loop and
+a returning ex-student can never get in:
+
+```mermaid
+flowchart LR
+    P["portal access"] --> S["contact_type<br/>student / applicant"]
+    S --> C["confirmed enrollment<br/>_ems_admit_student()"]
+    C --> A["required authorizations<br/>answered (action_confirm)"]
+    A --> P
+```
+
+Sending the offer is the one deliberate act outside that loop, which is why the
+hook lives on the send and not on `create()`: a draft can still be deleted.
+`action_send_enrollment_proposal()` calls the helper on every order it sends, not
+only the drafts, so a re-send of an already-`sent` offer (which never goes through
+`action_quotation_sent()`) converts too. The helper is idempotent — an `applicant`
+is skipped.
+
+`applicant` is not a workaround here; it is the state that already models "holding
+an offer for a study, with a portal user of their own". The transition wizard does
+exactly the same for a graduate whose offer nobody has confirmed yet
+(`ems.course_transition_wizard._apply_pending_graduates()`), and
+`ems.portal.access.wizard` sends a *minor* applicant's credentials to the family
+rather than to the minor whenever family contacts are on file — see
+[`contacts/portal_access_wizard.md`](../contacts/portal_access_wizard.md).
+
+---
+
 ## Admission (applicant → student) and destination placement
 
 On confirmation, `_ems_admit_student()`:

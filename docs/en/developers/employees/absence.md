@@ -568,6 +568,46 @@ confidentiality rule this feature exists to enforce.
 removes the group from anyone who is nobody's `leave_manager_id`. Covered by
 `test_a_department_chief_never_keeps_the_approver_group`, which fails without it.
 
+### hr_holidays leaks a restricted field into the Teachers screen through a widget
+
+`current_leave_id` (the type of absence an employee is on right now) is declared
+`groups="hr.group_hr_user"` on `hr.employee`. hr_holidays also swaps the presence icon on
+`hr.hr_kanban_view_employees` to its own `hr_presence_status_private` widget, and that widget's
+JavaScript declares `current_leave_id` as a **field dependency**:
+
+```js
+Object.assign(hrPresenceStatusPrivate, {
+    fieldDependencies: [..., { name: "current_leave_id", type: "many2one" }],
+});
+```
+
+A widget's field dependencies go straight into the read specification the client sends. They are
+never filtered by the group-based node stripping the view postprocessor applies to the arch, so
+the field is requested even for a user the arch correctly hid it from. In stock Odoo nothing
+notices, because a non-HR user is never shown `hr.employee` at all - they get
+`hr.employee.public`, a different model with a different kanban. EMS does show it: its own
+"Educational Community > Teachers" and "> ASP" screens are `hr.employee`, and
+`security/ir.model.access.csv` grants `ems.group_teacher` read on it. From the moment
+hr_holidays became an EMS dependency, every teacher opening either screen got
+
+> You do not have enough rights to access the fields "current_leave_id" on Employee (hr.employee)
+
+instead of the screen.
+
+`views/community/employee/kanban.xml` keeps the private widget for `hr.group_hr_user` and renders
+hr's plain `hr_presence_status` - same icon, no leave type, no extra field read - for everyone
+else, via a negated group (`groups="!hr.group_hr_user"`, supported since Odoo 17). That inherited
+view carries `priority=20` so it applies *after* hr_holidays' own inherit of the same view
+(priority 16), whose widget swap it depends on being already in place.
+
+Widening `current_leave_id`'s own groups would have been the shorter fix and is deliberately not
+what happened: what a teacher may know about a colleague's absence is the fact and the interval,
+never its type - the same line `ems.guard.duty.board._get_guard_duty_absence_intervals` draws.
+
+Covered by `tests/test_employee_presence_widget.py` (the arch, per group) and
+`tests/test_employee_teacher_kanban_tour.py` (what the browser actually asks the server for -
+the backend half cannot see this bug at all).
+
 ## Related
 
 - `plans/absence_management.md` — full design plan, including the cycles not yet implemented.
