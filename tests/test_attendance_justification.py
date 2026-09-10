@@ -233,3 +233,50 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
             'attendance_session_line_ids': [(6, 0, [line.id])],
         })
         self.assertIn(self.tutor_employee, justification.session_teacher_ids)
+
+    def test_other_teacher_can_start_session_overlapping_tutor_justification(self):
+        """Regression (#432): a teacher starting a session that overlaps a
+        justification created by a different teacher got an AccessError and the
+        session was never created, blocking roll-call for that slot entirely.
+
+        The back-link that registers the session's teachers on the justification
+        (and therefore grants them read access through
+        rule_attendance_justification_teacher_own_read) was itself written through
+        write(), whose override reads attendance_session_line_ids first — a read
+        the teacher is not yet allowed to perform."""
+        justification = self.env['ems.attendance_justification'].with_user(self.tutor_user).create({
+            'teacher_id': self.tutor_employee.id, 'student_id': self.student.id,
+            'start_date': datetime.combine(date.today(), datetime.min.time()),
+            'end_date': datetime.combine(date.today(), datetime.max.time()),
+        })
+
+        # A second slot for the same student, taught by a teacher who is neither
+        # the student's tutor nor the justification's author.
+        template = self.env['ems.attendance_template'].create({
+            'teacher_ids': [(6, 0, [self.other_teacher.id])], 'study_ids': [(6, 0, [self.study.id])],
+            'subject_id': self.subject.id, 'group_ids': [(6, 0, [self.group.id])],
+            'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
+        })
+        schedule = self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id, 'weekday': str(date.today().weekday()),
+            'start_time': 10.0, 'end_time': 11.0, 'space_id': self.space.id,
+            'student_ids': [(6, 0, [self.student.id])],
+        })
+
+        # The justification is normally created in an earlier request, so its
+        # attendance_session_line_ids is a cold read when the session is started.
+        # Without this the value is still cached from the create() above, no fetch
+        # happens, and the record rules are never enforced — masking the bug.
+        self.env.invalidate_all()
+
+        result = self.env['ems.attendance_session_header'].with_user(
+            self.other_teacher_user).create_scheduled_session(date.today(), schedule.id)
+        session = self.env['ems.attendance_session_header'].browse(result['id'])
+        self.assertTrue(session.exists())
+
+        self.assertIn(self.other_teacher, justification.session_teacher_ids)
+
+        # What the roll-call screen itself does right after creating the session.
+        line = session.attendance_session_line_ids.filtered(lambda l: l.student_id == self.student)
+        self.assertEqual(line.attendance_prevision_id, justification)
+        line.with_user(self.other_teacher_user).read(['attendance_prevision_id'])
