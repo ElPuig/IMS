@@ -36,7 +36,7 @@ graph TD
 | `tutor_id` | `Many2one → hr.employee` | No (`main` only, never on `reinforcement`) | Yes | Domain restricted to `employee_type = 'teacher'`; see the create/write sync below |
 | `delegate_id` | `Many2one → res.partner` | No (`main` only) | Yes | Domain restricted to students of this same group |
 | `space_id` | `Many2one → ems.space` | No | Yes | Usual classroom |
-| `shift` | `Selection` (`morning`/`afternoon`) | No | Yes | Feeds `group_schedule.md`'s `SHIFT_HOURS` window |
+| `shift` | `Selection` (`morning`/`afternoon`) | No | Yes | Feeds `ems.schedule_report_mixin`'s `SHIFT_HOURS` window - see `group_schedule.md` |
 | `main_student_ids` | `One2many → res.partner` | — | No | Inverse of `contact.main_group_id`, filtered to students. Always empty for a `reinforcement` group |
 | `enrolled_student_ids` | `Many2many → res.partner` (computed) | — | No | See below. For a `reinforcement` group, this is that group's only notion of "membership" — see the removal note below |
 | `enrollment_view_ids` | `One2many → ems.enrollment_view` (computed) | — | No | See below |

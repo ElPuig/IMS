@@ -304,8 +304,8 @@ to Monday/Morning right after this check.
 
 **The data is fetched via RPC (`ems.course.get_guard_duty_board_data()`), one weekday/shift at a
 time.** An early version instead read a form field's own prefetched sub-records client-side
-(the same approach `group_schedule_grid_field.js` uses for its own, much smaller, per-group
-aggregation) — this broke in practice: the web client silently caps how many sub-records a
+(the same approach `schedule_grid_readonly_field.js` uses for its own, much smaller, per-group/
+per-student aggregation) — this broke in practice: the web client silently caps how many sub-records a
 relational field fetches for rendering, and a centre-wide aggregation easily exceeds that cap
 (several hundred rows for a real school), so only whichever weekday happened to load first
 (in practice, Monday) ever showed real data — every other tab rendered empty, even though the
@@ -331,10 +331,13 @@ colour). Applied identically to the PDF (see "PDF report" below) — same reason
 verified against a real generated PDF at each pass.
 
 **Why a table, not the existing absolute-positioned grid:** `schedule_grid_field.js`/
-`group_schedule_grid_field.js` position entries by pixel offset within one non-overlapping
-timeline per weekday column — valid because a single teacher or group can only be in one
-place at a given hour. A centre-wide board breaks that invariant (many groups run in parallel
-at any given hour), so instead of a 5-day-column grid, this renders weekday **tabs** (one day
+`schedule_grid_readonly_field.js` position entries by pixel offset within one weekday column, at
+most a handful of genuinely overlapping blocks side by side (see the read-only widget's own
+`layoutOverlappingBlocks` column-split, added for a student's own schedule — a single teacher
+still can't be in two places at once, but a group or a student can have a handful of concurrent
+entries). A centre-wide board is a different scale of the same problem — many dozens of groups
+run in parallel at any given hour, not a handful — so instead of a 5-day-column grid, this renders
+weekday **tabs** (one day
 visible at a time) and, within a day, a genuine `<table>` whose **columns are the groups**
 taught in that shift and whose **rows are time blocks** — structurally the same shape
 `get_guard_duty_board_data()` already returns, rendered close to as-is.

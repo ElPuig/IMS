@@ -3,10 +3,11 @@
 import { _t } from "@web/core/l10n/translation";
 
 // Pure display/geometry helpers shared by every weekly schedule grid widget (the teacher's
-// editable 'schedule_grid' and the read-only group 'group_schedule_grid') — day/hour layout math
-// with no OWL state of its own, so it's a plain module rather than a shared component: the two
-// widgets' interactive surface (an edit buffer vs. none) differs enough that forcing them through
-// one component would leave a lot of dead code active in the read-only case.
+// editable 'schedule_grid' and the read-only 'readonly_schedule_grid', reused as-is for both a
+// group's and a student's own schedule) — day/hour layout math with no OWL state of its own, so
+// it's a plain module rather than a shared component: the teacher's own editable widget's
+// interactive surface (an edit buffer, none of which the read-only one needs) differs enough that
+// forcing them through one component would leave a lot of dead code active in the read-only case.
 
 export const PX_PER_HOUR = 64;
 export const DEFAULT_START = 8;
@@ -69,4 +70,60 @@ export function buildColorMap(items) {
         }
     }
     return colorByKey;
+}
+
+// Assigns each block in 'blocks' (any objects carrying 'hour_from'/'hour_to') a '_column'/
+// '_columnCount' pair so genuinely overlapping (not just identical-slot) blocks can be laid out
+// side by side instead of silently stacking on top of each other — needed for a student's own
+// schedule (unlike a single teacher's or one group's own aggregated view, several of a student's
+// enrollments can be scheduled at truly different, partially-overlapping times: e.g. their main
+// group's 9:00-10:00 class and a 9:30-10:15 elective through a different group). A single teacher
+// or group's timeline structurally can't produce this (see the two callers below), but the
+// algorithm is generic and harmless when it never finds a real overlap: every block just gets
+// '_columnCount' 1 (the CSS default full-width layout, unchanged).
+//
+// Standard calendar-app "collision clustering" approach (the same shape Google/Outlook-style day
+// views use): sort by start time, group into maximal runs of transitively-overlapping blocks
+// ('flushCluster' below), then greedily assign each block in a cluster the leftmost column whose
+// previous occupant has already ended — the cluster's own column count becomes every one of its
+// blocks' shared '_columnCount' width divisor. Not guaranteed to be the mathematically optimal
+// packing in every pathological case, but neither is any real calendar UI's — legible and correct
+// (no block ever hides another) is the actual requirement here, not minimal column count.
+export function layoutOverlappingBlocks(blocks) {
+    const sorted = [...blocks].sort((a, b) => a.hour_from - b.hour_from || a.hour_to - b.hour_to);
+    const layoutByBlock = new Map();
+    let cluster = [];
+    let clusterEnd = -Infinity;
+
+    const flushCluster = () => {
+        const columnEnds = [];
+        for (const block of cluster) {
+            let column = columnEnds.findIndex((end) => end <= block.hour_from);
+            if (column === -1) {
+                column = columnEnds.length;
+                columnEnds.push(block.hour_to);
+            } else {
+                columnEnds[column] = block.hour_to;
+            }
+            layoutByBlock.set(block, column);
+        }
+        for (const block of cluster) {
+            layoutByBlock.set(block, { column: layoutByBlock.get(block), columnCount: columnEnds.length });
+        }
+        cluster = [];
+        clusterEnd = -Infinity;
+    };
+
+    for (const block of sorted) {
+        if (cluster.length && block.hour_from >= clusterEnd) {
+            flushCluster();
+        }
+        cluster.push(block);
+        clusterEnd = Math.max(clusterEnd, block.hour_to);
+    }
+    if (cluster.length) {
+        flushCluster();
+    }
+
+    return sorted.map((block) => Object.assign(block, layoutByBlock.get(block)));
 }

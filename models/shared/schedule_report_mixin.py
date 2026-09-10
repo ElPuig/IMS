@@ -16,7 +16,17 @@ HOUR_EPSILON = 1 / 120
 
 class EmsScheduleReportMixin(models.AbstractModel):
     _name = 'ems.schedule_report_mixin'
-    _description = "Shared coloring/time-formatting helpers for weekly schedule PDF reports."
+    _description = "Shared weekly-schedule aggregation/coloring/time-formatting helpers, for any " \
+                    "model exposing its own read-only 'schedule_attendance_ids' (ems.group, res.partner)."
+
+    WEEKDAYS = ('0', '1', '2', '3', '4')
+    # The realistic hour window for a weekly schedule report/grid, so it doesn't need to show/print
+    # a wider range than that. Kept in sync by hand with the JS copy (SHIFT_HOURS in
+    # static/src/js/backend/schedule_grid_readonly_field.js).
+    SHIFT_HOURS = {
+        'morning': (8, 15),
+        'afternoon': (15, 22),
+    }
 
     # NOTE: assigned in first-seen order to the distinct items on a schedule, so two unrelated
     # items only ever share a color once the palette itself runs out.
@@ -31,3 +41,93 @@ class EmsScheduleReportMixin(models.AbstractModel):
     def _format_report_time(self, value):
         hour, minutes = divmod(round(value * 60), 60)
         return f"{hour:02d}:{minutes:02d}"
+
+    def _get_level_break_entries(self, level, shift):
+        """The break/patio period derived from `level`'s schedule framework (a 'resource.calendar'
+        with is_framework=True and a matching level_id), filtering that framework's own
+        non-teaching rows for is_break=True and a day_period matching `shift`. Shared by
+        ems.group._get_break_entries() (level/shift = the group's own) and res.partner (student)
+        _get_break_entries() (level/shift = the student's main_group_id's) — a break row never
+        carries 'group_ids' itself (see 'ems_working_schedule_assignation'), so this is the only
+        way to attach one to a group or, transitively, to a student. Returns an empty recordset,
+        without error, when `level` or `shift` is falsy, or `level` has no framework."""
+        if not level or not shift:
+            return self.env['resource.calendar.attendance']
+        # 'active_test=True' forced explicitly (not just relied on as the ORM's own default):
+        # this method can run under a caller context that already set active_test=False for an
+        # unrelated reason (e.g. opened from ems.action_student_kanban, whose own context turns
+        # it off so archived/withdrawn students still show up in that list) - without forcing it
+        # back on here, an archived framework calendar could resurface a stale break block. See
+        # the identical, confirmed-real fix on '_compute_schedule_attendance_ids' in both
+        # ems.group and res.partner (student) for the actual incident this was found from.
+        framework = self.env['resource.calendar'].with_context(active_test=True).search(
+            [('is_framework', '=', True), ('level_id', '=', level.id)], limit=1)
+        return framework.attendance_ids.filtered(
+            lambda attendance: attendance.dayofweek in self.WEEKDAYS
+                and attendance.non_teaching.is_break and attendance.day_period == shift)
+
+    def _schedule_report_shift(self):
+        """The shift used to pick 'get_schedule_report_lines()'s hour window (SHIFT_HOURS) and to
+        filter 'schedule_attendance_ids' down to a realistic slice of the day. Defaults to a plain
+        'shift' field (ems.group's own); res.partner (student) overrides this to read its
+        main_group_id.shift instead, since a student has no shift field of its own."""
+        self.ensure_one()
+        return self.shift
+
+    def get_schedule_report_lines(self):
+        """Weekly schedule rows (one per distinct Mon-Fri period, one column per weekday) for a
+        Schedule tab/PDF built on top of 'schedule_attendance_ids' — shared by ems.group and
+        res.partner (student), the only difference between the two being which shift
+        '_schedule_report_shift()' resolves to. A cell can hold more than one entry (several
+        teachers co-teaching the same subject at the same time, for a group; a student's own
+        overlapping enrollments, for a student): those are grouped into a single 'block' per
+        distinct subject/non-teaching reason instead of one block per entry — co-teaching is
+        surfaced in 'get_subject_teachers_summary' instead, not by repeating the block."""
+        self.ensure_one()
+        weekday_entries = self.schedule_attendance_ids.filtered(lambda attendance: attendance.dayofweek in self.WEEKDAYS)
+        shift_hours = self.SHIFT_HOURS.get(self._schedule_report_shift())
+        if shift_hours:
+            shift_start, shift_end = shift_hours
+            weekday_entries = weekday_entries.filtered(
+                lambda attendance: attendance.hour_from >= shift_start and attendance.hour_to <= shift_end)
+        periods = sorted({(attendance.hour_from, attendance.hour_to) for attendance in weekday_entries})
+
+        color_by_key = {}
+        for attendance in weekday_entries.sorted(key=lambda attendance: (attendance.dayofweek, attendance.hour_from)):
+            key = self._report_color_key(attendance)
+            color_by_key.setdefault(key, self.REPORT_COLOR_PALETTE[len(color_by_key) % len(self.REPORT_COLOR_PALETTE)])
+
+        lines = []
+        for hour_from, hour_to in periods:
+            cells = []
+            for dayofweek in self.WEEKDAYS:
+                day_entries = weekday_entries.filtered(
+                    lambda attendance, dayofweek=dayofweek, hour_from=hour_from, hour_to=hour_to:
+                        attendance.dayofweek == dayofweek and attendance.hour_from == hour_from and attendance.hour_to == hour_to
+                )
+                blocks_by_key = {}
+                for attendance in day_entries:
+                    key = self._report_color_key(attendance)
+                    blocks_by_key[key] = blocks_by_key.get(key, self.env['resource.calendar.attendance']) | attendance
+                cells.append({
+                    'blocks': [{'entries': entries, 'color': color_by_key.get(key)} for key, entries in blocks_by_key.items()],
+                })
+            lines.append({
+                'time_label': f"{self._format_report_time(hour_from)}-{self._format_report_time(hour_to)}",
+                'cells': cells,
+            })
+        return lines
+
+    def get_subject_teachers_summary(self):
+        """One row per distinct subject in this schedule, with the sorted, de-duplicated list of
+        teachers teaching it — this is where co-teaching (a group) or several teachers across
+        different groups (a student's own subjects) becomes visible (more than one name in the
+        row), instead of in the grid (see 'get_schedule_report_lines')."""
+        self.ensure_one()
+        teaching_entries = self.schedule_attendance_ids.filtered('subject_id')
+        rows = []
+        for subject in teaching_entries.mapped('subject_id').sorted('name'):
+            entries = teaching_entries.filtered(lambda attendance, subject=subject: attendance.subject_id == subject)
+            teachers = sorted(set(entries.mapped('employee_id.display_name')))
+            rows.append({'subject': subject.display_name, 'teachers': ", ".join(teachers)})
+        return rows

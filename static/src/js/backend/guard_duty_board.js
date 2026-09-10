@@ -75,9 +75,9 @@ function mondayOf(date) {
 // would show a raw "model/id" instead of a proper "action-<xmlid>" like every other EMS screen.
 //
 // Data is fetched via RPC, one weekday/shift at a time (ems.course.get_guard_duty_board_data()) —
-// not read from any field's own prefetched sub-records, unlike the teacher/group grids
-// (schedule_grid_field.js/group_schedule_grid_field.js). Those aggregate at most one teacher's or
-// one group's own schedule; this one aggregates the whole centre (easily several hundred rows),
+// not read from any field's own prefetched sub-records, unlike the teacher/group/student grids
+// (schedule_grid_field.js/schedule_grid_readonly_field.js). Those aggregate at most one teacher's,
+// one group's or one student's own schedule; this one aggregates the whole centre (easily several hundred rows),
 // which the web client's own x2many sub-record fetch silently caps — an earlier version that did
 // read a prefetched field this way only ever showed real data for whichever weekday loaded first.
 export class GuardDutyBoard extends Component {
