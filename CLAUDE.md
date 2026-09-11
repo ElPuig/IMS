@@ -334,6 +334,42 @@ screenshot (`/tmp/odoo_tests/ems/screenshots/`) is what actually revealed it, no
   (button labels, status/selection names) that gets translated out from under a hardcoded
   English selector.
 
+**Per-role smoke tours (`tests/test_role_smoke_<role>_tour.py`, added 2026-09-11, issue #434
+follow-up):** in addition to feature-specific tours, EMS has one generic "crawler" tour per role
+that logs in as that role, fetches the exact menu tree the real webclient would (`ir.ui.menu`
+via the `menu` service, already filtered server-side by that session's groups), and opens every
+reachable `ir.actions.act_window` in every `view_mode` it declares — asserting nothing about the
+data shown, only that nothing crashes. This is a broad, cheap safety net for the general failure
+class #434 was one instance of (a widget's field *dependency*, a menu's `groups=`, or
+server/client self-filtering silently locking a role out of a screen that its ACL/record rules
+otherwise allow) — it does not replace feature-specific tours, which still assert on actual
+behavior. Detection needs no bespoke error-dialog checking: Odoo's own `HttpCase`/tour harness
+already fails the test on any `console.error` (see `odoo/tests/common.py`'s `browser_js`
+docstring), and the webclient's error service logs every uncaught client error that way —
+including an `AccessError` surfaced while a view fetches its data, which is exactly how #434
+itself would have been caught by this mechanism, per that tour's own comment.
+- **Role roster (5, not every group):** `teacher`, `orientation`, `coexistence`, `secretary`,
+  `tac`. Chosen because the first four do **not** imply `hr.group_hr_user`/`group_system` — the
+  actual at-risk predicate for this bug class, not "non-admin" in general — while `tac` is a
+  deliberate negative control (it does imply `hr.group_hr_user`, so it should surface
+  materially fewer findings, confirming the crawler isn't simply noisy everywhere). `tutor`/
+  `department_chief` are skipped as strict subsets of `teacher`'s menu reach; `head_of_studies`/
+  `director`/`academic_admin` and the `*_admin` variants are skipped as already
+  `hr.group_hr_user`-equivalent in practice.
+- **Maintaining the skip-list:** each crawler tour keeps a small, explicit list of action
+  xmlids/ids it deliberately does not open (wizards, actions requiring context like
+  `active_id` that only make sense launched from a specific record, print/report actions,
+  anything with real side effects on open). Add to it only when a genuine false positive is
+  found — an action that legitimately cannot be opened standalone — not to silence a real
+  finding.
+- **Cost:** these are auto-discovered by `scripts/testing/compute_test_shards.py`'s
+  `tests/*_tour.py` glob, so they land in the existing parallel tour-shard split with no
+  dedicated bottleneck; they only add meaningful time to the unscoped `./test.sh` final gate,
+  never to the everyday `./test.sh TestClassName` loop.
+- Retrofitting an existing admin-only tour to also cover one of these 5 roles (Phase 3 of the
+  original proposal) is tracked as an ongoing backlog in `plans/role_tour_coverage_retrofit.md`,
+  not done all at once.
+
 ## Coding standards
 
 Follow the official Odoo v18 coding guidelines:
@@ -609,7 +645,7 @@ no separate process to remember, and no distinction between "new" and "existing"
 whether Spec/Red start from a blank file or a diff:
 
 1. **Spec (before Red) — D:** Before any test or code, stub or update `docs/en/developers/<area>/<model>.md` (Mermaid diagram of hierarchy/relations, CRUD flow, access-control table) with the requirements this change needs to cover. From that access-control table, identify **every role that will actually use the feature** (`admin`, `teachers`, `tutors`, `secretary`, `head_of_studies`, `families` — a feature is frequently relevant to more than one, e.g. a teacher-facing grading screen plus an admin config screen) and stub or update one `docs/{en,ca,es}/<role>/<model>.md` per role identified, not just `admin/`. These stubs are the acceptance criteria for the cycle below.
-2. **Red — T:** Write or adapt `tests/test_<model>.py` (`TransactionCase`) and the tour (`static/tests/tours/<model>_tour.js` + `tests/test_<model>_tour.py`) for the behavior this change needs — before writing the implementation. The tour is the default, not an optional extra; skip it only for a model with no UI surface at all (pure backend/abstract model, never rendered in any view). The tour must cover every view the model's data ends up in, including secondary views under a different action and any embedding in another model's view — not only the model's own screen. **This applies just as much to a change on an already-DTON'd model as to a brand-new one** — found the hard way (2026-07-30): a checkbox-to-radio widget change on `ems.limesurvey_block` was initially shipped without a tour ("no tour exists for this view" was treated as a reason to move on, not as the gap it was); the developer had to ask "¿no haría falta un tour para comprobar que abrir esta vista no falla?" before one got added — and it caught real, non-trivial bugs in the process (`select` on a plain `<select>` doesn't work the way it looks like it should, since Odoo's `SelectionField` JSON-stringifies the option `value` attribute — use `selectByLabel` instead; a `widget="code"` field is an Ace editor, not a plain `<textarea>`, and needs `ace.edit(anchor).setValue(...)` in a custom `run()`, not the generic `edit` action). `./upgrade.sh` succeeding only proves the view's XML is structurally valid (fields exist, widgets are compatible with the field type) — it proves nothing about whether the page actually renders or a click actually works in a real browser. `./test.sh TestClassName` (scoped to the relevant test class) must fail.
+2. **Red — T:** Write or adapt `tests/test_<model>.py` (`TransactionCase`) and the tour (`static/tests/tours/<model>_tour.js` + `tests/test_<model>_tour.py`) for the behavior this change needs — before writing the implementation. The tour is the default, not an optional extra; skip it only for a model with no UI surface at all (pure backend/abstract model, never rendered in any view). The tour must cover every view the model's data ends up in, including secondary views under a different action and any embedding in another model's view — not only the model's own screen. **This applies just as much to a change on an already-DTON'd model as to a brand-new one** — found the hard way (2026-07-30): a checkbox-to-radio widget change on `ems.limesurvey_block` was initially shipped without a tour ("no tour exists for this view" was treated as a reason to move on, not as the gap it was); the developer had to ask "¿no haría falta un tour para comprobar que abrir esta vista no falla?" before one got added — and it caught real, non-trivial bugs in the process (`select` on a plain `<select>` doesn't work the way it looks like it should, since Odoo's `SelectionField` JSON-stringifies the option `value` attribute — use `selectByLabel` instead; a `widget="code"` field is an Ace editor, not a plain `<textarea>`, and needs `ace.edit(anchor).setValue(...)` in a custom `run()`, not the generic `edit` action). `./upgrade.sh` succeeding only proves the view's XML is structurally valid (fields exist, widgets are compatible with the field type) — it proves nothing about whether the page actually renders or a click actually works in a real browser. `./test.sh TestClassName` (scoped to the relevant test class) must fail. **Log in as the least-privileged role that should have access to the screen, not `admin` by default** — from the Spec step's access-control table, using `create_role_user`/`create_role_employee` (`tests/common.py`), not `admin`/an `hr.group_hr_user`-implying role. Admin login is only justified when the feature genuinely is admin/`academic_admin`-only by design. Found the hard way (issue #434, 2026-09-10): 78 of 89 existing tours logged in as admin or a role implying `hr.group_hr_user`, so a widget's field *dependency* bypassing the view's group-based arch stripping reached production unnoticed — every existing employee tour happened to be run by someone the bug couldn't affect. If the action under test exposes more than one `view_mode` (kanban+list+form, etc.), the tour must visit each view type at least once, not only whichever renders first — the #434 bug broke the kanban specifically while the list view of the same action was fine.
 3. **Green — T:** Write the minimum code to pass: `models/<area>/<model>.py`, `security/ir.model.access.csv` (+ `security/rules/*.xml` if needed), `views/<area>/<model>/{form,list,menu}.xml`, manifest bump. `./test.sh TestClassName` must pass. If a new validation/constraint conflicts with an existing test, don't relax the new check to fit the test on assumption alone — see "Full-scenario exploration before implementing" in Coding standards above.
 4. **Refactor — O:** In the same cycle, not as a later pass: add `_order`, `_sql_constraints`, computed field guards, view fixes for *this* model. Also check for **cross-cutting duplication** while you're here — the same shape of code (or test fixture/mock boilerplate) hand-written in more than one file is worth extracting into a shared helper (`ems.base` for production code, `tests/common.py` for test utilities) rather than left copy-pasted; this is exactly how the same escaping bug got independently found and fixed five times before `EmsBase.build_html_list` existed. Don't go looking for unrelated duplication elsewhere in the codebase on every change — but if this change's own work reveals an existing duplicate, fold the extraction into this same cycle instead of deferring it.
 5. **Normalize — N:** Apply the Odoo v18 coding guidelines from the "Coding standards" section above — model attribute order, alphabetical imports, f-strings, loop variable naming, translatable literals, no shadowed builtins. Run `pylint --disable=all --enable=redefined-builtin` on the files you touched (see "Coding standards" above for the full command) — cheap, and this exact bug class (`list`, `type`, `datetime`, `bytes`/`hash` shadowing builtins) has recurred often enough to be worth a mechanical check rather than relying on reading alone.

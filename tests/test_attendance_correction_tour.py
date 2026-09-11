@@ -2,7 +2,7 @@ from datetime import datetime
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import force_user_language_to_english
+from .common import create_role_employee, create_role_user, force_user_language_to_english
 
 
 @tagged('post_install', '-at_install')
@@ -11,15 +11,11 @@ class TestAttendanceCorrectionTour(HttpCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.teacher_user = cls.env['res.users'].with_context(no_reset_password=True).create({
-            'name': 'Attendance Correction Tour Teacher',
-            'login': 'test_teacher_attendance_correction_tour',
-            'groups_id': [(4, cls.env.ref('ems.group_teacher').id), (4, cls.env.ref('base.group_user').id)],
-        })
-        cls.teacher_employee = cls.env['hr.employee'].create({
-            'name': 'Attendance Correction Tour Teacher',
-            'employee_type': 'teacher', 'user_id': cls.teacher_user.id,
-        })
+        cls.teacher_user = create_role_user(
+            cls, 'teacher', 'test_teacher_attendance_correction_tour',
+            name='Attendance Correction Tour Teacher')
+        cls.teacher_employee = create_role_employee(
+            cls, cls.teacher_user, name='Attendance Correction Tour Teacher')
         cls.attendance = cls.env['hr.attendance'].create({
             'employee_id': cls.teacher_employee.id,
             'check_in': datetime(2026, 1, 5, 8, 0),

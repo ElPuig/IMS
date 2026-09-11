@@ -546,12 +546,19 @@ class EmsAttendanceSessionHeader(models.Model):
     def get_normal_sessions_and_planned(self, date):
         is_admin = self.env.user.has_group('ems.group_academic_admin')
         own_emp  = self.env['hr.employee'].search([['user_id', '=', self.env.uid]], limit=1)
+        is_teacher_emp = own_emp.employee_type == 'teacher'
 
         session_domain = [['date', '=', date]]
-        if is_admin and own_emp:
+        if is_teacher_emp:
+            # A teaching employee (admin or not) only ever sees their own sessions here.
             session_domain += ['|',
                 ['template_teacher_ids', 'in', own_emp.id],
                 ['session_teacher_id',  '=', own_emp.id]]
+        elif not is_admin:
+            # Neither a teacher nor an admin (e.g. secretary/PAS): nothing of their own to show -
+            # without this, they'd see every teacher's current session, unfiltered.
+            session_domain += [('id', '=', False)]
+        # else: admin with no teaching employee - stays unfiltered, sees everything.
         sessions = self.search_read(
             session_domain,
             fields=['id', 'time_range', 'subject_id', 'study_ids', 'attendance_schedule_id',
@@ -567,8 +574,10 @@ class EmsAttendanceSessionHeader(models.Model):
             ['end_date',   '>=', date],
             ['id', 'not in', used_ids],
         ]
-        if is_admin and own_emp:
+        if is_teacher_emp:
             sched_domain.append(['attendance_template_id.teacher_ids', 'in', own_emp.id])
+        elif not is_admin:
+            sched_domain.append(('id', '=', False))
         planned = self.env['ems.attendance_schedule'].search_read(
             sched_domain,
             fields=['id', 'name', 'time_range', 'attendance_template_id', 'start_time', 'end_time'],

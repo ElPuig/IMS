@@ -557,6 +557,23 @@ class ems_employee_base(models.AbstractModel):
                     commands.append((3, g.id))
             if commands:
                 sudo_employee.user_id.sudo().write({'groups_id': commands})
+            self._sync_secretary_home_action(sudo_employee, should_have)
+
+    def _sync_secretary_home_action(self, sudo_employee, should_have):
+        """Secretary staff never have a session of their own to take (see
+        ems.attendance_session_header.get_normal_sessions_and_planned) and land on
+        "Educational Community" instead - never overwrites a Home Action the user (or an admin)
+        has deliberately set to anything other than an Attendance-app screen, so this only ever
+        fixes an obviously-still-default value, never a real personal choice. See issue #440."""
+        if self.env.ref('ems.group_secretary') not in should_have:
+            return
+        user = sudo_employee.user_id.sudo()
+        safe_to_override_action_ids = (
+            self.env.ref('ems.action_attendance_passlist').id,
+            self.env.ref('ems.action_attendance_session_tree').id,
+        )
+        if not user.action_id or user.action_id.id in safe_to_override_action_ids:
+            user.write({'action_id': self.env.ref('ems.action_student_kanban').id})
 
     def write(self, vals):
         if "tutorship_ids" in vals:

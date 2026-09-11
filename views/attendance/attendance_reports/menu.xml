@@ -71,6 +71,17 @@
         <record model="ir.actions.server" id="action_attendance_reports_open">
             <field name="name">Reports</field>
             <field name="model_id" ref="ems.model_ems_attendance_session_line"/>
+            <!-- Odoo's own ir.actions.server.run() requires WRITE access on model_id before
+                 running ANY server action bound to it, unless the action defines its own
+                 groups_id - in which case that list is used instead and the write check is
+                 skipped entirely (see ir_actions.py's run()). This action's own code never
+                 writes anything (it only builds and returns a different, read-only action), so
+                 granting secretary/head_of_studies actual write rights on attendance session
+                 lines just to pass that blanket check would be wrong - groups_id is the correct,
+                 intended way out. Matches the same groups this code's own domain branch already
+                 treats as valid callers, found the hard way 2026-09-11 (issue #440): a secretary
+                 opening "Reports" hit "not allowed to modify ems.attendance_session_line". -->
+            <field name="groups_id" eval="[(6, 0, [ref('ems.group_teacher'), ref('ems.group_secretary'), ref('ems.group_secretary_admin')])]"/>
             <field name="state">code</field>
             <field name="code">
 action = env.ref('ems.action_attendance_report_analysis').sudo().read()[0]

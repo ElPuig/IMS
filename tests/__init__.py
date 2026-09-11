@@ -176,3 +176,8 @@ from . import test_student_data_reader_tour
 from . import test_student_my_groups
 from . import test_student_my_groups_tour
 from . import test_mail_template_translations
+from . import test_role_smoke_teacher_tour
+from . import test_role_smoke_orientation_tour
+from . import test_role_smoke_coexistence_tour
+from . import test_role_smoke_secretary_tour
+from . import test_role_smoke_tac_tour

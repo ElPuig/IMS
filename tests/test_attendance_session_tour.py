@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study
+from .common import create_level_study, create_role_employee, create_role_user
 
 
 @tagged('post_install', '-at_install')
@@ -38,15 +38,11 @@ class TestAttendanceSessionTour(HttpCase):
         # user's own hr.employee (employee_type == 'teacher' required). This same teacher
         # plays double duty: owner of the two continuation periods, AND the one covering the
         # colleague's slot in Guard mode - both are genuine, independent uses of one real login.
-        cls.teacher_user = cls.env['res.users'].with_context(no_reset_password=True).create({
-            'name': 'Attendance Session Guard Tour Teacher', 'login': 'test_teacher_attendance_session_guard_tour',
-            'lang': 'en_US',
-            'groups_id': [(4, cls.env.ref('ems.group_teacher').id), (4, cls.env.ref('base.group_user').id)],
-        })
-        cls.teacher_employee = cls.env['hr.employee'].create({
-            'name': 'Attendance Session Guard Tour Teacher', 'employee_type': 'teacher',
-            'user_id': cls.teacher_user.id,
-        })
+        cls.teacher_user = create_role_user(
+            cls, 'teacher', 'test_teacher_attendance_session_guard_tour',
+            name='Attendance Session Guard Tour Teacher')
+        cls.teacher_employee = create_role_employee(
+            cls, cls.teacher_user, name='Attendance Session Guard Tour Teacher')
         # The colleague being covered in Guard mode never logs in - only their hr.employee
         # and schedule need to exist for get_guard_planned() to surface it to someone else.
         cls.other_employee = cls.env['hr.employee'].create({

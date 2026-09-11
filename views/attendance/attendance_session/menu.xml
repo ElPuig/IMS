@@ -14,12 +14,43 @@
             <field name="tag">ems_attendance_session_view</field>
         </record>
 
-        <menuitem name="Current" sequence="0" id="menu_attendance_passlist" parent="menu_attendance" action="action_attendance_passlist"/>
+        <!-- Non-teaching staff (secretary and similar) never have a session of their own to
+             take (see get_normal_sessions_and_planned's own admin/teacher/neither split) -
+             hidden rather than left to always show an empty screen. A menuitem's own `groups`
+             only accepts a positive allow-list (no `!group` negation - that syntax only works
+             inside a view arch's own field-level postprocessing, confirmed the hard way:
+             `groups="!ems.group_secretary"` here failed the whole module load with "External ID
+             not found"). ems.group_teacher alone is enough - Odoo evaluates group membership
+             including implied groups, so this also covers tutor/department_chief/
+             head_of_studies/director/academic_admin/coexistence/orientation/tac. -->
+        <menuitem name="Current" sequence="0" id="menu_attendance_passlist" parent="menu_attendance" action="action_attendance_passlist" groups="ems.group_teacher"/>
         <menuitem name="History" sequence="1" id="menu_attendance_sessions" parent="menu_attendance" action="action_attendance_session_tree"/>
 
-        <!-- Bind the app's root menu directly to "Current" so clicking the app icon lands there by default for every user. -->
+        <!-- The app icon itself (menu_attendance) needs a role-aware default - a plain direct
+             action reference can't branch by group, so this is an ir.actions.server (same
+             pattern as action_attendance_reports_open) that resolves to "Current" for a teaching
+             role and to "History" otherwise, so a non-teaching role (secretary) clicking the app
+             icon itself never lands on the roll-call screen, even though "Current" is hidden
+             from its own submenu (issue #440). groups_id is set for the same reason as
+             action_attendance_reports_open: without it, Odoo's own ir.actions.server.run()
+             would require WRITE access on model_id before running this at all, for every caller,
+             even though this code never writes anything. env.ref(...).sudo().read() is needed
+             too - ir.actions.act_window/ir.actions.client are themselves ACL-gated to
+             Administration/Settings, unrelated to whether the resolved action itself is safe to
+             open. -->
+        <record model="ir.actions.server" id="action_attendance_app_default">
+            <field name="name">Student's Attendances (default)</field>
+            <field name="model_id" ref="ems.model_ems_attendance_session_header"/>
+            <field name="groups_id" eval="[(6, 0, [ref('ems.group_teacher'), ref('ems.group_secretary'), ref('ems.group_secretary_admin')])]"/>
+            <field name="state">code</field>
+            <field name="code">
+action_xmlid = 'ems.action_attendance_passlist' if env.user.has_group('ems.group_teacher') else 'ems.action_attendance_session_tree'
+action = env.ref(action_xmlid).sudo().read()[0]
+            </field>
+        </record>
+
         <record model="ir.ui.menu" id="menu_attendance">
-            <field name="action" ref="action_attendance_passlist"/>
+            <field name="action" ref="action_attendance_app_default"/>
         </record>
     </data>
 </odoo>
