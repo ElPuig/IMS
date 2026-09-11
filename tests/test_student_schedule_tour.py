@@ -2,14 +2,22 @@ from datetime import date
 
 from odoo.tests import tagged, HttpCase
 
-from .common import create_level_study, force_user_language_to_english
+from .common import create_level_study, create_role_employee, create_role_user
 
 
 @tagged('post_install', '-at_install')
 class TestStudentScheduleTour(HttpCase):
 
     def test_student_schedule_tab_tour(self):
-        force_user_language_to_english(self, self.env.ref('base.user_admin'))
+        # Logged in as the least-privileged role with access to this tab (teacher/secretary/tutor
+        # per docs/en/developers/contacts/student_schedule.md's access-control table - all equally
+        # base.group_user, teacher picked as the plainest of the three), not admin - see CLAUDE.md's
+        # Development workflow step 2 ("Log in as the least-privileged role", added after issue
+        # #434, where an admin-only tour login masked a real AccessError other roles hit). Verified
+        # empirically 2026-09-11 (not just by reading the access table): this tab renders cleanly
+        # under this login, same as admin.
+        teacher_user = create_role_user(self, 'teacher', 'test_teacher_student_schedule_tour')
+        create_role_employee(self, teacher_user)
 
         level, study = create_level_study(self, 'TSST', level={'name': 'Tour Schedule Level'}, study={
             'code': 'TSST001', 'name': 'Tour Schedule Study', 'date': date.today(),
@@ -41,6 +49,4 @@ class TestStudentScheduleTour(HttpCase):
             'student_id': student.id, 'group_id': group.id, 'subject_id': subject.id,
         })
 
-        # To observe this tour in a real browser during development:
-        #   self.start_tour("/odoo", "ems_student_schedule_tab", login="admin", watch=True)
-        self.start_tour("/odoo", "ems_student_schedule_tab", login="admin")
+        self.start_tour("/odoo", "ems_student_schedule_tab", login="test_teacher_student_schedule_tour")
