@@ -65,8 +65,20 @@
 - Separately, every real teacher account (and the template used to onboard new ones) now
   consistently lands on the roll-call screen by default too, instead of the read-only history
   list some of them had been defaulting to.
+- The attendance app's own icon still opened straight into the roll-call screen for everyone
+  regardless of role, even after that screen was hidden from secretary's own side menu - it's now
+  a role-aware default (roll-call for teaching roles, history otherwise), so a secretary clicking
+  the app icon itself never lands on a screen meant for taking attendance either.
 
 # Fixes:
+
+## Secretary blocked from the attendance Reports screen with an unrelated permission error (issue #440):
+- Opening "Reports" as secretary failed with "not allowed to modify" a model the screen never
+  actually writes to - a generic Odoo safeguard (any menu action implemented as server-side code
+  requires write access on the model it's nominally attached to, before its own code even runs,
+  regardless of what that code actually does). Fixed the intended way: declared explicitly which
+  roles are allowed to run it, which is the mechanism Odoo itself provides to skip that
+  particular check without granting real write access nobody needs.
 
 ## Secretary missing read access to strike/attendance-status data needed to browse student history:
 - `ems.strike.reason` and `ems.attendance_status` had no read access for the secretary role at
