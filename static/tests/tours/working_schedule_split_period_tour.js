@@ -72,9 +72,14 @@ registry.category("web_tour.tours").add("ems_working_schedule_split_period", {
             run: "selectByLabel Split Tour Subject A",
         },
         {
-            trigger: ".o_schedule_grid_day_column[data-day='0'] .o_schedule_grid_card:last-of-type .o_schedule_grid_card_group",
-            content: "First card: pick the first group",
-            run: "selectByLabel Split Tour Group A",
+            trigger: ".o_schedule_grid_day_column[data-day='0'] .o_schedule_grid_card:last-of-type .o_schedule_grid_card_group_tags input",
+            content: "First card: search for the first group",
+            run: "edit Split Tour Group A",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:contains('Split Tour Group A')",
+            content: "First card: add it as a tag",
+            run: "click",
         },
         {
             trigger: ".o_schedule_grid_day_column[data-day='0'] .o_schedule_grid_add_card",
@@ -109,12 +114,17 @@ registry.category("web_tour.tours").add("ems_working_schedule_split_period", {
             run: "selectByLabel Split Tour Subject B",
         },
         {
-            trigger: ".o_schedule_grid_day_column[data-day='0'] .o_schedule_grid_card:last-of-type .o_schedule_grid_card_group",
-            content: "Second card: pick the second group",
-            run: "selectByLabel Split Tour Group B",
+            trigger: ".o_schedule_grid_day_column[data-day='0'] .o_schedule_grid_card:last-of-type .o_schedule_grid_card_group_tags input",
+            content: "Second card: search for the second group",
+            run: "edit Split Tour Group B",
         },
         {
-            trigger: ".o_schedule_grid_day_column[data-day='0'] .o_schedule_grid_card_group:not(:disabled)",
+            trigger: ".o-autocomplete--dropdown-item:contains('Split Tour Group B')",
+            content: "Second card: add it as a tag",
+            run: "click",
+        },
+        {
+            trigger: ".o_schedule_grid_group_tag:contains('Split Tour Group B')",
             content: "Give each card its own date range - looked up by which subject it currently holds, not by DOM position, since a card can legitimately swap position with its sibling the moment it gets a start date (cards with a tied time sort by date, per the developer's own spec) - a position-based selector would silently write the wrong card's date once that first reorder happens",
             run: function () {
                 const findCardBySubject = (label) => {

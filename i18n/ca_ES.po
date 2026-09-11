@@ -13056,6 +13056,12 @@ msgstr "Trieu el tipus d'absència."
 
 #. module: ems
 #. odoo-javascript
+#: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
+msgid "Add group…"
+msgstr "Afegeix grup…"
+
+#. module: ems
+#. odoo-javascript
 #: code:addons/ems/static/src/js/backend/absence_submit_widget.js:0
 msgid "Give a start and an end time, with the end later than the start."
 msgstr "Indiqueu una hora d'inici i una de fi, amb la de fi posterior a la d'inici."

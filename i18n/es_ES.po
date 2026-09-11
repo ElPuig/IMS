@@ -13056,6 +13056,12 @@ msgstr "Elija el tipo de ausencia."
 
 #. module: ems
 #. odoo-javascript
+#: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
+msgid "Add group…"
+msgstr "Añadir grupo…"
+
+#. module: ems
+#. odoo-javascript
 #: code:addons/ems/static/src/js/backend/absence_submit_widget.js:0
 msgid "Give a start and an end time, with the end later than the start."
 msgstr "Indique una hora de inicio y una de fin, con la de fin posterior a la de inicio."
