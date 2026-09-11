@@ -18,3 +18,6 @@
 
 ## Documentation:
 - Both developer documents now point at `write()` and spell out why the conversion must not hang off `action_quotation_sent()`, so the trap that produced this bug is recorded rather than left to be rediscovered.
+
+## Role-based smoke tours (#434/#437): reviewed, no change needed:
+- This branch only moves an existing hook from one Python method to another (`sale.order`/`res.partner`) plus an error-message reword and i18n - no view, menu, widget or action changed, so there is nothing new for the per-role crawler tours to reach. `TestEnrollmentPlacement` (plain `TransactionCase`, driving the send `with_user()` as a secretary) already covers the access-rights angle; a tour would add no coverage a backend test doesn't already give for this kind of fix. Verified clean with `./upgrade.sh` and the scoped test class (60/60 green) after the merge.
