@@ -1540,6 +1540,12 @@ msgid "All levels"
 msgstr "Tots els nivells"
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "(WC)"
+msgstr "(WC)"
+
+#. module: ems
 #: model:ir.model,name:ems.model_res_partner_relation_all
 msgid "All (non-inverse + inverse) relations between partners"
 msgstr "Totes les relacions (directes i inverses) entre contactes"
@@ -4027,6 +4033,16 @@ msgstr "Grups: On s'assignen els estudiants."
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__mode__guard model:ems.non_teaching_type,name:ems.non_teaching_g code:addons/ems/static/src/js/backend/attendance_session_view.js:0
 msgid "Guard"
 msgstr "Guàrdia"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_gb
+msgid "Guard (Break)"
+msgstr "Guàrdia (Pati)"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_gwc
+msgid "Guard (WC)"
+msgstr "Guàrdia (WC)"
 
 #. module: ems
 #: model:ir.model,name:ems.model_hr_attendance
@@ -11015,6 +11031,7 @@ msgstr "Altres Coordinacions"
 
 #. module: ems
 #. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 #: code:addons/ems/static/src/xml/backend/guard_duty_board.xml:0
 #: model:ems.non_teaching_type,name:ems.non_teaching_br
 msgid "Break"

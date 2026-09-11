@@ -101,16 +101,29 @@
     white-space: nowrap;
 }
 
-/* Break ("Patio") row label (issue #390's level filter) - a small text tag, not a background
-   fill, matching this board's own "no background colour anywhere" convention (see the guard
-   badge's own comment below) - the label alone is enough to tell a genuine break slot apart
-   from a plain empty-looking row. */
+/* Break ("Patio") row label - a small text tag, not a background fill, matching this board's
+   own "no background colour anywhere" convention (see the guard badge's own comment below) -
+   the label alone is enough to tell a genuine break slot apart from a plain empty-looking row.
+   Originally issue #390's level filter only; generalized 2026-09-11 (developer request) to any
+   row whose period is break time for some level AND has no real class in it (see
+   guard_duty_board.py's own 'is_break' computation), so it now also fires under "All levels". */
 .o_guard_board_break_label {
     display: block;
     font-size: 10px;
     font-style: italic;
     font-weight: normal;
     opacity: 0.8;
+}
+
+/* A break/"Patio" row's own accent (2026-09-11, developer request) - the ONE deliberate exception
+   to "no colour anywhere in this table" (see the guard badge's comment below, still fully in
+   force): a 4px left border on the time cell, reusing the exact same brown the teacher's own
+   Schedule tab already paints a break block with (schedule_grid.css's
+   '.o_schedule_grid_entry_break', '#8a6240') so the same colour means "patio" on both screens.
+   Deliberately NOT a background fill and NOT applied to the guard badge itself - the text label
+   above already carries the information on its own, this is only a secondary visual cue. */
+.o_guard_board_row_break > .o_guard_board_time {
+    border-left: 4px solid #8a6240;
 }
 
 .o_guard_board_cell_subject {
@@ -141,6 +154,15 @@
     margin: 1px;
     font-weight: 600;
     white-space: nowrap;
+}
+
+/* "(WC)" suffix inside the guard badge (2026-09-11, developer request: tell a 'Guard (WC)' duty
+   apart from a plain one, since - unlike 'Guard (Break)' - it can fall at any time of day, not
+   only during the already visually-marked patio rows above). Plain text, same colour as the
+   name - lighter weight only, so it reads as a qualifier rather than a second name. */
+.o_guard_board_guard_wc_tag {
+    font-weight: normal;
+    opacity: 0.85;
 }
 
 /* Week navigation + date picker: the board used to be a pure weekday timetable, and only needs

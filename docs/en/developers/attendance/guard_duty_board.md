@@ -330,6 +330,15 @@ now has **no** `background-color`/`color` overrides at all, just a thin `1px sol
 colour). Applied identically to the PDF (see "PDF report" below) — same reasoning throughout,
 verified against a real generated PDF at each pass.
 
+**One deliberate, narrower exception added 2026-09-11 (developer request):** a break/"Patio"
+row's own `.o_guard_board_time` cell gets a 4px `border-left` accent (`#8a6240`, the exact same
+brown `schedule_grid.css`'s `.o_schedule_grid_entry_break` already uses for a break block on the
+teacher's own Schedule tab, so the same colour reads as "patio" on both screens). This does not
+reopen the decision above: it is a border, not a background fill; it lives on the time cell, not
+the guard badge; and it exists to distinguish a *row type* (this period is break time), not to
+recolour a person's name or a subject the way the removed washes did. See "Level filter" below
+for what actually decides which rows get it.
+
 **Why a table, not the existing absolute-positioned grid:** `schedule_grid_field.js`/
 `schedule_grid_readonly_field.js` position entries by pixel offset within one weekday column, at
 most a handful of genuinely overlapping blocks side by side (see the read-only widget's own
@@ -503,10 +512,37 @@ flowchart TB
   `non_teaching_is_break=True`) — same source `_get_derived_break_entries` already reads. A
   match becomes its own row (`is_break: True`, no group cells, just the guard(s)) labelled
   distinctly by the client; a break period with no guard inside it is not rendered at all (same
-  "nothing to show" rule every other row already follows). Not attempted under "All levels" — a
-  break time differs per level group (confirmed against this dev DB, 2026-09-07: ESO/BTX break
-  10:00-10:25 + 12:25-12:40, ciclos break 11:00-11:25 + 18:00-18:20), so there is no single
-  correct "this row is break" answer without knowing which level(s) are being viewed.
+  "nothing to show" rule every other row already follows).
+- **`is_break` also fires under "All levels" (added 2026-09-11, developer request: make a patio
+  guard visually obvious without needing the level filter)** — but not via a synthetic row like
+  the level-filtered case above: every row the main per-period loop already builds (filtered or
+  not) is checked against `_get_guard_duty_board_break_periods(level_ids, ...)` (every
+  framework's own break periods when `level_ids` is falsy, only the selected one(s) otherwise —
+  shared by both this check and `_get_guard_duty_board_break_lines` above) and marked `is_break`
+  when its period falls inside one of them **AND** no group has a real class in it. That second
+  half is what keeps this safe despite different levels having different break windows
+  (confirmed against this dev DB, 2026-09-07: ESO/BTX break 10:00-10:25 + 12:25-12:40, ciclos
+  break 11:00-11:25 + 18:00-18:20): a period that coincides with one level's break clock time
+  while another level is genuinely teaching then already has a non-empty cell, so it's never
+  mislabelled "Patio" just because some other level happens to be on a break at that hour. Found
+  the hard way while writing this feature's own test against this dev DB's real data: a
+  deliberately *wide* guard/break test period (the level-filtered test's own original fixture,
+  ~1h47m, chosen to dodge being absorbed INTO an unrelated real class) ended up fully containing
+  a real, unrelated 09:00-10:00 class instead, populating its own cells and wrongly suppressing
+  `is_break` — the fix was narrowing that fixture to straddle one real hour boundary (not fully
+  inside either side of it) rather than spanning nearly two hours, which dodges both directions
+  of the absorption risk at once (see `test_get_guard_duty_board_lines_level_filter_shows_break_time_guard_as_patio_row`'s
+  own updated docstring in `tests/test_guard_duty_board.py`).
+- **`is_wc` (added 2026-09-11, developer request)**: a per-guard flag on the JSON payload's own
+  guard column (see `get_guard_duty_board_data` below), set when a guard's own
+  `non_teaching.code == 'GWC'` ("Guard (WC)"). Deliberately *not* computed on `get_guard_duty_board_lines`
+  itself, only on the JSON wrapper — the raw `resource.calendar.attendance` recordset the lines
+  method returns already carries `non_teaching` for any caller (the PDF report) that needs it,
+  so only the client-facing payload needs the reduction to a plain boolean. Unlike `is_break`,
+  this is worth surfacing precisely because it's *not* redundant with anything else on the row: a
+  "Guard (Break)" duty always coincides with a break period (already covered by `is_break`
+  above), but a "Guard (WC)" duty can fall at any time of day, so there is no other visual cue
+  that tells it apart from a plain "Guard" duty in the same period.
 
 **Backend** (`models/attendance/guard_duty_board.py`):
 - `_period_contains(container, period)` — new module-level helper, extracted from the
@@ -531,10 +567,16 @@ flowchart TB
   to `None` keeps "select everything" an exact match for "no filter" despite that structural
   difference, without weakening the row-narrowing for a genuine *partial* selection (e.g. ESO+BTX
   only, still correctly hiding every ciclos group/row).
+- `_get_guard_duty_board_break_periods(level_ids, weekday, shift_start, shift_end)` — the
+  `{(hour_from, hour_to), ...}` set of break periods from the relevant framework(s), shared by
+  both the main loop's own `is_break` check and `_get_guard_duty_board_break_lines` below (which
+  used to compute this inline, now delegates here).
 - `_get_guard_duty_board_break_lines(level_ids, weekday, shift_start, shift_end, groups,
   unmatched_guards, intervals)` — new private helper, the break/"Patio" row logic above.
 - `get_guard_duty_board_data(weekday, shift, level_ids=None, day=None)` — passes both through;
-  each JSON line also carries `is_break` (default `False`) for the client template.
+  each JSON line also carries `is_break` (default `False`) for the client template; each guard in
+  a line's `guards` list also carries `is_wc` (`_guard_duty_teacher_data`'s new `wc_employee_ids`
+  parameter).
 - `get_guard_duty_board_levels()` — new `@api.model`, `[{'id':, 'name':} ...]` for every
   `ems.level` (centre-wide curriculum data, not course-scoped), read once by the client action
   to populate the filter's checkbox list.
