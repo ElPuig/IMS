@@ -232,7 +232,8 @@ when they were only away for part of the day.
 
 Absences hang from **Employee Attendances**, not a root app menu of their own: staff attendance
 and staff absence are the same subject at the centre, and that menu already gathers the guard
-duty schedule and the correction requests. `ems.group_secretary` is added to that parent menu,
+schedule and (under its own "Attendance" submenu) the correction requests. `ems.group_secretary`
+is added to that parent menu,
 because administrative and services staff hold neither the teacher nor the attendance officer
 group and would otherwise not be able to reach their own absences at all.
 

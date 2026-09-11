@@ -12,7 +12,7 @@ Cada entrada i sortida que fas queda registrada automàticament. Aquesta pàgina
 
 ## Revisar els teus fitxatges
 
-1. Vés a **Fitxatges dels empleats**.
+1. Vés a **Fitxatges dels empleats → Assistència → Vista general**.
 2. La llista mostra tots els teus fitxatges d'entrada/sortida, els més recents primer.
 3. Fes clic a qualsevol registre per veure'n els detalls: hora d'entrada, hora de sortida i com es va registrar (quiosc, manual, etc.).
 
@@ -48,7 +48,7 @@ La teva sol·licitud s'envia automàticament a qui la pot validar — normalment
 
 ## Consultar l'estat de les teves sol·licituds
 
-- **Fitxatges dels empleats → Sol·licituds de correcció** mostra totes les sol·licituds que has fet i el seu estat actual (Pendent / Acceptada / Rebutjada).
+- **Fitxatges dels empleats → Assistència → Sol·licituds de correcció** mostra totes les sol·licituds que has fet i el seu estat actual (Pendent / Acceptada / Rebutjada).
 - Des del mateix fitxatge, el botó **Correccions** de la capçalera (només visible si hi ha alguna sol·licitud per aquell registre) t'hi porta directament.
 
 > Per defecte, la llista només mostra les sol·licituds **Pendents**. Treu el filtre **Pendent** de la barra de cerca (o canvia al filtre **Acceptada**/**Rebutjada**) per veure les sol·licituds que ja tenen una decisió.

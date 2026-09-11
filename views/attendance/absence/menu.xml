@@ -10,7 +10,7 @@
              just one level deeper. -->
         <record model="ir.ui.menu" id="hr_holidays.menu_hr_holidays_root">
             <field name="parent_id" ref="hr_attendance.menu_hr_attendance_root"/>
-            <field name="sequence">9</field>
+            <field name="sequence">6</field>
         </record>
 
         <!-- Administrative and services staff hold neither ems.group_teacher nor the attendance

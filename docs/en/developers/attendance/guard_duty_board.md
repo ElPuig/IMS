@@ -224,11 +224,11 @@ still `ems.group_department_chief`-only) was.
 `views/attendance/guard_duty_board/menu.xml` — `action_guard_duty_board` is a plain
 `ir.actions.client` (`tag="ems_guard_duty_board"`), not bound to any model or record — see the
 class docstring in `models/attendance/guard_duty_board.py` for why this replaced an earlier
-`TransientModel` + dynamic server-action design. `<menuitem>` sits under
+`TransientModel` + dynamic server-action design. `<menuitem>` sits directly under
 `hr_attendance.menu_hr_attendance_root` ("Employee Attendances", already visible to
-`ems.group_teacher`, see `views/attendance/menu.xml`), a sibling of "Correction Requests" —
-deliberately not under "Working Schedules" (`menu_work_locations`), which only Head of
-Studies/Direction can see.
+`ems.group_teacher`, see `views/attendance/menu.xml`), a sibling of the "Attendance" submenu
+(which itself groups Overview/Correction Requests/Management) and "Time off" — deliberately not
+under "Working Schedules" (`menu_work_locations`), which only Head of Studies/Direction can see.
 
 ## Client action
 

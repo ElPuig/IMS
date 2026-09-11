@@ -12,9 +12,9 @@ Els professors poden sol·licitar una correcció d'una hora d'entrada/sortida de
 
 ## Decidir una sol·licitud
 
-Si t'han enviat una sol·licitud (la veuràs com a activitat pendent, i també apareixerà a **Fitxatges dels empleats → Sol·licituds de correcció**):
+Si t'han enviat una sol·licitud (la veuràs com a activitat pendent, i també apareixerà a **Fitxatges dels empleats → Assistència → Sol·licituds de correcció**):
 
-1. Obre la sol·licitud — des de l'activitat, des de **Fitxatges dels empleats → Sol·licituds de correcció**, o des del botó **Correccions** del propi fitxatge.
+1. Obre la sol·licitud — des de l'activitat, des de **Fitxatges dels empleats → Assistència → Sol·licituds de correcció**, o des del botó **Correccions** del propi fitxatge.
 
    > La llista mostra només les sol·licituds **Pendents** per defecte, perquè no calgui repassar les que ja tenen una decisió. Treu el filtre **Pendent** (o canvia al filtre **Acceptada**/**Rebutjada**) per veure la resta.
 2. Revisa l'hora original davant de la sol·licitada, i el motiu indicat.
