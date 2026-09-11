@@ -294,7 +294,7 @@ The **field-level** editing surface for tutors is narrower than the record rule 
 | Relation wizard | `views/community/contact/relation_wizard.xml` | `action_contact_relation_wizard` |
 | Menu | `views/community/contact/menu.xml` + `views/community/menu.xml` | `action_student_kanban` (top-level "Educational Community" entry), `action_family_list`, `action_provider_kanban` |
 
-Other student-related popups — [portal access](portal_access_wizard.md), [documents](student_document.md), [graduation/withdrawal](exit_wizards.md) — live in the same `views/community/contact/` folder but are documented separately. The import wizards (`student_import`, `student_update`, `applicant_import`) are not yet DTON'd (see the roadmap).
+Other student-related popups — [portal access](portal_access_wizard.md), [documents](student_document.md), [graduation/withdrawal](exit_wizards.md) — live in the same `views/community/contact/` folder but are documented separately. The import wizards (`student_import`, `student_update`, `applicant_import`) are not yet DTON'd (see the roadmap). The Form's own `schedule` page (a student's read-only weekly timetable) is likewise documented separately — see [Student schedule](student_schedule.md).
 
 ### List view columns (2026-09-03)
 

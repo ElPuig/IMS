@@ -42,6 +42,7 @@ Technical reference for developers working on the EMS module.
 |-------|-------------|
 | [ems.group](contacts/group.md) | The core class-group model — one of the most widely-referenced in EMS; `group_type` switching, the tutor-role sync bug fix, the side-effecting `enrollment_view_ids` compute |
 | [Group schedule (read-only aggregation)](contacts/group_schedule.md) | The group form's "Schedule" tab: aggregating teachers' `resource.calendar.attendance` rows by `group_ids`, deriving the break period from the level's schedule framework, the "Subject → Teacher(s)" co-teaching summary, and the PDF export |
+| [Student schedule (read-only aggregation)](contacts/student_schedule.md) | The student form's own "Schedule" tab: the same read-only mechanism as the group's, reused via the shared `readonly_schedule_grid` widget, but scoped per `(subject_id, group_id)` enrollment pair instead of a whole group — and the overlap-aware column-split layout that scoping makes necessary |
 
 ---
 
@@ -109,7 +110,7 @@ Technical reference for developers working on the EMS module.
 | [`ems.base`](shared/base.md) | Chatter/notification helpers (`notify`, `chatter`, `chatter_exception`), permission checks (`get_user_is_admin`/`_tutor`), `persistent_hash` — the foundational mixin inherited by most business models |
 | [`ems.datetime_utils`](shared/datetime_utils.md) | Timezone-aware ↔ naive-UTC ↔ float-hour conversions shared by every attendance/schedule model |
 | [`ems.multithreading`](shared/multithreading.md) | The `run_in_thread()` setup/compute/store/callback engine behind the LimeSurvey integration's long-running actions |
-| [`ems.schedule_report_mixin`](shared/schedule_report_mixin.md) | Color-per-item and time-label helpers shared by the weekly-schedule PDF reports |
+| [`ems.schedule_report_mixin`](shared/schedule_report_mixin.md) | The shared weekly-schedule aggregation-to-report pipeline (report-line building, break derivation, colour/time-label helpers) behind both the group's and the student's own read-only Schedule tab |
 | [`google.workspace.mixin`](shared/google_workspace_mixin.md) | The Directory API client, password policy, and text/phone normalization shared by the staff and student Google Workspace integrations |
 | [Shared test utilities](shared/testing.md) | `tests/common.py`: `create_level_study(_group)`, `mock_outgoing_email`, `make_synchronous_run_in_thread` — fixture/mock boilerplate extracted after it was found duplicated across dozens of test files |
 

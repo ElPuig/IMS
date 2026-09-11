@@ -89,6 +89,30 @@ class TestGroupSchedule(TransactionCase):
         self.assertEqual(len(teaching_entries), 2)
         self.assertEqual(set(teaching_entries.mapped('employee_id')), {self.teacher_a, self.teacher_b})
 
+    def test_schedule_attendance_ids_ignores_archived_calendar_even_under_active_test_false(self):
+        """Same real incident as res.partner (student)'s own version of this test (issue #408
+        follow-up, 2026-09-10): this compute must force active_test=True on its own searches
+        regardless of the surrounding context - a caller opening the group from a context that
+        disabled active_test for an unrelated reason (e.g. wanting archived records visible in a
+        list) must not resurface a stale/archived calendar's own never-deleted attendance rows as
+        if they were still part of the group's CURRENT schedule."""
+        calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Archived)')
+        calendar_a.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TGSL: TGSL (stale)',
+        }])
+        calendar_a.action_archive()
+        calendar_b = self._new_calendar(self.teacher_b, 'Test Calendar B (Current)')
+        calendar_b.apply_schedule_changes([{
+            'dayofweek': '1', 'hour_from': 10, 'hour_to': 11, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TGSL: TGSL (current)',
+        }])
+
+        group = self.group.with_context(active_test=False)
+        teaching_entries = group.schedule_attendance_ids.filtered('subject_id')
+
+        self.assertEqual(teaching_entries.mapped('employee_id'), self.teacher_b)
+
     def test_get_schedule_report_lines_co_teaching_is_a_single_block(self):
         calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Co-teaching)')
         calendar_a.apply_schedule_changes([{

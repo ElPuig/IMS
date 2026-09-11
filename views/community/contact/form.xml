@@ -337,6 +337,22 @@
                             </field>
                         </group>
                     </page>
+                    <page name="schedule" string="Schedule" invisible="contact_type != 'student'">
+                        <field name="shift" invisible="1"/>
+                        <field name="schedule_attendance_ids" widget="readonly_schedule_grid" nolabel="1">
+                            <list>
+                                <field name="dayofweek"/>
+                                <field name="hour_from"/>
+                                <field name="hour_to"/>
+                                <field name="day_period"/>
+                                <field name="subject_id"/>
+                                <field name="non_teaching"/>
+                                <field name="non_teaching_is_break"/>
+                                <field name="employee_id"/>
+                                <field name="space_id"/>
+                            </list>
+                        </field>
+                    </page>
                     <page name="secretary" string="Secretary" invisible="contact_type != 'student'">
                         <group>
                             <separator string="Bonifications &amp; Exemptions" colspan="2"/>

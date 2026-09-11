@@ -324,10 +324,13 @@ own date range.
 **Not implemented in this pass:** the XML planner import format has no per-entry date concept at
 all (`_parse_schedule_entries` builds one flat weekly grid, no date attribute in the source
 `<TeacherNode>/<DayNode>/<HourNode>` structure) - a date-scoped slot can currently only be set up
-via the live "Schedule" tab grid, not through a bulk file import. The group schedule widget
-(`group_schedule_grid_field.js`/`.xml`, read-only, aggregates several teachers for one group) does
-not share any of the CSS classes touched here and was not extended to render split slots side by
-side - it would show them overlapping today, same pre-existing behavior as before this feature.
+via the live "Schedule" tab grid, not through a bulk file import. The read-only aggregation widget
+(`schedule_grid_readonly_field.js`/`.xml`, shared by the group and student Schedule tabs - see
+[Student schedule](../contacts/student_schedule.md)) does not share any of the CSS classes touched
+here, but does incidentally render a split slot side by side too, as a side effect of the generic
+overlap column-split (`layoutOverlappingBlocks`) added for a student's own schedule - two entries
+at the exact same hour_from/hour_to are just one more case of "genuinely overlapping blocks" to
+that algorithm, not a scenario it special-cases.
 
 ## PDF report (`ems.report_working_schedule`)
 

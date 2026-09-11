@@ -24,6 +24,7 @@ This section contains the manuals for **administrators**.
 - [Task Assignment: Who Handles the Tasks EMS Creates](task-assignment.md) — Choosing who reviews the documents students upload and the comments families write, independently of roles and permissions.
 - [Groups](groups.md) — Creating and managing Main/Reinforcement groups, tutors, delegates and switching group type.
 - [A Group's Weekly Schedule](group-schedule.md) — Viewing a group's aggregated timetable (subjects, teachers, classrooms, breaks) and exporting it to PDF.
+- [A Student's Weekly Schedule](student-schedule.md) — Viewing a student's own timetable (subjects, teachers, classrooms, breaks), including overlapping classes, and exporting it to PDF.
 - [Setting Up the Next Course](course-transition.md) — Closing the year: archiving the academic history, graduating and archiving former students, placing everyone in their new group and switching the current course.
 - [Importing Grades from Esfera](grade-import.md) — Loading each evaluation's official grades into EMS, and optionally creating the enrollments that are missing.
 - [Configuring staff absences](absences.md) — The two settings, the absence type catalogue and where the approver comes from.

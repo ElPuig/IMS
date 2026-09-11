@@ -375,7 +375,7 @@ class ems_working_schedule_assignation(models.Model):
 	# data) can single out a break from every OTHER non-teaching activity (guard duty, a coordination
 	# meeting...) without fetching 'ems.non_teaching_type' separately — only a break is short enough
 	# to need the grid's compact single-line rendering, see 'schedule_grid_field.js'/
-	# 'group_schedule_grid_field.js'.
+	# 'schedule_grid_readonly_field.js'.
 	non_teaching_is_break = fields.Boolean(related="non_teaching.is_break", store=True)
 	# NOTE: same reasoning as 'non_teaching_is_break' above — lets the guard duty board
 	# (models/attendance/guard_duty_board.py's ems.course.get_guard_duty_board_lines()) single
