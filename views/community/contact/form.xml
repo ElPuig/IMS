@@ -340,7 +340,7 @@
                     <page name="schedule" string="Schedule" invisible="contact_type != 'student'">
                         <field name="shift" invisible="1"/>
                         <field name="schedule_attendance_ids" widget="readonly_schedule_grid" nolabel="1">
-                            <list>
+                            <list limit="200">
                                 <field name="dayofweek"/>
                                 <field name="hour_from"/>
                                 <field name="hour_to"/>

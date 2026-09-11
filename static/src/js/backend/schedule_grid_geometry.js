@@ -17,6 +17,16 @@ export const WEEKDAYS = [0, 1, 2, 3, 4];
 // label plus its time and room lines without visually spilling into the next period below it.
 export const MIN_ENTRY_HEIGHT = 44;
 
+// Mirrors ems.schedule_report_mixin.HOUR_EPSILON (Python) exactly, for the exact same reason: two
+// hour_from/hour_to values meant to represent the same moment can differ by a tiny float remainder
+// depending on how each was computed/entered (a framework's break stored as the literal
+// '11.416667' vs a real period's own hour_from computed as '11 + 25/60' == 11.416666666666666).
+// Without this tolerance, 'layoutOverlappingBlocks' below reads that hair's-width gap as a real
+// overlap and needlessly splits the break block into columns - confirmed on GA1A's own morning
+// break (2026-09-11), whose stored 11.416667 is a hair larger than the very next period's
+// 11.416666666666666, even though the two are meant to be back-to-back, not overlapping.
+const HOUR_EPSILON = 1 / 120;
+
 export function dayLabels() {
     return [_t("Monday"), _t("Tuesday"), _t("Wednesday"), _t("Thursday"), _t("Friday")];
 }
@@ -115,7 +125,7 @@ export function layoutOverlappingBlocks(blocks) {
     };
 
     for (const block of sorted) {
-        if (cluster.length && block.hour_from >= clusterEnd) {
+        if (cluster.length && block.hour_from >= clusterEnd - HOUR_EPSILON) {
             flushCluster();
         }
         cluster.push(block);
