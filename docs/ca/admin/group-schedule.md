@@ -43,7 +43,8 @@ pestanya Horari del professor corresponent.
 ## Exportar l'horari a PDF
 
 Fes clic a **PDF** a la barra d'eines de la pestanya Horari per descarregar una versió
-imprimible de l'horari setmanal del grup, incloent-hi la taula Assignatura → Docent(s).
+imprimible de l'horari setmanal del grup, incloent-hi la taula Assignatura → Docent(s). La
+capçalera mostra el tutor/a i l'aula de referència del grup, quan estan definits.
 
 ---
 

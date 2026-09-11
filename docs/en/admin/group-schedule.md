@@ -45,7 +45,8 @@ Schedule tab instead.
 ## Exporting the Schedule to PDF
 
 Click **PDF** in the Schedule tab's toolbar to download a printable version of the group's
-weekly timetable, including the Subject → Teacher(s) table.
+weekly timetable, including the Subject → Teacher(s) table. The header shows the group's
+tutor and reference classroom, when set.
 
 ---
 

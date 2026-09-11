@@ -2422,9 +2422,19 @@ msgid "City"
 msgstr "Ciudad"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_group__space_id model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__space_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__space_id
+#: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__space_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__space_id
 msgid "Classroom"
 msgstr "Aula"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__space_id
+msgid "Reference classroom"
+msgstr "Aula de referencia"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_group_schedule
+msgid "Reference classroom:"
+msgstr "Aula de referencia:"
 
 #. module: ems
 #. odoo-python

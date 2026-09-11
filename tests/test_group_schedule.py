@@ -264,3 +264,18 @@ class TestGroupSchedule(TransactionCase):
 
         self.assertIn(b'Tutor:', content)
         self.assertIn(tutor.name.encode(), content)
+
+    def test_report_group_schedule_shows_reference_classroom(self):
+        content, _content_type = self.env['ir.actions.report']._render_qweb_pdf('ems.report_group_schedule', [self.group.id])
+
+        self.assertIn(b'Reference classroom:', content)
+        self.assertIn(self.space.name.encode(), content)
+
+    def test_report_group_schedule_hides_reference_classroom_when_unset(self):
+        no_space_group = self.env['ems.group'].create({
+            'group_type': 'reinforcement', 'name': 'REF-TGSL-NOSPACE', 'shift': 'morning',
+        })
+
+        content, _content_type = self.env['ir.actions.report']._render_qweb_pdf('ems.report_group_schedule', [no_space_group.id])
+
+        self.assertNotIn(b'Reference classroom:', content)

@@ -31,7 +31,7 @@ Navega a: **Comunitat Educativa → Grups**
    - **Acrònim** *(obligatori)*: p. ex., `A`. El nom del grup es construeix automàticament a partir d'Estudi + Curs + Acrònim (p. ex., `DAM1A`) — no s'escriu directament.
    - **Tutor**: el professor responsable d'aquest grup. Assignar-lo aquí concedeix automàticament el rol de Tutor a aquest professor.
    - **Delegat**: un alumne representant (només seleccionable un cop el grup té alumnes).
-   - **Torn**, **Aula**, **ID extern** (codi Esfera/SAGA) segons calgui.
+   - **Torn**, **Aula de referència**, **ID extern** (codi Esfera/SAGA) segons calgui.
 4. Fes clic a **Desa**.
 
 Els alumnes no s'afegeixen des d'aquí — consulta la pestanya **Alumnes** per revisar qui està assignat, però és el propi registre de l'alumne (o el procés de matrícula) el que realment l'assigna a un grup.

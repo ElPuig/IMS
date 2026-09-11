@@ -46,7 +46,8 @@ pestaña Horario del profesor correspondiente.
 
 Haz clic en **PDF** en la barra de herramientas de la pestaña Horario para descargar una
 versión imprimible del horario semanal del grupo, incluyendo la tabla Asignatura →
-Docente(s).
+Docente(s). La cabecera muestra el tutor/a y el aula de referencia del grupo, cuando están
+definidos.
 
 ---
 

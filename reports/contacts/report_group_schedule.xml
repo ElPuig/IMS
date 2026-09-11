@@ -19,7 +19,9 @@
                         <div class="page">
                             <style>
                                 .gs-group-title { font-size: 22px; margin-bottom: 2px; }
-                                .gs-tutor-title { font-size: 14px; font-weight: 500; color: #444; margin: 0 0 14px 0; }
+                                .gs-header-subtitle-block { margin: 0 0 14px 0; }
+                                .gs-tutor-title { font-size: 14px; font-weight: 500; color: #444; margin: 0 0 2px 0; }
+                                .gs-tutor-title:last-child { margin-bottom: 0; }
                                 .gs-table { font-size: 10px; table-layout: fixed; }
                                 .gs-table th, .gs-table td { padding: 4px 6px !important; text-align: center; vertical-align: middle; overflow: hidden; }
                                 .gs-table td.gs-time { white-space: nowrap; font-weight: bold; }
@@ -37,7 +39,10 @@
                             </style>
 
                             <h1 class="gs-group-title"><span t-field="group.name"/> (<span t-field="group.env.company.current_course_id.name"/>)</h1>
-                            <h2 t-if="group.tutor_id" class="gs-tutor-title">Tutor: <span t-field="group.tutor_id.name"/></h2>
+                            <div t-if="group.tutor_id or group.space_id" class="gs-header-subtitle-block">
+                                <h2 t-if="group.tutor_id" class="gs-tutor-title">Tutor: <span t-field="group.tutor_id.name"/></h2>
+                                <h2 t-if="group.space_id" class="gs-tutor-title">Reference classroom: <span t-field="group.space_id.name"/></h2>
+                            </div>
 
                             <t t-set="lines" t-value="group.get_schedule_report_lines()"/>
                             <t t-if="lines">

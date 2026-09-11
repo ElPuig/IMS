@@ -174,6 +174,11 @@ described above. The student's own PDF (`reports/contacts/report_student_schedul
 `ems.report_student_schedule`) is a near-verbatim copy of this template, bound to `res.partner`
 instead — see the student doc.
 
+The header shows the group's tutor (when set) and, right below it, the group's reference
+classroom (`space_id`, `t-if="group.space_id"`) — both lines omitted when the corresponding
+field is empty (see `test_report_group_schedule_shows_reference_classroom`/
+`test_report_group_schedule_hides_reference_classroom_when_unset` in `tests/test_group_schedule.py`).
+
 ## Access control
 
 | Action | `base.group_user` (teacher, secretary, tutor, ...) | `ems.group_department_chief` and above |
