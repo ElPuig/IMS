@@ -330,6 +330,35 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         self.assertEqual(attendance.subject_id, self.subject)
         self.assertEqual(attendance.group_ids, self.group)
 
+    def test_import_reads_optional_topic_node(self):
+        # Issue #428: some subjects (e.g. FP Basica's MP 3161) are split into several distinct
+        # topics, each taught by a different teacher in a different slot - a planner file marks
+        # this with an optional '<Topic>' sibling of '<Subject>'/'<Students>', free text, no
+        # resolution/validation needed (unlike Subject/Space).
+        self._import({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{self.group.name} Group"/>'
+                '<Topic name="Castellà"/>',
+            )),
+        })
+
+        attendance = self.teacher.resource_calendar_id.attendance_ids
+        self.assertEqual(attendance.topic, 'Castellà')
+
+    def test_import_without_topic_node_leaves_topic_blank(self):
+        self._import({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{self.group.name} Group"/>',
+            )),
+        })
+
+        attendance = self.teacher.resource_calendar_id.attendance_ids
+        self.assertFalse(attendance.topic)
+
     def test_import_resolves_duplicate_subject_code_by_group_study(self):
         # The same official code can legitimately be shared by two subjects that belong to
         # different, disjoint studies (see ems.subject._check_code_unique_per_study - e.g. MP 3003

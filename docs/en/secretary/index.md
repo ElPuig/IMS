@@ -15,6 +15,7 @@ This section contains the manuals for **secretariat staff**.
 - [Enrolling the preinscription students](manual-matriculacio-preinscripcio.md) — How to import the GEDAC applicants, create the enrollment proposals (both for new students and for current ones changing study), give portal access and send the proposal.
 - [Onboarding a Teacher and Creating Their Corporate Email Account (Google Workspace)](../admin/alta-professor-compte-google.md) — How to onboard a teacher or ASP staff member and how their corporate account is generated.
 - [A Group's Weekly Schedule](../admin/group-schedule.md) — Viewing a group's aggregated timetable (subjects, teachers, classrooms, breaks) and exporting it to PDF.
+- [A Student's Weekly Schedule](../admin/student-schedule.md) — Viewing a student's own timetable (subjects, teachers, classrooms, breaks), including overlapping classes, and exporting it to PDF.
 - [Attendance Reports](attendance-reports.md) — Print the 3 PDF attendance reports (by group/student/subject) and explore attendance data with the Attendance analysis pivot/graph screen.
 - [Managing student and family contacts](student-contacts.md) — Contact types and how they change, adding a family contact to a student, and registering bonifications and exemptions.
 - [Reviewing student documents](student-documents.md) — Approving, rejecting or reopening ID/medical/IBAN/benefit submissions, and what each decision does behind the scenes.

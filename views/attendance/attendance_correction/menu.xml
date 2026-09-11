@@ -15,6 +15,6 @@
             <field name="target">new</field>
         </record>
 
-        <menuitem name="Correction Requests" sequence="7" id="menu_attendance_correction" parent="hr_attendance.menu_hr_attendance_root" action="action_attendance_correction_tree"/>
+        <menuitem name="Correction Requests" sequence="2" id="menu_attendance_correction" parent="menu_hr_attendance_group" action="action_attendance_correction_tree"/>
     </data>
 </odoo>

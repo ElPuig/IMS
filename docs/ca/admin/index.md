@@ -24,6 +24,7 @@ Aquesta secció conté els manuals per a **administradors**.
 - [Assignació de tasques: qui gestiona les tasques que crea l'EMS](task-assignment.md) — Triar qui revisa els documents que pugen els alumnes i els comentaris de les famílies, amb independència dels rols i els permisos.
 - [Grups](groups.md) — Crear i gestionar grups Principals/de Reforç, tutors, delegats i canvi de tipus de grup.
 - [L'horari setmanal d'un grup](group-schedule.md) — Consultar l'horari agregat d'un grup (assignatures, docents, aules, patis) i exportar-lo a PDF.
+- [L'horari setmanal d'un alumne](student-schedule.md) — Consultar l'horari propi d'un alumne (assignatures, docents, aules, patis), incloent-hi classes solapades, i exportar-lo a PDF.
 - [Preparar el curs següent](course-transition.md) — Tancar el curs: arxivar l'historial acadèmic, graduar i arxivar els exalumnes, col·locar tothom al grup nou i canviar el curs actual.
 - [Importar les notes des d'Esfera](grade-import.md) — Carregar a l'EMS les notes oficials de cada avaluació i, opcionalment, crear les matrícules que faltin.
 - [Configurar les absències del personal](absences.md) — Els dos paràmetres, el catàleg de tipus d'absència i d'on surt qui aprova.

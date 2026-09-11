@@ -112,6 +112,35 @@ class TestWorkingSchedule(TransactionCase):
         self.assertEqual(len(calendar.attendance_ids), 1)
         self.assertEqual(calendar.source_framework_id, self.framework)
 
+    def test_apply_schedule_changes_supports_multiple_groups_in_one_cell(self):
+        """A join_session slot (one teacher running an identical session for two different groups
+        at once, e.g. an optional subject combining two official groups in the same room - see
+        working_schedule.md's own 'join_session' section) is ONE calendar row with several
+        'group_ids', not one row per group. Regression test for the Schedule tab's own edit widget
+        silently truncating an existing multi-group row down to its first group on save (issue
+        'unable to setup multiple groups when editing a schedule manually')."""
+        other_group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'TWSL2', 'level_id': self.level.id, 'study_id': self.study.id,
+            'space_id': self.space.id,
+        })
+        calendar = self.env['resource.calendar'].create({'name': 'Test Apply Multi-group (Working Schedule)'})
+        cells = [{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id, other_group.id],
+            'name': 'Test: Group, Other Group',
+        }]
+
+        calendar.apply_schedule_changes(cells)
+
+        self.assertEqual(len(calendar.attendance_ids), 1)
+        self.assertEqual(set(calendar.attendance_ids.group_ids.ids), {self.group.id, other_group.id})
+
+        # Re-saving (simulating a later "Edit" round trip through the same widget) must keep both
+        # groups, not silently drop back to one.
+        calendar.apply_schedule_changes(cells)
+        self.assertEqual(len(calendar.attendance_ids), 1)
+        self.assertEqual(set(calendar.attendance_ids.group_ids.ids), {self.group.id, other_group.id})
+
     def test_attendance_row_active_defaults_true_and_can_be_archived(self):
         # 'active' added 2026-08-06 (core resource.calendar.attendance has none) so a course
         # transition can archive a teacher's migrating blocks instead of unlink()-ing them - see
@@ -1010,6 +1039,56 @@ class TestWorkingSchedule(TransactionCase):
 
         self.assertEqual(attendance.with_context(lang='en_US').get_report_label(), 'Guard')
         self.assertEqual(attendance.with_context(lang='ca_ES').get_report_label(), 'Guàrdia')
+
+    def test_topic_field_optional_and_blank_by_default(self):
+        # Issue #428: some subjects (e.g. FP Basica's MP 3161) are split into several distinct
+        # topics, each taught by a different teacher - but most schedule blocks never use it.
+        schedule = self.env['resource.calendar'].create({'name': 'Test Topic Default (Working Schedule)'})
+        schedule.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+        }])
+
+        self.assertFalse(schedule.attendance_ids.topic)
+
+    def test_get_report_label_appends_topic_when_set(self):
+        schedule = self.env['resource.calendar'].create({'name': 'Test Report Label Topic (Working Schedule)'})
+        schedule.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+            'topic': 'Castellà',
+        }])
+        attendance = schedule.attendance_ids
+
+        self.assertEqual(attendance.get_report_label(), 'TWSL: TWSL - Castellà')
+
+    def test_get_report_label_unaffected_without_topic(self):
+        schedule = self.env['resource.calendar'].create({'name': 'Test Report Label No Topic (Working Schedule)'})
+        schedule.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+        }])
+
+        self.assertEqual(schedule.attendance_ids.get_report_label(), 'TWSL: TWSL')
+
+    def test_get_subject_display_label_appends_topic_when_set(self):
+        schedule = self.env['resource.calendar'].create({'name': 'Test Subject Display Label (Working Schedule)'})
+        schedule.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+            'topic': 'Català',
+        }])
+
+        self.assertEqual(schedule.attendance_ids.get_subject_display_label(), '%s - Català' % self.subject.display_name)
+
+    def test_get_subject_display_label_is_just_the_subject_without_topic(self):
+        schedule = self.env['resource.calendar'].create({'name': 'Test Subject Display Label No Topic (Working Schedule)'})
+        schedule.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+        }])
+
+        self.assertEqual(schedule.attendance_ids.get_subject_display_label(), self.subject.display_name)
 
     def test_report_working_schedule_translates_non_teaching_reason(self):
         self.teacher.resource_calendar_id = self.framework

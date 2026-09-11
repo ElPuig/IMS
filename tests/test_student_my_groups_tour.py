@@ -1,6 +1,6 @@
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study_group
+from .common import create_level_study_group, create_role_employee, create_role_user
 
 
 @tagged('post_install', '-at_install')
@@ -23,18 +23,13 @@ class TestStudentMyGroupsTour(HttpCase):
             'code': 'TMYG001', 'acronym': 'TMYG', 'name': 'Test Subject (My Groups Tour)',
             'study_ids': [(6, 0, [cls.study.id])],
         })
-        # Explicit 'lang': the tour asserts on the literal English facet labels ("Students",
-        # "My students") and a fresh res.users does not reliably default to en_US on this box -
-        # see CLAUDE.md's "Tour tests and language".
-        login = 'test_teacher_my_groups_tour'
-        cls.teacher_user = cls.env['res.users'].with_context(no_reset_password=True).create({
-            'name': 'My Groups Tour Teacher', 'login': login, 'password': login, 'lang': 'en_US',
-            'groups_id': [(4, cls.env.ref('ems.group_teacher').id), (4, cls.env.ref('base.group_user').id)],
-        })
-        cls.teacher = cls.env['hr.employee'].create({
-            'name': 'My Groups Tour Teacher', 'employee_type': 'teacher',
-            'user_id': cls.teacher_user.id,
-        })
+        # create_role_user() always sets 'lang': 'en_US' - needed here since the tour asserts on
+        # the literal English facet labels ("Students", "My students") and a fresh res.users
+        # does not reliably default to en_US on this box (see CLAUDE.md's "Tour tests and
+        # language").
+        cls.teacher_user = create_role_user(
+            cls, 'teacher', 'test_teacher_my_groups_tour', name='My Groups Tour Teacher')
+        cls.teacher = create_role_employee(cls, cls.teacher_user, name='My Groups Tour Teacher')
         cls.env['ems.teaching'].create({
             'teacher_id': cls.teacher.id, 'group_id': cls.taught_group.id,
             'subject_id': cls.subject.id,

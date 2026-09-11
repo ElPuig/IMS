@@ -6,6 +6,7 @@ import { standardFieldProps } from "@web/views/fields/standard_field_props";
 import { useRecordObserver } from "@web/model/relational_model/utils";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
+import { AutoComplete } from "@web/core/autocomplete/autocomplete";
 import { PX_PER_HOUR, DEFAULT_START, WEEKDAYS, MIN_ENTRY_HEIGHT, dayLabels, computeBounds, formatHour, formatHourMinutes, buildColorMap } from "./schedule_grid_geometry";
 
 // 'date_from'/'date_to' are core Odoo fields on resource.calendar.attendance (not EMS-specific) -
@@ -13,7 +14,7 @@ import { PX_PER_HOUR, DEFAULT_START, WEEKDAYS, MIN_ENTRY_HEIGHT, dayLabels, comp
 // subject at a different point in the year" feature, instead of adding new EMS-only fields.
 // 'space_id' - exposed as its own explicit per-card field since the 2026-08-11 card-based edit mode
 // redesign (previously only ever inferred server-side, never shown/editable in this widget at all).
-const ATTENDANCE_FIELDS = ["dayofweek", "hour_from", "hour_to", "non_teaching", "subject_id", "group_ids", "date_from", "date_to", "space_id"];
+const ATTENDANCE_FIELDS = ["dayofweek", "hour_from", "hour_to", "non_teaching", "subject_id", "topic", "group_ids", "date_from", "date_to", "space_id"];
 
 // Two different layouts for two different jobs:
 //   - VIEW mode (read-only): a visual weekly grid (day columns x hourly rows), entries positioned
@@ -49,6 +50,7 @@ const ATTENDANCE_FIELDS = ["dayofweek", "hour_from", "hour_to", "non_teaching", 
 export class ScheduleGridField extends Component {
     static template = "ems.ScheduleGridField";
     static props = { ...standardFieldProps };
+    static components = { AutoComplete };
 
     setup() {
         this.orm = useService("orm");
@@ -119,6 +121,21 @@ export class ScheduleGridField extends Component {
         return value ? value[0] : false;
     }
 
+    // The underlying hr.employee id for employee-specific RPCs (get_derived_break_attendance_
+    // data, the PDF report, the "copy from another teacher" search) below. On the teacher's own
+    // form 'record' IS the hr.employee, so its own resId already is that id. Reused on "My
+    // Profile" (res.users, see views/community/employee/user_profile_form.xml), 'record' is a
+    // DIFFERENT model - its resId is the res.users id, not the employee's - but 'employee_id' is
+    // a real, always-loaded field there (checked via 'in' since a genuinely empty Many2one would
+    // otherwise be indistinguishable from the field not existing on this host model at all).
+    _employeeIdFor(record) {
+        if ("employee_id" in record.data) {
+            const value = record.data.employee_id;
+            return value ? value[0] : false;
+        }
+        return record.resId;
+    }
+
     // Fetched explicitly (orm.call), not read off the record as a form field — see
     // hr.employee.get_derived_break_attendance_data()'s own docstring for why a hidden Many2many
     // field with its own embedded <list> turned out not to reliably load its sub-fields
@@ -127,10 +144,11 @@ export class ScheduleGridField extends Component {
     // expect from a real x2many record's own data. See '_loadSummary' above for why 'record' is a
     // parameter, not read off 'this.props' directly.
     async _loadDerivedBreaks(record = this.props.record) {
-        if (!record.resId) {
+        const employeeId = this._employeeIdFor(record);
+        if (!employeeId) {
             return;
         }
-        const rows = await this.orm.call("hr.employee", "get_derived_break_attendance_data", [[record.resId]]);
+        const rows = await this.orm.call("hr.employee", "get_derived_break_attendance_data", [[employeeId]]);
         this.derivedBreaks.list = rows.map((row) => ({ id: row.id, data: row }));
     }
 
@@ -333,7 +351,8 @@ export class ScheduleGridField extends Component {
             hour_to: data.hour_to,
             non_teaching: data.non_teaching ? data.non_teaching[0] : false,
             subjectId: data.subject_id ? data.subject_id[0] : false,
-            groupId: groupIds.length ? groupIds[0] : false,
+            topic: data.topic || false,
+            groupIds: groupIds,
             spaceId: data.space_id ? data.space_id[0] : false,
             // "YYYY-MM-DD" string or false - each card's own date range (2026-08-11 card redesign;
             // previously carried on a shared "period" row). Reads core Odoo's own 'date_from'/
@@ -344,23 +363,25 @@ export class ScheduleGridField extends Component {
     }
 
     // A card with no subject/non-teaching is 'blank' (still-unassigned) — shown so the admin can
-    // fill it in, but never written on save (see the class comment).
+    // fill it in, but never written on save (see the class comment). 'groupIds' is an array — the
+    // same slot can legitimately be taught to several groups at once (e.g. an optional subject
+    // joining two official groups in the same room), so a card must be able to hold more than one.
     _kindFromNormalized(n) {
         if (n.non_teaching) {
-            return { kind: "non_teaching", subjectId: false, groupId: false, nonTeaching: n.non_teaching };
+            return { kind: "non_teaching", subjectId: false, groupIds: [], nonTeaching: n.non_teaching };
         }
         if (n.subjectId) {
-            return { kind: "subject", subjectId: n.subjectId, groupId: n.groupId, nonTeaching: false };
+            return { kind: "subject", subjectId: n.subjectId, groupIds: n.groupIds, nonTeaching: false };
         }
-        return { kind: "blank", subjectId: false, groupId: false, nonTeaching: false };
+        return { kind: "blank", subjectId: false, groupIds: [], nonTeaching: false };
     }
 
     _cardFromNormalized(n) {
-        return { id: this._nextCardId++, hourFrom: n.hour_from, hourTo: n.hour_to, startDate: n.startDate, endDate: n.endDate, spaceId: n.spaceId, ...this._kindFromNormalized(n) };
+        return { id: this._nextCardId++, hourFrom: n.hour_from, hourTo: n.hour_to, startDate: n.startDate, endDate: n.endDate, spaceId: n.spaceId, topic: n.topic, ...this._kindFromNormalized(n) };
     }
 
     _blankCard(hourFrom, hourTo) {
-        return { id: this._nextCardId++, hourFrom, hourTo, startDate: false, endDate: false, spaceId: false, kind: "blank", subjectId: false, groupId: false, nonTeaching: false };
+        return { id: this._nextCardId++, hourFrom, hourTo, startDate: false, endDate: false, spaceId: false, topic: false, kind: "blank", subjectId: false, groupIds: [], nonTeaching: false };
     }
 
     // Cards within a day sort by start time, then end time, then start date - the developer's own
@@ -468,22 +489,77 @@ export class ScheduleGridField extends Component {
         }
         const value = ev.target.value;
         if (value.startsWith("n_")) {
-            Object.assign(card, { kind: "non_teaching", subjectId: false, groupId: false, nonTeaching: Number(value.slice(2)) });
+            Object.assign(card, { kind: "non_teaching", subjectId: false, groupIds: [], nonTeaching: Number(value.slice(2)), topic: false });
         } else if (value.startsWith("s_")) {
             Object.assign(card, { kind: "subject", subjectId: Number(value.slice(2)), nonTeaching: false });
         } else {
-            Object.assign(card, { kind: "blank", subjectId: false, groupId: false, nonTeaching: false });
+            Object.assign(card, { kind: "blank", subjectId: false, groupIds: [], nonTeaching: false, topic: false });
         }
         this.dirty.value = true;
     }
 
-    onCardGroupChange(dayIndex, cardId, ev) {
+    // Topic (issue #428): free text, only meaningful for a 'subject' card - some subjects (e.g. FP
+    // Basica's MP 3161) are split into several distinct topics, each taught by a different teacher
+    // in a different slot. Optional, no catalog/validation, same treatment as a plain text field.
+    onCardTopicChange(dayIndex, cardId, ev) {
         const card = this._findCard(dayIndex, cardId);
         if (!card) {
             return;
         }
-        card.groupId = ev.target.value ? Number(ev.target.value) : false;
+        card.topic = ev.target.value || false;
         this.dirty.value = true;
+    }
+
+    // Groups are picked via a tag-style AutoComplete (developer feedback 2026-09-10: a native
+    // <select multiple> proved impractical - no visible "selected" state, and Ctrl/Shift-click is
+    // not discoverable) - matching the same 'AutoComplete' + search-as-you-type pattern already
+    // used for the room picker in 'grouped_conflict_lines_field.js'. 'groupLabel'/'searchGroups'/
+    // 'groupAutocompleteSources' below are this card's own read side; 'onCardGroupSelect'/
+    // 'removeCardGroup' are the write side (add/remove one tag at a time).
+    groupLabel(groupId) {
+        const group = this.catalog.groups.find((candidate) => candidate.id === groupId);
+        return group ? group.display_name : "";
+    }
+
+    // Excludes groups already on this card ('args') so the same group never appears twice in its
+    // own suggestion list - the common case of picking a SECOND, different group to join.
+    async searchGroups(request, card) {
+        const results = await this.orm.call("ems.group", "name_search", [], {
+            name: request,
+            args: [["id", "not in", card.groupIds]],
+            limit: 8,
+        });
+        return results.map(([id, label]) => ({ value: id, label }));
+    }
+
+    groupAutocompleteSources(card) {
+        return [{ options: (request) => this.searchGroups(request, card) }];
+    }
+
+    onCardGroupSelect(dayIndex, cardId, option) {
+        const card = this._findCard(dayIndex, cardId);
+        if (!card || card.groupIds.includes(option.value)) {
+            return;
+        }
+        card.groupIds.push(option.value);
+        this.dirty.value = true;
+    }
+
+    removeCardGroup(dayIndex, cardId, groupId) {
+        const card = this._findCard(dayIndex, cardId);
+        if (!card) {
+            return;
+        }
+        card.groupIds = card.groupIds.filter((id) => id !== groupId);
+        this.dirty.value = true;
+    }
+
+    get addGroupPlaceholder() {
+        return _t("Add group…");
+    }
+
+    get topicPlaceholder() {
+        return _t("Topic (optional)");
     }
 
     onCardSpaceChange(dayIndex, cardId, ev) {
@@ -560,7 +636,7 @@ export class ScheduleGridField extends Component {
 
     async onPdfClick() {
         await this.actionService.doAction("ems.action_report_working_schedule", {
-            additionalContext: { active_ids: [this.props.record.resId] },
+            additionalContext: { active_ids: [this._employeeIdFor(this.props.record)] },
         });
     }
 
@@ -573,7 +649,7 @@ export class ScheduleGridField extends Component {
                 this.orm.searchRead(
                     "hr.employee",
                     [
-                        ["id", "!=", this.props.record.resId],
+                        ["id", "!=", this._employeeIdFor(this.props.record)],
                         ["employee_type", "=", "teacher"],
                         ["resource_calendar_id", "!=", false],
                     ],
@@ -655,10 +731,17 @@ export class ScheduleGridField extends Component {
                 if (card.spaceId) {
                     cell.space_id = card.spaceId;
                 }
-                if (card.kind === "subject" && card.subjectId && card.groupId) {
+                if (card.kind === "subject" && card.subjectId && card.groupIds.length) {
                     cell.subject_id = card.subjectId;
-                    cell.group_ids = [card.groupId];
-                    cell.name = `${subjectById.get(card.subjectId)}: ${groupById.get(card.groupId)}`;
+                    cell.group_ids = card.groupIds;
+                    cell.name = `${subjectById.get(card.subjectId)}: ${card.groupIds.map((groupId) => groupById.get(groupId)).join(", ")}`;
+                    // Topic (issue #428) is appended to the frozen 'name' label too, so the
+                    // teacher's own grid immediately shows what they just typed - same "subject -
+                    // topic" convention as get_report_label()/blockLabel() elsewhere.
+                    if (card.topic) {
+                        cell.topic = card.topic;
+                        cell.name += ` - ${card.topic}`;
+                    }
                 } else if (card.kind === "non_teaching") {
                     cell.non_teaching = card.nonTeaching;
                     cell.name = nonTeachingById.get(card.nonTeaching) || card.nonTeaching;

@@ -74,6 +74,74 @@ def make_synchronous_run_in_thread(record):
     return fake_run_in_thread
 
 
+# Maps a short role name to its ems.group_* xmlid - see security/groups.xml and
+# docs/en/developers/employees/role_hierarchy.md for the full implication chain. Used by
+# create_role_user() so tours/tests can log in as any EMS role without repeating xmlids.
+ROLE_GROUP_XMLIDS = {
+    'teacher': 'ems.group_teacher',
+    'tutor': 'ems.group_tutor',
+    'department_chief': 'ems.group_department_chief',
+    'head_of_studies': 'ems.group_head_of_studies',
+    'director': 'ems.group_director',
+    'academic_admin': 'ems.group_academic_admin',
+    'secretary': 'ems.group_secretary',
+    'secretary_admin': 'ems.group_secretary_admin',
+    'quality': 'ems.group_quality',
+    'quality_admin': 'ems.group_quality_admin',
+    'coexistence': 'ems.group_coexistence',
+    'coexistence_admin': 'ems.group_coexistence_admin',
+    'tac': 'ems.group_tac',
+    'tac_admin': 'ems.group_tac_admin',
+    'orientation': 'ems.group_orientation',
+    'orientation_admin': 'ems.group_orientation_admin',
+    'settings': 'ems.group_settings',
+    'settings_admin': 'ems.group_settings_admin',
+}
+
+
+def create_role_user(cls, role, login, **overrides):
+    """Creates a res.users with `role`'s group (see ROLE_GROUP_XMLIDS) plus base.group_user.
+
+    'lang' is set to 'en_US' at creation - required by any tour asserting on English labels,
+    since a freshly created res.users does not reliably default to en_US (see CLAUDE.md's "Tour
+    tests and language"). `login` doubles as the password, matching start_tour()'s own
+    convention. Extracted after the same ~15-line res.users.create() block was hand-written in
+    9+ tour test files (e.g. test_student_data_reader_tour.py, test_employee_teacher_kanban_tour.py).
+
+    overrides: any res.users field to override/add (e.g. 'name', 'email')."""
+    vals = {
+        'name': overrides.pop('name', f'Test {role.replace("_", " ").title()} User'),
+        'login': login,
+        'password': login,
+        'lang': 'en_US',
+        'groups_id': [
+            (4, cls.env.ref('base.group_user').id),
+            (4, cls.env.ref(ROLE_GROUP_XMLIDS[role]).id),
+        ],
+        **overrides,
+    }
+    return cls.env['res.users'].with_context(no_reset_password=True).create(vals)
+
+
+def create_role_employee(cls, user, employee_type='teacher', **overrides):
+    """Creates an hr.employee linked to `user`.
+
+    `employee_type` defaults to 'teacher' since most EMS roles that need a paired employee
+    (teacher, tutor, orientation, coexistence, tac - all imply ems.group_teacher) are teaching
+    roles; pass employee_type='asp' for secretary/settings/quality-style roles. The '0000 '
+    name prefix sorts first among the pre-existing teachers in this dev DB's list views, same
+    trick used across the existing employee tours (e.g. test_employee_teacher_kanban_tour.py).
+
+    overrides: any hr.employee field to override/add."""
+    vals = {
+        'name': overrides.pop('name', f'0000 {user.name}'),
+        'employee_type': employee_type,
+        'user_id': user.id,
+        **overrides,
+    }
+    return cls.env['hr.employee'].create(vals)
+
+
 def create_student_academic_file(cls, prefix, group, course=None, student=None):
     """Seeds the data the student form's Secretary and Academic history tabs render.
 

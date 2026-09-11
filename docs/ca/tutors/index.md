@@ -21,6 +21,7 @@ Aquesta secció conté els manuals per als **tutors de grup**.
 | [Strikes: consultar els registres del teu grup](strike.md) | Consultar els strikes posats als teus alumnes tutoritzats i els que has posat tu mateix/a |
 | [Informes d'assistència](attendance-reports.md) | Imprimir els 3 informes PDF d'assistència (per grup/alumne/assignatura) i explorar les dades tu mateix amb la pantalla d'Anàlisi d'assistència |
 | [L'horari setmanal d'un grup](../admin/group-schedule.md) | Consultar l'horari agregat d'un grup (assignatures, docents, aules, patis) i exportar-lo a PDF |
+| [L'horari setmanal d'un alumne](../admin/student-schedule.md) | Consultar l'horari propi d'un dels teus tutorands (assignatures, docents, aules, patis), incloent-hi classes solapades, i exportar-lo a PDF |
 
 ---
 

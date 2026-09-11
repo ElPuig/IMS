@@ -15,6 +15,7 @@ Esta sección contiene los manuales para el **personal de secretaría**.
 - [Matriculación del alumnado de preinscripción](manual-matriculacio-preinscripcio.md) — Cómo importar los aspirantes de GEDAC, crear las propuestas de matrícula (tanto de los alumnos nuevos como de los del centro que cambian de estudios), dar acceso al portal y enviar la propuesta.
 - [Alta de un profesor y creación de la cuenta de correo corporativo (Google Workspace)](../admin/alta-professor-compte-google.md) — Cómo dar de alta a un profesor o miembro del PAS y cómo se genera su cuenta corporativa.
 - [El horario semanal de un grupo](../admin/group-schedule.md) — Consultar el horario agregado de un grupo (asignaturas, docentes, aulas, patios) y exportarlo a PDF.
+- [El horario semanal de un alumno](../admin/student-schedule.md) — Consultar el horario propio de un alumno (asignaturas, docentes, aulas, patios), incluyendo clases solapadas, y exportarlo a PDF.
 - [Informes de asistencia](attendance-reports.md) — Imprimir los 3 informes PDF de asistencia (por grupo/alumno/asignatura) y explorar los datos con la pantalla de Análisis de asistencia.
 - [Gestión de contactos de alumnado y familia](student-contacts.md) — Tipos de contacto y cómo cambian, añadir un contacto familiar a un alumno, y registrar bonificaciones y exenciones.
 - [Revisar los documentos del alumnado](student-documents.md) — Aprobar, rechazar o reabrir tramitaciones de DNI/tarjeta sanitaria/IBAN/beneficios, y qué hace cada decisión por detrás.

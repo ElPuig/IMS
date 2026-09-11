@@ -50,6 +50,44 @@ Seeded by `data/main/ems.non_teaching_type.csv` with the original 12 codes (`AC`
 
 **`hr.employee`** (`models/employees/employee.py`, `ems_employee_base`): `schedule_attendance_ids` — a **related** One2many to `resource_calendar_id.attendance_ids`, used purely so the "Schedule" tab's widget field can be declared on the employee form (Odoo view archs can't reference a dotted `many2one.one2many` path directly).
 
+## The `topic` field (issue #428)
+
+Some subjects are actually split into several distinct topics, each taught by a different teacher
+in a different slot — the motivating case is FP Basica's MP 3161 "Comunicacio i ciencies socials
+I", split into Castella/Catala/Angles. `topic` (Char, optional, `resource.calendar.attendance`) lets
+a schedule block record which topic it is, so a "teachers by subject" grouping can become a
+"teachers by subject+topic" one wherever that distinction matters.
+
+- **Free text, no controlled vocabulary.** Deliberately not a Many2one to a topic model — typed
+  directly, same convention on repeat entries relies on the admin/teacher typing it consistently
+  (e.g. always "Castella", never "Castellà"/"castella").
+- **Not a `_SYNC_TRIGGER_FIELDS` member.** It plays no role in `hr.employee._teaching_entries_from_calendar()`
+  (only `subject_id`/`group_ids` matter there), so it never affects `ems.teaching`/
+  `ems.attendance_template` sync — those two models are entirely unaware of topic.
+- **Only ever edited from the teacher's own Schedule tab** (`schedule_grid_field.js`'s card-based
+  editor) or the XML importer's `<Topic>` node (see "Import wizard" below) — never from the
+  group/student schedule screens, which are read-only.
+- **Read wherever "subject" is displayed as a label**, appended with a plain hyphen (never a
+  decorative em dash) when set:
+  - `ems_working_schedule_assignation.get_report_label()` (the teacher's own PDF cell label —
+    falls back to the frozen `name` Char, unlike the two below, see that method's own docstring).
+  - `ems_working_schedule_assignation.get_subject_display_label()` (a NEW helper, always resolves
+    `subject_id.display_name` live — used by the group/student PDF cell label and by
+    `get_subject_teachers_summary()` below, so the exact same label text appears in both places).
+  - `ems.schedule_report_mixin.get_subject_teachers_summary()` — now groups by `(subject_id, topic)`
+    instead of `subject_id` alone, so MP 3161's three topics show as three separate rows.
+  - `schedule_grid_readonly_field.js`'s `blockLabel()`/`subjectTeachersSummary` — the JS-side
+    mirror of the two Python methods above, used by the group/student schedule's on-screen grid.
+- **Also part of the block/color grouping key**, not just the label (fixed 2026-09-11, found live
+  on a real teacher's calendar): `ems.schedule_report_mixin._report_color_key()` and
+  `schedule_grid_readonly_field.js`'s `_blockKey()`/`_colorKey()` include `topic` alongside
+  `subject_id`. Two teachers can genuinely share the exact same subject/group/slot while teaching
+  different topics (this isn't hypothetical — a real second teacher happened to share MP 3161's
+  Monday 8h slot with SA1A) — without `topic` in these keys, the two entries silently merge into
+  ONE block/color, showing only one of the two teachers (chosen arbitrarily by entry order), even
+  though `get_subject_teachers_summary()` correctly lists both. See
+  [schedule_report_mixin.md](../shared/schedule_report_mixin.md) for the full detail.
+
 ## The empty-slot rule: nothing unassigned is ever stored
 
 **A `resource.calendar.attendance` row only exists if it is real** — a subject assignment, or a non-teaching commitment (patio, a meeting...). An empty/unassigned period is *never* written to the database, even though the "Schedule" tab visually shows it as an editable gap. This was a deliberate correction after an earlier version *did* persist blank "Free" placeholder rows: they collided (Odoo's own `resource.calendar._check_overlap` constraint) with genuinely different times added by hand for the same teacher on the same day, and there was no clean way to tell "a real but still-unassigned slot" apart from "nothing is supposed to happen here".
@@ -231,7 +269,10 @@ A **framework** is just a `resource.calendar` with `is_framework=True` and an op
   **Visually distinct from every other non-teaching activity.** A break renders with its own CSS class, `o_schedule_grid_entry_break` (a diagonal brown stripe pattern, `schedule_grid.css`) — gated on `non_teaching_is_break` specifically, not on `non_teaching` in general, so a guard duty or coordination meeting keeps getting its own colour instead (see below). Without that distinction a break in the teacher's own grid was visually indistinguishable from a meeting, which read as "wrong" once breaks started reliably appearing. Same compact single-line block either way (time + label together, see above) — there is no other visual difference between an explicitly-saved break and a derived one. The group PDF's own break cell (`reports/contacts/report_group_schedule.xml`, `.gs-break`) uses the same brown/stripe treatment for consistency; the teacher's own PDF (`report_working_schedule.xml`) still colours every cell — including a break — from the same rotating palette as subjects, unchanged for now.
 
 - **Per-subject/activity colour, not one flat colour for everything.** `schedule_grid_geometry.js` exports `REPORT_COLOR_PALETTE` (mirrors the identically-named Python constant in `ems.schedule_report_mixin` — kept in sync by hand, cross-language) and `buildColorMap(items)`, which assigns each distinct `items[].key` its own colour from that palette, reused every time the same key reappears, in first-seen `(dayofweek, hour_from)` order — the exact same "same subject always gets the same colour" rule `resource.calendar.get_schedule_report_lines()`/`ems.group.get_schedule_report_lines()` already use for the PDF. Both widgets build a `colorByKey` getter from their own currently-displayed entries only (a schedule with 3 subjects gets (at most) 3 colours, not one slot per subject that exists in the whole catalogue) and read it back per entry/block (`entryColor()`/`blockColor()`), appending `background-color` to the block's own inline `style` — the CSS classes (`.o_schedule_grid_entry`'s flat blue, the old flat grey on `.o_schedule_grid_entry_nonteaching`) now only serve as a fallback for the rare case nothing computed a colour. A break opts out of this (its `_colorKey`/`blockColor` equivalent returns `null`) since it already has its own fixed, deliberately-different brown/stripe look.
-- **Edit mode** (`Edit`, or after `New`): rows are the **distinct real periods** found in the merged baseline+real buffer (see "The empty-slot rule"), not a fixed hourly grid — each row shows its own exact `HH:MM–HH:MM`, editable via two `<input type="time">` (moving the start shifts the end too, preserving duration, so a block can't accidentally balloon across the day), plus a subject+group dropdown pair (or a non-teaching reason) per (day, period) cell. `Add period`/the trash icon let an admin introduce or remove a period the loaded source didn't have — this is how a teacher who genuinely mixes two levels' bell schedules (e.g. an English teacher covering both ESO and CFGS classes) gets a slot at a time neither framework defines.
+- **Edit mode** (`Edit`, or after `New`): rows are the **distinct real periods** found in the merged baseline+real buffer (see "The empty-slot rule"), not a fixed hourly grid — each row shows its own exact `HH:MM–HH:MM`, editable via two `<input type="time">` (moving the start shifts the end too, preserving duration, so a block can't accidentally balloon across the day), plus a subject dropdown, an optional free-text **topic** input (issue #428, `o_schedule_grid_card_topic`, only shown for a `kind === 'subject'` card — see "The `topic` field" above), and a group picker (or a non-teaching reason) per (day, period) cell. `Add period`/the trash icon let an admin introduce or remove a period the loaded source didn't have — this is how a teacher who genuinely mixes two levels' bell schedules (e.g. an English teacher covering both ESO and CFGS classes) gets a slot at a time neither framework defines.
+  **A card can name several groups at once, via a tag-style picker (issue "unable to setup multiple groups when editing a schedule manually").** `resource.calendar.attendance.group_ids` is a real Many2many — a `join_session` slot (see "join_session" below: one teacher running an identical session for two different groups at once, e.g. an optional subject combining GA1C+GA1D in the same room) genuinely needs more than one group on the same card. Before this fix, `_normalizeEntry`/the card model only ever kept `groupIds[0]`, so re-opening "Edit" on an existing multi-group row silently showed (and, on `Save`, silently persisted) only its first group — losing every other group the row actually had, even though the server side (`ems.attendance_template`, `ems.teaching`, `apply_schedule_changes` itself) already treated `group_ids` as a genuine set throughout. The card now carries `groupIds` (an array) end to end (`_normalizeEntry` → `_kindFromNormalized`/`_cardFromNormalized`/`_blankCard` → `save()`'s `cell.group_ids`), and the saved block's own `name` joins every selected group's `display_name` with `, ` instead of showing just one.
+
+  **First attempt (2026-09-10) used a native `<select multiple>` — reverted the same day on developer feedback: "El control no es práctico, no aparecen seleccionados los elementos y la única manera de seleccionar varios es dejando apretado el CTRL o Shift."** A plain multi-select gives no visible "selected" affordance in this browser/theme and requires a Ctrl/Shift-click nobody discovers on their own. Replaced with a tag picker: each already-picked group renders as its own removable pill (`o_schedule_grid_group_tag`, a `×` link calling `removeCardGroup()`), followed by an `AutoComplete` (`@web/core/autocomplete/autocomplete`) input that adds one more group per selection (`onCardGroupSelect()`, always cleared back to `value=""` after each pick) — the exact same `AutoComplete`-as-a-search-driven-picker pattern already used for the room picker in `grouped_conflict_lines_field.js`, offered to the developer as one of three concrete proposals (checkbox list; a closed-by-default filter-style dropdown; this tag picker) before implementing, and picked for being the most consistent with the rest of the app's own `many2many_tags` fields and for scaling to a large group catalogue via search instead of a long scrollable list. `searchGroups()` calls `ems.group.name_search()` server-side (excluding groups already on the card, via `args: [['id', 'not in', card.groupIds]]`) rather than filtering the already-loaded `catalog.groups` client-side, for the same reason the room picker does: consistent ordering/relevance and unaccented matching, "for free" from `name_search`. The group tags block only renders at all for a `kind === 'subject'` card — a non-teaching or still-blank card has no groups to show, so there's nothing to keep visible-but-disabled the way the old `<select>` did.
 - **New**: choose a schedule framework (blank baseline) or another teacher (their real schedule as the overlay, plus *their* reference framework as the baseline too — a substitute inherits the same future gaps) — entirely replaces the buffer, but nothing is written until `Save`. This is also how a teacher joining mid-year gets their schedule (see "Import wizard" below — there is no per-employee file upload any more, deliberately).
 - **PDF**: calls `this.actionService.doAction("ems.action_report_working_schedule", { additionalContext: { active_ids: [this.props.record.resId] } })` — downloads the printable weekly schedule for the currently open employee (see "PDF report" below). No buffer/dirty-state interaction; available in both view and edit mode.
 - **Hours summary** (below the grid, view mode only, hidden while editing): `resource.calendar.get_schedule_hours_summary()` returns two columns — mirrors the real external schedules this data is modelled on:
@@ -324,10 +365,13 @@ own date range.
 **Not implemented in this pass:** the XML planner import format has no per-entry date concept at
 all (`_parse_schedule_entries` builds one flat weekly grid, no date attribute in the source
 `<TeacherNode>/<DayNode>/<HourNode>` structure) - a date-scoped slot can currently only be set up
-via the live "Schedule" tab grid, not through a bulk file import. The group schedule widget
-(`group_schedule_grid_field.js`/`.xml`, read-only, aggregates several teachers for one group) does
-not share any of the CSS classes touched here and was not extended to render split slots side by
-side - it would show them overlapping today, same pre-existing behavior as before this feature.
+via the live "Schedule" tab grid, not through a bulk file import. The read-only aggregation widget
+(`schedule_grid_readonly_field.js`/`.xml`, shared by the group and student Schedule tabs - see
+[Student schedule](../contacts/student_schedule.md)) does not share any of the CSS classes touched
+here, but does incidentally render a split slot side by side too, as a side effect of the generic
+overlap column-split (`layoutOverlappingBlocks`) added for a student's own schedule - two entries
+at the exact same hour_from/hour_to are just one more case of "genuinely overlapping blocks" to
+that algorithm, not a scenario it special-cases.
 
 ## PDF report (`ems.report_working_schedule`)
 
@@ -410,7 +454,11 @@ all at once). So by the time a study's groups are due for a fresh import, there 
 nothing active left to reconcile against for that scope — an active overlap found during import
 is always either legitimate co-teaching or a real problem, never something to silently resolve.
 
-Parses a planner XML export (`<TeacherNode name="email ...">` → `<DayNode name="N ...">` → `<HourNode name="N HH:MM">` → `<Subject>`/`<NonTeaching>`/`<Students>`/optional `<Space>` children) via `_parse_schedule_entries()`, writes the calendar (`_write_teacher_schedule`, see "`import_mode`" below), then calls `ems.teaching.sync_from_schedule`/`ems.attendance_template.sync_from_schedule_batch` reading straight off each affected teacher's calendar — the SAME entry points the Schedule tab's own live-edit grid widget uses (unified 2026-09-02, see below; there used to be a separate, importer-only pair here).
+Parses a planner XML export (`<TeacherNode name="email ...">` → `<DayNode name="N ...">` → `<HourNode name="N HH:MM">` → `<Subject>`/`<NonTeaching>`/`<Students>`/optional `<Space>`/optional `<Topic>` children) via `_parse_schedule_entries()`, writes the calendar (`_write_teacher_schedule`, see "`import_mode`" below), then calls `ems.teaching.sync_from_schedule`/`ems.attendance_template.sync_from_schedule_batch` reading straight off each affected teacher's calendar — the SAME entry points the Schedule tab's own live-edit grid widget uses (unified 2026-09-02, see below; there used to be a separate, importer-only pair here).
+
+**Optional `<Topic name="...">` sibling (issue #428, added 2026-09-11):** free text, read as-is
+into `topic` — no resolution/validation step (unlike `<Subject>`/`<Space>`), since there's no
+ambiguity to resolve. See "The `topic` field" below for what it's for and where it's read.
 
 **Explicit per-entry classroom override (`<Space name="<ems.space code>">`, added 2026-09-06):**
 found live-debugging a real merge-mode import - some groups share their own permanent `space_id`

@@ -16,7 +16,7 @@ const SHIFTS = [
 // very same payload (see ems.course.get_guard_duty_board_data) - one fetch, two renderings.
 const VIEWS = [
     { key: "schedule", label: _t("Guard duty schedule") },
-    { key: "table", label: _t("Guard duty table") },
+    { key: "table", label: _t("Absences table") },
 ];
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -75,9 +75,9 @@ function mondayOf(date) {
 // would show a raw "model/id" instead of a proper "action-<xmlid>" like every other EMS screen.
 //
 // Data is fetched via RPC, one weekday/shift at a time (ems.course.get_guard_duty_board_data()) —
-// not read from any field's own prefetched sub-records, unlike the teacher/group grids
-// (schedule_grid_field.js/group_schedule_grid_field.js). Those aggregate at most one teacher's or
-// one group's own schedule; this one aggregates the whole centre (easily several hundred rows),
+// not read from any field's own prefetched sub-records, unlike the teacher/group/student grids
+// (schedule_grid_field.js/schedule_grid_readonly_field.js). Those aggregate at most one teacher's,
+// one group's or one student's own schedule; this one aggregates the whole centre (easily several hundred rows),
 // which the web client's own x2many sub-record fetch silently caps — an earlier version that did
 // read a prefetched field this way only ever showed real data for whichever weekday loaded first.
 export class GuardDutyBoard extends Component {
@@ -127,6 +127,15 @@ export class GuardDutyBoard extends Component {
         });
     }
 
+    // The header's own title - a plain string literal in the template would never go through
+    // the translation extractor at all (found 2026-09-11: it always rendered in English
+    // regardless of the user's own language, unlike every other label on this screen).
+    get title() {
+        return this.state.courseName
+            ? _t("Guard duty schedule (%s)", this.state.courseName)
+            : _t("Guard duty schedule");
+    }
+
     get shifts() {
         return SHIFTS;
     }
@@ -154,6 +163,26 @@ export class GuardDutyBoard extends Component {
             absences: _t("Nobody is missing this shift."),
             loading: _t("Loading..."),
         };
+    }
+
+    // Small text tags rendered inline next to a time/guard name - kept as their own getters
+    // (rather than folded into columnLabels/emptyLabels above, which are keyed by column/empty-
+    // state, not by row) so the template can translate them the same way as everything else on
+    // this board (developer request, 2026-09-11: make a patio guard duty and a WC guard duty
+    // both visually obvious - see is_break/is_wc in guard_duty_board.py).
+    //
+    // The SOURCE string stays "Break" (real English), same msgid this board's own non-teaching
+    // type ("Break", ems.non_teaching_br) is already translated under - it renders as "Patio"/
+    // "Pati" only once ca_ES/es_ES's own msgstr kicks in. Found the hard way (2026-09-11,
+    // developer report): an earlier version returned _t("Patio") directly - "Patio" isn't an
+    // English word, so English readers saw "Patio" too, with no ca/es override needed to notice
+    // anything was wrong (the bug was invisible from ca/es, which is exactly why it shipped).
+    get breakLabel() {
+        return _t("Break");
+    }
+
+    get wcSuffix() {
+        return _t("(WC)");
     }
 
     // Compact label for the level dropdown's own toggle button - the full checkbox list already
@@ -246,7 +275,9 @@ export class GuardDutyBoard extends Component {
     // own use of the 'guard_duty_weekday'/'guard_duty_shift' context keys. 'guard_duty_level_ids'
     // (issue #390) forwards the same level selection, following the same pattern; 'guard_duty_date'
     // is the printed copy's own absence information - a cuadrante handed out to plan the day's
-    // guards is no use without them.
+    // guards is no use without them. 'guard_duty_view' (found 2026-09-11) forwards which of the
+    // two tabs is actually on screen, so the PDF prints whatever the user is currently looking
+    // at instead of always the schedule tab regardless of the "Absences table" tab being active.
     async onPdfClick() {
         await this.actionService.doAction("ems.action_report_guard_duty_board", {
             additionalContext: {
@@ -255,6 +286,7 @@ export class GuardDutyBoard extends Component {
                 guard_duty_shift: this.state.activeShift,
                 guard_duty_level_ids: this.state.activeLevelIds,
                 guard_duty_date: this.activeDate,
+                guard_duty_view: this.state.activeView,
             },
         });
     }

@@ -105,6 +105,10 @@ All nine share `request_unit = 'hour'`, `requires_allocation = 'no'` (the 15 h c
 never blocks — see the plan) and `leave_validation_type = 'manager'`, which routes approval to
 `leave_manager_id` above.
 
+Since issue #440, `hr.employee.attendance_manager_id` (`hr_attendance`'s own approver field,
+unrelated to leave requests) is a stored compute that always mirrors this same
+`leave_manager_id` — see [My Profile restructuring](user_profile.md) for why and how.
+
 ## The request: what EMS adds to `hr.leave`
 
 | Field | Seeded from | Who edits it |
@@ -228,7 +232,8 @@ when they were only away for part of the day.
 
 Absences hang from **Employee Attendances**, not a root app menu of their own: staff attendance
 and staff absence are the same subject at the centre, and that menu already gathers the guard
-duty schedule and the correction requests. `ems.group_secretary` is added to that parent menu,
+schedule and (under its own "Attendance" submenu) the correction requests. `ems.group_secretary`
+is added to that parent menu,
 because administrative and services staff hold neither the teacher nor the attendance officer
 group and would otherwise not be able to reach their own absences at all.
 

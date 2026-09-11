@@ -8,6 +8,7 @@
                 <field name="dayofweek" position="after">
                     <field name="non_teaching"/>
                     <field name="subject_id" invisible="non_teaching != False"/>
+                    <field name="topic" invisible="non_teaching != False"/>
                     <field name="group_ids" widget="many2many_tags" invisible="non_teaching != False"/>
                     <field name="space_id" readonly="True" invisible="non_teaching != False"/>
                 </field>

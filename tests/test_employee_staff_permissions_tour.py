@@ -2,7 +2,7 @@
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import mock_outgoing_email
+from .common import create_role_user, mock_outgoing_email
 
 
 @tagged('post_install', '-at_install')
@@ -18,22 +18,13 @@ class TestEmployeeStaffPermissionsTour(HttpCase):
         mock_outgoing_email(cls)
         # Logged in as a real Head of Studies, not admin: the whole point of this tour is
         # what THIS group can do, and admin would pass every step regardless.
-        login = 'test_391_hos_tour'
-        cls.hos_user = cls.env['res.users'].with_context(no_reset_password=True).create({
-            'name': 'Staff Perms Tour HoS',
-            'login': login,
-            'password': login,
-            # Pinned so the tour's ":contains('Private Information')" tab selector does not
-            # depend on whatever language this database happens to default to.
-            'lang': 'en_US',
-            'groups_id': [
-                (4, cls.env.ref('base.group_user').id),
-                (4, cls.env.ref('ems.group_head_of_studies').id),
-            ],
-        })
+        # Pinned lang so the tour's ":contains('Private Information')" tab selector does not
+        # depend on whatever language this database happens to default to.
+        cls.hos_user = create_role_user(cls, 'head_of_studies', 'test_391_hos_tour', name='Staff Perms Tour HoS')
         # "0000 " prefix: hr.employee's default _order is "name", so these sort first on the
         # list's very first page among the pre-existing teachers in this DB (same trick as
-        # test_employee_google_workspace_tour.py).
+        # test_employee_google_workspace_tour.py). Not linked to hos_user - this is the
+        # separate teacher fixture the HoS views/edits, not the HoS's own employee record.
         cls.teacher = cls.env['hr.employee'].create({
             'name': '0000 Staff Perms Teacher',
             'employee_type': 'teacher',

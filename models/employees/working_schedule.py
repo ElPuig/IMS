@@ -320,6 +320,13 @@ class ems_working_schedule_assignation(models.Model):
 	non_teaching = fields.Many2one(string="Non-teaching", comodel_name="ems.non_teaching_type")
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject")
 	group_ids = fields.Many2many(string="Groups", comodel_name="ems.group")
+	# NOTE: added for issue #428 - some subjects (e.g. FP Basica's MP 3161) are split into several
+	# distinct topics (Castella, Catala, Angles...), each taught by a different teacher in a
+	# different slot. Free text on purpose (no controlled vocabulary): only ever entered from the
+	# teacher's own Schedule tab or the XML importer's <Topic> node, then read everywhere else
+	# (group/student schedule, PDF reports) to disambiguate teachers grouped under the same
+	# subject - see 'ems.schedule_report_mixin.get_subject_teachers_summary()'.
+	topic = fields.Char(string="Topic")
 	# NOTE: a plain stored field (not a compute) since 2026-08-01 - a schedule block's own room can
 	# now genuinely diverge from its group's default (e.g. a one-off room reassignment resolving an
 	# import conflict), and must stay put afterwards rather than being silently re-derived from the
@@ -375,7 +382,7 @@ class ems_working_schedule_assignation(models.Model):
 	# data) can single out a break from every OTHER non-teaching activity (guard duty, a coordination
 	# meeting...) without fetching 'ems.non_teaching_type' separately — only a break is short enough
 	# to need the grid's compact single-line rendering, see 'schedule_grid_field.js'/
-	# 'group_schedule_grid_field.js'.
+	# 'schedule_grid_readonly_field.js'.
 	non_teaching_is_break = fields.Boolean(related="non_teaching.is_break", store=True)
 	# NOTE: same reasoning as 'non_teaching_is_break' above — lets the guard duty board
 	# (models/attendance/guard_duty_board.py's ems.course.get_guard_duty_board_lines()) single
@@ -435,9 +442,23 @@ class ems_working_schedule_assignation(models.Model):
 		whatever language was active when the row was saved (Edit/Import always write it in English —
 		see 'non_teaching_items' in this file and 'catalog.nonTeaching' in schedule_grid_field.js), so a
 		non-teaching row would otherwise always show "Guard" even when printing in Catalan/Spanish.
-		'non_teaching.name' is translatable, so it resolves to the report's current language for free."""
+		'non_teaching.name' is translatable, so it resolves to the report's current language for free.
+		'topic' (issue #428) is appended as-is when set - it's free text typed directly by the
+		teacher, not a translatable label, so there's nothing to resolve there."""
 		self.ensure_one()
-		return self.non_teaching.name if self.non_teaching else self.name
+		if self.non_teaching:
+			return self.non_teaching.name
+		return "%s - %s" % (self.name, self.topic) if self.topic else self.name
+
+	def get_subject_display_label(self):
+		"""Translatable 'subject [- topic]' label (issue #428) for the group/student schedule PDF
+		grid cell and 'ems.schedule_report_mixin.get_subject_teachers_summary()'. Unlike
+		'get_report_label()' above (the teacher's own PDF, which deliberately falls back to the
+		frozen 'name' Char), this always resolves 'subject_id.display_name' live - the group/student
+		reports already print entries from several different teachers at once, so there's no single
+		"language it was saved in" to freeze in the first place."""
+		self.ensure_one()
+		return "%s - %s" % (self.subject_id.display_name, self.topic) if self.topic else self.subject_id.display_name
 
 class ems_working_schedules_import_wizard(models.TransientModel):
 	_name = "ems.working_schedules_import_wizard"
@@ -1970,6 +1991,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				subject_code = None
 				non_teaching_type = None
 				space_code = None
+				topic = None
 				for content in hourNode:
 					# NOTE: 'NonTeaching' is only kept for backward compatibility with older planner
 					# exports — the current external app sends non-teaching hours as a 'Subject' node
@@ -1985,6 +2007,11 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 						acronyms.append(content.attrib['name'])
 					elif content.tag == 'Space':
 						space_code = content.attrib['name']
+					elif content.tag == 'Topic':
+						# NOTE: issue #428 - free text, optional, no resolution/validation (unlike
+						# Subject/Space): some subjects (e.g. FP Basica's MP 3161) are split into
+						# several topics, each taught by a different teacher in a different slot.
+						topic = content.attrib['name']
 
 				# NOTE: groups are resolved BEFORE the subject code, even though 'Students' can come
 				# after 'Subject' in the XML - '_resolve_subject_code' needs the entry's own groups
@@ -2011,6 +2038,8 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					new_entry["name"] = "%s: %s" % (subject.acronym, subject.name)
 					new_entry["subject_id"] = subject.id
 					new_entry["non_teaching"] = False
+					if topic:
+						new_entry["topic"] = topic
 
 				# NOTE: an explicit '<Space name="...">' overrides the group's own default room for
 				# THIS entry only (see '_entry_default_space_id') - added 2026-09-06 (developer

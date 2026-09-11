@@ -1,6 +1,6 @@
 from odoo.tests.common import HttpCase, tagged
 
-from .common import mock_outgoing_email
+from .common import create_role_employee, create_role_user, mock_outgoing_email
 
 
 @tagged('post_install', '-at_install')
@@ -20,24 +20,12 @@ class TestEmployeeTeacherKanbanTour(HttpCase):
         mock_outgoing_email(cls)
         # A real teacher session, not admin: admin is an HR officer and would pass every step
         # regardless, which is exactly how this bug reached production unnoticed.
-        login = 'test_teacher_kanban_tour'
-        cls.teacher_user = cls.env['res.users'].with_context(no_reset_password=True).create({
-            'name': 'Teacher Kanban Tour',
-            'login': login,
-            'password': login,
-            'lang': 'en_US',
-            'groups_id': [
-                (4, cls.env.ref('base.group_user').id),
-                (4, cls.env.ref('ems.group_teacher').id),
-            ],
-        })
+        cls.teacher_user = create_role_user(cls, 'teacher', 'test_teacher_kanban_tour', name='Teacher Kanban Tour')
         # "0000 " prefix: hr.employee's default _order is "name", so this one sorts first among
         # the pre-existing teachers of this database (same trick as the other employee tours).
-        cls.teacher = cls.env['hr.employee'].create({
-            'name': '0000 Teacher Kanban Tour',
-            'employee_type': 'teacher',
-            'private_email': 'teacher.kanban.tour@example.com',
-        })
+        cls.teacher = create_role_employee(
+            cls, cls.teacher_user, name='0000 Teacher Kanban Tour',
+            private_email='teacher.kanban.tour@example.com')
 
     def test_employee_teacher_kanban_tour(self):
         # To watch this tour in a real browser during development, add watch=True below.

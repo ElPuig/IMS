@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study_group
+from .common import create_level_study_group, create_role_employee, create_role_user
 
 
 @tagged('post_install', '-at_install')
@@ -58,14 +58,10 @@ class TestGradeTutorMatrixTour(HttpCase):
         # not from any teacher_id on the session - a dedicated tutor user/employee is needed,
         # the same pattern already established for the daily roll-call tour
         # (attendance_passlist_tour.py: real teacher accounts only, not admin).
-        cls.tutor_user = cls.env['res.users'].with_context(no_reset_password=True).create({
-            'name': 'Grade Tutor Matrix Tour Tutor', 'login': 'test_tutor_grade_tutor_matrix_tour',
-            'groups_id': [(4, cls.env.ref('ems.group_teacher').id), (4, cls.env.ref('base.group_user').id)],
-        })
-        cls.tutor_employee = cls.env['hr.employee'].create({
-            'name': 'Grade Tutor Matrix Tour Tutor', 'employee_type': 'teacher',
-            'user_id': cls.tutor_user.id,
-        })
+        cls.tutor_user = create_role_user(
+            cls, 'teacher', 'test_tutor_grade_tutor_matrix_tour', name='Grade Tutor Matrix Tour Tutor')
+        cls.tutor_employee = create_role_employee(
+            cls, cls.tutor_user, name='Grade Tutor Matrix Tour Tutor')
         cls.group.tutor_id = cls.tutor_employee
 
     def test_grade_tutor_matrix_entry_tour(self):

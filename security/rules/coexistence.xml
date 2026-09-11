@@ -26,6 +26,20 @@
             <field name="perm_unlink" eval="False"/>
         </record>
 
+        <record id="rule_strike_secretary" model="ir.rule">
+            <!-- Same reasoning as rule_strike_coexistence: secretary needs the complete
+                 student history, centre-wide, not just their own tutees' - see the
+                 access_ems_strike_reason_secretary ACL row added alongside this rule. -->
+            <field name="name">Strike: secretary (all data, read only)</field>
+            <field name="model_id" ref="ems.model_ems_strike"/>
+            <field name="groups" eval="[(4, ref('ems.group_secretary'))]"/>
+            <field name="domain_force">[]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
         <record id="rule_strike_teacher_own" model="ir.rule">
             <field name="name">Strike: own issued</field>
             <field name="model_id" ref="ems.model_ems_strike"/>

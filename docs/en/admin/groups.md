@@ -31,7 +31,7 @@ Navigate to: **Educational Community → Groups**
    - **Acronym** *(required)*: e.g. `A`. The group's name is built automatically from Study + Course + Acronym (e.g. `DAM1A`) — you don't type it directly.
    - **Tutor**: the teacher responsible for this group. Assigning it here automatically grants that teacher the Tutor role.
    - **Delegate**: a student representative (only selectable once the group has students).
-   - **Shift**, **Classroom**, **External ID** (Esfera/SAGA code) as needed.
+   - **Shift**, **Reference classroom**, **External ID** (Esfera/SAGA code) as needed.
 4. Click **Save**.
 
 Students aren't added from here — see the **Students** tab to review who's assigned, but a student's own record (or the enrolment flow) is what actually assigns them to a group.

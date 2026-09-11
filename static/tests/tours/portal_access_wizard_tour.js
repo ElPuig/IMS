@@ -45,7 +45,13 @@ registry.category("web_tour.tours").add("ems_portal_access_wizard_revoke", {
             run: "click",
         },
         {
-            trigger: ".o_cp_action_menus button",
+            // ":has(.fa-cog)" (already the established pattern in attendance_reports_tour.js):
+            // with a selection active, "#408" 's res.partner-bound "Student Schedule" print
+            // report now also renders its own "Print" button inside this same
+            // '.o_cp_action_menus' container, so the bare "button" selector became ambiguous
+            // and could match Print instead of Actions - found 2026-09-11 via the full,
+            // unscoped ./test.sh gate.
+            trigger: ".o_cp_action_menus button:has(.fa-cog)",
             content: "Open the list's Actions (cog) menu",
             run: "click",
         },

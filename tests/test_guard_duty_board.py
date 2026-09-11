@@ -64,6 +64,7 @@ class TestGuardDutyBoard(TransactionCase):
         })
         cls.non_teaching_guard = cls.env.ref('ems.non_teaching_g')
         cls.non_teaching_break = cls.env.ref('ems.non_teaching_br')
+        cls.non_teaching_guard_wc = cls.env.ref('ems.non_teaching_gwc')
         cls.teacher_a = cls.env['hr.employee'].create({'name': 'Test Teacher A (Guard Duty Board)', 'employee_type': 'teacher'})
         cls.teacher_b = cls.env['hr.employee'].create({'name': 'Test Teacher B (Guard Duty Board)', 'employee_type': 'teacher'})
         cls.teacher_guard = cls.env['hr.employee'].create({'name': 'Test Teacher Guard (Guard Duty Board)', 'employee_type': 'teacher'})
@@ -256,7 +257,7 @@ class TestGuardDutyBoard(TransactionCase):
         self.assertIn(self.teacher_guard.display_name,
                       [guard['name'] for guard in matching_line['guards']])
         cell = next(cell for cell in matching_line['cells'] if cell['group_id'] == self.group_a.id)
-        self.assertEqual(cell['teachers'], [{'name': self.teacher_a.display_name, 'absence': False}])
+        self.assertEqual(cell['teachers'], [{'name': self.teacher_a.display_name, 'absence': False, 'is_wc': False}])
         self.assertEqual(cell['subject'], self.subject.acronym)
 
     def test_get_current_course_data(self):
@@ -551,16 +552,25 @@ class TestGuardDutyBoard(TransactionCase):
         once the level filter restricts rows to teaching-only periods (see "Break ('Patio')
         labelling" in docs/en/developers/attendance/guard_duty_board.md). It must instead render
         as its own row, marked 'is_break', once that level's own framework identifies the period
-        as a break - but only under a level filter, never under "All levels" (no single "this row
-        is break" answer is possible without knowing which level is being viewed).
+        as a break.
 
-        Deliberately off-grid AND unusually wide hours (08:55-10:42, ~1h47m) for the guard/break
-        period itself - same reasoning as
-        "test_get_guard_duty_board_lines_keeps_an_uncontained_period_as_its_own_row" above: this
-        board is centre-wide, not scoped to this test's own fixtures, so a plain, real-class-sized
-        window risks silently being absorbed (contained) into some unrelated real teacher's own
-        period of the day - width, not just an off-grid start, is what actually rules that out,
-        since no real bell-schedule period is ever this long."""
+        Under "All levels" this same guard already has a normal row of its own (guard-only
+        periods aren't restricted to teaching entries the way a level-filtered view is - see
+        'get_guard_duty_board_lines' itself) - it must ALSO carry 'is_break': True there
+        (2026-09-11, developer request: make a patio guard visually obvious without needing the
+        level filter), since nothing else is scheduled in that same period for any group either.
+
+        Deliberately off-grid hours (08:54-09:36, ~42min, straddling the real 08:00-09:00/
+        09:00-10:00 boundary this dev DB happens to be densely scheduled around) for the
+        guard/break period itself - same centre-wide-aggregation caution as
+        "test_get_guard_duty_board_lines_keeps_an_uncontained_period_as_its_own_row" above, but
+        cutting both ways this time: too narrow and fully inside one real hour-long class risks
+        this period being silently absorbed (contained) INTO that unrelated class's own row (the
+        original, pre-2026-09-11 concern); too wide (e.g. spanning a full real class rather than
+        just straddling its edge) risks the reverse - this period absorbing that unrelated class
+        INTO itself, which would make its own cells non-empty and wrongly suppress 'is_break' (see
+        the new safety check in 'get_guard_duty_board_lines' itself). Straddling one real
+        boundary without fully covering either side dodges both directions at once."""
         calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Patio)')
         calendar_a.apply_schedule_changes([{
             'dayofweek': '0', 'hour_from': 8.1, 'hour_to': 8.9, 'day_period': 'morning',
@@ -572,29 +582,57 @@ class TestGuardDutyBoard(TransactionCase):
         })
         self.env['resource.calendar.attendance'].create({
             'calendar_id': framework.id, 'name': 'BR: Break', 'dayofweek': '0',
-            'hour_from': 8.92, 'hour_to': 10.7, 'day_period': 'morning', 'non_teaching': self.non_teaching_break.id,
+            'hour_from': 8.9, 'hour_to': 9.6, 'day_period': 'morning', 'non_teaching': self.non_teaching_break.id,
         })
         calendar_guard = self._new_calendar(self.teacher_guard, 'Test Calendar Guard (Patio)')
         calendar_guard.apply_schedule_changes([
             {'dayofweek': '0', 'hour_from': 8.1, 'hour_to': 8.9, 'day_period': 'morning',
              'subject_id': self.subject.id, 'group_ids': [self.group_a.id], 'name': 'TGDBA: TGDB (early)'},
-            {'dayofweek': '0', 'hour_from': 8.92, 'hour_to': 10.7, 'day_period': 'morning',
+            {'dayofweek': '0', 'hour_from': 8.9, 'hour_to': 9.6, 'day_period': 'morning',
              'non_teaching': self.non_teaching_guard.id, 'name': 'Patio Guard'},
         ])
 
         unfiltered = self.course.get_guard_duty_board_lines('0', 'morning')
         filtered = self.course.get_guard_duty_board_lines('0', 'morning', level_ids=[self.level.id])
 
-        unfiltered_patio = [line for line in unfiltered['lines'] if line['time_label'] == '08:55-10:42']
+        unfiltered_patio = [line for line in unfiltered['lines'] if line['time_label'] == '08:54-09:36']
         self.assertEqual(len(unfiltered_patio), 1)
-        self.assertFalse(unfiltered_patio[0].get('is_break'))
+        self.assertTrue(unfiltered_patio[0].get('is_break'))
 
-        filtered_patio = [line for line in filtered['lines'] if line['time_label'] == '08:55-10:42']
+        filtered_patio = [line for line in filtered['lines'] if line['time_label'] == '08:54-09:36']
         self.assertEqual(len(filtered_patio), 1)
         self.assertTrue(filtered_patio[0].get('is_break'))
         self.assertIn(self.teacher_guard, filtered_patio[0]['guards'].mapped('employee_id'))
         for cell in filtered_patio[0]['cells']:
             self.assertFalse(cell['entries'])
+
+    def test_get_guard_duty_board_lines_break_flag_ignores_a_period_with_a_real_class(self):
+        """The safety half of the 'is_break' rule described in get_guard_duty_board_lines' own
+        docstring: under "All levels", a period that happens to coincide with one level's own
+        break window must NOT be marked 'is_break' when a DIFFERENT level's group genuinely has a
+        class running then - two levels can have different break hours (confirmed against this
+        dev DB), so a shared clock-time slot is not by itself proof that nobody is teaching."""
+        framework = self.env['resource.calendar'].create({
+            'name': 'Test Level Framework (Break Flag Safety)', 'is_framework': True,
+            'level_id': self.level.id, 'full_time_required_hours': 24,
+        })
+        self.env['resource.calendar.attendance'].create({
+            'calendar_id': framework.id, 'name': 'BR: Break', 'dayofweek': '0',
+            'hour_from': 12.08, 'hour_to': 13.92, 'day_period': 'morning', 'non_teaching': self.non_teaching_break.id,
+        })
+        # 'level2'/'group_c' (a DIFFERENT level, see setUpClass) has a genuine class at the exact
+        # same clock time as 'level's own break above.
+        calendar_c = self._new_calendar(self.teacher_c, 'Test Calendar C (Break Flag Safety)')
+        calendar_c.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 12.08, 'hour_to': 13.92, 'day_period': 'morning',
+            'subject_id': self.subject2.id, 'group_ids': [self.group_c.id], 'name': 'TGDBC: TGDB2',
+        }])
+
+        data = self.course.get_guard_duty_board_lines('0', 'morning')
+
+        matching = [line for line in data['lines'] if line['time_label'] == '12:05-13:55']
+        self.assertEqual(len(matching), 1)
+        self.assertFalse(matching[0].get('is_break'))
 
     def test_get_guard_duty_board_data_passes_level_ids_and_is_break(self):
         calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Data Level Filter)')
@@ -614,6 +652,66 @@ class TestGuardDutyBoard(TransactionCase):
         self.assertIn(self.group_a.id, [group['id'] for group in data['groups']])
         self.assertNotIn(self.group_c.id, [group['id'] for group in data['groups']])
         self.assertTrue(all('is_break' in line for line in data['lines']))
+
+    def test_get_guard_duty_board_data_flags_a_wc_guard(self):
+        """'Guard (WC)' is the one guard subtype that can fall at any time of day - unlike
+        'Guard (Break)', it's never redundant with the row's own 'is_break' flag - so it gets its
+        own per-teacher 'is_wc' flag in the guard column, and only there: a plain 'Guard' duty in
+        the exact same period must not be flagged."""
+        calendar_wc = self._new_calendar(self.teacher_guard, 'Test Calendar Guard (WC)')
+        calendar_wc.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'non_teaching': self.non_teaching_guard_wc.id, 'name': 'Guard (WC)',
+        }])
+        calendar_plain = self._new_calendar(self.teacher_a, 'Test Calendar A (Plain Guard)')
+        calendar_plain.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'non_teaching': self.non_teaching_guard.id, 'name': 'Guard',
+        }])
+
+        data = self.env['ems.course'].get_guard_duty_board_data('0', 'morning')
+        json.dumps(data)  # raises TypeError if anything isn't JSON-safe
+
+        line = next(line for line in data['lines'] if line['time_label'] == '09:00-10:00')
+        guards_by_name = {guard['name']: guard for guard in line['guards']}
+        self.assertTrue(guards_by_name[self.teacher_guard.display_name]['is_wc'])
+        self.assertFalse(guards_by_name[self.teacher_a.display_name]['is_wc'])
+
+    def test_report_guard_duty_board_marks_a_wc_guard(self):
+        """Regression (developer report 2026-09-11): the printed PDF calls
+        get_guard_duty_board_lines() directly, not the JSON-safe get_guard_duty_board_data()
+        wrapper the screen uses (see that method's own 'is_wc' flag, tested above) - so it never
+        got the "(WC)" marker the screen shows next to a WC guard's name. Both a WC guard AND a
+        plain guard in the exact same period print their name either way (the PDF was never
+        missing the teacher, only the distinguishing marker - see this file's own docstring for
+        the mechanism), but only the WC one must carry '(WC)'. Covers both of the board's two
+        tabs (schedule and "Absences table", issue #442), since the fix is duplicated in the
+        template once per tab."""
+        calendar_wc = self._new_calendar(self.teacher_guard, 'Test Calendar Guard (PDF WC)')
+        calendar_wc.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'non_teaching': self.non_teaching_guard_wc.id, 'name': 'Guard (WC)',
+        }])
+        calendar_plain = self._new_calendar(self.teacher_a, 'Test Calendar A (PDF Plain Guard)')
+        calendar_plain.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'non_teaching': self.non_teaching_guard.id, 'name': 'Guard',
+        }])
+
+        schedule_content, _content_type = self.env['ir.actions.report'].with_context(
+            guard_duty_weekday='0').\
+            _render_qweb_pdf('ems.report_guard_duty_board', [self.course.id])
+        table_content, _content_type = self.env['ir.actions.report'].with_context(
+            guard_duty_weekday='0', guard_duty_view='table').\
+            _render_qweb_pdf('ems.report_guard_duty_board', [self.course.id])
+
+        for content in (schedule_content, table_content):
+            self.assertIn(self.teacher_guard.name.encode(), content)
+            self.assertIn(self.teacher_a.name.encode(), content)
+            wc_marker_index = content.find(self.teacher_guard.name.encode())
+            self.assertIn(b'(WC)', content[wc_marker_index:wc_marker_index + 200])
+            plain_marker_index = content.find(self.teacher_a.name.encode())
+            self.assertNotIn(b'(WC)', content[plain_marker_index:plain_marker_index + 200])
 
     def test_get_guard_duty_board_levels(self):
         data = self.env['ems.course'].get_guard_duty_board_levels()
@@ -840,3 +938,30 @@ class TestGuardDutyBoard(TransactionCase):
         self.assertEqual(row['group'], self.group_a.name)
         self.assertEqual(row['subject'], self.subject.acronym)
         self.assertEqual(row['room'], self.space.display_name)
+
+    def test_report_guard_duty_board_prints_the_absences_table_via_context(self):
+        """Issue #442: the PDF must print whichever of the board's two tabs was actually on
+        screen when "PDF" was clicked - not always the plain timetable regardless of what the
+        "Absences table" tab (guard_duty_board.js's own VIEWS) was showing. 'guard_duty_view'
+        (falsy/absent = the original, still-default 'schedule' behaviour) is the context key
+        guard_duty_board.js's onPdfClick() forwards for this - see its own NOTE."""
+        monday = self._monday()
+        self._schedule_class(self.teacher_a, self.group_a, 'Test Calendar A (View Context)')
+        self._absence(self.teacher_a, monday)
+
+        schedule_content, _content_type = self.env['ir.actions.report'].with_context(
+            guard_duty_weekday=str(monday.weekday()), guard_duty_date=str(monday)).\
+            _render_qweb_pdf('ems.report_guard_duty_board', [self.course.id])
+        table_content, _content_type = self.env['ir.actions.report'].with_context(
+            guard_duty_weekday=str(monday.weekday()), guard_duty_date=str(monday), guard_duty_view='table').\
+            _render_qweb_pdf('ems.report_guard_duty_board', [self.course.id])
+
+        # 'gdb-duty-table' only ever appears as the printed table's own class attribute in the
+        # absences-table branch (never inside the shared <style> block above, unlike plain
+        # "Absences" - which the CSS comments also mention on their own, making it too fragile a
+        # marker to assert against directly) - a clean, branch-conditional way to tell the two
+        # renders apart.
+        self.assertNotIn(b'gdb-duty-table', schedule_content)
+        self.assertIn(b'gdb-duty-table', table_content)
+        # Whoever needs covering is still named on the table tab, same as the live screen.
+        self.assertIn(self.teacher_a.name.encode(), table_content)

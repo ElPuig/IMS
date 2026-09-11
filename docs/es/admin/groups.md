@@ -31,7 +31,7 @@ Navega a: **Comunidad Educativa → Grupos**
    - **Acrónimo** *(obligatorio)*: p. ej., `A`. El nombre del grupo se construye automáticamente a partir de Estudio + Curso + Acrónimo (p. ej., `DAM1A`) — no se escribe directamente.
    - **Tutor**: el profesor responsable de este grupo. Asignarlo aquí concede automáticamente el rol de Tutor a ese profesor.
    - **Delegado**: un alumno representante (solo seleccionable una vez el grupo tiene alumnos).
-   - **Turno**, **Aula**, **ID externo** (código Esfera/SAGA) según se necesite.
+   - **Turno**, **Aula de referencia**, **ID externo** (código Esfera/SAGA) según se necesite.
 4. Haz clic en **Guardar**.
 
 Los alumnos no se añaden desde aquí — consulta la pestaña **Alumnos** para revisar quién está asignado, pero es el propio registro del alumno (o el proceso de matrícula) el que realmente lo asigna a un grupo.

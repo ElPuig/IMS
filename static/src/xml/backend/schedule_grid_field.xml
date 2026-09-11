@@ -131,15 +131,25 @@
                                             </t>
                                         </optgroup>
                                     </select>
-                                    <select class="o_schedule_grid_select o_schedule_grid_card_group"
-                                            t-att-disabled="card.kind !== 'subject'"
-                                            t-on-change="(ev) => this.onCardGroupChange(day.index, card.id, ev)">
-                                        <option value="" t-att-selected="!card.groupId">—</option>
-                                        <t t-foreach="catalog.groups" t-as="group" t-key="group.id">
-                                            <option t-att-value="group.id" t-esc="group.display_name"
-                                                    t-att-selected="card.groupId === group.id"/>
+                                    <div t-if="card.kind === 'subject'" class="o_schedule_grid_card_group_tags">
+                                        <t t-foreach="card.groupIds" t-as="groupId" t-key="groupId">
+                                            <span class="o_schedule_grid_group_tag">
+                                                <t t-esc="groupLabel(groupId)"/>
+                                                <a href="#" class="o_schedule_grid_group_tag_remove"
+                                                   t-on-click.prevent="() => this.removeCardGroup(day.index, card.id, groupId)">×</a>
+                                            </span>
                                         </t>
-                                    </select>
+                                        <AutoComplete
+                                            value="''"
+                                            sources="groupAutocompleteSources(card)"
+                                            onSelect="(option) => this.onCardGroupSelect(day.index, card.id, option)"
+                                            placeholder="addGroupPlaceholder"/>
+                                    </div>
+                                    <input t-if="card.kind === 'subject'" type="text"
+                                           class="o_schedule_grid_card_topic"
+                                           t-att-value="card.topic || ''"
+                                           t-att-placeholder="topicPlaceholder"
+                                           t-on-change="(ev) => this.onCardTopicChange(day.index, card.id, ev)"/>
                                     <select class="o_schedule_grid_select o_schedule_grid_card_space"
                                             t-on-change="(ev) => this.onCardSpaceChange(day.index, card.id, ev)">
                                         <option value="" t-att-selected="!card.spaceId">—</option>

@@ -557,6 +557,23 @@ class ems_employee_base(models.AbstractModel):
                     commands.append((3, g.id))
             if commands:
                 sudo_employee.user_id.sudo().write({'groups_id': commands})
+            self._sync_secretary_home_action(sudo_employee, should_have)
+
+    def _sync_secretary_home_action(self, sudo_employee, should_have):
+        """Secretary staff never have a session of their own to take (see
+        ems.attendance_session_header.get_normal_sessions_and_planned) and land on
+        "Educational Community" instead - never overwrites a Home Action the user (or an admin)
+        has deliberately set to anything other than an Attendance-app screen, so this only ever
+        fixes an obviously-still-default value, never a real personal choice. See issue #440."""
+        if self.env.ref('ems.group_secretary') not in should_have:
+            return
+        user = sudo_employee.user_id.sudo()
+        safe_to_override_action_ids = (
+            self.env.ref('ems.action_attendance_passlist').id,
+            self.env.ref('ems.action_attendance_session_tree').id,
+        )
+        if not user.action_id or user.action_id.id in safe_to_override_action_ids:
+            user.write({'action_id': self.env.ref('ems.action_student_kanban').id})
 
     def write(self, vals):
         if "tutorship_ids" in vals:
@@ -584,7 +601,16 @@ class ems_employee(models.AbstractModel):
         'teacher': 'set default'
     })
 
-    attendance_manager_id = fields.Many2one(groups="hr_attendance.group_hr_attendance_officer,ems.group_teacher")
+    # Kept in sync with 'leave_manager_id' (absence.py's own compute) rather than left as
+    # Odoo's native manually-set field: EMS never gave admins a way to set it (the whole
+    # 'Approvers' group is hidden on the teacher form, see 'view_employee_form_inherit_
+    # hr_attendance' below), so it was permanently empty for every employee while
+    # 'leave_manager_id' was always populated - the same person is meant to approve both an
+    # absence and an attendance correction (the Area Manager of the employee's top-level
+    # department), so there is no reason for the two to ever diverge.
+    attendance_manager_id = fields.Many2one(
+        compute="_compute_attendance_manager_id", store=True,
+        groups="hr_attendance.group_hr_attendance_officer,ems.group_teacher")
     activity_ids = fields.One2many(groups="hr.group_hr_user,ems.group_teacher")
     activity_exception_decoration = fields.Selection(groups="hr.group_hr_user,ems.group_teacher")
     activity_exception_icon = fields.Char(groups="hr.group_hr_user,ems.group_teacher")
@@ -617,6 +643,11 @@ class ems_employee(models.AbstractModel):
     def _compute_pending_identification(self):
         for employee in self:
             employee.pending_identification = bool(employee.schedule_import_code)
+
+    @api.depends("leave_manager_id")
+    def _compute_attendance_manager_id(self):
+        for employee in self:
+            employee.attendance_manager_id = employee.leave_manager_id
 
     @api.model_create_multi
     def create(self, vals_list):

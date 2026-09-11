@@ -205,9 +205,9 @@ flowchart TD
 
 ## Offer to an ex-student (`sent`): ex-student → applicant
 
-`action_quotation_sent()` calls `_ems_offer_to_ex_student()`, which converts the
-partner of every EMS enrollment being sent from `alumni`/`withdrawal` into
-`applicant`. It also unarchives them, points `study_id`/`level_id` at the study on
+`write()`'s own "→ `sent`" branch calls `_ems_offer_to_ex_student()` (beside
+`_ems_unfollow_teachers()`), which converts the partner of every EMS enrollment
+being sent from `alumni`/`withdrawal` into `applicant`. It also unarchives them, points `study_id`/`level_id` at the study on
 the order (the exit cleared both), and wipes the `exit_*` metadata.
 `has_graduated` is left alone — it is a permanent mark. `expelled` is deliberately
 never converted, matching `_ems_admit_student()` below, which only readmits
@@ -226,10 +226,25 @@ flowchart LR
 
 Sending the offer is the one deliberate act outside that loop, which is why the
 hook lives on the send and not on `create()`: a draft can still be deleted.
+
+**It must hang off `write()`, never off `action_quotation_sent()`.** Odoo does not
+call that method when the quotation is emailed — the path the UI actually takes:
+`message_post()` marks the order itself with a direct
+`write({'state': 'sent'})` (`sale/models/sale_order.py`, guarded by the
+`mark_so_as_sent` context key, with `tracking_disable=True`, which is also why no
+`draft → sent` tracking value is recorded for it). `action_quotation_sent()` is
+only reached from the "Mark as sent" action, the payment flow and EMS's own bulk
+button — and it ends in that same `write()` anyway. Hooking the conversion there
+first (issue #433) therefore missed the email composer entirely, and the
+`TransactionCase` tests went green over it because they called
+`action_quotation_sent()` directly instead of driving the real path; issue #438
+moved it and added a test posting with `mark_so_as_sent=True`.
+
 `action_send_enrollment_proposal()` calls the helper on every order it sends, not
-only the drafts, so a re-send of an already-`sent` offer (which never goes through
-`action_quotation_sent()`) converts too. The helper is idempotent — an `applicant`
-is skipped.
+only the drafts: a re-send of an already-`sent` offer involves no state change, so
+`write()`'s branch never fires for it. That is also the recovery path for an offer
+sent before the conversion existed. The helper is idempotent — an `applicant` is
+skipped.
 
 `applicant` is not a workaround here; it is the state that already models "holding
 an offer for a study, with a portal user of their own". The transition wizard does

@@ -16,6 +16,8 @@ from . import test_level_tour
 from . import test_student_document
 from . import test_student_document_tour
 from . import test_student_google_workspace
+from . import test_student_schedule
+from . import test_student_schedule_tour
 from . import test_study
 from . import test_study_tour
 from . import test_subject
@@ -100,6 +102,7 @@ from . import test_working_schedules_import_wizard
 from . import test_working_schedules_import_wizard_tour
 from . import test_working_schedule_split_period_tour
 from . import test_working_schedule_stale_breaks_tour
+from . import test_working_schedule_multi_group_tour
 from . import test_task_assignment
 from . import test_year_record
 from . import test_non_teaching_type
@@ -176,3 +179,9 @@ from . import test_student_data_reader_tour
 from . import test_student_my_groups
 from . import test_student_my_groups_tour
 from . import test_mail_template_translations
+from . import test_role_smoke_teacher_tour
+from . import test_role_smoke_orientation_tour
+from . import test_role_smoke_coexistence_tour
+from . import test_role_smoke_secretary_tour
+from . import test_role_smoke_tac_tour
+from . import test_user_profile_tour

@@ -26,14 +26,18 @@ horaris de professorat que inclouen aquest grup, de manera que sempre reflecteix
 ha configurat a la pestanya **Empleats → [professor] → Horari**. Cada bloc mostra:
 
 - l'hora d'inici i final exactes (els períodes no sempre estan alineats a l'hora en punt),
-- l'assignatura que s'imparteix,
+- l'assignatura que s'imparteix — seguida del seu **tema** (p. ex. "MP 3161 - Castellà"), quan
+  el docent n'ha establert un a la seva pròpia pestanya Horari. Una assignatura que en realitat
+  es reparteix en diversos temes diferents, cadascun impartit per un docent diferent (p. ex. un
+  mòdul repartit per idioma), mostra un bloc per tema en lloc de fondre'ls junts,
 - el pati, quan el nivell i el torn del grup permeten deduir-ne l'horari — un grup de reforç,
   o un grup sense torn assignat, pot no mostrar cap bloc de pati.
 
-Sota la graella, una taula **Assignatura → Docent(s)** llista cada assignatura impartida a
-aquest grup i qui la imparteix. Quan una assignatura es fa en codocència (més d'un
-professor alhora), tots els noms apareixen junts a la fila d'aquella assignatura — la
-graella, en canvi, sempre mostra l'assignatura una única vegada, no un cop per professor.
+Sota la graella, una taula **Assignatura → Docent(s)** llista cada assignatura (i, quan n'hi
+ha, tema) impartida a aquest grup i qui la imparteix — una assignatura repartida en temes
+mostra una fila per tema. Quan una assignatura (o assignatura+tema) es fa en codocència (més
+d'un professor alhora), tots els noms apareixen junts a la fila corresponent — la graella, en
+canvi, sempre mostra l'assignatura una única vegada, no un cop per professor.
 
 Aquesta pestanya és de només lectura: per canviar qualsevol cosa cal editar-ho des de la
 pestanya Horari del professor corresponent.
@@ -43,7 +47,8 @@ pestanya Horari del professor corresponent.
 ## Exportar l'horari a PDF
 
 Fes clic a **PDF** a la barra d'eines de la pestanya Horari per descarregar una versió
-imprimible de l'horari setmanal del grup, incloent-hi la taula Assignatura → Docent(s).
+imprimible de l'horari setmanal del grup, incloent-hi la taula Assignatura → Docent(s). La
+capçalera mostra el tutor/a i l'aula de referència del grup, quan estan definits.
 
 ---
 

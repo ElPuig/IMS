@@ -2,7 +2,7 @@ from datetime import date, timedelta
 
 from odoo.tests import HttpCase, tagged
 
-from .common import create_level_study, force_user_language_to_english, mock_outgoing_email
+from .common import create_level_study, create_role_user, mock_outgoing_email
 
 
 @tagged('post_install', '-at_install')
@@ -16,9 +16,16 @@ class TestGuardDutyBoardTour(HttpCase):
         mock_outgoing_email(cls)
 
     def test_guard_duty_board_tour(self):
-        force_user_language_to_english(self, self.env.ref('base.user_admin'))
+        # Logged in as a plain teacher (issue #434's Red-step rule, CLAUDE.md's "Development
+        # workflow": the least-privileged role that should have access, not admin by default) -
+        # a teacher is exactly who is actually on guard duty, and already has read access to
+        # everything this board needs (see test_guard_duty_board.py's own
+        # test_teacher_can_call_board_methods) with no extra ACL. create_role_user() sets
+        # 'lang': 'en_US' itself, so no separate force_user_language_to_english() call is needed
+        # here the way it would be for a pre-existing account like admin.
+        create_role_user(self, 'teacher', 'guard_duty_board_tour_teacher')
         # To observe this tour in a real browser during development:
-        #   self.start_tour("/odoo", "ems_guard_duty_board", login="admin", watch=True)
+        #   self.start_tour("/odoo", "ems_guard_duty_board", login="guard_duty_board_tour_teacher", watch=True)
 
         # The board's own client action reads env.company.current_course_id directly (see
         # guard_duty_board.py's get_current_course_data()/get_guard_duty_board_data(), both of
@@ -65,6 +72,44 @@ class TestGuardDutyBoardTour(HttpCase):
         guard_calendar.apply_schedule_changes([{
             'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
             'non_teaching': self.env.ref('ems.non_teaching_g').id, 'name': 'Guard',
+        }])
+
+        # A second guard, on 'Guard (WC)' duty specifically (2026-09-11, developer request) - the
+        # one guard subtype worth calling out on the board itself since, unlike 'Guard (Break)',
+        # it can fall at any time of day. Same period as the plain guard above, so the tour can
+        # assert the "(WC)" suffix shows on this teacher's own badge and NOT on the plain guard's.
+        wc_guard_teacher = self.env['hr.employee'].create({'name': 'Tour Guard Board WC Guard', 'employee_type': 'teacher'})
+        wc_guard_calendar = self.env['resource.calendar'].create({'name': 'Tour Guard Board WC Guard Calendar', 'employee_id': wc_guard_teacher.id})
+        wc_guard_teacher.resource_calendar_id = wc_guard_calendar
+        wc_guard_calendar.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'non_teaching': self.env.ref('ems.non_teaching_gwc').id, 'name': 'Guard (WC)',
+        }])
+
+        # A patio/break-time guard (2026-09-11, developer request): a dedicated level whose own
+        # schedule framework has NO teaching entry of its own, only a break period, so the row
+        # this guard renders on has no cell content at all - exactly the "no real class in it"
+        # half of 'is_break's own safety check (see get_guard_duty_board_lines' docstring).
+        # Off-grid hours straddling (not fully inside, not fully spanning) the real 09:00-10:00
+        # slot other fixtures above use - same reasoning as
+        # test_get_guard_duty_board_lines_level_filter_shows_break_time_guard_as_patio_row in
+        # test_guard_duty_board.py, empirically confirmed against this dev DB's own real data to
+        # avoid this period being absorbed into (or absorbing) an unrelated real class.
+        patio_level = self.env['ems.level'].create({'acronym': 'TGDBT3', 'name': 'Tour Guard Board Level 3 (Patio)'})
+        patio_framework = self.env['resource.calendar'].create({
+            'name': 'Tour Guard Board Patio Framework', 'is_framework': True, 'level_id': patio_level.id,
+            'full_time_required_hours': 24,
+        })
+        self.env['resource.calendar.attendance'].create({
+            'calendar_id': patio_framework.id, 'name': 'BR: Break', 'dayofweek': '0',
+            'hour_from': 8.9, 'hour_to': 9.6, 'day_period': 'morning', 'non_teaching': self.env.ref('ems.non_teaching_br').id,
+        })
+        patio_guard_teacher = self.env['hr.employee'].create({'name': 'Tour Guard Board Patio Guard', 'employee_type': 'teacher'})
+        patio_guard_calendar = self.env['resource.calendar'].create({'name': 'Tour Guard Board Patio Guard Calendar', 'employee_id': patio_guard_teacher.id})
+        patio_guard_teacher.resource_calendar_id = patio_guard_calendar
+        patio_guard_calendar.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 8.9, 'hour_to': 9.6, 'day_period': 'morning',
+            'non_teaching': self.env.ref('ems.non_teaching_gb').id, 'name': 'Guard (Break)',
         }])
 
         # A distinct afternoon-only teacher, so the tour can prove the shift dropdown actually
@@ -123,4 +168,4 @@ class TestGuardDutyBoardTour(HttpCase):
             'ems_responsible_declaration': True,
         }).action_approve()
 
-        self.start_tour("/odoo", "ems_guard_duty_board", login="admin")
+        self.start_tour("/odoo", "ems_guard_duty_board", login="guard_duty_board_tour_teacher")

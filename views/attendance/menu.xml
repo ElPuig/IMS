@@ -7,7 +7,15 @@
             <field name="groups_id" eval="[(4, ref('ems.group_teacher'))]"/>
         </record>
 
+        <!-- Groups the clock-in-centric screens (Overview, Correction Requests, Management)
+             one level deeper, so the root "Employee Attendances" menu reads as a short, ordered
+             list of distinct concerns (Attendance / Time off / Guard schedule / Reporting /
+             Kiosk mode / Configuration) instead of a flat mix of them. -->
+        <menuitem name="Attendance" sequence="5" id="menu_hr_attendance_group" parent="hr_attendance.menu_hr_attendance_root"/>
+
         <record model="ir.ui.menu" id="hr_attendance.menu_hr_attendance_view_attendances">
+            <field name="parent_id" ref="menu_hr_attendance_group"/>
+            <field name="sequence">1</field>
             <field name="groups_id" eval="[(4, ref('ems.group_teacher'))]"/>
         </record>
 
@@ -18,11 +26,20 @@
              surface these two native menu entries to them. Replace (not add to) groups_id
              so only ems.group_academic_admin sees them. -->
         <record model="ir.ui.menu" id="hr_attendance.menu_action_open_form">
+            <field name="sequence">9</field>
             <field name="groups_id" eval="[(6, 0, [ref('ems.group_academic_admin')])]"/>
         </record>
 
         <record model="ir.ui.menu" id="hr_attendance.menu_hr_attendance_view_attendances_management">
+            <field name="parent_id" ref="menu_hr_attendance_group"/>
+            <field name="sequence">3</field>
             <field name="groups_id" eval="[(6, 0, [ref('ems.group_academic_admin')])]"/>
+        </record>
+
+        <!-- Placed right after Guard schedule (sequence 7) and before Kiosk mode (sequence 9),
+             matching the developer's requested root order. -->
+        <record model="ir.ui.menu" id="hr_attendance.menu_hr_attendance_reporting">
+            <field name="sequence">8</field>
         </record>
 
         <record model="ir.actions.act_window" id="hr_attendance.hr_attendance_action">

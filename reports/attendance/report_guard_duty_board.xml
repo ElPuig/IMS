@@ -56,6 +56,11 @@
                          plain timetable it always was - which is also what any other caller that
                          omits it keeps getting. -->
                     <t t-set="requested_date" t-value="course.env.context.get('guard_duty_date')"/>
+                    <!-- Which of the board's two tabs is being printed (found 2026-09-11): the
+                         schedule (timetable-shaped) or the "Absences table" (who's missing / who's
+                         covering) - falsy/absent means the original, still-default schedule view,
+                         same fallback convention as every other 'guard_duty_*' context key above. -->
+                    <t t-set="requested_view" t-value="course.env.context.get('guard_duty_view') or 'schedule'"/>
                     <t t-foreach="weekdays" t-as="weekday">
                         <t t-call="web.external_layout">
                             <div class="page">
@@ -86,6 +91,14 @@
                                     .gdb-col-time { width: 85px; }
                                     .gdb-col-group { width: 115px; }
                                     .gdb-col-guard { width: 160px; }
+                                    /* The "Absences table" tab has only 3 columns (no per-group
+                                       ones) - the absences column gets whatever width the fixed
+                                       time/guard columns leave, rather than a fixed size of its
+                                       own, since one row can list several classes left uncovered. */
+                                    .gdb-col-absences { width: auto; }
+                                    .gdb-absence-row { text-align: left; }
+                                    .gdb-absence-row + .gdb-absence-row { margin-top: 4px; }
+                                    .gdb-absence-class { display: block; font-size: 8px; color: #555; }
                                     /* overflow-wrap/word-break: table-layout:fixed only holds a
                                        column to its declared width if content CAN break - an
                                        unbroken run of text (e.g. an unlinked "Pending teacher
@@ -111,7 +124,8 @@
                                 </style>
 
                                 <h1 class="gdb-title">
-                                    Guard Duty Schedule -
+                                    <t t-if="requested_view == 'table'">Absences Table -</t>
+                                    <t t-else="">Guard Duty Schedule -</t>
                                     <t t-if="weekday == '0'">Monday</t>
                                     <t t-elif="weekday == '1'">Tuesday</t>
                                     <t t-elif="weekday == '2'">Wednesday</t>
@@ -126,7 +140,60 @@
                                         <t t-if="shift == 'morning'">Morning</t>
                                         <t t-else="">Afternoon</t>
                                     </h2>
-                                    <t t-if="data['lines']">
+                                    <t t-if="data['lines'] and requested_view == 'table'">
+                                        <!-- The same tab shown on screen as "Absences table" (issue
+                                             #442): who's actually missing and who's covering for
+                                             them, rather than the plain timetable above - built off
+                                             the very same 'data['lines']' payload, since each line
+                                             already carries its own 'absences' list (see
+                                             get_guard_duty_board_lines()'s own docstring). -->
+                                        <table class="table table-bordered gdb-table gdb-duty-table">
+                                            <colgroup>
+                                                <col class="gdb-col-time"/>
+                                                <col class="gdb-col-absences"/>
+                                                <col class="gdb-col-guard"/>
+                                            </colgroup>
+                                            <thead>
+                                                <tr>
+                                                    <th/>
+                                                    <th>Absences</th>
+                                                    <th>Guard duty</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <t t-foreach="data['lines']" t-as="line">
+                                                    <tr>
+                                                        <td class="gdb-time" t-esc="line['time_label']"/>
+                                                        <td>
+                                                            <t t-foreach="line['absences']" t-as="absence">
+                                                                <div class="gdb-absence-row">
+                                                                    <span t-att-class="'gdb-absent' if absence['state'] == 'approved' else 'gdb-absent-pending'" t-esc="absence['teacher'].name"/>
+                                                                    <span class="gdb-absence-class">
+                                                                        <t t-esc="absence['group'].name"/><t t-if="absence['subject']"> · <t t-esc="absence['subject'].acronym"/></t><t t-if="absence['room']"> · <t t-esc="absence['room'].display_name"/></t>
+                                                                    </span>
+                                                                </div>
+                                                            </t>
+                                                        </td>
+                                                        <td>
+                                                            <t t-foreach="line['guards']" t-as="guard">
+                                                                <span class="gdb-guard-badge" t-att-class="'gdb-absent' if line['guard_absences'].get(guard.employee_id.id) == 'approved' else ('gdb-absent-pending' if line['guard_absences'].get(guard.employee_id.id) else '')">
+                                                                    <t t-esc="guard.employee_id.name"/>
+                                                                    <!-- Same 'GWC' code the screen's own get_guard_duty_board_data() checks
+                                                                         (guard_duty_board.py) to set 'is_wc' - the PDF has no such wrapper
+                                                                         since it calls get_guard_duty_board_lines() directly, so it reads
+                                                                         the raw resource.calendar.attendance record here instead (developer
+                                                                         report 2026-09-11: a WC guard printed with no way to tell it apart
+                                                                         from a plain one). -->
+                                                                    <t t-if="guard.non_teaching.code == 'GWC'"> (WC)</t>
+                                                                </span>
+                                                            </t>
+                                                        </td>
+                                                    </tr>
+                                                </t>
+                                            </tbody>
+                                        </table>
+                                    </t>
+                                    <t t-elif="data['lines']">
                                         <table class="table table-bordered gdb-table">
                                             <colgroup>
                                                 <col class="gdb-col-time"/>
@@ -163,7 +230,12 @@
                                                         </t>
                                                         <td>
                                                             <t t-foreach="line['guards']" t-as="guard">
-                                                                <span class="gdb-guard-badge" t-att-class="'gdb-absent' if line['guard_absences'].get(guard.employee_id.id) == 'approved' else ('gdb-absent-pending' if line['guard_absences'].get(guard.employee_id.id) else '')" t-esc="guard.employee_id.name"/>
+                                                                <span class="gdb-guard-badge" t-att-class="'gdb-absent' if line['guard_absences'].get(guard.employee_id.id) == 'approved' else ('gdb-absent-pending' if line['guard_absences'].get(guard.employee_id.id) else '')">
+                                                                    <t t-esc="guard.employee_id.name"/>
+                                                                    <!-- See the "Absences table" tab above for why this check is repeated
+                                                                         here instead of coming from a shared 'is_wc' flag. -->
+                                                                    <t t-if="guard.non_teaching.code == 'GWC'"> (WC)</t>
+                                                                </span>
                                                             </t>
                                                         </td>
                                                     </tr>

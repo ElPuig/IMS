@@ -33,7 +33,7 @@ La mañana y la tarde son turnos distintos — usa el desplegable para cambiar e
 Los dos botones de la derecha de la barra de herramientas cambian entre las dos maneras de leer el mismo día y turno:
 
 - **Horario de guardias** — el horario, con todo el que falta marcado encima.
-- **Tabla de guardias** — una fila por franja horaria: quién falta y qué hay que cubrir, frente a quién está de guardia para cubrirlo.
+- **Tabla de ausencias** — una fila por franja horaria: quién falta y qué hay que cubrir, frente a quién está de guardia para cubrirlo.
 
 ---
 
@@ -41,7 +41,9 @@ Los dos botones de la derecha de la barra de herramientas cambian entre las dos 
 
 Las columnas de la tabla son los grupos que tienen clase en ese turno; cada fila es una franja horaria. Una celda muestra la asignatura (con su código corto, p. ej. "MP 0440"), el o los docentes — más de uno si la clase es compartida — y el aula de la clase de ese grupo en esa hora. Una celda vacía simplemente significa que no hay nada programado para ese grupo en ese momento.
 
-La columna **Guardia**, a la derecha, lista todos los docentes de guardia en esa franja horaria, cada uno en un recuadro de borde fino. Un docente de guardia no tiene ningún grupo propio en ese momento (es precisamente el sentido de la guardia), por eso solo aparece aquí, nunca en la columna de un grupo.
+La columna **Guardia**, a la derecha, lista todos los docentes de guardia en esa franja horaria, cada uno en un recuadro de borde fino. Un docente de guardia no tiene ningún grupo propio en ese momento (es precisamente el sentido de la guardia), por eso solo aparece aquí, nunca en la columna de un grupo. Un docente en guardia de **WC** en concreto muestra la etiqueta **"(WC)"** justo después de su nombre — se destaca porque, a diferencia de una guardia de patio (ver más abajo), una guardia de WC puede caer en cualquier momento del día, así que no hay otra forma de distinguirla de una guardia normal a simple vista.
+
+Una fila cuya franja horaria coincide con el patio de algún nivel — sin ninguna clase programada en ella para nadie — muestra una pequeña etiqueta **"Patio"** junto a la hora, además de un borde marrón en el lado izquierdo de esa misma celda, para que una franja que parece vacía no se lea como un hueco en el horario.
 
 ---
 
@@ -51,12 +53,12 @@ Junto al desplegable de turno hay un botón de **filtro de nivel** (muestra "All
 
 Una vez marcas uno o más niveles:
 - Solo se muestran las columnas de los grupos de ese/esos nivel(es) — el resto de grupos desaparecen de la tabla.
-- La columna **Guardia** solo muestra un docente si ese mismo día también da clase en alguno de los niveles marcados — una guardia sin relación con los niveles que estás mirando queda fuera, para que la columna se mantenga centrada en tu mitad del centro. Vuelve a aparecer si regresas a "All levels".
-- Una guardia que coincide con el patio de ese nivel obtiene su propia fila etiquetada **Patio**, para que una franja que parece vacía no se lea como un hueco en el horario.
+- La columna **Guardia** sigue mostrando a todos los docentes de guardia en cualquier franja visible, sin importar qué dan clase por lo demás — lo que importa es que están de guardia, no en qué nivel den clase ese día.
+- Una guardia que coincide con el patio del nivel marcado, sin ninguna clase de ese nivel en esa franja, obtiene su propia fila de "Patio" para que siga siendo visible aunque ningún grupo de ese nivel tenga clase entonces (la misma marca de "Patio" descrita más arriba ya cubre este caso también en "All levels").
 
 ---
 
-## Leer la tabla de guardias
+## Leer la tabla de ausencias
 
 Cada fila es una franja horaria del turno que tienes en pantalla:
 
@@ -84,7 +86,7 @@ Aquí solo se muestra que la persona falta. El tipo de ausencia, el motivo y el 
 
 ## Exportar a PDF
 
-Haz clic en **PDF** en la barra de herramientas para descargar el día y el turno que se están mostrando (no toda la semana) como documento imprimible — el filtro de nivel que tengas marcado se aplica también al PDF.
+Haz clic en **PDF** en la barra de herramientas para descargar el día y el turno que se están mostrando (no toda la semana) como documento imprimible — el filtro de nivel que tengas marcado se aplica también al PDF. El PDF imprime la vista que tengas activa en pantalla: el horario si está activo **Horario de guardias**, o la tabla de ausencias si está activo **Tabla de ausencias**.
 
 ---
 

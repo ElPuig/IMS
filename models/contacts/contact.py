@@ -359,10 +359,11 @@ class ResPartner(models.Model):
         """
         students = self.filtered(lambda p: p.contact_type in ('student', 'applicant'))
         if not students:
-            raise UserError(_("Please select at least one student or applicant. "
-                              "An ex-student (withdrawal, alumni or expelled) only "
-                              "becomes a student again once its new enrollment is "
-                              "confirmed."))
+            raise UserError(_(
+                "Please select at least one student or applicant. Send their new "
+                "enrollment to a withdrawal or a graduate and they become an "
+                "applicant, which is what allows granting portal access; confirming "
+                "that enrollment then makes them a student again."))
         return {
             'type': 'ir.actions.act_window',
             'name': _('Portal access'),

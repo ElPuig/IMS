@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
-    <t t-name="ems.GroupScheduleGridField">
+    <t t-name="ems.ReadonlyScheduleGridField">
         <div class="o_schedule_grid">
             <div class="o_schedule_grid_toolbar">
                 <button type="button" class="btn btn-sm btn-secondary" t-on-click="() => this.onPdfClick()">

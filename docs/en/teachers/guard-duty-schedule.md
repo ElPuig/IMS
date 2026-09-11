@@ -12,7 +12,7 @@ See where every teacher is, and who is on guard duty, in each time block of the 
 
 ## Access
 
-Navigate to: **Employee Attendances → Guard duty schedule**
+Navigate to: **Employee Attendances → Guard schedule**
 
 The board opens on today's own weekday and shift (morning before 15:00, afternoon from 15:00 on) — not always Monday morning — so you land straight on whatever's relevant right now.
 
@@ -33,7 +33,7 @@ Morning and afternoon are different shifts — use the dropdown to switch betwee
 The two buttons on the right of the toolbar switch between the two ways of reading the same day and shift:
 
 - **Guard duty schedule** — the timetable, with everybody who is away marked on it.
-- **Guard duty table** — one row per time block: who is missing and what has to be covered, against who is on guard duty to cover it.
+- **Absences table** — one row per time block: who is missing and what has to be covered, against who is on guard duty to cover it.
 
 ---
 
@@ -41,7 +41,9 @@ The two buttons on the right of the toolbar switch between the two ways of readi
 
 The table's columns are the groups with a class in that shift; each row is a time block. A cell shows the subject (as its short code, e.g. "MP 0440"), the teacher(s) — more than one if the class is co-taught — and the classroom for that group's class at that time. An empty cell simply means nothing is scheduled there for that group.
 
-The **Guard duty** column on the right lists every teacher on guard duty in that time block, each in a thin-bordered box. A guard-duty teacher has no group of their own at that moment (that's the whole point of guard duty), so they only ever appear here, never in a group's column.
+The **Guard duty** column on the right lists every teacher on guard duty in that time block, each in a thin-bordered box. A guard-duty teacher has no group of their own at that moment (that's the whole point of guard duty), so they only ever appear here, never in a group's column. A teacher on a **Guard (WC)** duty specifically shows a **"(WC)"** tag right after their name — worth calling out because, unlike a break-time guard (see below), a WC guard duty can fall at any time of day, so there's no other way to tell it apart from a plain guard duty at a glance.
+
+A row whose time block is a break period for some level — with no class scheduled in it for anyone — gets a small **"Break"** label next to its time, plus a thin brown accent on the left edge of that same cell, so an otherwise empty-looking row doesn't read as a gap in the schedule.
 
 ---
 
@@ -51,12 +53,12 @@ Next to the shift dropdown there's a **level filter** button (it reads "All leve
 
 Once one or more levels are checked:
 - Only the groups belonging to the checked level(s) become columns — every other group disappears from the table.
-- The **Guard duty** column only lists a teacher if they also teach one of the checked levels that day — a guard whose own duty has nothing to do with the levels you're looking at is left out, so the column stays focused on your half of the centre. They're still visible if you switch back to "All levels".
-- A guard duty that falls during that level's own break gets its own row labelled **Break**, so an otherwise empty-looking time block doesn't read as a gap in the schedule.
+- The **Guard duty** column keeps listing every teacher on duty in a visible time block, regardless of what they otherwise teach — being on duty is what matters, not which level a guard happens to teach elsewhere that day.
+- A guard duty that falls during the checked level's own break, with no class of that level running then, gets its own dedicated "Break" row so it stays visible even though no class of that level is on at that moment (the same "Break" marker described above already covers this under "All levels" too).
 
 ---
 
-## Reading the Guard Duty Table
+## Reading the Absences Table
 
 Each row is a time block of the shift on screen:
 
@@ -84,7 +86,7 @@ Only the fact that somebody is away is shown here. The type of absence, its reas
 
 ## Exporting to PDF
 
-Click **PDF** in the toolbar to download the day and shift currently shown (not the whole week) as a printable document — whatever level filter is currently checked is applied to the PDF too.
+Click **PDF** in the toolbar to download the day and shift currently shown (not the whole week) as a printable document — whatever level filter is currently checked is applied to the PDF too. The PDF prints whichever of the two views is on screen: the timetable if **Guard duty schedule** is active, or the Absences table if **Absences table** is active.
 
 ---
 

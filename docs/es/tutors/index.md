@@ -21,6 +21,7 @@ Esta sección contiene los manuales para los **tutores de grupo**.
 | [Strikes: consultar los registros de tu grupo](strike.md) | Consultar los strikes puestos a tus alumnos tutorizados y los que has puesto tú mismo/a |
 | [Informes de asistencia](attendance-reports.md) | Imprimir los 3 informes PDF de asistencia (por grupo/alumno/asignatura) y explorar los datos tú mismo con la pantalla de Análisis de asistencia |
 | [El horario semanal de un grupo](../admin/group-schedule.md) | Consultar el horario agregado de un grupo (asignaturas, docentes, aulas, patios) y exportarlo a PDF |
+| [El horario semanal de un alumno](../admin/student-schedule.md) | Consultar el horario propio de uno de tus tutorandos (asignaturas, docentes, aulas, patios), incluyendo clases solapadas, y exportarlo a PDF |
 
 ---
 
