@@ -3,7 +3,7 @@
     <t t-name="ems.GuardDutyBoard">
         <div class="o_guard_board">
             <div class="o_guard_board_header">
-                <h1 class="o_guard_board_title" t-esc="state.courseName ? 'Guard duty schedule (' + state.courseName + ')' : 'Guard duty schedule'"/>
+                <h1 class="o_guard_board_title" t-esc="title"/>
 
                 <!-- Weekday tabs, each carrying its own real date: absences happen on dates, the
                      timetable repeats by weekday, and this strip is where the two meet. -->

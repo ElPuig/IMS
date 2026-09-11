@@ -840,3 +840,30 @@ class TestGuardDutyBoard(TransactionCase):
         self.assertEqual(row['group'], self.group_a.name)
         self.assertEqual(row['subject'], self.subject.acronym)
         self.assertEqual(row['room'], self.space.display_name)
+
+    def test_report_guard_duty_board_prints_the_absences_table_via_context(self):
+        """Issue #442: the PDF must print whichever of the board's two tabs was actually on
+        screen when "PDF" was clicked - not always the plain timetable regardless of what the
+        "Absences table" tab (guard_duty_board.js's own VIEWS) was showing. 'guard_duty_view'
+        (falsy/absent = the original, still-default 'schedule' behaviour) is the context key
+        guard_duty_board.js's onPdfClick() forwards for this - see its own NOTE."""
+        monday = self._monday()
+        self._schedule_class(self.teacher_a, self.group_a, 'Test Calendar A (View Context)')
+        self._absence(self.teacher_a, monday)
+
+        schedule_content, _content_type = self.env['ir.actions.report'].with_context(
+            guard_duty_weekday=str(monday.weekday()), guard_duty_date=str(monday)).\
+            _render_qweb_pdf('ems.report_guard_duty_board', [self.course.id])
+        table_content, _content_type = self.env['ir.actions.report'].with_context(
+            guard_duty_weekday=str(monday.weekday()), guard_duty_date=str(monday), guard_duty_view='table').\
+            _render_qweb_pdf('ems.report_guard_duty_board', [self.course.id])
+
+        # 'gdb-duty-table' only ever appears as the printed table's own class attribute in the
+        # absences-table branch (never inside the shared <style> block above, unlike plain
+        # "Absences" - which the CSS comments also mention on their own, making it too fragile a
+        # marker to assert against directly) - a clean, branch-conditional way to tell the two
+        # renders apart.
+        self.assertNotIn(b'gdb-duty-table', schedule_content)
+        self.assertIn(b'gdb-duty-table', table_content)
+        # Whoever needs covering is still named on the table tab, same as the live screen.
+        self.assertIn(self.teacher_a.name.encode(), table_content)

@@ -12609,6 +12609,11 @@ msgid "Guard Duty Schedule -"
 msgstr "Horari de guàrdies -"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
+msgid "Absences Table -"
+msgstr "Taula d'absències -"
+
+#. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/guard_duty_board_field.xml:0
 #: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
@@ -12622,6 +12627,12 @@ msgstr "Guàrdia"
 #: model:ir.ui.menu,name:ems.menu_guard_duty_board
 msgid "Guard duty schedule"
 msgstr "Horari de guàrdies"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Guard duty schedule (%s)"
+msgstr "Horari de guàrdies (%s)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
@@ -13631,14 +13642,15 @@ msgstr "Lector de dades de l'alumnat"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+#: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
 msgid "Absences"
 msgstr "Absències"
 
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
-msgid "Guard duty table"
-msgstr "Taula de guàrdies"
+msgid "Absences table"
+msgstr "Taula d'absències"
 
 #. module: ems
 #. odoo-javascript

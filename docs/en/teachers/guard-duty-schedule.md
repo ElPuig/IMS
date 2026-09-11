@@ -33,7 +33,7 @@ Morning and afternoon are different shifts — use the dropdown to switch betwee
 The two buttons on the right of the toolbar switch between the two ways of reading the same day and shift:
 
 - **Guard duty schedule** — the timetable, with everybody who is away marked on it.
-- **Guard duty table** — one row per time block: who is missing and what has to be covered, against who is on guard duty to cover it.
+- **Absences table** — one row per time block: who is missing and what has to be covered, against who is on guard duty to cover it.
 
 ---
 
@@ -56,7 +56,7 @@ Once one or more levels are checked:
 
 ---
 
-## Reading the Guard Duty Table
+## Reading the Absences Table
 
 Each row is a time block of the shift on screen:
 
@@ -84,7 +84,7 @@ Only the fact that somebody is away is shown here. The type of absence, its reas
 
 ## Exporting to PDF
 
-Click **PDF** in the toolbar to download the day and shift currently shown (not the whole week) as a printable document — whatever level filter is currently checked is applied to the PDF too.
+Click **PDF** in the toolbar to download the day and shift currently shown (not the whole week) as a printable document — whatever level filter is currently checked is applied to the PDF too. The PDF prints whichever of the two views is on screen: the timetable if **Guard duty schedule** is active, or the Absences table if **Absences table** is active.
 
 ---
 

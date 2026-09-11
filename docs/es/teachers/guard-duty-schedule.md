@@ -33,7 +33,7 @@ La mañana y la tarde son turnos distintos — usa el desplegable para cambiar e
 Los dos botones de la derecha de la barra de herramientas cambian entre las dos maneras de leer el mismo día y turno:
 
 - **Horario de guardias** — el horario, con todo el que falta marcado encima.
-- **Tabla de guardias** — una fila por franja horaria: quién falta y qué hay que cubrir, frente a quién está de guardia para cubrirlo.
+- **Tabla de ausencias** — una fila por franja horaria: quién falta y qué hay que cubrir, frente a quién está de guardia para cubrirlo.
 
 ---
 
@@ -56,7 +56,7 @@ Una vez marcas uno o más niveles:
 
 ---
 
-## Leer la tabla de guardias
+## Leer la tabla de ausencias
 
 Cada fila es una franja horaria del turno que tienes en pantalla:
 
@@ -84,7 +84,7 @@ Aquí solo se muestra que la persona falta. El tipo de ausencia, el motivo y el 
 
 ## Exportar a PDF
 
-Haz clic en **PDF** en la barra de herramientas para descargar el día y el turno que se están mostrando (no toda la semana) como documento imprimible — el filtro de nivel que tengas marcado se aplica también al PDF.
+Haz clic en **PDF** en la barra de herramientas para descargar el día y el turno que se están mostrando (no toda la semana) como documento imprimible — el filtro de nivel que tengas marcado se aplica también al PDF. El PDF imprime la vista que tengas activa en pantalla: el horario si está activo **Horario de guardias**, o la tabla de ausencias si está activo **Tabla de ausencias**.
 
 ---
 
