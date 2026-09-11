@@ -254,6 +254,7 @@ class SaleOrder(models.Model):
 
         if handover_orders:
             handover_orders._ems_unfollow_teachers()
+            handover_orders._ems_offer_to_ex_student()
 
         if vals.get('ems_group_id'):
             self._ems_place_on_group_assignment()
@@ -493,9 +494,7 @@ class SaleOrder(models.Model):
             raise ValidationError(_(
                 "Tutors cannot change the enrollment status. "
                 "Please contact the secretary or admin."))
-        res = super().action_quotation_sent()
-        self._ems_offer_to_ex_student()
-        return res
+        return super().action_quotation_sent()
 
     def _ems_offer_to_ex_student(self):
         """Turn an ex-student holding this offer back into an applicant.
@@ -518,8 +517,17 @@ class SaleOrder(models.Model):
         stays, it is a permanent mark. 'expelled' is deliberately left out, matching
         _ems_admit_student(), which only readmits applicant/alumni/withdrawal.
 
-        Hooked on the send and not on create(): a draft can still be deleted, while
-        sending the offer to the family is a deliberate act.
+        Called from write()'s own '-> sent' branch, beside _ems_unfollow_teachers(),
+        and NOT from action_quotation_sent(): Odoo never calls that method when the
+        quotation is emailed, which is the path the UI actually takes. message_post()
+        marks the order itself with a direct write({'state': 'sent'}) (see
+        sale/models/sale_order.py), so only write() sees every send path - the email
+        composer, the "Mark as sent" action, the payment flow and the statusbar all
+        end up there. Hooking it on action_quotation_sent() silently missed the email
+        composer entirely (issue #438).
+
+        On the send and not on create(): a draft can still be deleted, while sending
+        the offer to the family is a deliberate act.
         """
         for order in self:
             partner = order.partner_id
@@ -571,8 +579,10 @@ class SaleOrder(models.Model):
         for order in orders:
             template.send_mail(order.id, force_send=True)
         orders.filtered(lambda order: order.state == 'draft').action_quotation_sent()
-        # Covers a re-send of an already 'sent' offer too, which never goes through
-        # action_quotation_sent(). Idempotent: an applicant is skipped.
+        # Covers a re-send of an already 'sent' offer too: there is no state change,
+        # so write()'s own '-> sent' branch never fires for it. Idempotent: an
+        # applicant is skipped. This is also the recovery path for an offer sent
+        # before the conversion existed.
         orders._ems_offer_to_ex_student()
         return {
             'type': 'ir.actions.client',
