@@ -13774,3 +13774,14 @@ msgstr ""
 "Selecciona al menos un alumno/a o solicitante. Si envías la nueva matrícula a "
 "una baja o a un graduado/a, pasa a ser solicitante, que es lo que permite "
 "darle acceso al portal; al confirmar la matrícula vuelve a ser alumno/a."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__topic
+msgid "Topic"
+msgstr "Tema"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
+msgid "Topic (optional)"
+msgstr "Tema (opcional)"

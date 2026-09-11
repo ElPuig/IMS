@@ -107,6 +107,8 @@ Nothing needs to be assigned yet — open their **Schedule** tab and use **Edit*
 
 Each block shows its exact start–end time, the subject/group or the non-teaching reason, and the classroom (taken from the group's own default classroom). Periods that are still unassigned simply show no block — the framework's structure (breaks, meetings) is what tells you a slot is expected there.
 
+If a subject has a **topic** set (see "Edit a Teacher's Schedule" below), the block's label shows it right after the subject (e.g. "MP 3161 - Castellà") — this is how you tell apart the different teachers of a subject that's actually split into several distinct topics, each taught separately (e.g. a module split by language).
+
 Below the grid, a small summary table shows the teacher's total weekly hours in two columns:
 - **Weekly teaching hours**: one row per level of studies (e.g. CFGS, CFGM, ESO), one row per reinforcement group taught (these don't belong to a single level), plus any non-teaching activity not listed in the other column, plus one row per teaching hour reduction type assigned to the teacher (see "Manage Teaching Hour Reduction Types" above) — added as extra hours on top of the real teaching hours.
 - **Other fixed-schedule hours**: guard duties (any day) and coordination meetings specifically on Wednesday.
@@ -124,12 +126,13 @@ Two blocks sharing the exact same time (see "Mid-Course Subject Handoff" below) 
 The weekly grid splits into 5 day columns (Monday–Friday); within each day, independent **cards** — one per real or still-unassigned period — hold everything about that block: an optional date range, its own start/end time, a subject/group or a non-teaching reason, and a classroom.
 
 1. Open the teacher's **Schedule** tab and click **Edit**.
-2. Each day's column starts pre-filled with the framework's own periods (including its breaks/meetings) as blank cards — pick a **subject** and one or more **groups** for one, or a **non-teaching** reason, from its own dropdowns. The group field is a multi-select list: hold **Ctrl** (**Cmd** on a Mac) and click to pick several groups on the same card — this is how you set up a session where the same teacher runs an identical class for two (or more) groups at once, in the same room (e.g. an optional subject combining two official groups), instead of one group silently overwriting the other.
-3. To change a card's time: edit its start or end time field directly (moving the start keeps the card's length).
-4. To set a classroom other than the group's own default: pick one from the card's own **Classroom** dropdown — leave it blank to keep using the group's default.
-5. To remove a card entirely: use its own trash icon.
-6. To add a card the framework didn't have (e.g. a teacher who mixes two levels' bell schedules, or the same weekday/time with two different subjects at different points in the year — see "Mid-Course Subject Handoff" below): click **+ Add** at the bottom of that day's column, set its time, and fill it in.
-7. Click **Save** to apply, or **Cancel** to discard everything and leave the schedule untouched.
+2. Each day's column starts pre-filled with the framework's own periods (including its breaks/meetings) as blank cards — pick a **subject** for one, or a **non-teaching** reason, from its own dropdown. To add one or more **groups**, start typing a group's name in the group field and pick it from the suggestions — each picked group shows as its own removable tag, so you can add several to the same card (click the **×** on a tag to remove it). This is how you set up a session where the same teacher runs an identical class for two (or more) groups at once, in the same room (e.g. an optional subject combining two official groups), instead of one group silently overwriting the other.
+3. If the subject is actually split into several distinct topics, each taught separately (e.g. a module split by language) — see "View a Teacher's Schedule" above — type the **topic** in the card's own text field, right below the group tags. It's optional and free text: type it exactly the same way every time the same topic recurs (e.g. always "Castellà"), so the topic is correctly recognised as the same one everywhere it shows up.
+4. To change a card's time: edit its start or end time field directly (moving the start keeps the card's length).
+5. To set a classroom other than the group's own default: pick one from the card's own **Classroom** dropdown — leave it blank to keep using the group's default.
+6. To remove a card entirely: use its own trash icon.
+7. To add a card the framework didn't have (e.g. a teacher who mixes two levels' bell schedules, or the same weekday/time with two different subjects at different points in the year — see "Mid-Course Subject Handoff" below): click **+ Add** at the bottom of that day's column, set its time, and fill it in.
+8. Click **Save** to apply, or **Cancel** to discard everything and leave the schedule untouched.
 
    ![Two cards on the same weekday, each with its own date range, time, subject, group and classroom](../../assets/admin/working-schedules-edit-cards.png)
 
@@ -263,7 +266,7 @@ Once created, a reinforcement group is used in a teacher's schedule exactly like
 ## Export a Teacher's Schedule to PDF
 
 1. Open the teacher's **Schedule** tab and click **PDF**.
-2. A printable weekly timetable is generated and downloaded — one row per period, one column per weekday, each cell showing the subject/group or non-teaching reason and the classroom.
+2. A printable weekly timetable is generated and downloaded — one row per period, one column per weekday, each cell showing the subject/group (with its topic, when set) or non-teaching reason and the classroom.
 
 The document opens with the teacher's name and the current course, followed by their department (if assigned) and their role(s) — a tutor's line also shows which group they tutor, and a department head's line shows which department.
 

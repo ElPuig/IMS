@@ -13773,3 +13773,14 @@ msgstr ""
 "Selecciona almenys un alumne/a o sol·licitant. Si envies la nova matrícula a "
 "una baixa o a un graduat/da, passa a ser sol·licitant, que és el que permet "
 "donar-li accés al portal; en confirmar la matrícula torna a ser alumne/a."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__topic
+msgid "Topic"
+msgstr "Tema"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
+msgid "Topic (optional)"
+msgstr "Tema (opcional)"

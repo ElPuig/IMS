@@ -109,6 +109,14 @@ registry.category("web_tour.tours").add("ems_working_schedule_multi_group", {
             content: "...the second one too",
         },
         {
+            // Issue #428: an optional free-text 'topic' distinguishes several teachers of the SAME
+            // subject (e.g. FP Basica's MP 3161 split into Castella/Catala/Angles) - a plain
+            // <input>, not a select/autocomplete, so a straightforward fill-and-check suffices.
+            trigger: ".o_schedule_grid_day_column[data-day='0'] .o_schedule_grid_card:last-of-type .o_schedule_grid_card_topic",
+            content: "Fill in the topic",
+            run: "edit Tour Topic",
+        },
+        {
             trigger: ".o_schedule_grid_toolbar button:contains('Save')",
             content: "Save",
             run: "click",
@@ -122,6 +130,10 @@ registry.category("web_tour.tours").add("ems_working_schedule_multi_group", {
             content: "...and the second group too, in the SAME block (not truncated to just one)",
         },
         {
+            trigger: ".o_schedule_grid_entry:contains('Tour Topic')",
+            content: "...and the topic is shown in the block label too",
+        },
+        {
             trigger: ".o_schedule_grid_toolbar button:contains('Edit')",
             content: "Re-enter edit mode to confirm both groups are still shown as tags, not silently dropped back to one",
             run: "click",
@@ -133,6 +145,20 @@ registry.category("web_tour.tours").add("ems_working_schedule_multi_group", {
         {
             trigger: ".o_schedule_grid_day_column[data-day='0'] .o_schedule_grid_card:last-of-type .o_schedule_grid_group_tag:contains('Multi Group Tour Group B')",
             content: "...and so did the second one",
+        },
+        {
+            // Not a 'input[value=...]' trigger: OWL doesn't sync the HTML attribute on change, so
+            // the actual DOM property must be read imperatively instead.
+            trigger: ".o_schedule_grid_day_column[data-day='0'] .o_schedule_grid_card:last-of-type .o_schedule_grid_card_topic",
+            content: "The topic survived the round trip too",
+            run: function () {
+                const input = document.querySelector(
+                    ".o_schedule_grid_day_column[data-day='0'] .o_schedule_grid_card:last-of-type .o_schedule_grid_card_topic"
+                );
+                if (input.value !== "Tour Topic") {
+                    throw new Error(`Expected topic "Tour Topic" after re-opening Edit, got "${input.value}"`);
+                }
+            },
         },
         {
             trigger: ".o_schedule_grid_day_column[data-day='0'] .o_schedule_grid_card:last-of-type .o_schedule_grid_card_group_tags .o_schedule_grid_group_tag",

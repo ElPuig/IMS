@@ -263,6 +263,7 @@
                                 <field name="hour_to"/>
                                 <field name="day_period"/>
                                 <field name="subject_id"/>
+                                <field name="topic"/>
                                 <field name="group_ids"/>
                                 <field name="non_teaching"/>
                                 <field name="non_teaching_is_break"/>

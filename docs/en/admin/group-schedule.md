@@ -27,14 +27,18 @@ schedule that includes this group, so it is always up to date with whatever is s
 **Employees → [teacher] → Schedule** tab. Each block shows:
 
 - its exact start and end time (periods are not always aligned to the hour),
-- the subject being taught,
+- the subject being taught — followed by its **topic** (e.g. "MP 3161 - Castellà"), when the
+  teacher set one on their own Schedule tab. A subject actually split into several distinct
+  topics, each taught by a different teacher (e.g. a module split by language), shows one block
+  per topic instead of merging them together,
 - the break (patio), when the group's level and shift make it possible to work out its
   time — a reinforcement group, or one without a shift assigned, may simply not show a
   break block.
 
-Below the grid, a **Subject → Teacher(s)** table lists every subject taught to this group
-and who teaches it. When a subject is co-taught by more than one teacher at the same time,
-all of their names appear together in that subject's row — the grid itself still shows that
+Below the grid, a **Subject → Teacher(s)** table lists every subject (and, when set, topic)
+taught to this group and who teaches it — a subject split into topics shows one row per topic.
+When a subject (or subject+topic) is co-taught by more than one teacher at the same time,
+all of their names appear together in that row — the grid itself still shows that
 subject only once, not once per teacher.
 
 This tab is entirely read-only: to change anything, edit the relevant teacher's own

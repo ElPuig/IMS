@@ -1040,6 +1040,56 @@ class TestWorkingSchedule(TransactionCase):
         self.assertEqual(attendance.with_context(lang='en_US').get_report_label(), 'Guard')
         self.assertEqual(attendance.with_context(lang='ca_ES').get_report_label(), 'Guàrdia')
 
+    def test_topic_field_optional_and_blank_by_default(self):
+        # Issue #428: some subjects (e.g. FP Basica's MP 3161) are split into several distinct
+        # topics, each taught by a different teacher - but most schedule blocks never use it.
+        schedule = self.env['resource.calendar'].create({'name': 'Test Topic Default (Working Schedule)'})
+        schedule.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+        }])
+
+        self.assertFalse(schedule.attendance_ids.topic)
+
+    def test_get_report_label_appends_topic_when_set(self):
+        schedule = self.env['resource.calendar'].create({'name': 'Test Report Label Topic (Working Schedule)'})
+        schedule.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+            'topic': 'Castellà',
+        }])
+        attendance = schedule.attendance_ids
+
+        self.assertEqual(attendance.get_report_label(), 'TWSL: TWSL - Castellà')
+
+    def test_get_report_label_unaffected_without_topic(self):
+        schedule = self.env['resource.calendar'].create({'name': 'Test Report Label No Topic (Working Schedule)'})
+        schedule.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+        }])
+
+        self.assertEqual(schedule.attendance_ids.get_report_label(), 'TWSL: TWSL')
+
+    def test_get_subject_display_label_appends_topic_when_set(self):
+        schedule = self.env['resource.calendar'].create({'name': 'Test Subject Display Label (Working Schedule)'})
+        schedule.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+            'topic': 'Català',
+        }])
+
+        self.assertEqual(schedule.attendance_ids.get_subject_display_label(), '%s - Català' % self.subject.display_name)
+
+    def test_get_subject_display_label_is_just_the_subject_without_topic(self):
+        schedule = self.env['resource.calendar'].create({'name': 'Test Subject Display Label No Topic (Working Schedule)'})
+        schedule.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+        }])
+
+        self.assertEqual(schedule.attendance_ids.get_subject_display_label(), self.subject.display_name)
+
     def test_report_working_schedule_translates_non_teaching_reason(self):
         self.teacher.resource_calendar_id = self.framework
         self.teacher.resource_calendar_id.apply_schedule_changes([{

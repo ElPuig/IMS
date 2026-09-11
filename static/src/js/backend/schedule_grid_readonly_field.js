@@ -108,8 +108,13 @@ export class ReadonlyScheduleGridField extends Component {
         return layoutOverlappingBlocks([...blocks.values()]);
     }
 
+    // 'topic' (issue #428) is part of the key too: two teachers can genuinely share the exact same
+    // subject/group/slot while teaching different topics (e.g. FP Basica's MP 3161, split by
+    // language) - without topic here, 'blocksForDay' would silently merge them into one block
+    // showing only one of the two teachers/topics, chosen arbitrarily by entry order. Mirrors
+    // '_report_color_key' on the Python side (schedule_report_mixin.py).
     _blockKey(entry) {
-        return entry.data.non_teaching ? `n_${entry.data.non_teaching[0]}` : `s_${entry.data.subject_id[0]}`;
+        return entry.data.non_teaching ? `n_${entry.data.non_teaching[0]}` : `s_${entry.data.subject_id[0]}_${entry.data.topic || ""}`;
     }
 
     blockStyle(block) {
@@ -145,7 +150,7 @@ export class ReadonlyScheduleGridField extends Component {
         if (this.blockIsBreak(block)) {
             return null;
         }
-        return `s_${block.entries[0].data.subject_id[0]}`;
+        return this._blockKey(block.entries[0]);
     }
 
     get colorByKey() {
@@ -174,10 +179,15 @@ export class ReadonlyScheduleGridField extends Component {
 
     // Never 'entry.data.name': that Char is frozen in whatever language was active when the row was
     // saved (see resource.calendar.attendance.get_report_label()'s own reasoning) — subject_id/
-    // non_teaching's own labels resolve to the current UI language for free.
+    // non_teaching's own labels resolve to the current UI language for free. 'topic' (issue #428)
+    // is free text typed directly by the teacher, so it's appended as-is, same convention as
+    // get_subject_display_label() on the Python side.
     blockLabel(block) {
         const entry = block.entries[0].data;
-        return entry.non_teaching ? entry.non_teaching[1] : entry.subject_id[1];
+        if (entry.non_teaching) {
+            return entry.non_teaching[1];
+        }
+        return entry.topic ? `${entry.subject_id[1]} - ${entry.topic}` : entry.subject_id[1];
     }
 
     blockRoom(block) {
@@ -189,27 +199,31 @@ export class ReadonlyScheduleGridField extends Component {
         return `${formatHourMinutes(block.hour_from)}-${formatHourMinutes(block.hour_to)}`;
     }
 
-    // "Subject -> Teacher(s)" summary table, below the grid: one row per distinct subject in this
-    // schedule, with the sorted, de-duplicated teacher names — this is where co-teaching (a group)
-    // or several teachers across different groups (a student) becomes visible (more than one name
-    // in a row), instead of in the grid above.
+    // "Subject -> Teacher(s)" summary table, below the grid: one row per distinct (subject, topic)
+    // pair in this schedule, with the sorted, de-duplicated teacher names — this is where
+    // co-teaching (a group) or several teachers across different groups (a student) becomes
+    // visible (more than one name in a row), instead of in the grid above. Grouping by topic too
+    // (issue #428) is what separates a subject split into several distinct topics (e.g. FP
+    // Basica's MP 3161) into their own rows instead of merging every teacher under one row -
+    // mirrors get_subject_teachers_summary() on the Python side (schedule_report_mixin.py).
     get subjectTeachersSummary() {
-        const teachersBySubject = new Map();
+        const teachersByKey = new Map();
         for (const entry of this.entries) {
             if (!entry.data.subject_id) {
                 continue;
             }
-            const label = entry.data.subject_id[1];
-            if (!teachersBySubject.has(label)) {
-                teachersBySubject.set(label, new Set());
+            const label = entry.data.topic ? `${entry.data.subject_id[1]} - ${entry.data.topic}` : entry.data.subject_id[1];
+            const key = `${entry.data.subject_id[0]}_${entry.data.topic || ""}`;
+            if (!teachersByKey.has(key)) {
+                teachersByKey.set(key, { subject: label, teachers: new Set() });
             }
             if (entry.data.employee_id) {
-                teachersBySubject.get(label).add(entry.data.employee_id[1]);
+                teachersByKey.get(key).teachers.add(entry.data.employee_id[1]);
             }
         }
-        return [...teachersBySubject.entries()]
-            .sort(([a], [b]) => a.localeCompare(b))
-            .map(([subject, teachers]) => ({ subject, teachers: [...teachers].sort().join(", ") }));
+        return [...teachersByKey.values()]
+            .sort((a, b) => a.subject.localeCompare(b.subject))
+            .map(({ subject, teachers }) => ({ subject, teachers: [...teachers].sort().join(", ") }));
     }
 
     async onPdfClick() {

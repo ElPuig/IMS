@@ -107,6 +107,8 @@ Todavía no hace falta asignar nada — abre su pestaña **Horario** y usa **Edi
 
 Cada bloque muestra su hora exacta de inicio y fin, la asignatura/grupo o el motivo no lectivo, y el aula (según el aula por defecto del grupo). Las franjas todavía sin asignar simplemente no muestran ningún bloque — la estructura del marco (patios, reuniones) ya indica que se espera algo ahí.
 
+Si una asignatura tiene un **tema** establecido (ver "Editar el horario de un docente" más abajo), la etiqueta del bloque lo muestra justo después de la asignatura (p. ej. "MP 3161 - Castellano") — así se distinguen los distintos docentes de una asignatura que en realidad se reparte en varios temas diferentes, cada uno impartido por separado (p. ej. un módulo repartido por idioma).
+
 Debajo de la cuadrícula, una pequeña tabla resumen muestra el total de horas semanales del docente en dos columnas:
 - **Horas lectivas semanales**: una fila por nivel de estudios (p. ej. CFGS, CFGM, ESO), una fila por cada grupo de refuerzo impartido (estos no pertenecen a un único nivel), más cualquier actividad no lectiva que no aparezca en la otra columna, más una fila por cada tipo de reducción lectiva asignado al docente (ver "Gestionar los tipos de reducción lectiva" más arriba) — se suma a las horas lectivas reales.
 - **Otras horas en horario fijo**: guardias (cualquier día) y reuniones de coordinación específicamente los miércoles.
@@ -124,12 +126,13 @@ Dos bloques que comparten exactamente la misma hora (ver "Cambio de asignatura a
 La cuadrícula semanal se divide en 5 columnas de día (lunes–viernes); dentro de cada día, **tarjetas** independientes — una por franja real o todavía sin asignar — contienen todo lo relativo a ese bloque: un rango de fechas opcional, su propia hora de inicio/fin, una asignatura/grupo o un motivo no lectivo, y un aula.
 
 1. Abre la pestaña **Horario** del docente y haz clic en **Editar**.
-2. Cada columna de día empieza precargada con las franjas propias del marco (incluyendo sus patios/reuniones) como tarjetas en blanco — elige una **asignatura** y uno o varios **grupos** para una, o un motivo **no lectivo**, en sus propios desplegables. El campo de grupo es una lista de selección múltiple: mantén pulsada la tecla **Ctrl** (**Cmd** en Mac) y haz clic para elegir varios grupos en la misma tarjeta — así se configura una sesión en la que el mismo docente imparte una clase idéntica a dos (o más) grupos a la vez, en la misma aula (p. ej. una asignatura optativa que combina dos grupos oficiales), en lugar de que un grupo sobrescriba silenciosamente al otro.
-3. Para cambiar la hora de una tarjeta: edita directamente su campo de inicio o de fin (mover el inicio mantiene la duración de la tarjeta).
-4. Para establecer un aula distinta de la predeterminada del grupo: elige una en el desplegable propio de **Aula** de la tarjeta — déjalo en blanco para seguir usando la del grupo.
-5. Para eliminar una tarjeta: usa su propio icono de papelera.
-6. Para añadir una tarjeta que el marco no tenía (p. ej. un docente que combina el horario de dos niveles, o el mismo día/hora con dos asignaturas distintas en puntos diferentes del año — ver "Cambio de asignatura a mitad de curso" más abajo): haz clic en **+ Añadir** al final de esa columna de día, establece su hora, y rellénala.
-7. Haz clic en **Guardar** para aplicar los cambios, o en **Cancelar** para descartarlo todo y dejar el horario intacto.
+2. Cada columna de día empieza precargada con las franjas propias del marco (incluyendo sus patios/reuniones) como tarjetas en blanco — elige una **asignatura** para una, o un motivo **no lectivo**, en su propio desplegable. Para añadir uno o varios **grupos**, empieza a escribir el nombre de un grupo en el campo de grupo y elígelo de las sugerencias — cada grupo elegido se muestra como su propia etiqueta eliminable, así que puedes añadir varios a la misma tarjeta (haz clic en la **×** de una etiqueta para eliminarla). Así se configura una sesión en la que el mismo docente imparte una clase idéntica a dos (o más) grupos a la vez, en la misma aula (p. ej. una asignatura optativa que combina dos grupos oficiales), en lugar de que un grupo sobrescriba silenciosamente al otro.
+3. Si la asignatura en realidad se reparte en varios temas diferentes, cada uno impartido por separado (p. ej. un módulo repartido por idioma) — ver "Ver el horario de un docente" más arriba —, escribe el **tema** en el campo de texto propio de la tarjeta, justo debajo de las etiquetas de grupo. Es opcional y de texto libre: escríbelo exactamente igual cada vez que se repita el mismo tema (p. ej. siempre "Castellano"), para que se reconozca correctamente como el mismo tema allá donde aparezca.
+4. Para cambiar la hora de una tarjeta: edita directamente su campo de inicio o de fin (mover el inicio mantiene la duración de la tarjeta).
+5. Para establecer un aula distinta de la predeterminada del grupo: elige una en el desplegable propio de **Aula** de la tarjeta — déjalo en blanco para seguir usando la del grupo.
+6. Para eliminar una tarjeta: usa su propio icono de papelera.
+7. Para añadir una tarjeta que el marco no tenía (p. ej. un docente que combina el horario de dos niveles, o el mismo día/hora con dos asignaturas distintas en puntos diferentes del año — ver "Cambio de asignatura a mitad de curso" más abajo): haz clic en **+ Añadir** al final de esa columna de día, establece su hora, y rellénala.
+8. Haz clic en **Guardar** para aplicar los cambios, o en **Cancelar** para descartarlo todo y dejar el horario intacto.
 
    ![Dos tarjetas el mismo día de la semana, cada una con su propio rango de fechas, hora, asignatura, grupo y aula](../../assets/admin/working-schedules-edit-cards.png)
 
@@ -263,7 +266,7 @@ Una vez creado, un grupo de refuerzo se utiliza en el horario de un docente exac
 ## Exportar el horario de un docente a PDF
 
 1. Abre la pestaña **Horario** del docente y haz clic en **PDF**.
-2. Se genera y descarga un horario semanal imprimible — una fila por franja, una columna por día, y cada celda muestra la asignatura/grupo o el motivo no lectivo y el aula.
+2. Se genera y descarga un horario semanal imprimible — una fila por franja, una columna por día, y cada celda muestra la asignatura/grupo (con su tema, si tiene uno) o el motivo no lectivo y el aula.
 
 El documento empieza con el nombre del docente y el curso actual, seguido de su departamento (si tiene uno asignado) y su(s) rol(es) — la línea de un tutor también muestra qué grupo tutoriza, y la de un jefe de departamento muestra de qué departamento.
 

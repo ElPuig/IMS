@@ -36,7 +36,14 @@ class EmsScheduleReportMixin(models.AbstractModel):
     ]
 
     def _report_color_key(self, attendance):
-        return ('non_teaching', attendance.non_teaching.id) if attendance.non_teaching else ('subject', attendance.subject_id.id)
+        # 'topic' (issue #428) is part of the key too: two teachers can genuinely share the exact
+        # same subject/group/slot while teaching different topics (e.g. FP Basica's MP 3161, split
+        # by language) - without topic in the key, this method doubles as get_schedule_report_lines()'s
+        # own block-grouping key (see 'blocks_by_key' below), so the two would silently merge into
+        # one block showing only one of the two teachers/topics, chosen arbitrarily by entry order.
+        if attendance.non_teaching:
+            return ('non_teaching', attendance.non_teaching.id)
+        return ('subject', attendance.subject_id.id, attendance.topic or False)
 
     def _format_report_time(self, value):
         hour, minutes = divmod(round(value * 60), 60)
@@ -119,15 +126,21 @@ class EmsScheduleReportMixin(models.AbstractModel):
         return lines
 
     def get_subject_teachers_summary(self):
-        """One row per distinct subject in this schedule, with the sorted, de-duplicated list of
-        teachers teaching it — this is where co-teaching (a group) or several teachers across
-        different groups (a student's own subjects) becomes visible (more than one name in the
-        row), instead of in the grid (see 'get_schedule_report_lines')."""
+        """One row per distinct (subject, topic) pair in this schedule, with the sorted,
+        de-duplicated list of teachers teaching it — this is where co-teaching (a group) or
+        several teachers across different groups (a student's own subjects) becomes visible (more
+        than one name in the row), instead of in the grid (see 'get_schedule_report_lines').
+        Grouping by topic too (issue #428), not just subject, is what actually separates a subject
+        split into several distinct topics (e.g. FP Basica's MP 3161: Castella/Catala/Angles, each
+        taught by a different teacher) into their own rows instead of merging every teacher under
+        one single 'subject' row."""
         self.ensure_one()
         teaching_entries = self.schedule_attendance_ids.filtered('subject_id')
         rows = []
         for subject in teaching_entries.mapped('subject_id').sorted('name'):
-            entries = teaching_entries.filtered(lambda attendance, subject=subject: attendance.subject_id == subject)
-            teachers = sorted(set(entries.mapped('employee_id.display_name')))
-            rows.append({'subject': subject.display_name, 'teachers': ", ".join(teachers)})
+            subject_entries = teaching_entries.filtered(lambda attendance, subject=subject: attendance.subject_id == subject)
+            for topic in sorted(set(subject_entries.mapped(lambda attendance: attendance.topic or False)), key=lambda topic: topic or ""):
+                entries = subject_entries.filtered(lambda attendance, topic=topic: (attendance.topic or False) == topic)
+                teachers = sorted(set(entries.mapped('employee_id.display_name')))
+                rows.append({'subject': entries[:1].get_subject_display_label(), 'teachers': ", ".join(teachers)})
         return rows

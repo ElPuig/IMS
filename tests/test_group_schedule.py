@@ -133,6 +133,38 @@ class TestGroupSchedule(TransactionCase):
         self.assertEqual(len(monday_cell['blocks']), 1)
         self.assertEqual(monday_cell['blocks'][0]['entries'].mapped('employee_id'), self.teacher_a | self.teacher_b)
 
+    def test_get_schedule_report_lines_same_slot_different_topics_are_separate_blocks(self):
+        """Issue #428, real regression found live (2026-09-11): unlike plain co-teaching (same
+        subject, no topic - see the test above, correctly ONE merged block), two teachers can
+        genuinely share the exact same subject/group/slot while teaching different topics (e.g.
+        FP Basica's MP 3161, split by language) - found on a real teacher's calendar where a
+        second, unrelated teacher happened to share the exact same subject+group+hour. Before the
+        fix, '_report_color_key' grouped by subject alone, so the two entries silently merged into
+        ONE block, showing only one of the two teachers/topics (chosen arbitrarily by entry
+        order) - the other's topic was visible in get_subject_teachers_summary() but not in the
+        grid itself."""
+        calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Same Slot Topics)')
+        calendar_a.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 8, 'hour_to': 9, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TGSL: TGSL',
+            'topic': 'Castella',
+        }])
+        calendar_b = self._new_calendar(self.teacher_b, 'Test Calendar B (Same Slot Topics)')
+        calendar_b.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 8, 'hour_to': 9, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TGSL: TGSL',
+            'topic': 'Catala',
+        }])
+
+        lines = self.group.get_schedule_report_lines()
+
+        matching = [line for line in lines if line['time_label'] == '08:00-09:00']
+        self.assertEqual(len(matching), 1)
+        monday_cell = matching[0]['cells'][0]
+        self.assertEqual(len(monday_cell['blocks']), 2)
+        teachers_by_block = {block['entries'].employee_id for block in monday_cell['blocks']}
+        self.assertEqual(teachers_by_block, {self.teacher_a, self.teacher_b})
+
     def test_get_subject_teachers_summary_lists_co_teachers(self):
         calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Summary)')
         calendar_a.apply_schedule_changes([{
@@ -151,6 +183,31 @@ class TestGroupSchedule(TransactionCase):
         self.assertEqual(summary[0]['subject'], self.subject.display_name)
         self.assertIn(self.teacher_a.display_name, summary[0]['teachers'])
         self.assertIn(self.teacher_b.display_name, summary[0]['teachers'])
+
+    def test_get_subject_teachers_summary_separates_by_topic(self):
+        """Issue #428: the same subject split into several topics (e.g. FP Basica's MP 3161:
+        Castella/Catala/Angles), each taught by a different teacher, must show up as distinct
+        rows - not merged under one 'subject' row the way plain co-teaching (same subject, no
+        topic) correctly is (see the co-teachers test above)."""
+        calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Topic Summary)')
+        calendar_a.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TGSL: TGSL',
+            'topic': 'Castella',
+        }])
+        calendar_b = self._new_calendar(self.teacher_b, 'Test Calendar B (Topic Summary)')
+        calendar_b.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 11, 'hour_to': 12, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TGSL: TGSL',
+            'topic': 'Catala',
+        }])
+
+        summary = self.group.get_subject_teachers_summary()
+
+        self.assertEqual(len(summary), 2)
+        rows_by_subject = {row['subject']: row['teachers'] for row in summary}
+        self.assertEqual(rows_by_subject.get('%s - Castella' % self.subject.display_name), self.teacher_a.display_name)
+        self.assertEqual(rows_by_subject.get('%s - Catala' % self.subject.display_name), self.teacher_b.display_name)
 
     def test_break_derived_from_level_framework(self):
         lines = self.group.get_schedule_report_lines()

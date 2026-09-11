@@ -14,7 +14,7 @@ import { PX_PER_HOUR, DEFAULT_START, WEEKDAYS, MIN_ENTRY_HEIGHT, dayLabels, comp
 // subject at a different point in the year" feature, instead of adding new EMS-only fields.
 // 'space_id' - exposed as its own explicit per-card field since the 2026-08-11 card-based edit mode
 // redesign (previously only ever inferred server-side, never shown/editable in this widget at all).
-const ATTENDANCE_FIELDS = ["dayofweek", "hour_from", "hour_to", "non_teaching", "subject_id", "group_ids", "date_from", "date_to", "space_id"];
+const ATTENDANCE_FIELDS = ["dayofweek", "hour_from", "hour_to", "non_teaching", "subject_id", "topic", "group_ids", "date_from", "date_to", "space_id"];
 
 // Two different layouts for two different jobs:
 //   - VIEW mode (read-only): a visual weekly grid (day columns x hourly rows), entries positioned
@@ -351,6 +351,7 @@ export class ScheduleGridField extends Component {
             hour_to: data.hour_to,
             non_teaching: data.non_teaching ? data.non_teaching[0] : false,
             subjectId: data.subject_id ? data.subject_id[0] : false,
+            topic: data.topic || false,
             groupIds: groupIds,
             spaceId: data.space_id ? data.space_id[0] : false,
             // "YYYY-MM-DD" string or false - each card's own date range (2026-08-11 card redesign;
@@ -376,11 +377,11 @@ export class ScheduleGridField extends Component {
     }
 
     _cardFromNormalized(n) {
-        return { id: this._nextCardId++, hourFrom: n.hour_from, hourTo: n.hour_to, startDate: n.startDate, endDate: n.endDate, spaceId: n.spaceId, ...this._kindFromNormalized(n) };
+        return { id: this._nextCardId++, hourFrom: n.hour_from, hourTo: n.hour_to, startDate: n.startDate, endDate: n.endDate, spaceId: n.spaceId, topic: n.topic, ...this._kindFromNormalized(n) };
     }
 
     _blankCard(hourFrom, hourTo) {
-        return { id: this._nextCardId++, hourFrom, hourTo, startDate: false, endDate: false, spaceId: false, kind: "blank", subjectId: false, groupIds: [], nonTeaching: false };
+        return { id: this._nextCardId++, hourFrom, hourTo, startDate: false, endDate: false, spaceId: false, topic: false, kind: "blank", subjectId: false, groupIds: [], nonTeaching: false };
     }
 
     // Cards within a day sort by start time, then end time, then start date - the developer's own
@@ -488,12 +489,24 @@ export class ScheduleGridField extends Component {
         }
         const value = ev.target.value;
         if (value.startsWith("n_")) {
-            Object.assign(card, { kind: "non_teaching", subjectId: false, groupIds: [], nonTeaching: Number(value.slice(2)) });
+            Object.assign(card, { kind: "non_teaching", subjectId: false, groupIds: [], nonTeaching: Number(value.slice(2)), topic: false });
         } else if (value.startsWith("s_")) {
             Object.assign(card, { kind: "subject", subjectId: Number(value.slice(2)), nonTeaching: false });
         } else {
-            Object.assign(card, { kind: "blank", subjectId: false, groupIds: [], nonTeaching: false });
+            Object.assign(card, { kind: "blank", subjectId: false, groupIds: [], nonTeaching: false, topic: false });
         }
+        this.dirty.value = true;
+    }
+
+    // Topic (issue #428): free text, only meaningful for a 'subject' card - some subjects (e.g. FP
+    // Basica's MP 3161) are split into several distinct topics, each taught by a different teacher
+    // in a different slot. Optional, no catalog/validation, same treatment as a plain text field.
+    onCardTopicChange(dayIndex, cardId, ev) {
+        const card = this._findCard(dayIndex, cardId);
+        if (!card) {
+            return;
+        }
+        card.topic = ev.target.value || false;
         this.dirty.value = true;
     }
 
@@ -543,6 +556,10 @@ export class ScheduleGridField extends Component {
 
     get addGroupPlaceholder() {
         return _t("Add group…");
+    }
+
+    get topicPlaceholder() {
+        return _t("Topic (optional)");
     }
 
     onCardSpaceChange(dayIndex, cardId, ev) {
@@ -718,6 +735,13 @@ export class ScheduleGridField extends Component {
                     cell.subject_id = card.subjectId;
                     cell.group_ids = card.groupIds;
                     cell.name = `${subjectById.get(card.subjectId)}: ${card.groupIds.map((groupId) => groupById.get(groupId)).join(", ")}`;
+                    // Topic (issue #428) is appended to the frozen 'name' label too, so the
+                    // teacher's own grid immediately shows what they just typed - same "subject -
+                    // topic" convention as get_report_label()/blockLabel() elsewhere.
+                    if (card.topic) {
+                        cell.topic = card.topic;
+                        cell.name += ` - ${card.topic}`;
+                    }
                 } else if (card.kind === "non_teaching") {
                     cell.non_teaching = card.nonTeaching;
                     cell.name = nonTeachingById.get(card.nonTeaching) || card.nonTeaching;

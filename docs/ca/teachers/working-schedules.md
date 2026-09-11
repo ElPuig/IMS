@@ -20,7 +20,7 @@ Vés a: **Empleats → [la teva pròpia fitxa] → pestanya Horari**
 
 Cada bloc de la graella setmanal mostra:
 - la seva hora exacta d'inici i fi (les franges no sempre estan alineades a l'hora en punt, p. ex. `10:25–11:25`),
-- l'assignatura i el(s) grup(s) que imparteixes — un mateix bloc pot nomenar més d'un grup quan fas una sessió idèntica a diversos grups alhora (p. ex. una assignatura optativa que combina dos grups oficials a la mateixa aula) — o el motiu si no és una franja lectiva (un pati, una reunió de coordinació...),
+- l'assignatura i el(s) grup(s) que imparteixes — un mateix bloc pot nomenar més d'un grup quan fas una sessió idèntica a diversos grups alhora (p. ex. una assignatura optativa que combina dos grups oficials a la mateixa aula) — o el motiu si no és una franja lectiva (un pati, una reunió de coordinació...). Si l'assignatura en realitat es reparteix en diversos temes diferents, cadascun impartit per separat (p. ex. un mòdul repartit per idioma), el seu **tema** es mostra just després de l'assignatura (p. ex. "MP 3161 - Castellà") — contacta amb un Cap de Departament o superior per establir-lo o corregir-lo,
 - l'aula, quan el grup en té una assignada.
 
 Una franja que encara no té cap bloc simplement no té res assignat — contacta amb un administrador si creus que falta o hi ha algun error al teu horari.

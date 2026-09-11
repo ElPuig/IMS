@@ -187,6 +187,23 @@ class TestStudentSchedule(TransactionCase):
         self.assertEqual(by_subject[self.subject_main.display_name], self.teacher_a.display_name)
         self.assertEqual(by_subject[self.subject_elective.display_name], self.teacher_b.display_name)
 
+    def test_get_subject_teachers_summary_includes_topic_in_label(self):
+        """Issue #428: same underlying (subject, topic) grouping as
+        TestGroupSchedule.test_get_subject_teachers_summary_separates_by_topic - a student's own
+        aggregated schedule (across all their enrolled groups) must reflect the topic-qualified
+        label too, not just a group's."""
+        calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Topic Summary)')
+        calendar_a.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject_main.id, 'group_ids': [self.main_group.id], 'name': 'TSSL: TSSLM',
+            'topic': 'Angles',
+        }])
+
+        summary = self.student.get_subject_teachers_summary()
+
+        by_subject = {row['subject']: row['teachers'] for row in summary}
+        self.assertEqual(by_subject.get('%s - Angles' % self.subject_main.display_name), self.teacher_a.display_name)
+
     def test_break_derived_from_main_group_level(self):
         lines = self.student.get_schedule_report_lines()
 

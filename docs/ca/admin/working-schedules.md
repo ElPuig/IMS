@@ -107,6 +107,8 @@ Encara no cal assignar res — obre la seva pestanya **Horari** i fes servir **E
 
 Cada bloc mostra la seva hora exacta d'inici i fi, l'assignatura/grup o el motiu no lectiu, i l'aula (segons l'aula per defecte del grup). Les franges encara sense assignar simplement no mostren cap bloc — l'estructura del marc (patis, reunions) ja indica que s'hi espera alguna cosa.
 
+Si una assignatura té un **tema** establert (vegeu "Editar l'horari d'un docent" més avall), l'etiqueta del bloc el mostra just després de l'assignatura (p. ex. "MP 3161 - Castellà") — així es distingeixen els diferents docents d'una assignatura que en realitat es reparteix en diversos temes diferents, cadascun impartit per separat (p. ex. un mòdul repartit per idioma).
+
 Sota la graella, una petita taula resum mostra el total d'hores setmanals del docent en dues columnes:
 - **Hores lectives setmanals**: una fila per nivell d'estudis (p. ex. CFGS, CFGM, ESO), una fila per cada grup de reforç impartit (aquests no pertanyen a un únic nivell), més qualsevol activitat no lectiva que no aparegui a l'altra columna, més una fila per cada tipus de reducció lectiva assignat al docent (vegeu "Gestionar els tipus de reducció lectiva" més amunt) — se suma a les hores lectives reals.
 - **Altres hores en horari fix**: guàrdies (qualsevol dia) i reunions de coordinació específicament els dimecres.
@@ -124,12 +126,13 @@ Dos blocs que comparteixen exactament la mateixa hora (vegeu "Canvi d'assignatur
 La graella setmanal es divideix en 5 columnes de dia (dilluns–divendres); dins de cada dia, **targetes** independents — una per franja real o encara sense assignar — contenen tot el que fa referència a aquell bloc: un interval de dates opcional, la seva pròpia hora d'inici/fi, una assignatura/grup o un motiu no lectiu, i una aula.
 
 1. Obre la pestanya **Horari** del docent i fes clic a **Edita**.
-2. Cada columna de dia comença preomplerta amb les franges pròpies del marc (incloent-hi els seus patis/reunions) com a targetes en blanc — tria una **assignatura** i un o diversos **grups** per a una, o un motiu **no lectiu**, als seus propis desplegables. El camp de grup és una llista de selecció múltiple: mantén premuda la tecla **Ctrl** (**Cmd** al Mac) i fes clic per triar diversos grups a la mateixa targeta — així es configura una sessió on el mateix docent imparteix una classe idèntica a dos (o més) grups alhora, a la mateixa aula (p. ex. una assignatura optativa que combina dos grups oficials), en lloc que un grup sobreescrigui silenciosament l'altre.
-3. Per canviar l'hora d'una targeta: edita directament el seu camp d'inici o de fi (moure l'inici manté la durada de la targeta).
-4. Per establir una aula diferent de la per defecte del grup: tria'n una al desplegable propi d'**Aula** de la targeta — deixa-ho en blanc per continuar fent servir la del grup.
-5. Per eliminar una targeta: fes servir la seva pròpia icona de paperera.
-6. Per afegir una targeta que el marc no tenia (p. ex. un docent que combina l'horari de dos nivells, o el mateix dia/hora amb dues assignatures diferents en punts diferents de l'any — vegeu "Canvi d'assignatura a mig curs" més avall): fes clic a **+ Afegeix** al final d'aquella columna de dia, estableix la seva hora, i omple-la.
-7. Fes clic a **Desa** per aplicar els canvis, o a **Cancel·la** per descartar-ho tot i deixar l'horari intacte.
+2. Cada columna de dia comença preomplerta amb les franges pròpies del marc (incloent-hi els seus patis/reunions) com a targetes en blanc — tria una **assignatura** per a una, o un motiu **no lectiu**, al seu propi desplegable. Per afegir un o diversos **grups**, comença a escriure el nom d'un grup al camp de grup i tria'l dels suggeriments — cada grup triat es mostra com una etiqueta pròpia i eliminable, de manera que en pots afegir diversos a la mateixa targeta (fes clic a la **×** d'una etiqueta per eliminar-la). Així es configura una sessió on el mateix docent imparteix una classe idèntica a dos (o més) grups alhora, a la mateixa aula (p. ex. una assignatura optativa que combina dos grups oficials), en lloc que un grup sobreescrigui silenciosament l'altre.
+3. Si l'assignatura en realitat es reparteix en diversos temes diferents, cadascun impartit per separat (p. ex. un mòdul repartit per idioma) — vegeu "Veure l'horari d'un docent" més amunt — escriu el **tema** al camp de text propi de la targeta, just sota les etiquetes de grup. És opcional i de text lliure: escriu-lo exactament igual cada vegada que es repeteixi el mateix tema (p. ex. sempre "Castellà"), perquè es reconegui correctament com el mateix tema allà on aparegui.
+4. Per canviar l'hora d'una targeta: edita directament el seu camp d'inici o de fi (moure l'inici manté la durada de la targeta).
+5. Per establir una aula diferent de la per defecte del grup: tria'n una al desplegable propi d'**Aula** de la targeta — deixa-ho en blanc per continuar fent servir la del grup.
+6. Per eliminar una targeta: fes servir la seva pròpia icona de paperera.
+7. Per afegir una targeta que el marc no tenia (p. ex. un docent que combina l'horari de dos nivells, o el mateix dia/hora amb dues assignatures diferents en punts diferents de l'any — vegeu "Canvi d'assignatura a mig curs" més avall): fes clic a **+ Afegeix** al final d'aquella columna de dia, estableix la seva hora, i omple-la.
+8. Fes clic a **Desa** per aplicar els canvis, o a **Cancel·la** per descartar-ho tot i deixar l'horari intacte.
 
    ![Dues targetes el mateix dia de la setmana, cadascuna amb el seu propi interval de dates, hora, assignatura, grup i aula](../../assets/admin/working-schedules-edit-cards.png)
 
@@ -263,7 +266,7 @@ Un cop creat, un grup de reforç s'utilitza a l'horari d'un docent exactament ig
 ## Exportar l'horari d'un docent a PDF
 
 1. Obre la pestanya **Horari** del docent i fes clic a **PDF**.
-2. Es genera i es descarrega un horari setmanal imprimible — una fila per franja, una columna per dia, i cada cel·la mostra l'assignatura/grup o el motiu no lectiu i l'aula.
+2. Es genera i es descarrega un horari setmanal imprimible — una fila per franja, una columna per dia, i cada cel·la mostra l'assignatura/grup (amb el seu tema, si n'hi ha) o el motiu no lectiu i l'aula.
 
 El document comença amb el nom del docent i el curs actual, seguit del seu departament (si en té assignat) i el seu/s rol/s — la línia d'un tutor també mostra quin grup tutoritza, i la d'un cap de departament mostra de quin departament.
 

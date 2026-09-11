@@ -28,7 +28,8 @@ optativa o reforç cursat a través d'un altre grup), encreuades amb el que hi h
 la pestanya **Empleats → [professor] → Horari** del professor corresponent. Cada bloc mostra:
 
 - l'hora d'inici i final exactes (els períodes no sempre estan alineats a l'hora en punt),
-- l'assignatura que s'imparteix,
+- l'assignatura que s'imparteix — seguida del seu **tema** (p. ex. "MP 3161 - Castellà"), quan
+  el docent n'ha establert un a la seva pròpia pestanya Horari,
 - el pati, quan el nivell i el torn del grup principal de l'alumne permeten deduir-ne
   l'horari.
 
@@ -38,8 +39,9 @@ d'un altre grup, programades en hores que se solapen. Quan això passa, la grael
 dos blocs un al costat de l'altre en lloc d'amagar-ne un darrere l'altre, de manera que no es
 perd cap informació encara que els horaris subjacents coincideixin.
 
-Sota la graella, una taula **Assignatura → Docent(s)** llista cada assignatura que cursa
-l'alumne i qui la imparteix.
+Sota la graella, una taula **Assignatura → Docent(s)** llista cada assignatura (i, quan n'hi
+ha, tema) que cursa l'alumne i qui la imparteix — una assignatura repartida en temes mostra
+una fila per tema.
 
 Aquesta pestanya és de només lectura: per canviar qualsevol cosa cal editar-ho des de la
 pestanya Horari del professor corresponent, o des de les matrícules del mateix alumne.

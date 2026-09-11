@@ -71,10 +71,12 @@ just PDF-coloring helpers as its original (pre-student) version did:
   with no main group). The same window is applied client-side by the OWL widget (its own
   `SHIFT_HOURS` constant in `schedule_grid_readonly_field.js`, kept in sync by hand) to size
   the grid's axis.
-- `get_subject_teachers_summary()` — one row per distinct subject in `self.schedule_attendance_ids`,
-  with the sorted, de-duplicated list of `employee_id.display_name` teaching it. This is where
-  co-teaching (or, for a student, several teachers across different subjects/groups) becomes
-  visible (more than one name in the row), instead of in the grid.
+- `get_subject_teachers_summary()` — one row per distinct `(subject, topic)` pair in
+  `self.schedule_attendance_ids` (issue #428: a subject split into several topics, e.g. FP
+  Basica's MP 3161, gets one row per topic rather than merging every teacher under a single
+  subject row), with the sorted, de-duplicated list of `employee_id.display_name` teaching it.
+  This is where co-teaching (or, for a student, several teachers across different
+  subjects/groups) becomes visible (more than one name in the row), instead of in the grid.
 
 Both `get_schedule_report_lines()` and `get_subject_teachers_summary()` are inherited
 **unchanged** by both consumers — neither `ems.group` nor res.partner (student) overrides
