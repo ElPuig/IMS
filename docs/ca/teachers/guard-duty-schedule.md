@@ -33,7 +33,7 @@ El matí i la tarda són torns diferents — fes servir el desplegable per canvi
 Els dos botons de la dreta de la barra d'eines canvien entre les dues maneres de llegir el mateix dia i torn:
 
 - **Horari de guàrdies** — l'horari, amb tothom qui falta marcat a sobre.
-- **Taula de guàrdies** — una fila per franja horària: qui falta i què s'ha de cobrir, davant de qui està de guàrdia per cobrir-ho.
+- **Taula d'absències** — una fila per franja horària: qui falta i què s'ha de cobrir, davant de qui està de guàrdia per cobrir-ho.
 
 ---
 
@@ -58,7 +58,7 @@ Un cop marques un o més nivells:
 
 ---
 
-## Llegir la taula de guàrdies
+## Llegir la taula d'absències
 
 Cada fila és una franja horària del torn que tens a la pantalla:
 
@@ -86,7 +86,7 @@ Aquí només es mostra que la persona falta. El tipus d'absència, el motiu i el
 
 ## Exportar a PDF
 
-Fes clic a **PDF** a la barra d'eines per descarregar el dia i el torn que s'estan mostrant (no tota la setmana) com a document imprimible — el filtre de nivell que tinguis marcat s'aplica també al PDF.
+Fes clic a **PDF** a la barra d'eines per descarregar el dia i el torn que s'estan mostrant (no tota la setmana) com a document imprimible — el filtre de nivell que tinguis marcat s'aplica també al PDF. El PDF imprimeix la vista que tinguis activa a la pantalla: l'horari si està activa **Horari de guàrdies**, o la taula d'absències si està activa **Taula d'absències**.
 
 ---
 

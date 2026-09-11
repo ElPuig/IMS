@@ -250,8 +250,8 @@ registry.category("web_tour.tours").add("ems_guard_duty_board", {
             content: "The guard on duty, who is not away, is not marked",
         },
         {
-            trigger: ".o_guard_board_view_tabs .nav-link:contains('Guard duty table')",
-            content: "Switch to the guard duty table",
+            trigger: ".o_guard_board_view_tabs .nav-link:contains('Absences table')",
+            content: "Switch to the absences table",
             run: "click",
         },
         {

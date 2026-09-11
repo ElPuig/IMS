@@ -247,6 +247,14 @@ bell schedule made the two stacked together too dense to read at a glance (devel
 2026-08-31). Only one `<table>` (the active day + active shift) is ever rendered from
 `state.board`.
 
+**The `<h1>` title is a `get title()` getter, not a literal string in the template (issue #442,
+fixed 2026-09-11).** The template used to build it inline (`t-esc="state.courseName ? 'Guard
+duty schedule (' + state.courseName + ')' : 'Guard duty schedule'"`) — a plain JS string
+concatenation the i18n extractor never sees, so it always rendered in English regardless of the
+viewer's own language, unlike every other label on this screen. `get title()` calls `_t()`
+instead (`_t("Guard duty schedule (%s)", this.state.courseName)` / `_t("Guard duty schedule")`),
+and the template just does `t-esc="title"`.
+
 **A week, not just a weekday.** `state.weekStart` holds the Monday of the shown week, and the
 weekday tabs render their own day of the month alongside their name, so the tab strip doubles
 as that week's calendar. The toolbar carries `‹ ›` week navigation plus a native
@@ -259,7 +267,9 @@ maps any date onto its week's Monday, with a weekend belonging to the week it cl
 also what makes picking a Saturday in the date input land on a real, showable weekday.
 
 **Two views of the same payload, no extra round trip.** `state.activeView` switches between the
-timetable (`schedule`) and the guard duty table (`table`), rendered as `nav-pills` in the
+timetable (`schedule`) and the absences table (`table`, labelled "Absences table" on screen -
+renamed from "Guard duty table" per issue #442, since the tab is about who's missing, not the
+board as a whole), rendered as `nav-pills` in the
 toolbar rather than a second row of `nav-tabs`, so they never compete visually with the weekday
 tabs above them. Both read the *same* already-fetched `state.board.lines` — the server sends
 `cells`, `guards` and `absences` on every line (see "Absences on the board" above), so switching
@@ -449,7 +459,22 @@ sent, and the template forwards it to `get_guard_duty_board_lines(..., day=...)`
 absent teachers with `.gdb-absent`/`.gdb-absent-pending` — the same two-state distinction, and
 the same single accent colour, as the live screen. A cuadrante handed out on paper to assign the
 day's guards is no use without them. Omitting the key (any other caller) still prints the plain
-timetable. The guard duty table view has **no** PDF of its own yet.
+timetable.
+
+**The PDF prints whichever of the two tabs is on screen (issue #442, fixed 2026-09-11) —
+previously it always printed the timetable regardless of the Absences table tab being active.**
+`onPdfClick()` also forwards `guard_duty_view: this.state.activeView` (`'schedule'` or
+`'table'`), and the template reads it as `requested_view` (falsy/absent = `'schedule'`, the
+original, still-default behaviour, same fallback convention as every other `guard_duty_*`
+context key here). Per shift, once `data['lines']` is non-empty, the template branches on
+`requested_view` instead of always rendering the groups-as-columns table: `'table'` renders a
+second, 3-column `<table class="... gdb-duty-table">` (`gdb-col-time`/`gdb-col-absences`/
+`gdb-col-guard`, the last a fixed width like the timetable's own, the absences column left
+`width: auto` to take whatever the other two leave) off the very same `line['absences']`/
+`line['guards']`/`line['guard_absences']` the timetable branch already has - no second RPC/
+method call, same `data` variable, just a different loop over it. The page's own `<h1>` title
+also switches between "Guard Duty Schedule -" and "Absences Table -" so the printed heading
+never contradicts what's actually below it.
 
 ## Level filter (issue #390)
 

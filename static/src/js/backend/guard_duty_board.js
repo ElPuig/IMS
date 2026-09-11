@@ -16,7 +16,7 @@ const SHIFTS = [
 // very same payload (see ems.course.get_guard_duty_board_data) - one fetch, two renderings.
 const VIEWS = [
     { key: "schedule", label: _t("Guard duty schedule") },
-    { key: "table", label: _t("Guard duty table") },
+    { key: "table", label: _t("Absences table") },
 ];
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -125,6 +125,15 @@ export class GuardDutyBoard extends Component {
             const date = new Date(monday.getTime() + index * MS_PER_DAY);
             return { index, label, date: toIsoDate(date), dayOfMonth: date.getDate() };
         });
+    }
+
+    // The header's own title - a plain string literal in the template would never go through
+    // the translation extractor at all (found 2026-09-11: it always rendered in English
+    // regardless of the user's own language, unlike every other label on this screen).
+    get title() {
+        return this.state.courseName
+            ? _t("Guard duty schedule (%s)", this.state.courseName)
+            : _t("Guard duty schedule");
     }
 
     get shifts() {
@@ -266,7 +275,9 @@ export class GuardDutyBoard extends Component {
     // own use of the 'guard_duty_weekday'/'guard_duty_shift' context keys. 'guard_duty_level_ids'
     // (issue #390) forwards the same level selection, following the same pattern; 'guard_duty_date'
     // is the printed copy's own absence information - a cuadrante handed out to plan the day's
-    // guards is no use without them.
+    // guards is no use without them. 'guard_duty_view' (found 2026-09-11) forwards which of the
+    // two tabs is actually on screen, so the PDF prints whatever the user is currently looking
+    // at instead of always the schedule tab regardless of the "Absences table" tab being active.
     async onPdfClick() {
         await this.actionService.doAction("ems.action_report_guard_duty_board", {
             additionalContext: {
@@ -275,6 +286,7 @@ export class GuardDutyBoard extends Component {
                 guard_duty_shift: this.state.activeShift,
                 guard_duty_level_ids: this.state.activeLevelIds,
                 guard_duty_date: this.activeDate,
+                guard_duty_view: this.state.activeView,
             },
         });
     }
