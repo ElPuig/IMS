@@ -12,7 +12,7 @@ Every check-in and check-out you make is recorded automatically. This page expla
 
 ## Reviewing Your Attendance
 
-1. Navigate to **Employee Attendances**.
+1. Navigate to **Employee Attendances → Attendance → Overview**.
 2. The list shows all your check-in/check-out records, most recent first.
 3. Click any record to see its details: check-in time, check-out time, and how the time was recorded (kiosk, manual, etc.).
 
@@ -48,7 +48,7 @@ Your request is sent automatically to whoever can validate it — normally your 
 
 ## Checking the Status of Your Requests
 
-- **Employee Attendances → Correction Requests** lists all the requests you've made and their current status (Pending / Accepted / Rejected).
+- **Employee Attendances → Attendance → Correction Requests** lists all the requests you've made and their current status (Pending / Accepted / Rejected).
 - From the attendance record itself, the **Corrections** button in the header (only visible if a request exists for that record) takes you straight to it.
 
 > By default the list only shows **Pending** requests. Remove the **Pending** filter from the search bar (or switch to the **Accepted**/**Rejected** filter instead) to see requests that already have a decision.

@@ -12,9 +12,9 @@ Teachers can request a correction to a check-in/check-out time on their own atte
 
 ## Deciding on a Request
 
-If a request has been routed to you (you'll see it as an **Activity** to-do, and it will appear in **Employee Attendances → Correction Requests**):
+If a request has been routed to you (you'll see it as an **Activity** to-do, and it will appear in **Employee Attendances → Attendance → Correction Requests**):
 
-1. Open the request — either from the activity, from **Employee Attendances → Correction Requests**, or from the **Corrections** button on the attendance record itself.
+1. Open the request — either from the activity, from **Employee Attendances → Attendance → Correction Requests**, or from the **Corrections** button on the attendance record itself.
 
    > The list defaults to showing only **Pending** requests, so you're not wading through already-decided ones. Remove the **Pending** filter (or switch to the **Accepted**/**Rejected** filter) to see the rest.
 2. Review the original time against the requested one, and the reason given.

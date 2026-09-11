@@ -12,7 +12,7 @@ See where every teacher is, and who is on guard duty, in each time block of the 
 
 ## Access
 
-Navigate to: **Employee Attendances → Guard duty schedule**
+Navigate to: **Employee Attendances → Guard schedule**
 
 The board opens on today's own weekday and shift (morning before 15:00, afternoon from 15:00 on) — not always Monday morning — so you land straight on whatever's relevant right now.
 

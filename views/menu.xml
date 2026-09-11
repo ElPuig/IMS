@@ -38,5 +38,9 @@
             <field name="active">false</field>
         </record>
 
+        <record model="ir.ui.menu" id="calendar.mail_menu_calendar">
+            <field name="active">false</field>
+        </record>
+
     </data>
 </odoo>

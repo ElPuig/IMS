@@ -12,7 +12,7 @@ Cada entrada y salida que haces queda registrada automáticamente. Esta página 
 
 ## Revisar tus fichajes
 
-1. Ve a **Fichajes de empleados**.
+1. Ve a **Fichajes de empleados → Asistencia → Vista general**.
 2. La lista muestra todos tus fichajes de entrada/salida, los más recientes primero.
 3. Haz clic en cualquier registro para ver sus detalles: hora de entrada, hora de salida y cómo se registró (quiosco, manual, etc.).
 
@@ -48,7 +48,7 @@ Tu solicitud se envía automáticamente a quien puede validarla — normalmente 
 
 ## Consultar el estado de tus solicitudes
 
-- **Fichajes de empleados → Solicitudes de corrección** muestra todas las solicitudes que has hecho y su estado actual (Pendiente / Aceptada / Rechazada).
+- **Fichajes de empleados → Asistencia → Solicitudes de corrección** muestra todas las solicitudes que has hecho y su estado actual (Pendiente / Aceptada / Rechazada).
 - Desde el propio fichaje, el botón **Correcciones** de la cabecera (solo visible si existe alguna solicitud para ese registro) te lleva directamente a ella.
 
 > De forma predeterminada, la lista solo muestra las solicitudes **Pendientes**. Quita el filtro **Pendiente** de la barra de búsqueda (o cambia al filtro **Aceptada**/**Rechazada**) para ver las solicitudes que ya tienen una decisión.

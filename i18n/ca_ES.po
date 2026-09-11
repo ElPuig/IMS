@@ -1840,6 +1840,7 @@ msgid "Attachment Count"
 msgstr "Quantitat d'adjunts"
 
 #. module: ems
+#: model:ir.ui.menu,name:ems.menu_hr_attendance_group
 #: model_terms:ir.ui.view,arch_db:ems.ems_portal_custom_header_menu model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_student_form model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Attendance"
 msgstr "Assistència"
@@ -12647,7 +12648,7 @@ msgstr "Guàrdia"
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 #: model:ir.actions.client,name:ems.action_guard_duty_board
 #: model:ir.ui.menu,name:ems.menu_guard_duty_board
-msgid "Guard duty schedule"
+msgid "Guard schedule"
 msgstr "Horari de guàrdies"
 
 #. module: ems
