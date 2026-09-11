@@ -4019,6 +4019,16 @@ msgid "Guard"
 msgstr "Guàrdia"
 
 #. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_gb
+msgid "Guard (Break)"
+msgstr "Guàrdia (Pati)"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_gwc
+msgid "Guard (WC)"
+msgstr "Guàrdia (WC)"
+
+#. module: ems
 #: model:ir.model,name:ems.model_hr_attendance
 msgid "HR Attendance: auto check-in/check-out extension."
 msgstr "Assistència"
