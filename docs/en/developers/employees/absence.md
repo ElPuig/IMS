@@ -105,6 +105,10 @@ All nine share `request_unit = 'hour'`, `requires_allocation = 'no'` (the 15 h c
 never blocks — see the plan) and `leave_validation_type = 'manager'`, which routes approval to
 `leave_manager_id` above.
 
+Since issue #440, `hr.employee.attendance_manager_id` (`hr_attendance`'s own approver field,
+unrelated to leave requests) is a stored compute that always mirrors this same
+`leave_manager_id` — see [My Profile restructuring](user_profile.md) for why and how.
+
 ## The request: what EMS adds to `hr.leave`
 
 | Field | Seeded from | Who edits it |

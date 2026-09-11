@@ -121,6 +121,21 @@ export class ScheduleGridField extends Component {
         return value ? value[0] : false;
     }
 
+    // The underlying hr.employee id for employee-specific RPCs (get_derived_break_attendance_
+    // data, the PDF report, the "copy from another teacher" search) below. On the teacher's own
+    // form 'record' IS the hr.employee, so its own resId already is that id. Reused on "My
+    // Profile" (res.users, see views/community/employee/user_profile_form.xml), 'record' is a
+    // DIFFERENT model - its resId is the res.users id, not the employee's - but 'employee_id' is
+    // a real, always-loaded field there (checked via 'in' since a genuinely empty Many2one would
+    // otherwise be indistinguishable from the field not existing on this host model at all).
+    _employeeIdFor(record) {
+        if ("employee_id" in record.data) {
+            const value = record.data.employee_id;
+            return value ? value[0] : false;
+        }
+        return record.resId;
+    }
+
     // Fetched explicitly (orm.call), not read off the record as a form field — see
     // hr.employee.get_derived_break_attendance_data()'s own docstring for why a hidden Many2many
     // field with its own embedded <list> turned out not to reliably load its sub-fields
@@ -129,10 +144,11 @@ export class ScheduleGridField extends Component {
     // expect from a real x2many record's own data. See '_loadSummary' above for why 'record' is a
     // parameter, not read off 'this.props' directly.
     async _loadDerivedBreaks(record = this.props.record) {
-        if (!record.resId) {
+        const employeeId = this._employeeIdFor(record);
+        if (!employeeId) {
             return;
         }
-        const rows = await this.orm.call("hr.employee", "get_derived_break_attendance_data", [[record.resId]]);
+        const rows = await this.orm.call("hr.employee", "get_derived_break_attendance_data", [[employeeId]]);
         this.derivedBreaks.list = rows.map((row) => ({ id: row.id, data: row }));
     }
 
@@ -603,7 +619,7 @@ export class ScheduleGridField extends Component {
 
     async onPdfClick() {
         await this.actionService.doAction("ems.action_report_working_schedule", {
-            additionalContext: { active_ids: [this.props.record.resId] },
+            additionalContext: { active_ids: [this._employeeIdFor(this.props.record)] },
         });
     }
 
@@ -616,7 +632,7 @@ export class ScheduleGridField extends Component {
                 this.orm.searchRead(
                     "hr.employee",
                     [
-                        ["id", "!=", this.props.record.resId],
+                        ["id", "!=", this._employeeIdFor(this.props.record)],
                         ["employee_type", "=", "teacher"],
                         ["resource_calendar_id", "!=", false],
                     ],
