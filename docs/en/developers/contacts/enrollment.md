@@ -74,6 +74,28 @@ flowchart TD
 - **Grade session add/remove:** only touches sessions in `state = 'open'` — `board`/`final` sessions are frozen and must not gain or lose lines from a later enrollment change. `_ems_sync_grade_session_remove` now also checks `_ems_still_enrolled` (for the exact `group_id` being removed) before deleting grade lines — added for symmetry with the attendance-template guard above; the only historical trigger (a duplicate `ems.enrollment` row for the same triple) is itself now prevented by the `_sql_constraints` above, so this is defensive rather than currently reachable through normal use.
 - **`ems_bypass_grade_guard`** (context flag): the withdrawal flow (`res.partner._ems_clear_operational_records`, see [`contact.md`](contact.md)) unlinks enrollments with `sudo().with_context(ems_bypass_grade_guard=True)` — it runs *after* the academic history has already frozen the grades, so the normal "has scored grades" guard would otherwise block exactly the cleanup it needs to do.
 
+#### Both cascades run under `sudo()` (issue #435)
+
+`_ems_matching_attendance_schedules()`, `_ems_still_enrolled()`, both `_ems_sync_grade_session_*` searches and `ems.grade_session._ems_has_scored_grades()` all `sudo()` their own reads/writes. They are system-level consequences of an enrollment change that was *already* authorized when the row was created or deleted — not separate actions the acting user must independently be entitled to perform on the attendance/grading side. This is the same reasoning `_ems_move_group()` documents for its own `sudo()` below.
+
+Without it, **who** created the enrollment silently decided how much of the cascade happened, because both side systems are access-restricted in ways `ems.enrollment` is not:
+
+| Acting user | What used to happen |
+|---|---|
+| Academic admin | Everything synced (unrestricted rules on both models) — which is why this went unnoticed. |
+| Teacher (incl. a secretary who also teaches) | `rule_attendance_template_teacher_own` / `rule_attendance_schedule_teacher_own` / `rule_grade_session_teacher_own` scope the search to templates and sessions they teach, so the search returned **nothing** and the cascade was a silent no-op. |
+| Secretary (no teaching) | Read-only on `ems.attendance_template`/`ems.attendance_schedule` (`ir.model.access.csv`), so the roster write raised an `AccessError` and took the whole enrollment creation down with it. |
+
+Found in production (2026-09-10): a secretary who also teaches enrolled seven ex-ESO students into SA1A from the student form's *Enrollment Data* list. All seven `ems.enrollment` rows were created correctly, and none of them reached a single one of that group's 25 attendance schedule lines — the teachers' roll-call lists simply never showed the new students. The same silent gap applied in reverse (deleting an enrollment left the student in the roster) and to open grade sessions (the student got no grade lines).
+
+`_ems_has_scored_grades()` is `sudo()`'d for a related but distinct reason: it is a **guard**, so seeing less than everything makes it weaker, not safer — a teacher only sees their own sessions, which would have let a secretary-who-also-teaches delete an enrollment that already carried a different teacher's grades.
+
+`sudo()` here never widens what the user was allowed to do to the enrollment itself: `default_get()`'s admin/secretary guard and `unlink()`'s scored-grades guard are Python-level and still run.
+
+Covered by `tests/test_enrollment.py::TestEnrollmentSyncAsRestrictedUser` (roster fill/clear across *every* schedule line, and open-grade-session lines, driven by both a secretary-who-teaches and a plain secretary).
+
+The rows the broken cascade already left behind are healed by `migrations/18.0.0.24.2/post-migrate.py` (add-only, idempotent - see its own docstring for why it must not wipe a roster the way `reload_students()` does).
+
 ### `_ems_move_group(student, old_group, new_group)` — following a student's group change (issue #395)
 
 Called from `res.partner.write()` (see [`contact.md`](contact.md#_migrate_enrollments_on_group_changeold_main_groups)) whenever a student's `main_group_id` changes from one real group to another: every `ems.enrollment` row of `student` still pointing at `old_group` is repointed to `new_group` (same `subject_id`). A row already in a *different* group (e.g. a reinforcement group) is untouched — only rows in `old_group` specifically move.
