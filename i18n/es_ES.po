@@ -1542,12 +1542,6 @@ msgstr "Todos los niveles"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
-msgid "Patio"
-msgstr "Patio"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "(WC)"
 msgstr "(WC)"
 
@@ -11027,6 +11021,7 @@ msgstr "Otras Coordinaciones"
 
 #. module: ems
 #. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 #: code:addons/ems/static/src/xml/backend/guard_duty_board.xml:0
 #: model:ems.non_teaching_type,name:ems.non_teaching_br
 msgid "Break"

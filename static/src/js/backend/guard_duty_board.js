@@ -161,8 +161,15 @@ export class GuardDutyBoard extends Component {
     // state, not by row) so the template can translate them the same way as everything else on
     // this board (developer request, 2026-09-11: make a patio guard duty and a WC guard duty
     // both visually obvious - see is_break/is_wc in guard_duty_board.py).
+    //
+    // The SOURCE string stays "Break" (real English), same msgid this board's own non-teaching
+    // type ("Break", ems.non_teaching_br) is already translated under - it renders as "Patio"/
+    // "Pati" only once ca_ES/es_ES's own msgstr kicks in. Found the hard way (2026-09-11,
+    // developer report): an earlier version returned _t("Patio") directly - "Patio" isn't an
+    // English word, so English readers saw "Patio" too, with no ca/es override needed to notice
+    // anything was wrong (the bug was invisible from ca/es, which is exactly why it shipped).
     get breakLabel() {
-        return _t("Patio");
+        return _t("Break");
     }
 
     get wcSuffix() {

@@ -1,13 +1,20 @@
 # Changes:
 
 ## Guard duty board: patio and WC guard duties are now visually distinct:
-- A guard duty whose time block is a break/"Patio" period, with no class running for anyone
-  then, now gets a small "Patio" label and a left-border accent (matching the colour already
+- A guard duty whose time block is a break period, with no class running for anyone then, now
+  gets a small "Break" label (translating to "Patio"/"Pati" in Spanish/Catalan, same as the rest
+  of this label's own wording elsewhere) and a left-border accent (matching the colour already
   used for a break on the teacher's own weekly schedule) - and this now shows under "All levels"
   too, not only once a level filter narrows the board down, as it used to.
 - A "Guard (WC)" duty specifically now shows a "(WC)" tag next to the teacher's name in the
   guard column, since - unlike a break-time guard - it can fall at any time of day and had no
   other way to be told apart from a plain guard duty.
+- Caught during manual verification (developer report, 2026-09-11): an early version of this
+  same label returned the Catalan/Spanish word directly from the source code ("Patio" instead of
+  "Break"), so English readers saw "Patio" too - invisible from the Spanish/Catalan side, which
+  is exactly why it wasn't caught by translation review alone. Fixed by keeping the source
+  string in English and letting the existing `ca_ES`/`es_ES` translation do the rest, verified
+  against the live `/web/webclient/translations/...` endpoint in all three languages.
 
 # Fixes:
 

@@ -98,8 +98,10 @@ registry.category("web_tour.tours").add("ems_guard_duty_board", {
         {
             // 'is_break' (2026-09-11, developer request): a guard whose own period is break time
             // for some level, with no real class in it, gets its row visually marked - the
-            // "Patio" text label plus the row's own left-border accent, both under "All levels"
-            // (no level filter needed any more, see get_guard_duty_board_lines' own docstring).
+            // "Break" text label (translates to "Patio"/"Pati" in es_ES/ca_ES - this tour's own
+            // teacher runs in en_US, see create_role_user()'s own 'lang', so it stays "Break"
+            // here) plus the row's own left-border accent, both under "All levels" (no level
+            // filter needed any more, see get_guard_duty_board_lines' own docstring).
             trigger: ".o_guard_board_guard_badge:contains('Tour Guard Board Patio Guard')",
             content: "The patio guard shows up in the Guard duty column",
         },
@@ -108,8 +110,8 @@ registry.category("web_tour.tours").add("ems_guard_duty_board", {
             content: "That guard's own row is marked as a break/'Patio' row",
         },
         {
-            trigger: ".o_guard_board_table tr.o_guard_board_row_break .o_guard_board_break_label",
-            content: "The row carries the translatable 'Patio' text label",
+            trigger: ".o_guard_board_table tr.o_guard_board_row_break .o_guard_board_break_label:contains('Break')",
+            content: "The row carries the (translatable) 'Break' text label",
         },
         {
             trigger: ".o_guard_board_table:not(:has(td:contains('Tour Guard Board Afternoon Teacher')))",

@@ -43,7 +43,7 @@ The table's columns are the groups with a class in that shift; each row is a tim
 
 The **Guard duty** column on the right lists every teacher on guard duty in that time block, each in a thin-bordered box. A guard-duty teacher has no group of their own at that moment (that's the whole point of guard duty), so they only ever appear here, never in a group's column. A teacher on a **Guard (WC)** duty specifically shows a **"(WC)"** tag right after their name — worth calling out because, unlike a break-time guard (see below), a WC guard duty can fall at any time of day, so there's no other way to tell it apart from a plain guard duty at a glance.
 
-A row whose time block is a break/"Patio" period for some level — with no class scheduled in it for anyone — gets a small **"Patio"** label next to its time, plus a thin brown accent on the left edge of that same cell, so an otherwise empty-looking row doesn't read as a gap in the schedule.
+A row whose time block is a break period for some level — with no class scheduled in it for anyone — gets a small **"Break"** label next to its time, plus a thin brown accent on the left edge of that same cell, so an otherwise empty-looking row doesn't read as a gap in the schedule.
 
 ---
 
@@ -54,7 +54,7 @@ Next to the shift dropdown there's a **level filter** button (it reads "All leve
 Once one or more levels are checked:
 - Only the groups belonging to the checked level(s) become columns — every other group disappears from the table.
 - The **Guard duty** column keeps listing every teacher on duty in a visible time block, regardless of what they otherwise teach — being on duty is what matters, not which level a guard happens to teach elsewhere that day.
-- A guard duty that falls during the checked level's own break, with no class of that level running then, gets its own dedicated "Patio" row so it stays visible even though no class of that level is on at that moment (the same "Patio" marker described above already covers this under "All levels" too).
+- A guard duty that falls during the checked level's own break, with no class of that level running then, gets its own dedicated "Break" row so it stays visible even though no class of that level is on at that moment (the same "Break" marker described above already covers this under "All levels" too).
 
 ---
 
