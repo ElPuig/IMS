@@ -46,7 +46,37 @@
   this crawler's rapid pace; existing dedicated tours already open the same screens successfully
   for other logins).
 
+# Changes:
+
+## Secretary staff now land on Educational Community, teachers on the attendance roll-call screen (issue #440):
+- Found while live-testing a real secretary account: opening the app used to send every internal
+  user, regardless of role, straight into the daily attendance roll-call screen. A plain
+  secretary account browsing it saw every teacher's ongoing session for the day dumped into a
+  "take attendance" UI, because the screen's own data query only ever narrowed results down to
+  "my own sessions" for an academic admin - any other non-teaching role fell through that check
+  and saw everything, unfiltered, instead of the intended empty state.
+- The roll-call screen's own default view now correctly shows nothing for anyone without a real
+  teaching assignment, while a genuine admin without one still sees everything (so admin still
+  has full oversight/override ability, unchanged).
+- Non-teaching staff (secretary) no longer see the "Current"/roll-call menu entry at all, and now
+  land on "Educational Community" by default when logging in instead of the attendance app -
+  both the app's own default and every existing account were updated, plus the template used to
+  onboard new non-teaching accounts, so this applies going forward automatically.
+- Separately, every real teacher account (and the template used to onboard new ones) now
+  consistently lands on the roll-call screen by default too, instead of the read-only history
+  list some of them had been defaulting to.
+
 # Fixes:
+
+## Secretary missing read access to strike/attendance-status data needed to browse student history:
+- `ems.strike.reason` and `ems.attendance_status` had no read access for the secretary role at
+  all (only teacher/admin and, for the strike reason catalog, the shared orientation/coexistence
+  reader group) - browsing a student's attendance/discipline history as secretary hit an access
+  error the moment either was needed to render a label.
+- `ems.strike` itself had no visibility rule for secretary either - even after granting the ACL
+  read right above, secretary would have seen zero strike records at the database level. Added a
+  read-only "all data" rule matching the existing coexistence one, since secretary needs the same
+  centre-wide history access.
 
 ## Two non-existent widget references, found via the new role-smoke crawler:
 - `views/attendance/attendance_template/form.xml`: `widget="timepicker"` on `start_date`/

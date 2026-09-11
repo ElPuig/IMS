@@ -48,7 +48,23 @@ request - not a slow Postgres query, not a slow controller action, and (per the 
   facet/filter whose label or count is computed reactively over an already-fetched, unbounded
   recordset) before the actual list request is even built - also unverified.
 
-## How to actually investigate this (next steps)
+## Update 2026-09-11: confirmed NOT a real screen bug
+
+The developer opened the Students kanban as the real Alba Martín account (secretary) manually -
+it loads fine, no hang. This confirms the crawler's own finding was a crawler-speed artifact
+(it opens screens far faster than any human session ever would), not a bug in the screen itself.
+This was the deciding check for issue #440's Fix 2.1 (defaulting secretary's Home Action to this
+same kanban) - now unblocked and safe to ship.
+
+**What's still open, at lower priority:** the crawler itself would presumably still trip over
+this same action if `ems.action_student_kanban` were removed from `SKIP_ACTION_XMLIDS` today -
+the underlying crawler-speed sensitivity hasn't been fixed, only explained. Revisit only if this
+same pattern recurs on another action/role (see also
+`plans/role_smoke_secretary_unexplained_findings.md`, the other still-open crawler-speed
+finding) - at that point it's worth fixing the crawler generically (e.g. a small delay between
+actions) rather than continuing to special-case individual actions in the skip list.
+
+## How to actually investigate this (next steps, now historical - see the update above)
 
 1. Reproduce with `watch=True` on `start_tour(...)` in `tests/test_role_smoke_secretary_tour.py`
    (per CLAUDE.md's tour-development tip) to see the real browser and use its devtools directly -

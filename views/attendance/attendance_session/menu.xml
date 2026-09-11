@@ -14,7 +14,16 @@
             <field name="tag">ems_attendance_session_view</field>
         </record>
 
-        <menuitem name="Current" sequence="0" id="menu_attendance_passlist" parent="menu_attendance" action="action_attendance_passlist"/>
+        <!-- Non-teaching staff (secretary and similar) never have a session of their own to
+             take (see get_normal_sessions_and_planned's own admin/teacher/neither split) -
+             hidden rather than left to always show an empty screen. A menuitem's own `groups`
+             only accepts a positive allow-list (no `!group` negation - that syntax only works
+             inside a view arch's own field-level postprocessing, confirmed the hard way:
+             `groups="!ems.group_secretary"` here failed the whole module load with "External ID
+             not found"). ems.group_teacher alone is enough - Odoo evaluates group membership
+             including implied groups, so this also covers tutor/department_chief/
+             head_of_studies/director/academic_admin/coexistence/orientation/tac. -->
+        <menuitem name="Current" sequence="0" id="menu_attendance_passlist" parent="menu_attendance" action="action_attendance_passlist" groups="ems.group_teacher"/>
         <menuitem name="History" sequence="1" id="menu_attendance_sessions" parent="menu_attendance" action="action_attendance_session_tree"/>
 
         <!-- Bind the app's root menu directly to "Current" so clicking the app icon lands there by default for every user. -->
