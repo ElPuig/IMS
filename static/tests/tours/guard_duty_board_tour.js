@@ -85,6 +85,33 @@ registry.category("web_tour.tours").add("ems_guard_duty_board", {
             content: "The seeded guard-duty teacher shows up in the Guard duty column, not a group cell",
         },
         {
+            // 'is_wc' (2026-09-11, developer request): a 'Guard (WC)' duty gets a "(WC)" suffix
+            // next to the teacher's own name, right in the guard badge - a plain 'Guard' duty
+            // must NOT get it, even though both are on duty in the exact same period.
+            trigger: ".o_guard_board_guard_badge:contains('Tour Guard Board WC Guard') .o_guard_board_guard_wc_tag",
+            content: "The WC guard's own badge carries the '(WC)' tag",
+        },
+        {
+            trigger: ".o_guard_board_guard_badge:contains('Tour Guard Board Guard'):not(:has(.o_guard_board_guard_wc_tag))",
+            content: "The plain guard's badge does NOT carry the '(WC)' tag",
+        },
+        {
+            // 'is_break' (2026-09-11, developer request): a guard whose own period is break time
+            // for some level, with no real class in it, gets its row visually marked - the
+            // "Patio" text label plus the row's own left-border accent, both under "All levels"
+            // (no level filter needed any more, see get_guard_duty_board_lines' own docstring).
+            trigger: ".o_guard_board_guard_badge:contains('Tour Guard Board Patio Guard')",
+            content: "The patio guard shows up in the Guard duty column",
+        },
+        {
+            trigger: ".o_guard_board_table tr.o_guard_board_row_break:has(.o_guard_board_guard_badge:contains('Tour Guard Board Patio Guard'))",
+            content: "That guard's own row is marked as a break/'Patio' row",
+        },
+        {
+            trigger: ".o_guard_board_table tr.o_guard_board_row_break .o_guard_board_break_label",
+            content: "The row carries the translatable 'Patio' text label",
+        },
+        {
             trigger: ".o_guard_board_table:not(:has(td:contains('Tour Guard Board Afternoon Teacher')))",
             content: "The afternoon-only teacher is NOT shown while morning is selected",
         },

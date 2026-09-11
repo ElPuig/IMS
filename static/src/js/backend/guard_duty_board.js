@@ -156,6 +156,19 @@ export class GuardDutyBoard extends Component {
         };
     }
 
+    // Small text tags rendered inline next to a time/guard name - kept as their own getters
+    // (rather than folded into columnLabels/emptyLabels above, which are keyed by column/empty-
+    // state, not by row) so the template can translate them the same way as everything else on
+    // this board (developer request, 2026-09-11: make a patio guard duty and a WC guard duty
+    // both visually obvious - see is_break/is_wc in guard_duty_board.py).
+    get breakLabel() {
+        return _t("Patio");
+    }
+
+    get wcSuffix() {
+        return _t("(WC)");
+    }
+
     // Compact label for the level dropdown's own toggle button - the full checkbox list already
     // shows every level by name, this is just what's visible before opening it.
     get levelFilterLabel() {

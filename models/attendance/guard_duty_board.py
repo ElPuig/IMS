@@ -229,6 +229,16 @@ class EmsCourseGuardDutyBoard(models.Model):
           _get_guard_duty_board_break_lines(). One left over after that simply has no visible
           block to attach to under this level and isn't shown (still visible under "All levels").
 
+        Every row (filtered or not) also gets marked 'is_break' when its own period falls inside
+        SOME level's own framework break period AND no group has a real class then (developer
+        request, 2026-09-11: make a patio guard visually obvious even under "All levels", not
+        only once a level filter is active). The "no real class" half of that check is what keeps
+        this safe under "All levels" despite different levels having different break windows
+        (confirmed against this dev DB: ESO/BTX break 10:00-10:25 + 12:25-12:40, ciclos break
+        11:00-11:25 + 18:00-18:20) - a period that coincides with one level's break clock time
+        while another level is genuinely teaching then already has a non-empty cell, so it's never
+        mislabelled "Patio" just because some other level happens to be on a break at that hour.
+
         Checking every existing level in the client's own filter dropdown is normalized to the
         same "All levels" (falsy) path below, not treated as a real filter: even with the guard
         rule above, a level-filtered view only ever builds rows from teaching entries (never from
@@ -263,6 +273,7 @@ class EmsCourseGuardDutyBoard(models.Model):
             groups = teaching_entries.group_ids.sorted(key=lambda group: group.name)
             periods = sorted({(attendance.hour_from, attendance.hour_to) for attendance in entries})
         period_members = _merge_absorbed_periods(periods)
+        break_periods = self._get_guard_duty_board_break_periods(level_ids, weekday, shift_start, shift_end)
 
         dated_lines = []
         remaining_guards = guard_entries
@@ -315,6 +326,11 @@ class EmsCourseGuardDutyBoard(models.Model):
             remaining_guards -= guards
             if not guards and not any(cell['entries'] for cell in cells):
                 continue  # nothing scheduled anywhere in this period - no row worth showing
+            # See this method's own docstring for why the "no cell has a real class" half of this
+            # check is what keeps it safe under "All levels" (where several, differently-timed
+            # break windows coexist) as well as under a level filter.
+            is_break = not any(cell['entries'] for cell in cells) and any(
+                _period_contains(break_period, (hour_from, hour_to)) for break_period in break_periods)
             dated_lines.append((hour_from, hour_to, {
                 'time_label': "%s-%s" % (self._format_report_time(hour_from), self._format_report_time(hour_to)),
                 'cells': cells,
@@ -325,6 +341,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                 'guard_absences': self._guard_duty_absence_state(
                     intervals, guards.mapped('employee_id'), hour_from, hour_to),
                 'absences': covering,
+                'is_break': is_break,
             }))
 
         if level_ids:
@@ -332,6 +349,31 @@ class EmsCourseGuardDutyBoard(models.Model):
                 level_ids, weekday, shift_start, shift_end, groups, remaining_guards, intervals)
             dated_lines.sort(key=lambda dated_line: (dated_line[0], dated_line[1]))
         return {'groups': groups, 'lines': [line for _hour_from, _hour_to, line in dated_lines]}
+
+    def _get_guard_duty_board_break_periods(self, level_ids, weekday, shift_start, shift_end):
+        """Distinct (hour_from, hour_to) break periods from the relevant level(s)' own schedule
+        framework(s) - every framework, centre-wide, when 'level_ids' is falsy ("All levels"),
+        only the selected one(s) otherwise. Shared by the main per-period loop above (which only
+        ever marks a period 'is_break' when it ALSO has no real class in it - see that method's
+        own docstring for why that keeps this safe centre-wide despite different levels having
+        different break windows) and by '_get_guard_duty_board_break_lines' below (which still
+        needs a level filter active, since it builds a whole synthetic row rather than just
+        flagging an existing one)."""
+        domain = [('is_framework', '=', True)]
+        if level_ids:
+            domain.append(('level_id', 'in', level_ids))
+        frameworks = self.env['resource.calendar'].search(domain)
+        if not frameworks:
+            return set()
+        return {
+            (attendance.hour_from, attendance.hour_to)
+            for attendance in self.env['resource.calendar.attendance'].search([
+                ('calendar_id', 'in', frameworks.ids),
+                ('dayofweek', '=', weekday),
+                ('non_teaching_is_break', '=', True),
+                ('hour_from', '>=', shift_start), ('hour_to', '<=', shift_end),
+            ])
+        }
 
     def _get_guard_duty_board_break_lines(self, level_ids, weekday, shift_start, shift_end, groups, unmatched_guards, intervals):
         """Once a level filter is active, that level's own break ("Patio") period has no real
@@ -344,28 +386,18 @@ class EmsCourseGuardDutyBoard(models.Model):
         inside one of that level's own framework(s)' break periods gets a dedicated row instead -
         marked 'is_break' for the client to label distinctly. A
         break period with no guard inside it renders nothing, same "nothing to show" rule every
-        other row already follows. Not meaningful under "All levels" - a break's own hours differ
-        per level (see docs/en/developers/attendance/guard_duty_board.md's own "Level filter"
-        section), so the caller only ever invokes this once a level filter narrows down which
-        break(s) apply.
+        other row already follows. Only ever called once a level filter is active (see the
+        caller) - under "All levels" a break-time guard already gets its 'is_break' flag directly
+        on its normal row instead, via the main loop's own use of
+        '_get_guard_duty_board_break_periods' (no synthetic row needed there, since "All levels"
+        never restricts which periods get a row in the first place).
 
         'intervals' is forwarded straight from the caller so a guard's own absence still shows up
         on their dedicated break row exactly like it would on any other row - see
         get_guard_duty_board_lines()'s own 'guard_absences'."""
-        frameworks = self.env['resource.calendar'].search([
-            ('is_framework', '=', True), ('level_id', 'in', level_ids),
-        ])
-        if not frameworks:
+        break_periods = sorted(self._get_guard_duty_board_break_periods(level_ids, weekday, shift_start, shift_end))
+        if not break_periods:
             return []
-        break_periods = sorted({
-            (attendance.hour_from, attendance.hour_to)
-            for attendance in self.env['resource.calendar.attendance'].search([
-                ('calendar_id', 'in', frameworks.ids),
-                ('dayofweek', '=', weekday),
-                ('non_teaching_is_break', '=', True),
-                ('hour_from', '>=', shift_start), ('hour_to', '<=', shift_end),
-            ])
-        })
         empty_entries = self.env['resource.calendar.attendance']
         dated_lines = []
         for hour_from, hour_to in break_periods:
@@ -396,9 +428,10 @@ class EmsCourseGuardDutyBoard(models.Model):
         to know or pass a specific ems.course id — matches how the aggregation itself is scoped
         (see _get_guard_duty_board_attendance_ids' own NOTE: not actually course-filtered).
         'level_ids' (issue #390) and 'day' are forwarded as-is - see get_guard_duty_board_lines()'s
-        own docstring. Every teacher is reported as {'name', 'absence'} rather than a bare name,
-        so both of the screen's tabs read absences the same way, off the same payload, instead of
-        the client having to match names back against a separate list."""
+        own docstring. Every teacher is reported as {'name', 'absence', 'is_wc'} rather than a bare
+        name, so both of the screen's tabs read absences (and, for the guard column, the WC flag)
+        the same way, off the same payload, instead of the client having to match names back
+        against a separate list."""
         course = self.env.company.get_current_course_or_raise()
         data = course.get_guard_duty_board_lines(weekday, shift, level_ids=level_ids, day=day)
         groups = [{'id': group.id, 'name': group.name} for group in data['groups']]
@@ -416,11 +449,13 @@ class EmsCourseGuardDutyBoard(models.Model):
                     'teachers': self._guard_duty_teacher_data(cell['teachers'], cell['absences']),
                     'room': first.space_id.display_name if first and first.space_id else False,
                 })
+            wc_employee_ids = set(line['guards'].filtered(
+                lambda attendance: attendance.non_teaching.code == 'GWC').mapped('employee_id').ids)
             lines.append({
                 'time_label': line['time_label'],
                 'cells': cells,
                 'guards': self._guard_duty_teacher_data(
-                    line['guards'].mapped('employee_id'), line['guard_absences']),
+                    line['guards'].mapped('employee_id'), line['guard_absences'], wc_employee_ids),
                 'absences': [{
                     'teacher': row['teacher'].display_name,
                     'state': row['state'],
@@ -433,9 +468,15 @@ class EmsCourseGuardDutyBoard(models.Model):
         return {'groups': groups, 'lines': lines}
 
     @staticmethod
-    def _guard_duty_teacher_data(teachers, absences):
-        """Teachers as `[{'name', 'absence'}]` - 'absence' being False, 'approved' or 'pending'."""
-        return [{'name': teacher.display_name, 'absence': absences.get(teacher.id, False)}
+    def _guard_duty_teacher_data(teachers, absences, wc_employee_ids=()):
+        """Teachers as `[{'name', 'absence', 'is_wc'}]` - 'absence' being False, 'approved' or
+        'pending'; 'is_wc' flags a 'Guard (WC)' duty specifically (developer request, 2026-09-11)
+        - the one guard subtype that, unlike 'Guard (Break)' (always patio time, already covered
+        by 'is_break' on the line itself), can fall at any time of day, so it's worth calling out
+        next to the teacher's own name. Always False for a teaching cell's own teachers, which
+        never pass 'wc_employee_ids' - only the guard column cares about this distinction."""
+        return [{'name': teacher.display_name, 'absence': absences.get(teacher.id, False),
+                 'is_wc': teacher.id in wc_employee_ids}
                 for teacher in teachers]
 
     @api.model

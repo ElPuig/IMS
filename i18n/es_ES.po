@@ -1540,6 +1540,18 @@ msgid "All levels"
 msgstr "Todos los niveles"
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Patio"
+msgstr "Patio"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "(WC)"
+msgstr "(WC)"
+
+#. module: ems
 #: model:ir.model,name:ems.model_res_partner_relation_all
 msgid "All (non-inverse + inverse) relations between partners"
 msgstr "Todas (no-inversas + inversas) las relaciones entre empresas"

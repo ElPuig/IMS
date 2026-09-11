@@ -41,7 +41,9 @@ Els dos botons de la dreta de la barra d'eines canvien entre les dues maneres de
 
 Les columnes de la taula són els grups que tenen classe en aquell torn; cada fila és una franja horària. Una cel·la mostra l'assignatura (amb el seu codi curt, p. ex. "MP 0440"), el o els docents — més d'un si la classe és compartida — i l'aula de la classe d'aquell grup a aquella hora. Una cel·la buida simplement vol dir que no hi ha res programat per a aquell grup en aquell moment.
 
-La columna **Guàrdia**, a la dreta, llista tots els docents de guàrdia en aquella franja horària, cadascun en un requadre de vora fina. Un docent de guàrdia no té cap grup propi en aquell moment (és precisament el sentit de la guàrdia), per això només apareix aquí, mai a la columna d'un grup.
+La columna **Guàrdia**, a la dreta, llista tots els docents de guàrdia en aquella franja horària, cadascun en un requadre de vora fina. Un docent de guàrdia no té cap grup propi en aquell moment (és precisament el sentit de la guàrdia), per això només apareix aquí, mai a la columna d'un grup. Un docent en guàrdia de **WC** en concret mostra l'etiqueta **"(WC)"** just després del seu nom — es destaca perquè, a diferència d'una guàrdia de pati (vegeu més avall), una guàrdia de WC pot caure en qualsevol moment del dia, així que no hi ha cap altra manera de distingir-la d'una guàrdia normal a simple vista.
+
+Una fila la franja horària de la qual coincideix amb el pati d'algun nivell — sense cap classe programada en ella per a ningú — mostra una petita etiqueta **"Pati"** al costat de l'hora, a més d'una vora marró al costat esquerre d'aquella mateixa cel·la, perquè una franja que sembla buida no es llegeixi com un forat a l'horari.
 
 ---
 
@@ -51,8 +53,8 @@ Al costat del desplegable de torn hi ha un botó de **filtre de nivell** (mostra
 
 Un cop marques un o més nivells:
 - Només les columnes dels grups d'aquell(s) nivell(s) es mostren — la resta de grups desapareixen de la taula.
-- La columna **Guàrdia** només mostra un docent si aquell mateix dia també fa classe a algun dels nivells marcats — una guàrdia sense relació amb els nivells que estàs mirant queda fora, perquè la columna es mantingui centrada en la teva meitat del centre. Torna a aparèixer si tornes a "All levels".
-- Una guàrdia que coincideix amb el pati d'aquell nivell obté la seva pròpia fila amb l'etiqueta **Pati**, perquè una franja que sembla buida no es llegeixi com un forat a l'horari.
+- La columna **Guàrdia** continua mostrant tots els docents de guàrdia en qualsevol franja visible, sense importar què fan per la resta — el que compta és que estan de guàrdia, no a quin nivell facin classe aquell dia.
+- Una guàrdia que coincideix amb el pati del nivell marcat, sense cap classe d'aquell nivell en aquella franja, obté la seva pròpia fila de "Pati" perquè continuï essent visible encara que cap grup d'aquell nivell tingui classe llavors (la mateixa marca de "Pati" descrita més amunt ja cobreix aquest cas també a "All levels").
 
 ---
 

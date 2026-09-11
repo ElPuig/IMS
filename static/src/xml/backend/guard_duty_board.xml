@@ -100,10 +100,10 @@
                             </thead>
                             <tbody>
                                 <t t-foreach="state.board.lines" t-as="line" t-key="line.time_label">
-                                    <tr>
+                                    <tr t-att-class="{ o_guard_board_row_break: line.is_break }">
                                         <td class="o_guard_board_time">
                                             <span t-esc="line.time_label"/>
-                                            <span t-if="line.is_break" class="o_guard_board_break_label">Break</span>
+                                            <span t-if="line.is_break" class="o_guard_board_break_label" t-esc="breakLabel"/>
                                         </td>
                                         <t t-foreach="line.cells" t-as="cell" t-key="cell.group_id">
                                             <td>
@@ -121,7 +121,10 @@
                                         <td class="o_guard_board_guard_cell">
                                             <t t-foreach="line.guards" t-as="guard" t-key="guard.name">
                                                 <span class="o_guard_board_guard_badge"
-                                                      t-att-class="absenceClass(guard.absence)" t-esc="guard.name"/>
+                                                      t-att-class="absenceClass(guard.absence)">
+                                                    <t t-esc="guard.name"/>
+                                                    <span t-if="guard.is_wc" class="o_guard_board_guard_wc_tag"> <t t-esc="wcSuffix"/></span>
+                                                </span>
                                             </t>
                                         </td>
                                     </tr>
@@ -148,10 +151,10 @@
                             </thead>
                             <tbody>
                                 <t t-foreach="state.board.lines" t-as="line" t-key="line.time_label">
-                                    <tr>
+                                    <tr t-att-class="{ o_guard_board_row_break: line.is_break }">
                                         <td class="o_guard_board_time">
                                             <span t-esc="line.time_label"/>
-                                            <span t-if="line.is_break" class="o_guard_board_break_label">Break</span>
+                                            <span t-if="line.is_break" class="o_guard_board_break_label" t-esc="breakLabel"/>
                                         </td>
                                         <td class="o_guard_board_absence_cell">
                                             <t t-foreach="line.absences" t-as="absence" t-key="absence.teacher + '-' + absence.group">
@@ -166,7 +169,10 @@
                                         <td class="o_guard_board_guard_cell">
                                             <t t-foreach="line.guards" t-as="guard" t-key="guard.name">
                                                 <span class="o_guard_board_guard_badge"
-                                                      t-att-class="absenceClass(guard.absence)" t-esc="guard.name"/>
+                                                      t-att-class="absenceClass(guard.absence)">
+                                                    <t t-esc="guard.name"/>
+                                                    <span t-if="guard.is_wc" class="o_guard_board_guard_wc_tag"> <t t-esc="wcSuffix"/></span>
+                                                </span>
                                             </t>
                                         </td>
                                     </tr>
