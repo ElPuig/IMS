@@ -677,6 +677,42 @@ class TestGuardDutyBoard(TransactionCase):
         self.assertTrue(guards_by_name[self.teacher_guard.display_name]['is_wc'])
         self.assertFalse(guards_by_name[self.teacher_a.display_name]['is_wc'])
 
+    def test_report_guard_duty_board_marks_a_wc_guard(self):
+        """Regression (developer report 2026-09-11): the printed PDF calls
+        get_guard_duty_board_lines() directly, not the JSON-safe get_guard_duty_board_data()
+        wrapper the screen uses (see that method's own 'is_wc' flag, tested above) - so it never
+        got the "(WC)" marker the screen shows next to a WC guard's name. Both a WC guard AND a
+        plain guard in the exact same period print their name either way (the PDF was never
+        missing the teacher, only the distinguishing marker - see this file's own docstring for
+        the mechanism), but only the WC one must carry '(WC)'. Covers both of the board's two
+        tabs (schedule and "Absences table", issue #442), since the fix is duplicated in the
+        template once per tab."""
+        calendar_wc = self._new_calendar(self.teacher_guard, 'Test Calendar Guard (PDF WC)')
+        calendar_wc.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'non_teaching': self.non_teaching_guard_wc.id, 'name': 'Guard (WC)',
+        }])
+        calendar_plain = self._new_calendar(self.teacher_a, 'Test Calendar A (PDF Plain Guard)')
+        calendar_plain.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'non_teaching': self.non_teaching_guard.id, 'name': 'Guard',
+        }])
+
+        schedule_content, _content_type = self.env['ir.actions.report'].with_context(
+            guard_duty_weekday='0').\
+            _render_qweb_pdf('ems.report_guard_duty_board', [self.course.id])
+        table_content, _content_type = self.env['ir.actions.report'].with_context(
+            guard_duty_weekday='0', guard_duty_view='table').\
+            _render_qweb_pdf('ems.report_guard_duty_board', [self.course.id])
+
+        for content in (schedule_content, table_content):
+            self.assertIn(self.teacher_guard.name.encode(), content)
+            self.assertIn(self.teacher_a.name.encode(), content)
+            wc_marker_index = content.find(self.teacher_guard.name.encode())
+            self.assertIn(b'(WC)', content[wc_marker_index:wc_marker_index + 200])
+            plain_marker_index = content.find(self.teacher_a.name.encode())
+            self.assertNotIn(b'(WC)', content[plain_marker_index:plain_marker_index + 200])
+
     def test_get_guard_duty_board_levels(self):
         data = self.env['ems.course'].get_guard_duty_board_levels()
 
