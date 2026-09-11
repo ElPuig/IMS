@@ -2,7 +2,10 @@
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study_group, create_student_academic_file, mock_outgoing_email
+from .common import (
+    create_level_study_group, create_role_employee, create_role_user, create_student_academic_file,
+    mock_outgoing_email,
+)
 
 
 @tagged('post_install', '-at_install')
@@ -18,33 +21,19 @@ class TestStudentDataReaderTour(HttpCase):
         # Signing an authorization can notify - see CLAUDE.md's "Email safety in tests".
         mock_outgoing_email(cls)
 
-        group_user = cls.env.ref('base.group_user')
-
         # The tutor of the seeded group: nobody driving the tours is this employee, so every
         # record below is out of their own tutees' scope.
-        cls.tutor_user = cls.env['res.users'].with_context(no_reset_password=True).create({
-            'name': 'Tour Tutor (Reader)', 'login': 'tour_tutor_reader',
-            'email': 'tour_tutor_reader@example.com', 'lang': 'en_US',
-            'groups_id': [(4, cls.env.ref('ems.group_tutor').id), (4, group_user.id)],
-        })
-        cls.tutor_employee = cls.env['hr.employee'].create({
-            'name': 'Tour Tutor Employee (Reader)', 'employee_type': 'teacher',
-            'user_id': cls.tutor_user.id,
-        })
+        cls.tutor_user = create_role_user(
+            cls, 'tutor', 'tour_tutor_reader', name='Tour Tutor (Reader)', email='tour_tutor_reader@example.com')
+        cls.tutor_employee = create_role_employee(cls, cls.tutor_user, name='Tour Tutor Employee (Reader)')
 
-        # start_tour() authenticates with the login as the password, hence 'password' here.
-        # 'lang' is explicit because the tours assert on English labels ("Secretary",
-        # "Academic history") - a fresh res.users does not reliably default to en_US.
-        cls.guidance_user = cls.env['res.users'].with_context(no_reset_password=True).create({
-            'name': 'Tour Guidance', 'login': 'tour_guidance', 'password': 'tour_guidance',
-            'email': 'tour_guidance@example.com', 'lang': 'en_US',
-            'groups_id': [(4, cls.env.ref('ems.group_orientation').id), (4, group_user.id)],
-        })
-        cls.teacher_user = cls.env['res.users'].with_context(no_reset_password=True).create({
-            'name': 'Tour Plain Teacher', 'login': 'tour_teacher', 'password': 'tour_teacher',
-            'email': 'tour_teacher@example.com', 'lang': 'en_US',
-            'groups_id': [(4, cls.env.ref('ems.group_teacher').id), (4, group_user.id)],
-        })
+        # 'lang' (set by create_role_user) is required because the tours assert on English
+        # labels ("Secretary", "Academic history") - a fresh res.users does not reliably
+        # default to en_US.
+        cls.guidance_user = create_role_user(
+            cls, 'orientation', 'tour_guidance', name='Tour Guidance', email='tour_guidance@example.com')
+        cls.teacher_user = create_role_user(
+            cls, 'teacher', 'tour_teacher', name='Tour Plain Teacher', email='tour_teacher@example.com')
 
         cls.level, cls.study, cls.group = create_level_study_group(
             cls, 'TOUR',

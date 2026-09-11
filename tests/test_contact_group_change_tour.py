@@ -1,6 +1,6 @@
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study_group, force_user_language_to_english
+from .common import create_level_study_group, create_role_employee, create_role_user
 
 
 @tagged('post_install', '-at_install')
@@ -23,18 +23,13 @@ class TestContactGroupChangeTour(HttpCase):
             'code': 'TCGC001', 'acronym': 'TCGC', 'name': 'Test Subject (Contact Group Change Tour)',
             'study_ids': [(6, 0, [cls.study.id])],
         })
-        # A fresh res.users fixture does not reliably default to en_US (confirmed ca_ES on this
-        # box) - explicit 'lang' avoids the tour flake documented in CLAUDE.md's "Tour tests and
-        # language" (the tour asserts on the literal English "Studies" tab label).
-        cls.tutor_user = cls.env['res.users'].with_context(no_reset_password=True).create({
-            'name': 'Contact Group Change Tour Tutor', 'login': 'test_tutor_contact_group_change_tour',
-            'lang': 'en_US',
-            'groups_id': [(4, cls.env.ref('ems.group_teacher').id), (4, cls.env.ref('base.group_user').id)],
-        })
-        cls.tutor_employee = cls.env['hr.employee'].create({
-            'name': 'Contact Group Change Tour Tutor', 'employee_type': 'teacher',
-            'user_id': cls.tutor_user.id,
-        })
+        # create_role_user() always sets 'lang': 'en_US' - needed here since the tour asserts on
+        # the literal English "Studies" tab label and a fresh res.users does not reliably default
+        # to en_US (see CLAUDE.md's "Tour tests and language").
+        cls.tutor_user = create_role_user(
+            cls, 'teacher', 'test_tutor_contact_group_change_tour', name='Contact Group Change Tour Tutor')
+        cls.tutor_employee = create_role_employee(
+            cls, cls.tutor_user, name='Contact Group Change Tour Tutor')
         cls.group.tutor_id = cls.tutor_employee
         # "0000 " prefix: res.partner's _order is "name", so this seeded student sorts
         # first on the list's very first page among the ~1000+ real students already in

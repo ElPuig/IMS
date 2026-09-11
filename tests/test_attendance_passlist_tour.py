@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study
+from .common import create_level_study, create_role_employee, create_role_user
 
 
 @tagged('post_install', '-at_install')
@@ -34,15 +34,10 @@ class TestAttendancePasslistTour(HttpCase):
         # session is created through the "Start session" button - this dev DB's real
         # "Administrator" account has employee_type='employee', not 'teacher' (confirmed
         # with the developer: expected - only real teachers start sessions, not admins).
-        cls.teacher_user = cls.env['res.users'].with_context(no_reset_password=True).create({
-            'name': 'Attendance Take Tour Teacher', 'login': 'test_teacher_attendance_take_tour',
-            'lang': 'en_US',
-            'groups_id': [(4, cls.env.ref('ems.group_teacher').id), (4, cls.env.ref('base.group_user').id)],
-        })
-        cls.teacher_employee = cls.env['hr.employee'].create({
-            'name': 'Attendance Take Tour Teacher', 'employee_type': 'teacher',
-            'user_id': cls.teacher_user.id,
-        })
+        cls.teacher_user = create_role_user(
+            cls, 'teacher', 'test_teacher_attendance_take_tour', name='Attendance Take Tour Teacher')
+        cls.teacher_employee = create_role_employee(
+            cls, cls.teacher_user, name='Attendance Take Tour Teacher')
         cls.student1 = cls.env['res.partner'].create({
             'name': 'Attendance Take Tour Student 1', 'contact_type': 'student',
             'main_group_id': cls.group.id,
