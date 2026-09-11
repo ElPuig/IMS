@@ -138,8 +138,15 @@ class TestEmsScheduleReportMixin(TransactionCase):
 
     def test_report_color_key_falls_back_to_subject(self):
         mixin = self.env['ems.schedule_report_mixin']
-        attendance = SimpleNamespace(non_teaching=False, subject_id=SimpleNamespace(id=3))
-        self.assertEqual(mixin._report_color_key(attendance), ('subject', 3))
+        attendance = SimpleNamespace(non_teaching=False, subject_id=SimpleNamespace(id=3), topic=False)
+        self.assertEqual(mixin._report_color_key(attendance), ('subject', 3, False))
+
+    def test_report_color_key_includes_topic_when_set(self):
+        # Issue #428: two teachers can share the exact same subject/group/slot while teaching
+        # different topics, so topic must be part of the key too - see schedule_report_mixin.py.
+        mixin = self.env['ems.schedule_report_mixin']
+        attendance = SimpleNamespace(non_teaching=False, subject_id=SimpleNamespace(id=3), topic='Castella')
+        self.assertEqual(mixin._report_color_key(attendance), ('subject', 3, 'Castella'))
 
     def test_format_report_time(self):
         mixin = self.env['ems.schedule_report_mixin']
