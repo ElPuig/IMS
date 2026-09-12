@@ -110,6 +110,7 @@ from . import test_teaching_reduction_type
 from . import test_group
 from . import test_group_classroom_change
 from . import test_group_classroom_change_tour
+from . import test_employee_classroom_change_tour
 from . import test_group_classroom_suggestion
 from . import test_group_classroom_suggestion_tour
 from . import test_group_schedule
