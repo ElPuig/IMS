@@ -1167,8 +1167,8 @@ msgstr "<strong>Vàlid fins: </strong>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
-msgid "A classroom change requested from this schedule, but"
-msgstr "S'ha demanat un canvi d'aula des d'aquest horari, però"
+msgid "A classroom change requested from this teacher's own schedule, but"
+msgstr "S'ha demanat un canvi d'aula des de l'horari d'aquest docent, però"
 
 #. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_grade_session_grade_session_is_duped

@@ -14,6 +14,13 @@
 
 # What's new:
 
+## Pending-classroom-conflict warnings are now always visible right away, not buried in a tab or a card:
+- The warning about a room change left pending on a teacher's own schedule used to only show up inside that teacher's "Schedule" tab - easy to miss entirely unless you happened to open it. It now appears immediately when opening the teacher's own record, above the form's main content, regardless of which tab is open.
+- The equivalent warnings on a group's own form (the pending-conflict one and the "suggested classroom" one) moved to the same always-visible spot, for consistency between both screens.
+
+## Groups now have a discussion/activity log (chatter), like other records in the app:
+- A group's form can now track internal notes, followers and scheduled activities, the same way most other EMS records already do.
+
 ## Room-collision resolution when moving a single class's room from a teacher's own schedule:
 - Moving one class's room from a teacher's own "Schedule" tab (not the whole group's default classroom) used to either silently do nothing (a co-taught class - the change was discarded without warning) or raise a raw, unresolvable overlap error (a solo class). Both cases now reuse the same collision-resolution mechanism already built for a group-wide classroom change: if the new room is free, it applies automatically for every teacher sharing that class; if it collides, the change is left pending (visible on the teacher's own schedule, and resolvable from there) instead of failing outright or being silently dropped.
 - Fixed the underlying reconciliation bug that caused the "silently discarded" case: a co-taught class's room change submitted by only one of the two teachers was overwritten by the other, untouched teacher's stale data.

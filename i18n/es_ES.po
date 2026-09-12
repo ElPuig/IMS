@@ -1167,8 +1167,8 @@ msgstr "<strong>Válido hasta: </strong>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
-msgid "A classroom change requested from this schedule, but"
-msgstr "Se ha solicitado un cambio de aula desde este horario, pero"
+msgid "A classroom change requested from this teacher's own schedule, but"
+msgstr "Se ha solicitado un cambio de aula desde el horario de este docente, pero"
 
 #. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_grade_session_grade_session_is_duped

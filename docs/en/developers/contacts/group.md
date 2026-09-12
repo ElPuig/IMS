@@ -356,9 +356,11 @@ identical code from this point on.
 takes the pending-blocks recordset directly instead of deriving it from `group_id` internally, so
 `hr.employee.action_open_classroom_change_wizard()` (same shape as `ems.group`'s own action) can
 pass in "this teacher's own pending blocks" instead. `hr.employee.pending_classroom_conflict_count` +
-a banner on the "Schedule" tab (same pattern as the group form's own, `views/community/employee/
-form.xml`) surface it there. See `docs/en/developers/attendance/attendance_template.md` for the
-sync-pipeline side of this feature in full.
+a banner above the sheet, always visible regardless of tab (`views/community/employee/form.xml`'s
+own "before sheet" header block - moved there from inside the "Schedule" tab, and matched by an
+equivalent move on the group form's own banner above the sheet too, both 2026-09-12) surface it
+there. See `docs/en/developers/attendance/attendance_template.md` for the sync-pipeline side of
+this feature in full.
 
 **A fourth bug, found the same day: resolving from one entry point left the OTHER side's own
 pending flag stuck forever.** A co-taught class's collision flags every co-teacher's own calendar
@@ -487,7 +489,7 @@ Note: the admin-equivalent group here is `group_department_chief`, not `group_ac
 | View | File | Notes |
 |------|------|-------|
 | List | `views/community/group/list.xml` | — |
-| Form | `views/community/group/form.xml` | Main data (radio `group_type`) + Students (`main` only) / Enrolled (both types) / Schedule / Notes tabs |
+| Form | `views/community/group/form.xml` | Main data (radio `group_type`) + Students (`main` only) / Enrolled (both types) / Schedule / Notes tabs + chatter (`mail.thread`/`mail.activity.mixin`, added 2026-09-12) |
 | Search | `views/community/group/search.xml` | "Classroom drift" filter — see "Classroom drift suggestion" above |
 | Action + Menu | `views/community/group/menu.xml` | `action_group_tree`, "Groups (for students)" |
 | Classroom change wizard | `views/community/group/classroom_change_wizard.xml` | Opened from the group form's pending-conflicts banner — see "Classroom change propagation to the schedule" above |

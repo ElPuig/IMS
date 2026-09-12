@@ -6,6 +6,7 @@ from odoo.exceptions import RedirectWarning, ValidationError
 class EmsGroup(models.Model):
 	_name = "ems.group"
 	_description = "Groups: Where the students are assigned to."
+	_inherit = ["mail.thread", "mail.activity.mixin"]
 	_order = "name"
 
 	active = fields.Boolean(default=True, help="A group that won't be used this course but may come back in a "

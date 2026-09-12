@@ -66,9 +66,9 @@ La mateixa gestió de conflictes també s'aplica quan es canvia l'aula d'una *so
 
 ## Resoldre un Conflicte d'Aula Pendent
 
-Quan un canvi d'aula (qualsevol dels dos anteriors) no es pot aplicar automàticament perquè la nova aula ja està ocupada, apareix un avís groc:
-- A la **fitxa del grup**, al costat del camp Aula de referència, per a un canvi de tot el grup: *"L'aula d'aquest grup ha canviat, però N bloc(s) de classe no s'han pogut traslladar automàticament per una col·lisió d'aula."*
-- A la **pestanya Horari del docent**, per a una sola classe canviada des d'allà: *"S'ha demanat un canvi d'aula des d'aquest horari, però N bloc(s) de classe no s'han pogut traslladar automàticament per una col·lisió d'aula."*
+Quan un canvi d'aula (qualsevol dels dos anteriors) no es pot aplicar automàticament perquè la nova aula ja està ocupada, apareix un avís groc a la part superior de la fitxa, visible sigui quina sigui la pestanya oberta:
+- A la **fitxa del grup**, per a un canvi de tot el grup: *"L'aula d'aquest grup ha canviat, però N bloc(s) de classe no s'han pogut traslladar automàticament per una col·lisió d'aula."*
+- A la **fitxa del docent**, per a una sola classe canviada des de la seva pestanya Horari: *"S'ha demanat un canvi d'aula des de l'horari d'aquest docent, però N bloc(s) de classe no s'han pogut traslladar automàticament per una col·lisió d'aula."*
 
 Fes clic a **Resoldre aules pendents** a qualsevol dels dos avisos per obrir la pantalla de resolució, que llista cada conflicte encara sense resoldre com una fila "Conflicte d'aula" (agrupades per docent + assignatura quan n'hi ha més d'una), cadascuna mostrant la classe pendent a un costat i la sessió ja existent amb què xoca a l'altre. Per a cada fila, tria una resolució:
 - **Reassignar aules** — tria una aula diferent per a cada costat (les dues comencen preomplertes amb la mateixa aula en conflicte; **Confirmar** queda desactivat fins que triïs dues aules genuïnament diferents).
@@ -77,7 +77,7 @@ Fes clic a **Resoldre aules pendents** a qualsevol dels dos avisos per obrir la 
 
 Fes clic a **Confirmar** un cop cada fila tingui una resolució vàlida. L'avís desapareix quan no queda res pendent.
 
-Per a una classe de co-docència, la mateixa col·lisió apareix alhora a la pestanya Horari de cada docent (i a l'avís del grup), ja que és realment el mateix conflicte vist des de cada costat. Resoldre'l des de qualsevol d'aquestes pantalles el neteja a totes — no cal repetir la resolució a l'horari de l'altre docent ni a la fitxa del grup.
+Per a una classe de co-docència, la mateixa col·lisió apareix alhora a la fitxa de cada docent (i a la fitxa del grup), ja que és realment el mateix conflicte vist des de cada costat. Resoldre'l des de qualsevol d'aquestes pantalles el neteja a totes — no cal repetir la resolució a l'horari de l'altre docent ni a la fitxa del grup.
 
 ---
 

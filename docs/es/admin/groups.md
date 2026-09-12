@@ -66,9 +66,9 @@ La misma gestión de conflictos también se aplica cuando se cambia el aula de u
 
 ## Resolver un Conflicto de Aula Pendiente
 
-Cuando un cambio de aula (cualquiera de los dos anteriores) no se puede aplicar automáticamente porque el aula nueva ya está ocupada, aparece un aviso amarillo:
-- En la **ficha del grupo**, junto al campo Aula de referencia, para un cambio de todo el grupo: *"El aula de este grupo ha cambiado, pero N bloque(s) de clase no se han podido trasladar automáticamente por una colisión de aula."*
-- En la **pestaña Horario del docente**, para una sola clase cambiada desde ahí: *"Se ha solicitado un cambio de aula desde este horario, pero N bloque(s) de clase no se han podido trasladar automáticamente por una colisión de aula."*
+Cuando un cambio de aula (cualquiera de los dos anteriores) no se puede aplicar automáticamente porque el aula nueva ya está ocupada, aparece un aviso amarillo en la parte superior de la ficha, visible sea cual sea la pestaña abierta:
+- En la **ficha del grupo**, para un cambio de todo el grupo: *"El aula de este grupo ha cambiado, pero N bloque(s) de clase no se han podido trasladar automáticamente por una colisión de aula."*
+- En la **ficha del docente**, para una sola clase cambiada desde su pestaña Horario: *"Se ha solicitado un cambio de aula desde el horario de este docente, pero N bloque(s) de clase no se han podido trasladar automáticamente por una colisión de aula."*
 
 Haz clic en **Resolver aulas pendientes** en cualquiera de los dos avisos para abrir la pantalla de resolución, que lista cada conflicto todavía sin resolver como una fila "Conflicto de aula" (agrupadas por docente + asignatura cuando hay más de una), cada una mostrando la clase pendiente en un lado y la sesión ya existente con la que choca en el otro. Para cada fila, elige una resolución:
 - **Reasignar aulas** — elige un aula diferente para cada lado (ambas empiezan precargadas con la misma aula en conflicto; **Confirmar** queda desactivado hasta que elijas dos aulas genuinamente diferentes).
@@ -77,7 +77,7 @@ Haz clic en **Resolver aulas pendientes** en cualquiera de los dos avisos para a
 
 Haz clic en **Confirmar** cuando cada fila tenga una resolución válida. El aviso desaparece cuando no queda nada pendiente.
 
-Para una clase de co-docencia, la misma colisión aparece a la vez en la pestaña Horario de cada docente (y en el aviso del grupo), ya que es realmente el mismo conflicto visto desde cada lado. Resolverlo desde cualquiera de esas pantallas lo limpia en todas — no hace falta repetir la resolución en el horario del otro docente ni en la ficha del grupo.
+Para una clase de co-docencia, la misma colisión aparece a la vez en la ficha de cada docente (y en la ficha del grupo), ya que es realmente el mismo conflicto visto desde cada lado. Resolverlo desde cualquiera de esas pantallas lo limpia en todas — no hace falta repetir la resolución en el horario del otro docente ni en la ficha del grupo.
 
 ---
 
