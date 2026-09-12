@@ -16,7 +16,7 @@ This guide explains how to manage **student, family, applicant and provider cont
 4. [Bonifications and exemptions](#bonifications-and-exemptions)
 5. [Filters applied when you open the student list](#filters-applied-when-you-open-the-student-list)
 6. [Columns shown in the student list view](#columns-shown-in-the-student-list-view)
-7. [Fields only admin/secretary/tutors can see](#fields-only-adminsecretarytutors-can-see)
+7. [Fields only admin/secretary/Head of Studies/tutors can see](#fields-only-adminsecretaryhead-of-studiestutors-can-see)
 
 ---
 
@@ -64,9 +64,9 @@ The search bar opens with two filters already applied: **Students**, which hides
 
 Switching the Students screen from Kanban to List view shows, by default, most of the fields already used in the centre's official student data export (document ID/DNI-NIE, birth date, whether the student is of legal age, social security number, nationality, address and postal code), plus the four authorization badges (image rights, school trips, health data, share with family). Any column can be hidden — click the icon at the right of the column headers and untick what you don't need; the choice is remembered for your next visit.
 
-## Fields only admin/secretary/tutors can see
+## Fields only admin/secretary/Head of Studies/tutors can see
 
-Personal data (documents, medical information, special educational needs, authorizations…) is hidden from anyone who is neither admin, secretary, nor the student's own tutor. A tutor can also edit the record of a student they tutor and that student's family contacts, but sees a narrower set of editable fields than secretary/admin.
+Personal data (documents, medical information, special educational needs, authorizations…) is hidden from anyone who is neither admin, secretary, Head of Studies/Deputy Head of Studies/Director, nor the student's own tutor. Head of Studies/Deputy Head of Studies/Director have the same full access as secretary here, for **any** student centre-wide, not just their own tutees. A tutor can also edit the record of a student they tutor and that student's family contacts, but sees a narrower set of editable fields than secretary/admin/Head of Studies.
 
 ---
 

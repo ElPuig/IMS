@@ -16,7 +16,7 @@ Esta guía explica cómo gestionar los contactos de tipo **alumno, familia, aspi
 4. [Bonificaciones y exenciones](#bonificaciones-y-exenciones)
 5. [Filtros aplicados al abrir la lista de alumnado](#filtros-aplicados-al-abrir-la-lista-de-alumnado)
 6. [Columnas que se muestran en la vista de lista de alumnado](#columnas-que-se-muestran-en-la-vista-de-lista-de-alumnado)
-7. [Campos que solo ven admin/secretaría/tutores](#campos-que-solo-ven-adminsecretaríatutores)
+7. [Campos que solo ven admin/secretaría/Jefatura de Estudios/tutores](#campos-que-solo-ven-adminsecretaríajefatura-de-estudiostutores)
 
 ---
 
@@ -64,9 +64,9 @@ La barra de búsqueda se abre con dos filtros ya aplicados: **Alumnado**, que oc
 
 Cambiar la pantalla de Alumnado de vista Kanban a vista de Lista muestra, por defecto, la mayoría de campos ya usados en la exportación oficial de datos de alumnado del centro (documento de identidad/DNI-NIE, fecha de nacimiento, si el alumno es mayor de edad, número de la seguridad social, nacionalidad, dirección y código postal), más los cuatro distintivos de autorización (derechos de imagen, salidas escolares, datos de salud, compartir con la familia). Cualquier columna se puede ocultar — haz clic en el icono a la derecha de las cabeceras de columna y desmarca las que no necesites; la elección se recuerda para tu próxima visita.
 
-## Campos que solo ven admin/secretaría/tutores
+## Campos que solo ven admin/secretaría/Jefatura de Estudios/tutores
 
-Los datos personales (documentos, información médica, necesidades educativas especiales, autorizaciones…) quedan ocultos para cualquier persona que no sea admin, secretaría, ni el tutor propio del alumno. Un tutor también puede editar la ficha de un alumno que tutoriza y la de sus familiares, pero ve un conjunto de campos editables más reducido que secretaría/admin.
+Los datos personales (documentos, información médica, necesidades educativas especiales, autorizaciones…) quedan ocultos para cualquier persona que no sea admin, secretaría, Jefatura de Estudios/Jefatura de Estudios Adjunta/Dirección, ni el tutor propio del alumno. Jefatura de Estudios/Jefatura de Estudios Adjunta/Dirección tienen el mismo acceso completo que secretaría aquí, para **cualquier** alumno de todo el centro, no solo sus propios tutorizados. Un tutor también puede editar la ficha de un alumno que tutoriza y la de sus familiares, pero ve un conjunto de campos editables más reducido que secretaría/admin/Jefatura de Estudios.
 
 ---
 
