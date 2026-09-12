@@ -360,6 +360,20 @@ a banner on the "Schedule" tab (same pattern as the group form's own, `views/com
 form.xml`) surface it there. See `docs/en/developers/attendance/attendance_template.md` for the
 sync-pipeline side of this feature in full.
 
+**A fourth bug, found the same day: resolving from one entry point left the OTHER side's own
+pending flag stuck forever.** A co-taught class's collision flags every co-teacher's own calendar
+block for the exact same slot (`_flag_room_change_pending()` above acts on every teacher sharing
+the entry, not just the submitter) - genuinely the same conflict, seen from each side. But
+`ems.group_classroom_change_wizard_conflict_line._apply_resolution()` only ever cleared
+`space_pending_group_sync`/`pending_new_space_id` on its OWN `left_attendance_id` - resolving from
+a teacher's own wizard (scoped to just their own calendar) left the co-teacher's own sibling block
+never even shown in that wizard still flagged, even though the room had already converged
+correctly via the sync hook this same write triggers; the group's own banner kept reporting it as
+unresolved. Fixed: `_apply_resolution()` now also finds every OTHER `resource.calendar.attendance`
+row still flagged pending for the identical subject/dayofweek/hour_from/hour_to and applies the
+same outcome (`resolved_space`, whichever resolution was chosen) to it too - regardless of which
+wizard (group-scoped or employee-scoped) the resolution came from.
+
 ### Classroom drift suggestion (last deferred follow-up of issue #405, 2026-09-09)
 
 `space_id` can silently drift from reality even without ever hitting a collision: a room change

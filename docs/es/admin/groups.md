@@ -77,6 +77,8 @@ Haz clic en **Resolver aulas pendientes** en cualquiera de los dos avisos para a
 
 Haz clic en **Confirmar** cuando cada fila tenga una resolución válida. El aviso desaparece cuando no queda nada pendiente.
 
+Para una clase de co-docencia, la misma colisión aparece a la vez en la pestaña Horario de cada docente (y en el aviso del grupo), ya que es realmente el mismo conflicto visto desde cada lado. Resolverlo desde cualquiera de esas pantallas lo limpia en todas — no hace falta repetir la resolución en el horario del otro docente ni en la ficha del grupo.
+
 ---
 
 ## Eliminar un grupo

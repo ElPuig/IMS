@@ -159,13 +159,42 @@ class EmsGroupClassroomChangeWizardConflictLine(models.TransientModel):
 			if existing.space_id != self.right_space_id:
 				existing._relocate_via_calendar_blocks(self.right_space_id)
 			block.space_id = self.left_space_id.id
+			resolved_space = self.left_space_id
 		elif self.resolution == 'prevail_left':
 			# The pending block takes the group's new classroom; the session it collided with is
 			# archived - same handling as the import wizard's own 'prevail_left' on an external
 			# conflict (models/employees/working_schedule.py's '_continue_from_db_conflicts').
 			existing._archive_via_calendar_blocks()
 			block.space_id = new_space.id
-		# 'prevail_right': the pending block keeps its current classroom for this slot - a deliberate,
-		# accepted divergence from the group's own room from now on. Nothing to write on either side.
+			resolved_space = new_space
+		else:
+			# 'prevail_right': the pending block keeps its current classroom for this slot - a
+			# deliberate, accepted divergence from the group's own room from now on. Nothing to
+			# write on 'block' itself.
+			resolved_space = block.space_id
 		block.space_pending_group_sync = False
 		block.pending_new_space_id = False
+		# NOTE: issue #444's THIRD follow-up (2026-09-12) - a co-taught class's room change flags
+		# EVERY co-teacher's own calendar block sharing the exact slot (see 'ems.attendance_
+		# template._flag_room_change_pending'), since it's genuinely the same collision from each
+		# of their own calendars' point of view. Found the hard way: resolving it from only ONE
+		# teacher's own wizard (hr.employee.action_open_classroom_change_wizard, scoped to just
+		# their own calendar) left the CO-TEACHER's own sibling block stuck pending forever - the
+		# group's own banner kept showing it even though the room had already converged correctly
+		# via the automatic sync hook this same write triggers. Every sibling still flagged pending
+		# for this exact slot gets the SAME outcome applied here, regardless of which wizard
+		# (group-scoped or employee-scoped) this resolution came from.
+		siblings = self.env['resource.calendar.attendance'].search([
+			('id', '!=', block.id),
+			('subject_id', '=', block.subject_id.id),
+			('dayofweek', '=', block.dayofweek),
+			('hour_from', '=', block.hour_from),
+			('hour_to', '=', block.hour_to),
+			('space_pending_group_sync', '=', True),
+		])
+		if siblings:
+			siblings.write({
+				'space_id': resolved_space.id,
+				'space_pending_group_sync': False,
+				'pending_new_space_id': False,
+			})

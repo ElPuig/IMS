@@ -77,6 +77,8 @@ Click **Resolve pending classrooms** on either banner to open the resolution scr
 
 Click **Confirm** once every row has a valid resolution. The banner disappears once nothing is left pending.
 
+For a co-taught class, the same collision shows up on every co-teacher's own Schedule tab (and on the group's own banner) at once, since it's genuinely the same conflict seen from each side. Resolving it from any one of those screens clears it everywhere — there's no need to repeat the resolution on the other teacher's schedule or on the group's own form.
+
 ---
 
 ## Delete a Group

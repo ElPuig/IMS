@@ -77,6 +77,8 @@ Fes clic a **Resoldre aules pendents** a qualsevol dels dos avisos per obrir la 
 
 Fes clic a **Confirmar** un cop cada fila tingui una resolució vàlida. L'avís desapareix quan no queda res pendent.
 
+Per a una classe de co-docència, la mateixa col·lisió apareix alhora a la pestanya Horari de cada docent (i a l'avís del grup), ja que és realment el mateix conflicte vist des de cada costat. Resoldre'l des de qualsevol d'aquestes pantalles el neteja a totes — no cal repetir la resolució a l'horari de l'altre docent ni a la fitxa del grup.
+
 ---
 
 ## Eliminar un grup

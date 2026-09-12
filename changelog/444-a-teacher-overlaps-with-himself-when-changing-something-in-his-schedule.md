@@ -9,6 +9,9 @@
 ## Moving a co-taught class's room from one teacher's own schedule left the other co-teacher's calendar stale:
 - When the new room had no collision, the change applied to the moving teacher's own calendar and to the class's shared schedule, but never reached the other teacher's own calendar - silently, with no error and no warning of any kind. Now every co-teacher's own calendar is brought in line whenever a room change like this applies cleanly.
 
+## Resolving a pending room-change conflict from one side left the other side's own pending flag stuck forever:
+- A co-taught class's room collision flags every co-teacher's own calendar block for the same slot as pending, since it's genuinely the same conflict seen from each of their calendars. Resolving it from only one entry point (a teacher's own schedule, or the group's own form) correctly fixed that side, but left every other flagged block for the exact same slot showing as still pending - even though the room had already converged correctly. Resolving from either entry point now clears every sibling block sharing the same subject/day/time, not just the one shown in that particular wizard.
+
 # What's new:
 
 ## Room-collision resolution when moving a single class's room from a teacher's own schedule:
