@@ -62,12 +62,12 @@ You can switch an existing group between Main and Reinforcement, but:
 
 Changing a group's **Reference classroom** (the group's own default room) automatically moves every one of that group's classes still using the old room to the new one. If the new room is already taken by someone else at the exact same day/time as one of those classes, that one specific class is left in its current room instead of failing the whole save — see "Resolving a Pending Classroom Conflict" below.
 
-The same collision handling also applies when a *single* class's room is changed from a teacher's own **Schedule** tab (see [Edit a Teacher's Schedule](working-schedules.md#edit-a-teachers-schedule)), not just a group-wide change here — both cases are resolved from the same screen.
+The same collision handling also applies when a *single* class's room is changed from a teacher's own **Schedule** tab (see [Edit a Teacher's Schedule](working-schedules.md#edit-a-teachers-schedule)), or when it's changed directly from the group's own Schedule tab (see [A Group's Weekly Schedule](group-schedule.md#editing-a-blocks-topic-or-classroom)) — all three cases are resolved from the same screen.
 
 ## Resolving a Pending Classroom Conflict
 
-When a classroom change (either kind above) can't apply automatically because the new room is already taken, a yellow banner appears at the top of the form, visible regardless of which tab is open:
-- On the **group's own form**, for a group-wide change: *"This group's classroom changed, but N teaching block(s) could not move to it automatically because of a room collision."*
+When a classroom change (any of the three kinds above) can't apply automatically because the new room is already taken, a yellow banner appears at the top of the form, visible regardless of which tab is open:
+- On the **group's own form**: *"N teaching block(s) couldn't move to their requested classroom automatically because of a room collision."* — this covers both a group-wide reference-classroom change and a single block edited directly from the group's own Schedule tab, since both end up needing the exact same resolution.
 - On the **teacher's own form**, for a single class changed from their Schedule tab: *"A classroom change requested from this teacher's own schedule, but N teaching block(s) could not move to it automatically because of a room collision."*
 
 Click **Resolve pending classrooms** on either banner to open the resolution screen, which lists every still-unresolved conflict as a "Room conflict" row (grouped by teacher + subject when there's more than one), each showing the pending class on one side and the existing session it collides with on the other. For each row, pick a resolution:

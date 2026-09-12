@@ -62,12 +62,12 @@ Puedes cambiar un grupo existente entre Principal y Refuerzo, pero:
 
 Cambiar el **Aula de referencia** de un grupo (su aula por defecto) mueve automáticamente todas las clases de ese grupo que todavía usaban el aula antigua a la nueva. Si el aula nueva ya está ocupada por otra persona exactamente el mismo día y hora que una de esas clases, esa clase concreta se queda en su aula actual en vez de hacer fallar todo el guardado — ver "Resolver un Conflicto de Aula Pendiente" abajo.
 
-La misma gestión de conflictos también se aplica cuando se cambia el aula de una *sola* clase desde la pestaña **Horario** de un docente (ver [Editar el Horario de un Docente](working-schedules.md#editar-el-horario-de-un-docente)), no solo un cambio de todo el grupo como aquí — ambos casos se resuelven desde la misma pantalla.
+La misma gestión de conflictos también se aplica cuando se cambia el aula de una *sola* clase desde la pestaña **Horario** de un docente (ver [Editar el Horario de un Docente](working-schedules.md#editar-el-horario-de-un-docente)), o directamente desde la pestaña Horario del propio grupo (ver [El horario semanal de un grupo](group-schedule.md#editar-el-tema-o-el-aula-de-un-bloque)) — los tres casos se resuelven desde la misma pantalla.
 
 ## Resolver un Conflicto de Aula Pendiente
 
-Cuando un cambio de aula (cualquiera de los dos anteriores) no se puede aplicar automáticamente porque el aula nueva ya está ocupada, aparece un aviso amarillo en la parte superior de la ficha, visible sea cual sea la pestaña abierta:
-- En la **ficha del grupo**, para un cambio de todo el grupo: *"El aula de este grupo ha cambiado, pero N bloque(s) de clase no se han podido trasladar automáticamente por una colisión de aula."*
+Cuando un cambio de aula (cualquiera de los tres anteriores) no se puede aplicar automáticamente porque el aula nueva ya está ocupada, aparece un aviso amarillo en la parte superior de la ficha, visible sea cual sea la pestaña abierta:
+- En la **ficha del grupo**: *"N bloque(s) de clase no se han podido trasladar a su aula solicitada automáticamente por una colisión de aula."* — cubre tanto un cambio del aula de referencia de todo el grupo como un bloque editado directamente desde la pestaña Horario del grupo, ya que ambos acaban necesitando la misma resolución.
 - En la **ficha del docente**, para una sola clase cambiada desde su pestaña Horario: *"Se ha solicitado un cambio de aula desde el horario de este docente, pero N bloque(s) de clase no se han podido trasladar automáticamente por una colisión de aula."*
 
 Haz clic en **Resolver aulas pendientes** en cualquiera de los dos avisos para abrir la pantalla de resolución, que lista cada conflicto todavía sin resolver como una fila "Conflicto de aula" (agrupadas por docente + asignatura cuando hay más de una), cada una mostrando la clase pendiente en un lado y la sesión ya existente con la que choca en el otro. Para cada fila, elige una resolución:

@@ -70,7 +70,19 @@ class EmsGroupClassroomChangeWizard(models.TransientModel):
 					"sides (different from each other) when reassigning, or a different resolution."
 				) % {'left': line.left_label})
 		for line in self.conflict_line_ids:
-			line._apply_resolution()
+			# NOTE: 'line.exists()' - two lines can legitimately share the exact same
+			# 'right_schedule_id' (a co-taught class flags EACH co-teacher's own block
+			# independently, see '_apply_resolution's own "clear siblings" note) - required M2O
+			# fields default to 'ondelete=cascade' (see odoo/fields.py's Many2one.setup_nonrelated),
+			# so resolving the FIRST line can delete 'right_schedule_id' (e.g. 'prevail_left'
+			# archiving a session down to zero blocks - 'ems.attendance_template._archive_or_
+			# delete' then deletes it outright), which cascade-deletes every OTHER still-unprocessed
+			# line referencing that same schedule right along with it. The underlying calendar
+			# block behind a line vanishing this way is still correctly resolved - by the FIRST
+			# line's own sibling-clearing pass, not by this now-gone line - so skipping it here is
+			# safe, not a silently-dropped resolution.
+			if line.exists():
+				line._apply_resolution()
 		return {"type": "ir.actions.act_window_close"}
 
 	def _build_conflict_lines(self, pending_blocks, fallback_space):

@@ -52,6 +52,12 @@ class EmsGroup(models.Model):
 	suggested_space_id = fields.Many2one(
 		string="Suggested classroom", comodel_name="ems.space",
 		compute="_compute_suggested_space_id", search="_search_suggested_space_id")
+	# NOTE: issue #446 - same gate as 'hr.employee.can_edit_schedule' (drives the Edit/Import/New
+	# buttons on the teacher's own Schedule tab), mirrored here so the group form's own Schedule
+	# tab knows whether to show its inline topic/classroom edit affordance (see
+	# 'ReadonlyScheduleGridField', schedule_grid_readonly_field.js). Not stored - a plain
+	# per-request permission check, same as the teacher's own field.
+	can_edit_schedule = fields.Boolean(string="Can edit schedule", compute="_compute_can_edit_schedule", compute_sudo=True)
 
 	@api.depends("group_type", "study_id.acronym", "course", "acronym")
 	def _compute_name(self):
@@ -137,6 +143,11 @@ class EmsGroup(models.Model):
 				('group_ids', '=', group.id),
 				('space_pending_group_sync', '=', True),
 			])
+
+	def _compute_can_edit_schedule(self):
+		can_edit = self.env.user.has_group('ems.group_department_chief')
+		for group in self:
+			group.can_edit_schedule = can_edit
 
 	@api.depends('space_id')
 	def _compute_suggested_space_id(self):
