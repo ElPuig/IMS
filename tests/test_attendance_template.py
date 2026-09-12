@@ -5,7 +5,7 @@ from odoo.tests.common import TransactionCase
 
 from odoo.addons.ems.models.shared.attendance_mixin import EMS_SKIP_AUTO_SCHEDULE_SYNC
 
-from .common import create_level_study
+from .common import create_level_study, create_role_employee, create_role_user
 
 
 class TestAttendanceTemplate(TransactionCase):
@@ -480,6 +480,20 @@ class TestAttendanceTemplate(TransactionCase):
         })
         template = template.with_user(self.teacher_b.user_id)
         self.assertFalse(template._get_read_only_user())
+
+    def test_head_of_studies_reads_a_colleagues_template(self):
+        """Issue #444: rule_attendance_template_hos (security/rules/attendance.xml) - Head of
+        Studies/Deputy Head of Studies/Director are NOT group_academic_admin (that block is
+        deliberately independent, security/groups.xml), so without their own "all data" rule they
+        would fall back to group_teacher's "own data" one and be as blind to a colleague's template
+        as a plain teacher who neither created it nor teaches on it - exactly the gap that let the
+        sync pipeline create a duplicate colliding with a template it couldn't see."""
+        template = self._create_template(self.teacher_a, self.space_a)
+        hos_user = create_role_user(self, 'head_of_studies', 'test_hos_template_444@example.com')
+
+        visible = self.env['ems.attendance_template'].with_user(hos_user).search([('id', '=', template.id)])
+
+        self.assertIn(template, visible)
 
 
 class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
@@ -1572,3 +1586,40 @@ class TestEmployeeSyncScheduleFromCalendar(TransactionCase):
         # No real attendance history behind it - _archive_or_delete() removes it outright rather
         # than leaving dead clutter (same convention already covered elsewhere in this file).
         self.assertFalse(self.env['ems.attendance_template'].browse(template_id).exists())
+
+    def test_sync_by_a_non_owning_user_does_not_duplicate_an_existing_template(self):
+        """Issue #444: a Head of Studies / Deputy Head of Studies (in group_teacher +
+        group_head_of_studies, neither of which grants ems.attendance_template/
+        ems.attendance_schedule's "all data" ir.rule reserved for group_academic_admin) editing a
+        COLLEAGUE's schedule triggers this same sync under their own, restricted user context.
+        Before the fix, '_reconcile_teacher_groups'/'_plan_schedule_sync's own internal search()
+        calls silently returned nothing for the colleague's already-existing template (invisible
+        under the acting user's own "own data" ir.rule - security/rules/attendance.xml), so the
+        sync believed no template existed yet and created a duplicate - which then collided with
+        the very template it couldn't see, raising ems.attendance_schedule.check_overlap's
+        ValidationError on a save that should have been a no-op. Reproduces the real-world case
+        found 2026-09-12 (Salva Monzó's and Krissis Blázquez Jofra's schedules)."""
+        self._add_calendar_block()
+        self.teacher._ems_sync_schedule_from_calendar()
+        template = self.env['ems.attendance_template'].search([
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
+        ])
+        self.assertEqual(len(template), 1)
+
+        hos_user = create_role_user(self, 'head_of_studies', 'test_hos_444@example.com')
+        create_role_employee(self, hos_user, name='0000 Test HOS (Employee Sync Schedule From Calendar)')
+
+        # The acting user is neither one of this template's own teachers nor its creator - exactly
+        # the condition that made the internal reconciliation blind before the fix.
+        self.assertNotIn(hos_user, template.teacher_ids.mapped('user_id'))
+        self.assertNotEqual(template.create_uid, hos_user)
+
+        # Re-triggering the sync as the HOS user (e.g. from editing an unrelated part of this same
+        # teacher's calendar) must be a no-op: no ValidationError, no duplicate template/line.
+        self.teacher.with_user(hos_user)._ems_sync_schedule_from_calendar()
+
+        self.assertEqual(len(self.env['ems.attendance_template'].search([
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
+        ])), 1)
+        self.assertTrue(template.exists())
+        self.assertEqual(len(template.attendance_schedule_ids), 1)

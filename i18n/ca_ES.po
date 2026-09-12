@@ -6596,7 +6596,7 @@ msgstr "Text curt"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search model_terms:ir.ui.view,arch_db:ems.view_attendance_session_search model_terms:ir.ui.view,arch_db:ems.view_attendance_template_search model_terms:ir.ui.view,arch_db:ems.view_notice_search model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_search
 msgid "Show only mine"
-msgstr "Mostrar tan sols els meuss"
+msgstr "Mostrar tan sols els meus"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_benefit__benefit_type__single_parent_gen

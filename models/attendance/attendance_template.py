@@ -137,7 +137,10 @@ class EmsAttendanceTemplate(models.Model):
 				continue
 			teacher_ids = frozenset(template.teacher_ids.ids)
 			group_ids = frozenset(template.group_ids.ids)
-			candidates = self.search([
+			# NOTE: sudo() - see the identical note on ems.attendance_schedule.find_room_conflicts
+			# (issue #444): whether a duplicate teaching assignment already exists must not depend
+			# on the acting user's own record-rule visibility.
+			candidates = self.sudo().search([
 				('id', '!=', template.id),
 				('subject_id', '=', template.subject_id.id),
 				('active', '=', True),
@@ -576,7 +579,17 @@ class EmsAttendanceTemplate(models.Model):
 		# NOTE: also reconcile (subject, group) combos a submitting teacher used to teach but is not
 		# submitting anything for anymore in this call — otherwise a dropped combo belonging solely to
 		# that teacher would never be reconsidered at all (see 'vacated' above).
-		touched_templates = self.env['ems.attendance_template'].search([
+		#
+		# NOTE: sudo() on both searches below (issue #444) - reconciling "what does the DB already
+		# have for this teacher/subject/group" must reflect the whole school's real state, never just
+		# what the acting user's own ir.rule visibility happens to allow (security/rules/
+		# attendance.xml's "own data" rule for group_teacher). Without this, a Head/Deputy Head of
+		# Studies (in group_teacher + group_head_of_studies, neither of which grants the "all data"
+        # rule reserved for group_academic_admin) editing a colleague's schedule silently can't see
+		# that colleague's own already-existing template, and ends up creating a duplicate that
+		# collides with the very record it couldn't see - found 2026-09-12 on Salva Monzó's and
+		# Krissis Blázquez Jofra's schedules.
+		touched_templates = self.env['ems.attendance_template'].sudo().search([
 			('teacher_ids', 'in', list(submitting_teacher_ids)), ('active', '=', True),
 		])
 		for template in touched_templates:
@@ -584,9 +597,12 @@ class EmsAttendanceTemplate(models.Model):
 			by_key_submitted.setdefault(key, [])
 
 		merged = []
-		vacated = self.env['ems.attendance_template']
+		# NOTE: sudo() - every template ever added to this comes from 'existing_templates' below
+		# (also sudo'd, issue #444); a plain non-sudo empty recordset here would silently strip the
+		# sudo() the moment '|=' unions it with one ('|' binds to the LEFT operand's env).
+		vacated = self.env['ems.attendance_template'].sudo()
 		for (subject_id, group_ids), submitted in by_key_submitted.items():
-			existing_templates = self.env['ems.attendance_template'].search([
+			existing_templates = self.env['ems.attendance_template'].sudo().search([
 				('subject_id', '=', subject_id),
 				('group_ids', 'in', list(group_ids)),
 				('active', '=', True),
@@ -666,14 +682,20 @@ class EmsAttendanceTemplate(models.Model):
 		import), so an external overlap found here is always either legitimate co-teaching or a real
 		problem to resolve, never something to archive automatically."""
 		teacher_ids = {teacher.id for teacher, _entries in teacher_entries}
-		co_teaching = self.env['ems.attendance_schedule']
-		space_conflicts = self.env['ems.attendance_schedule']
+		# NOTE: sudo() - every record ever unioned into these comes from the sudo'd 'candidates'
+		# search below (issue #444); a plain non-sudo empty recordset here would silently strip
+		# that sudo() the moment '|=' unions it with one ('|' binds to the LEFT operand's env).
+		co_teaching = self.env['ems.attendance_schedule'].sudo()
+		space_conflicts = self.env['ems.attendance_schedule'].sudo()
 		for _teacher, entries in teacher_entries:
 			for entry in entries:
 				if not entry.get('group_ids'):
 					continue  # non-teaching entries carry no group, hence no space to collide on
 				space_id = self.env['ems.group'].browse(entry['group_ids'][0]).space_id.id
-				candidates = self.env['ems.attendance_schedule'].search([
+				# NOTE: sudo() - see the identical note on ems.attendance_schedule.find_room_conflicts
+				# (issue #444): an external double-booking is a fact about the whole school's
+				# schedule, not the importing user's own record-rule visibility.
+				candidates = self.env['ems.attendance_schedule'].sudo().search([
 					('weekday', '=', entry['dayofweek']),
 					('space_id', '=', space_id),
 					('attendance_template_id.teacher_ids', 'not in', list(teacher_ids)),
@@ -721,7 +743,8 @@ class EmsAttendanceTemplate(models.Model):
 		imports - it does not catch two overlapping entries for the same teacher within the single
 		batch being submitted right now (a malformed source file), which still surfaces as a raw
 		check_overlap ValidationError at write time."""
-		conflicts = self.env['ems.attendance_schedule']
+		# NOTE: sudo() - see the identical note on 'classify_external_conflicts' above (issue #444).
+		conflicts = self.env['ems.attendance_schedule'].sudo()
 		for teacher, entries in teacher_entries:
 			submitted_combos = {
 				(entry['subject_id'], tuple(sorted(entry['group_ids'])))
@@ -730,7 +753,10 @@ class EmsAttendanceTemplate(models.Model):
 			for entry in entries:
 				if not entry.get('group_ids'):
 					continue
-				candidates = self.env['ems.attendance_schedule'].search([
+				# NOTE: sudo() - see the identical note on ems.attendance_schedule.find_room_conflicts
+				# (issue #444): a self double-booking is a fact about this teacher's own real
+				# schedule, not the importing user's own record-rule visibility.
+				candidates = self.env['ems.attendance_schedule'].sudo().search([
 					('weekday', '=', entry['dayofweek']),
 					('attendance_template_id.teacher_ids', 'in', teacher.id),
 				])
@@ -798,7 +824,10 @@ class EmsAttendanceTemplate(models.Model):
 		# working-schedules re-import that wiped every template for several teachers matching exactly
 		# this pattern (e.g. Juan Morote, teaching both SMX1A and SMX1B solo).
 		old_items = dict()
-		candidates = self.env['ems.attendance_template'].search([
+		# NOTE: sudo() - see the identical note on '_reconcile_teacher_groups' above (issue #444):
+		# which templates already exist must reflect the whole school's real state, not the acting
+		# user's own record-rule visibility.
+		candidates = self.env['ems.attendance_template'].sudo().search([
 			('subject_id', 'in', list({entry["subject_id"] for entry in entries})),
 			('active', '=', True),
 		])
@@ -808,7 +837,10 @@ class EmsAttendanceTemplate(models.Model):
 			key = "%s.%s" % (template.subject_id.id, ",".join(str(g) for g in sorted(template.group_ids.ids)))
 			if key not in grouped_entries:
 				continue
-			old_items[key] = old_items.get(key, self.env['ems.attendance_template']) | template
+			# NOTE: base recordset built from 'candidates.browse()' (not 'self.env[...]'), so the
+			# union stays sudo'd - '|' binds to the LEFT operand's env, and a bare 'self.env[...]'
+			# empty recordset would silently strip the sudo() from 'candidates' above (issue #444).
+			old_items[key] = old_items.get(key, candidates.browse()) | template
 
 		# NOTE: precompute the per-line breakdown for every persisting key ONCE here, so
 		# '_archive_stale_schedule_sync' and '_write_schedule_sync' both read the exact same
