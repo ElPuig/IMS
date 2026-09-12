@@ -178,6 +178,71 @@ class TestGroupClassroomChange(TransactionCase):
         self.assertTrue(block.space_pending_group_sync)
         self.assertEqual(block.pending_new_space_id, self.new_space)
 
+    def test_group_wizard_with_co_teaching_conflict_builds_two_lines_confirm_does_not_crash(self):
+        """Found while preparing issue #446 (editing topic/classroom from the group's own
+        Schedule tab, which is about to make this routine rather than a rare edge case): unlike
+        the employee-scoped wizard (always at most one pending block per teacher's own calendar),
+        the GROUP-scoped wizard's own 'pending_blocks' search has no such natural cap - a
+        co-taught class colliding with the SAME already-active session flags BOTH co-teachers' own
+        blocks independently (exactly like the group-wide classroom-change flow already does via
+        '_propagate_classroom_change', one call per affected block). '_build_conflict_lines' then
+        creates ONE conflict-line PER block, so two near-identical lines can end up both pointing
+        at the SAME 'right_schedule_id'. Confirming both used to crash: resolving the first
+        ('prevail_left'/'reassign_rooms' can archive-to-deletion or otherwise remove 'existing')
+        cascade-deletes every OTHER still-unprocessed line referencing that same schedule too
+        (required Many2one fields default to 'ondelete=cascade', see odoo/fields.py's Many2one.
+        setup_nonrelated) - 'action_confirm()' then tried to call '_apply_resolution()' on an
+        already-gone TransientModel record. Fixed with a plain 'line.exists()' guard in
+        'action_confirm()' - safe because the underlying calendar block a vanishing line was
+        about to resolve is still correctly resolved by the FIRST line's own "clear siblings" pass
+        (see '_apply_resolution', issue #444's third follow-up), never silently dropped."""
+        template = self.env['ems.attendance_template'].create({
+            'teacher_ids': [(6, 0, [self.teacher.id, self.other_teacher.id])], 'study_ids': [(6, 0, [self.study.id])],
+            'subject_id': self.subject.id, 'group_ids': [(6, 0, [self.group.id])],
+            'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
+        })
+        schedule = self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id, 'weekday': '0',
+            'start_time': 9.0, 'end_time': 10.0, 'space_id': self.old_space.id,
+        })
+        suppressed = self.env['resource.calendar.attendance'].with_context(**{EMS_SKIP_AUTO_SCHEDULE_SYNC: True})
+        block = suppressed.create({
+            'calendar_id': self.teacher.resource_calendar_id.id, 'name': 'Co-taught block (teacher)',
+            'dayofweek': '0', 'hour_from': 9.0, 'hour_to': 10.0, 'day_period': 'morning',
+            'group_ids': [self.group.id], 'subject_id': self.subject.id, 'space_id': self.old_space.id,
+            'attendance_schedule_id': schedule.id,
+        })
+        co_teacher_block = suppressed.create({
+            'calendar_id': self.other_teacher.resource_calendar_id.id, 'name': 'Co-taught block (other teacher)',
+            'dayofweek': '0', 'hour_from': 9.0, 'hour_to': 10.0, 'day_period': 'morning',
+            'group_ids': [self.group.id], 'subject_id': self.subject.id, 'space_id': self.old_space.id,
+            'attendance_schedule_id': schedule.id,
+        })
+        third_teacher = self.env['hr.employee'].create({
+            'name': 'Test Third Teacher (Group Classroom Change 2)', 'employee_type': 'teacher',
+        })
+        other_group = self.env['ems.group'].create({
+            'course': 6, 'acronym': 'F', 'level_id': self.level.id, 'study_id': self.study.id,
+            'space_id': self.new_space.id,
+        })
+        self._create_synced_block(third_teacher, other_group, self.new_space)
+
+        block.relocate_or_flag_pending(self.new_space)
+        co_teacher_block.relocate_or_flag_pending(self.new_space)
+        self.assertTrue(block.space_pending_group_sync)
+        self.assertTrue(co_teacher_block.space_pending_group_sync)
+
+        action = self.group.action_open_classroom_change_wizard()
+        wizard = self.env['ems.group_classroom_change_wizard'].browse(action['res_id'])
+        self.assertEqual(len(wizard.conflict_line_ids), 2)
+        wizard.conflict_line_ids.write({'resolution': 'prevail_left'})
+        wizard.action_confirm()
+
+        self.assertEqual(block.space_id, self.new_space)
+        self.assertEqual(co_teacher_block.space_id, self.new_space)
+        self.assertFalse(block.space_pending_group_sync)
+        self.assertFalse(co_teacher_block.space_pending_group_sync)
+
     def test_resolving_from_one_teacher_also_clears_a_co_teachers_own_sibling_flag(self):
         """Issue #444's THIRD follow-up, 2026-09-12: a co-taught class shares ONE
         'ems.attendance_schedule' line, but EACH co-teacher's own 'resource.calendar.attendance'
