@@ -16,7 +16,7 @@ Aquesta guia explica com gestionar els contactes de tipus **alumne, família, as
 4. [Bonificacions i exempcions](#bonificacions-i-exempcions)
 5. [Filtres aplicats en obrir la llista d'alumnat](#filtres-aplicats-en-obrir-la-llista-dalumnat)
 6. [Columnes que es mostren a la vista de llista d'alumnat](#columnes-que-es-mostren-a-la-vista-de-llista-dalumnat)
-7. [Camps que només veuen admin/secretaria/tutors](#camps-que-només-veuen-adminsecretariatutors)
+7. [Camps que només veuen admin/secretaria/Cap d'Estudis/tutors](#camps-que-només-veuen-adminsecretariacap-destudistutors)
 
 ---
 
@@ -64,9 +64,9 @@ La barra de cerca s'obre amb dos filtres ja aplicats: **Alumnat**, que amaga l'a
 
 Canviar la pantalla d'Alumnat de vista Kanban a vista de Llista mostra, per defecte, la majoria de camps ja utilitzats a l'exportació oficial de dades d'alumnat del centre (document d'identitat/DNI-NIE, data de naixement, si l'alumne és major d'edat, número de la seguretat social, nacionalitat, adreça i codi postal), més els quatre distintius d'autorització (drets d'imatge, sortides escolars, dades de salut, compartir amb la família). Qualsevol columna es pot amagar — fes clic a la icona de la dreta de les capçaleres de columna i desmarca les que no necessitis; l'elecció es recorda per a la propera visita.
 
-## Camps que només veuen admin/secretaria/tutors
+## Camps que només veuen admin/secretaria/Cap d'Estudis/tutors
 
-Les dades personals (documents, informació mèdica, necessitats educatives especials, autoritzacions…) queden ocultes per a qualsevol persona que no sigui admin, secretaria, ni el tutor propi de l'alumne. Un tutor també pot editar la fitxa d'un alumne que tutoritza i la dels seus familiars, però veu un conjunt de camps editables més reduït que secretaria/admin.
+Les dades personals (documents, informació mèdica, necessitats educatives especials, autoritzacions…) queden ocultes per a qualsevol persona que no sigui admin, secretaria, Cap d'Estudis/Cap d'Estudis Adjunt/a/Direcció, ni el tutor propi de l'alumne. Cap d'Estudis/Cap d'Estudis Adjunt/a/Direcció tenen el mateix accés complet que secretaria aquí, per a **qualsevol** alumne de tot el centre, no només els seus propis tutoritzats. Un tutor també pot editar la fitxa d'un alumne que tutoritza i la dels seus familiars, però veu un conjunt de camps editables més reduït que secretaria/admin/Cap d'Estudis.
 
 ---
 

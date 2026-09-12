@@ -1034,7 +1034,8 @@ class ResPartner(models.Model):
     def _get_read_only_user(self):
         is_admin = base.EmsBase.get_user_is_admin(self)
         is_secretary = base.EmsBase.get_user_is_secretary(self)
-        return not (is_admin or is_secretary or self._user_is_tutor_of_record())
+        is_head_of_studies = base.EmsBase.get_user_is_head_of_studies(self)
+        return not (is_admin or is_secretary or is_head_of_studies or self._user_is_tutor_of_record())
 
     def _user_is_tutor_of_record(self):
         # True when the current user is a tutor of this student, or a tutor of a
@@ -1049,12 +1050,13 @@ class ResPartner(models.Model):
         return bool(related_tutors & tutors)
 
     def _get_is_tutor_readonly(self):
-        # True only when the user is a tutor of this student and NOT admin/secretary.
-        # Used to make non-contact fields read-only for tutors while admin/secretary
+        # True only when the user is a tutor of this student and NOT admin/secretary/HoS.
+        # Used to make non-contact fields read-only for tutors while admin/secretary/HoS
         # keep full edit access.
         is_admin = base.EmsBase.get_user_is_admin(self)
         is_secretary = base.EmsBase.get_user_is_secretary(self)
-        if is_admin or is_secretary:
+        is_head_of_studies = base.EmsBase.get_user_is_head_of_studies(self)
+        if is_admin or is_secretary or is_head_of_studies:
             return False
         for t in self.env.user.employee_ids:
             if t.id != False and len(t.tutorship_ids) > 0:
