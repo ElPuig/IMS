@@ -58,6 +58,27 @@ Puedes cambiar un grupo existente entre Principal y Refuerzo, pero:
 
 ---
 
+## Cambiar el Aula de Referencia de un Grupo
+
+Cambiar el **Aula de referencia** de un grupo (su aula por defecto) mueve automáticamente todas las clases de ese grupo que todavía usaban el aula antigua a la nueva. Si el aula nueva ya está ocupada por otra persona exactamente el mismo día y hora que una de esas clases, esa clase concreta se queda en su aula actual en vez de hacer fallar todo el guardado — ver "Resolver un Conflicto de Aula Pendiente" abajo.
+
+La misma gestión de conflictos también se aplica cuando se cambia el aula de una *sola* clase desde la pestaña **Horario** de un docente (ver [Editar el Horario de un Docente](working-schedules.md#editar-el-horario-de-un-docente)), no solo un cambio de todo el grupo como aquí — ambos casos se resuelven desde la misma pantalla.
+
+## Resolver un Conflicto de Aula Pendiente
+
+Cuando un cambio de aula (cualquiera de los dos anteriores) no se puede aplicar automáticamente porque el aula nueva ya está ocupada, aparece un aviso amarillo:
+- En la **ficha del grupo**, junto al campo Aula de referencia, para un cambio de todo el grupo: *"El aula de este grupo ha cambiado, pero N bloque(s) de clase no se han podido trasladar automáticamente por una colisión de aula."*
+- En la **pestaña Horario del docente**, para una sola clase cambiada desde ahí: *"Se ha solicitado un cambio de aula desde este horario, pero N bloque(s) de clase no se han podido trasladar automáticamente por una colisión de aula."*
+
+Haz clic en **Resolver aulas pendientes** en cualquiera de los dos avisos para abrir la pantalla de resolución, que lista cada conflicto todavía sin resolver como una fila "Conflicto de aula" (agrupadas por docente + asignatura cuando hay más de una), cada una mostrando la clase pendiente en un lado y la sesión ya existente con la que choca en el otro. Para cada fila, elige una resolución:
+- **Reasignar aulas** — elige un aula diferente para cada lado (ambas empiezan precargadas con la misma aula en conflicto; **Confirmar** queda desactivado hasta que elijas dos aulas genuinamente diferentes).
+- **Prevalece la izquierda** — la clase pendiente toma el aula solicitada; la sesión existente con la que chocaba se archiva.
+- **Prevalece la derecha** — la clase pendiente se queda en su aula actual para esa franja (una excepción deliberada respecto al aula del grupo, o a la solicitada); la sesión existente no se toca.
+
+Haz clic en **Confirmar** cuando cada fila tenga una resolución válida. El aviso desaparece cuando no queda nada pendiente.
+
+---
+
 ## Eliminar un grupo
 
 Selecciónalo en la lista y usa el menú **Acción** (⚙) → **Eliminar**. Se bloquea si el grupo todavía está referenciado en otro sitio (alumnos, sesiones, asignaciones docentes...).

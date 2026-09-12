@@ -209,6 +209,54 @@ full unscoped `./test.sh` run before considering the whole redesign closed.
 - **Archive-or-delete (changed 2026-09-07):** every template-level "this is stale/superseded/a duplicate" call site (`vacated` above, `_archive_stale_schedule_sync`'s two template-level branches, `regenerate_all_from_calendars`'s scope-wide archive step, and the import wizard's own `db_conflicts` "prevail_left" resolution in `working_schedule.py`) goes through `_archive_or_delete()` rather than a bare `action_archive()`: a template with **no real session anywhere in its lines** (checked with `active_test=False`, so an already-archived line with real history still counts — see `_has_real_sessions()`) is deleted outright (`sudo().unlink()`); one that has real history is still archived exactly as before. Before this, EVERY superseded template was archived forever regardless of whether it was ever actually used — found from a real complaint: repeatedly re-importing working schedules to fix small details (several times in one day) left hundreds of never-used archived templates behind, pure clutter with no history worth keeping. `unlink()` itself still refuses outright once any of a template's schedule lines (active OR archived) has a real `attendance_session_ids` entry — a real roll-call was taken against it — so `_archive_or_delete()` can never accidentally destroy real history; it's a safe, additive convenience on top of that same guarantee, not a relaxation of it. A second safety net exists below the ORM layer too: `ems_attendance_session_header.attendance_schedule_id` is a DB-level `ON DELETE RESTRICT` foreign key, so even a bypassed/bug in the Python check would still have Postgres itself refuse the delete outright rather than silently losing a session's own link. Not applied (yet) to `course_transition_wizard`'s own two template-archival call sites — a deliberate, smaller-scope decision for this pass, see `plans/attendance_template_archive_or_delete_course_transition.md`.
 - **`find_external_conflicts()`** is a read-only helper (used by the import wizard's preview and by the import itself) that finds active schedule lines belonging to teachers **outside** the current batch that would collide on room+time — a batch only cleans up its own teachers' stale data, so an external teacher's now-conflicting line needs separate handling.
 
+### Room changes for ONE class, from a teacher's own calendar (issue #444's follow-up, 2026-09-12)
+
+Two bugs, found on real data the same day, both specifically about a **co-taught** class's room
+changing from a single teacher's own "Schedule" tab (not the group-wide classroom-change flow
+documented in `docs/en/developers/contacts/group.md`'s "Classroom change propagation" section):
+
+**Bug 1 - the change was silently discarded, no error at all.** `_reconcile_teacher_groups()`
+builds `by_slot[slot_key]` for a shared slot in two passes: first from the OTHER, untouched
+co-teacher's still-old calendar data, then from the submitting teacher's own fresh entry. The
+second pass used to be `by_slot.setdefault(slot_key, {'teacher_ids': set(), 'entry': entry})` -
+a no-op for `'entry'` once the first pass had already populated it, so the submitting teacher's
+own new room never actually won. Fixed: the submitting teacher's entry now always overwrites
+`'entry'` for a slot it touches - their freshly-read calendar is definitionally more current than
+a placeholder built from data that was already stale the moment they touched anything.
+
+**Bug 2 - when there was no collision, the change reached the derived line but not the OTHER
+co-teacher's own real calendar.** `_decide_schedule_line_changes()`'s `lines_to_rewrite` handling
+(`_apply_schedule_line_write_pass`) only ever wrote `ems.attendance_schedule.space_id` directly -
+the submitting teacher's OWN calendar was already correct (from `apply_schedule_changes()`'s own
+earlier write), but nothing propagated the change to a co-teacher who wasn't submitting in this
+particular call. Fixed: for every `lines_to_rewrite` entry, every co-teacher's own calendar block
+at that exact slot (found by calendar+weekday/hour+subject - `_find_calendar_blocks_for_entry()`,
+same lookup `_flag_room_change_pending()` below uses, since `attendance_schedule_id` isn't linked
+yet at this point) is brought in line too, suppressed (`EMS_SKIP_AUTO_SCHEDULE_SYNC`) since this
+sync is still in progress.
+
+**A third, related case - a genuine collision - reuses the group-wide flow's own mechanism rather
+than inventing a new one.** `_decide_schedule_line_changes()` now also calls
+`find_room_conflicts()` for a `lines_to_rewrite` candidate, splitting a genuinely colliding one out
+into a new `lines_pending` bucket **before** the archive pass runs (so a `has_sessions` line is
+never archived only to discover, too late to undo it, that its replacement can't be created safely
+yet):
+
+```mermaid
+flowchart TD
+    A["_decide_schedule_line_changes():\nmatched slot wants a different space_id"] --> B{"line.find_room_conflicts(new_space)"}
+    B -- no conflict --> C["lines_to_rewrite\n(Bug 2's fix applies here)"]
+    B -- conflict --> D["lines_pending\n(NEW - line untouched)"]
+    D --> E["_apply_schedule_line_write_pass():\n_flag_room_change_pending(line, entry, teachers)"]
+    E --> F["_find_calendar_blocks_for_entry():\nmatch by calendar+weekday/hour+subject"]
+    F --> G["revert block(s) to line's current room,\nspace_pending_group_sync=True,\npending_new_space_id=requested room"]
+```
+
+See `docs/en/developers/contacts/group.md`'s new "A second trigger for the same mechanism" section
+for the resolution side (the generalized `ems.group_classroom_change_wizard`, the new
+`pending_new_space_id` field, and the teacher-facing entry point on `hr.employee`) - this file
+only covers the sync-pipeline half.
+
 ### `regenerate_all_from_calendars(teachers=None)` — full archive-and-rebuild (2026-08-11)
 
 Not part of the normal sync entry points above — a separate, coarser operation: archives every

@@ -290,6 +290,76 @@ session is archived, exactly like `_continue_from_db_conflicts`'s own handling),
 accepted one; the existing session is untouched). Confirming any resolution clears
 `space_pending_group_sync` on the resolved block.
 
+### A second trigger for the same mechanism: one class's room, from a teacher's own schedule (issue #444's follow-up, 2026-09-12)
+
+Everything above is triggered by `ems.group.write()`'s own `space_id` — the whole GROUP's default
+classroom changing. A teacher can also move just ONE of their own classes to a different room from
+their personal "Schedule" tab (`views/community/employee/form.xml`), without touching the group's
+default at all. Before this follow-up, that path had no collision handling whatsoever:
+
+- A co-taught class (two teachers, one shared `ems.attendance_schedule` line, each with their own
+  `resource.calendar.attendance` row - see `docs/en/developers/attendance/attendance_template.md`'s
+  "Co-teaching" docs): the room change was **silently discarded**. Root cause:
+  `ems.attendance_template._reconcile_teacher_groups()` rebuilt the shared slot's data from the
+  OTHER, untouched co-teacher's still-old calendar row *before* folding in the submitting teacher's
+  own fresh entry, and only merged in the submitter's teacher id, never their actual field values -
+  fixed by making the submitting teacher's own entry win outright for a slot it touches.
+- A solo class: the room change reached `ems.attendance_schedule.check_overlap()` directly, raising
+  a raw, unresolvable `ValidationError` on a genuine collision - no wizard, unlike the group-wide
+  path above.
+
+**Fix: `_decide_schedule_line_changes()` (`ems.attendance_template`,
+`docs/en/developers/attendance/attendance_template.md`) now checks `find_room_conflicts()` for a
+`lines_to_rewrite` candidate too**, splitting it into a THIRD bucket, `lines_pending`, checked
+*before* the archive pass runs (so a `has_sessions` line is never archived only to discover the
+collision too late to undo it):
+
+```mermaid
+flowchart TD
+    A["Entry wants a different space_id\nfor an already-matched slot"] --> B{"line.find_room_conflicts(new_space)"}
+    B -- no conflict --> C["lines_to_rewrite\n(applied normally, then propagated - see below)"]
+    B -- conflict --> D["lines_pending\n(line untouched; calendar block(s) flagged instead)"]
+```
+
+- **No conflict (`lines_to_rewrite`):** applied exactly as before for the *submitting* teacher (who
+  already has the new room on their own calendar, from `apply_schedule_changes()`'s own earlier
+  write) - but a co-teacher who ISN'T submitting in this call never had their own calendar touched
+  at all. **Real bug found on live data the same day** (moving one class's room, no collision,
+  silently left the co-teacher's own calendar pointing at the old room - the group's own schedule
+  and the moving teacher's calendar both looked correct, masking it). Fixed: every co-teacher's own
+  block for that exact slot is now brought in line too, via the same slot-matching lookup described
+  below (`attendance_schedule_id` isn't linked yet at this point in the pipeline, so it can't be
+  used to find them the way `_relocate_via_calendar_blocks` normally would).
+- **Conflict (`lines_pending`):** `resource.calendar.attendance.relocate_or_flag_pending(new_space)`
+  - extracted from this doc's own `_resolve_or_flag_pending_block` above (moved onto the model that
+    actually owns both the block being relocated and the pending flag itself - `ems.group`'s own
+    version is now a thin wrapper calling it) - is reused as-is for the check, but the actual
+    flagging is done by `ems.attendance_template._flag_room_change_pending()`: the calendar block(s)
+    behind the entry are found by matching **calendar + weekday/hour + subject** (not
+    `attendance_schedule_id`, which is only linked at the very end of the whole sync -
+    `sync_from_schedule_batch`'s own `_link_calendar_attendance` call), reverted to the line's own
+    still-current room, and flagged (`space_pending_group_sync = True`,
+    **`pending_new_space_id`** = the room actually requested).
+
+**`pending_new_space_id`** (`resource.calendar.attendance`, new field): unlike the group-wide path
+(whose "intended room" is always deducible from `group.space_id`, a single well-known field), a
+teacher's own one-off room request has nothing else to derive it from - this field remembers it
+until the wizard resolves the block one way or the other (cleared alongside
+`space_pending_group_sync`). `ems.group_classroom_change_wizard._build_conflict_lines()` now reads
+it directly (falling back to a caller-supplied `fallback_space` - `group.space_id` for the
+group-wide origin - only for a block flagged before this field existed), and
+`_apply_resolution()`'s `prevail_left` branch reads it the same way, both origins going through
+identical code from this point on.
+
+**The wizard itself needed no new UI, only a second scope.** `group_id` is now optional (a new
+`employee_id` sits alongside it, equally optional - exactly one is ever set); `_build_conflict_lines()`
+takes the pending-blocks recordset directly instead of deriving it from `group_id` internally, so
+`hr.employee.action_open_classroom_change_wizard()` (same shape as `ems.group`'s own action) can
+pass in "this teacher's own pending blocks" instead. `hr.employee.pending_classroom_conflict_count` +
+a banner on the "Schedule" tab (same pattern as the group form's own, `views/community/employee/
+form.xml`) surface it there. See `docs/en/developers/attendance/attendance_template.md` for the
+sync-pipeline side of this feature in full.
+
 ### Classroom drift suggestion (last deferred follow-up of issue #405, 2026-09-09)
 
 `space_id` can silently drift from reality even without ever hitting a collision: a room change

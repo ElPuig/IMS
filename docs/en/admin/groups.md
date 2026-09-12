@@ -58,6 +58,27 @@ You can switch an existing group between Main and Reinforcement, but:
 
 ---
 
+## Changing a Group's Reference Classroom
+
+Changing a group's **Reference classroom** (the group's own default room) automatically moves every one of that group's classes still using the old room to the new one. If the new room is already taken by someone else at the exact same day/time as one of those classes, that one specific class is left in its current room instead of failing the whole save — see "Resolving a Pending Classroom Conflict" below.
+
+The same collision handling also applies when a *single* class's room is changed from a teacher's own **Schedule** tab (see [Edit a Teacher's Schedule](working-schedules.md#edit-a-teachers-schedule)), not just a group-wide change here — both cases are resolved from the same screen.
+
+## Resolving a Pending Classroom Conflict
+
+When a classroom change (either kind above) can't apply automatically because the new room is already taken, a yellow banner appears:
+- On the **group's own form**, next to the Reference classroom field, for a group-wide change: *"This group's classroom changed, but N teaching block(s) could not move to it automatically because of a room collision."*
+- On the **teacher's own Schedule tab**, for a single class changed from there: *"A classroom change requested from this schedule, but N teaching block(s) could not move to it automatically because of a room collision."*
+
+Click **Resolve pending classrooms** on either banner to open the resolution screen, which lists every still-unresolved conflict as a "Room conflict" row (grouped by teacher + subject when there's more than one), each showing the pending class on one side and the existing session it collides with on the other. For each row, pick a resolution:
+- **Reassign rooms** — pick a different room for each side (both are pre-filled with the same colliding room to start from; **Confirm** stays disabled until you've picked two genuinely different rooms).
+- **Left prevails** — the pending class takes the requested room; the existing session it collided with is archived.
+- **Right prevails** — the pending class keeps its current room for that slot instead (a deliberate exception from the group's own room, or from what was requested); the existing session is left untouched.
+
+Click **Confirm** once every row has a valid resolution. The banner disappears once nothing is left pending.
+
+---
+
 ## Delete a Group
 
 Select it in the list and use the **Action** menu (⚙) → **Delete**. Blocked if the group is still referenced elsewhere (students, sessions, teaching assignments...).

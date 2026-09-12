@@ -5,3 +5,13 @@
 - Fix: those internal bookkeeping searches now run with `sudo()`, since whether a duplicate/overlap already exists is a fact about the whole school's schedule, never something that should depend on the acting user's own visibility.
 - Also fixed: Head of Studies/Deputy Head of Studies/Director now have full ("all data") access to `ems.attendance_template`/`ems.attendance_schedule`, matching the access level they already had on `ems.teaching` — the attendance-template list's "Show only mine" filter now defaults to checked so this doesn't flood their list view with every teacher's schedule by default.
 - Fixed a Catalan typo ("meuss" → "meus") in the shared "Show only mine" filter label, used across several search views.
+
+## Moving a co-taught class's room from one teacher's own schedule left the other co-teacher's calendar stale:
+- When the new room had no collision, the change applied to the moving teacher's own calendar and to the class's shared schedule, but never reached the other teacher's own calendar - silently, with no error and no warning of any kind. Now every co-teacher's own calendar is brought in line whenever a room change like this applies cleanly.
+
+# What's new:
+
+## Room-collision resolution when moving a single class's room from a teacher's own schedule:
+- Moving one class's room from a teacher's own "Schedule" tab (not the whole group's default classroom) used to either silently do nothing (a co-taught class - the change was discarded without warning) or raise a raw, unresolvable overlap error (a solo class). Both cases now reuse the same collision-resolution mechanism already built for a group-wide classroom change: if the new room is free, it applies automatically for every teacher sharing that class; if it collides, the change is left pending (visible on the teacher's own schedule, and resolvable from there) instead of failing outright or being silently dropped.
+- Fixed the underlying reconciliation bug that caused the "silently discarded" case: a co-taught class's room change submitted by only one of the two teachers was overwritten by the other, untouched teacher's stale data.
+- The classroom-change resolution wizard (previously only reachable from a group's own form) can now also be opened from a teacher's own schedule, for whichever pending room changes originated there.

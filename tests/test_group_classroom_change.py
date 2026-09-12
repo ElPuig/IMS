@@ -155,3 +155,41 @@ class TestGroupClassroomChange(TransactionCase):
         self.assertFalse(other_schedule.exists())
         self.assertFalse(other_block.active)
         self.assertFalse(block.space_pending_group_sync)
+
+    def test_employee_wizard_surfaces_pending_conflict_from_teacher_calendar(self):
+        """Issue #444's follow-up, 2026-09-12: the SAME pending-conflict mechanism, reached from a
+        single teacher's own calendar (not a group-wide classroom change) -
+        hr.employee.action_open_classroom_change_wizard() must surface it just like ems.group's
+        own action does, reusing the exact same wizard/resolution model - generalized so
+        'pending_new_space_id' (not the group's own space_id) drives the resolution."""
+        block, schedule = self._create_synced_block(self.teacher, self.group, self.old_space)
+        other_group = self.env['ems.group'].create({
+            'course': 4, 'acronym': 'D', 'level_id': self.level.id, 'study_id': self.study.id,
+            'space_id': self.new_space.id,
+        })
+        _other_block, other_schedule = self._create_synced_block(self.other_teacher, other_group, self.new_space)
+
+        conflicts = block.relocate_or_flag_pending(self.new_space)
+
+        self.assertTrue(conflicts)
+        self.assertEqual(block.space_id, self.old_space)
+        self.assertTrue(block.space_pending_group_sync)
+        self.assertEqual(block.pending_new_space_id, self.new_space)
+
+        action = self.teacher.action_open_classroom_change_wizard()
+        wizard = self.env['ems.group_classroom_change_wizard'].browse(action['res_id'])
+        self.assertFalse(wizard.group_id)
+        self.assertEqual(wizard.employee_id, self.teacher)
+        self.assertEqual(len(wizard.conflict_line_ids), 1)
+        line = wizard.conflict_line_ids
+        self.assertEqual(line.left_attendance_id, block)
+        self.assertEqual(line.right_schedule_id, other_schedule)
+        self.assertEqual(line.left_space_id, self.new_space)
+        self.assertEqual(line.right_space_id, self.new_space)
+
+        line.resolution = 'prevail_left'
+        wizard.action_confirm()
+        self.assertEqual(block.space_id, self.new_space)
+        self.assertEqual(schedule.space_id, self.new_space)
+        self.assertFalse(block.space_pending_group_sync)
+        self.assertFalse(block.pending_new_space_id)
