@@ -478,9 +478,11 @@ class ems_working_schedule_assignation(models.Model):
 		belong to 'resource.calendar.attendance': the calendar is the real, authoritative source
 		of truth (see the "bottom-up sync" docs throughout this module),
 		'ems.attendance_schedule' is only ever a derived read-model of it. Shared by
-		'ems.group._resolve_or_flag_pending_block' (a group-wide classroom change) and
+		'ems.group._resolve_or_flag_pending_block' (a group-wide classroom change),
 		'ems.attendance_template._apply_schedule_line_write_pass' (a single teacher moving one
-		class's room from their own calendar)."""
+		class's room from their own calendar) and 'update_topic_and_relocate' below (issue #446 -
+		the same room edit reached directly from the GROUP's own Schedule tab, once per co-teacher
+		block making up the visual entry being edited there)."""
 		self.ensure_one()
 		# 'schedule' is never empty here: 'self' is a genuine teaching block (subject_id set - see
 		# both callers' own domains), and the bottom-up sync redesign's invariant (closed for good
@@ -502,6 +504,27 @@ class ems_working_schedule_assignation(models.Model):
 		self.space_pending_group_sync = False
 		self.pending_new_space_id = False
 		return []
+
+	def update_topic_and_relocate(self, topic, space_id):
+		"""Issue #446 - editing 'topic'/classroom directly from the GROUP's own Schedule tab
+		('ReadonlyScheduleGridField', schedule_grid_readonly_field.js), instead of the teacher's.
+		'self' is every 'resource.calendar.attendance' row making up ONE visual block there - more
+		than one for a co-taught session (same subject/topic/slot, one row per co-teacher, see
+		'is_co_teaching_with') - so both fields stay consistent across every co-teacher's own
+		calendar, never just the one row a naive single-record write would touch.
+
+		'topic' is a plain write - free text, no collision semantics, always safe. The classroom
+		reuses 'relocate_or_flag_pending' unmodified, once per underlying row (exactly like a
+		co-taught class's room already gets handled when changed from the group-wide classroom
+		change flow, issue #405, or a single teacher's own calendar, issue #444) - a collision
+		never blocks this edit, it flags 'space_pending_group_sync' and is resolved via the
+		pre-existing 'ems.group_classroom_change_wizard'."""
+		self.write({'topic': topic or False})
+		if space_id:
+			new_space = self.env['ems.space'].browse(space_id)
+			for block in self:
+				if block.space_id != new_space:
+					block.relocate_or_flag_pending(new_space)
 
 class ems_working_schedules_import_wizard(models.TransientModel):
 	_name = "ems.working_schedules_import_wizard"
